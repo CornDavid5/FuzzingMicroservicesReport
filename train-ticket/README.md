@@ -45,7 +45,7 @@ Following sections are all collapsible, expand them to see more.
   /api/v1/adminbasicservice/**: provide CRUD APIs to manage basic information for admin, include contacts information, station information, train information, config information and price information.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-admin-basic-info-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-admin-basic-info-service)
 
   ### Interactions
   | Service | URI | Method | Data Sent |
@@ -80,7 +80,7 @@ Following sections are all collapsible, expand them to see more.
   /api/v1/adminorderservice/**: provide CRUD APIs to manage order for admin.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-admin-order-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-admin-order-service)
 
   ### Interactions
   | Service | URI | Method | Data Sent |
@@ -103,7 +103,7 @@ Following sections are all collapsible, expand them to see more.
   /api/v1/adminrouteservice/**: provide APIs to manage route.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-admin-route-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-admin-route-service)
 
   ### Interactions
   | Service | URI | Method | Data Sent |
@@ -122,7 +122,7 @@ Following sections are all collapsible, expand them to see more.
   /api/v1/admintravelservice/**: provide CRUD APIs to manage travel.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-admin-travel-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-admin-travel-service)
 
   ### Interactions
   | Service | URI | Method | Data Sent |
@@ -149,7 +149,7 @@ Following sections are all collapsible, expand them to see more.
   /api/v1/adminuserservice/users/**: provide CRUD APIs to manage users.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-admin-user-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-admin-user-service)
 
   ### Interactions
   | Service | URI | Method | Data Sent |
@@ -169,10 +169,10 @@ Following sections are all collapsible, expand them to see more.
   /api/v1/assuranceservice/**: provide CRUD APIs to manage insurance.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-assurance-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-assurance-service)
 
   ### Interactions
-  Directly interact with `mysql` service with Hibernate
+  Directly interact with `mysql` service using Hibernate:
 
   Assurance
   ``` java
@@ -200,14 +200,14 @@ Following sections are all collapsible, expand them to see more.
   /api/v1/users/**: verify upload verification code and send back auth token; query all user; delete a user by id;
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-auth-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-auth-service)
 
   ### Interactions
   | Service | URI | Method | Data Sent |
   | --- | --- | --- | --- |
   | ts-verification-code-service | /api/v1/verifycode/verify/{verifyCode} | GET |  |
 
-  Also interact with `mysql` service with Hibernate
+  Also interact with `mysql` service using Hibernate:
 
   User
   ``` java
@@ -227,7 +227,7 @@ Following sections are all collapsible, expand them to see more.
   /api/v1/avatar/**: detect uploaded image contains human face and return the detected face back to requestor;
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-avatar-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-avatar-service)
 
   ### Interactions
   N/A
@@ -242,7 +242,7 @@ Following sections are all collapsible, expand them to see more.
   /api/v1/basicservice/**: provide APIs to query basic travel information and basic station information.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-basic-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-basic-service)
 
   ### Interactions
   | Service | URI | Method | Data Sent |
@@ -266,12 +266,12 @@ Following sections are all collapsible, expand them to see more.
   /api/v1/cancelservice/**: provide APIs to calculate refund and cancel ticket.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-cancel-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-cancel-service)
 
   ### Interactions
   | Service | URI | Method | Data Sent |
   | --- | --- | --- | --- |
-  | ts-notification-service | /api/v1/notifyservice/notification/order_cancel_success | POST | nofifyInfo data |
+  | ts-notification-service | /api/v1/notifyservice/notification/order_cancel_success | POST | notify-info data |
   | ts-order-service | /api/v1/orderservice/order | PUT | order data |
   | ts-order-other-service | /api/v1/orderOtherService/orderOther | PUT | order data |
   | ts-inside-payment-service | /api/v1/inside_pay_service/inside_payment/drawback/{userId}/{money} | GET |  |
@@ -289,10 +289,10 @@ Following sections are all collapsible, expand them to see more.
   /api/v1/configservice/**: provide CRUD APIs to manage configuration.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-config-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-config-service)
 
   ### Interactions
-  Directly interact with `mysql` service with Hibernate
+  Directly interact with `mysql` service using Hibernate:
 
   Config
   ``` java
@@ -311,10 +311,10 @@ Following sections are all collapsible, expand them to see more.
   /api/v1/consignpriceservice/**: provide APIs to manage baggage fee policy and calculate baggage fee.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-consign-price-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-consign-price-service)
 
   ### Interactions
-  Directly interact with `mysql` service with Hibernate
+  Directly interact with `mysql` service using Hibernate:
 
   ConsignPrice
   ``` java
@@ -336,14 +336,14 @@ Following sections are all collapsible, expand them to see more.
   /api/v1/consignservice/**: provide APIs to manage baggage order.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-consign-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-consign-service)
 
   ### Interactions
   | Service | URI  |  Http Method | Data Sent |
   | --- | --- | --- | --- |
   | ts-consign-price-service | /api/v1/consignpriceservice/consignprice/{weight}/{isWithinRegion} | GET |  |
 
-  Also interact with `mysql` service with Hibernate
+  Also interact with `mysql` service using Hibernate:
 
   ConsignRecord
   ``` java
@@ -370,10 +370,10 @@ Following sections are all collapsible, expand them to see more.
   /api/v1/contactservice/**: provide CRUD APIs to manage contacts.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-contacts-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-contacts-service)
 
   ### Interactions
-  Directly interact with `mysql` service with Hibernate
+  Directly interact with `mysql` service using Hibernate:
 
   Contact
   ``` java
@@ -392,13 +392,24 @@ Following sections are all collapsible, expand them to see more.
   <summary>ts-delivery-service</summary>
 
   ### Functionality
+  This service consumes delivery event and stores them into database
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-delivery-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-delivery-service)
 
   ### Interactions
+  A consumer of `rabbitmq` service, subscribe to `food_delivery`.
 
-  rabbitmq
+  Also interact with `mysql` service using Hibernate:
+
+  Delivery
+  ``` java
+  private String id;
+  private UUID orderId;
+  private String foodName;
+  private String storeName;
+  private String stationName;
+  ```
 
 </details>
 
@@ -407,10 +418,10 @@ Following sections are all collapsible, expand them to see more.
   <summary>ts-execute-service</summary>
 
   ### Functionality
-  /api/v1/executeservice/execute/**: provide ticket collection and execute related API.
+  /api/v1/executeservice/execute/**: provide APIs to check if a ticket is paid and to mark a ticket is used.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-execute-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-execute-service)
 
   ### Interactions
   | Service | URI | Method | Data Sent |
@@ -430,14 +441,14 @@ Following sections are all collapsible, expand them to see more.
   /api/v1/fooddeliveryservice/orders/**: provide CRUD APIs to manage food delivery orders.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-food-delivery-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-food-delivery-service)
 
   ### Interactions
   | Service | URI | Method | Data Sent |
   | --- | --- | --- | --- |
   | ts-station-food-service | /api/v1/stationfoodservice/stationfoodstores/bystoreid/{stationFoodStoreId} | GET | |
 
-  Also interact with `mysql` service with Hibernate
+  Also interact with `mysql` service using Hibernate:
 
   FoodDeliveryOrder
   ``` java
@@ -458,10 +469,12 @@ Following sections are all collapsible, expand them to see more.
   <summary>ts-food-service</summary>
 
   ### Functionality
-  /api/v1/foodservice/**: provide CRUD APIs to manage food orders and get all food offering in a specific trip.
+  /api/v1/foodservice/**: provide CRUD APIs to manage food orders and get all food offers in a specific trip.
+
+  When a new order is created, a event will be produced.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-food-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-food-service)
 
   ### Interactions
   | Service | URI | Method | Data Sent |
@@ -470,9 +483,9 @@ Following sections are all collapsible, expand them to see more.
   | ts-travel-service | /api/v1/travelservice/routes/{tripId} | GET |  |
   | ts-station-food-service | /api/v1/stationfoodservice/stationfoodstores | POST | a list of station name |
 
-  rabbitmq
+  A producer of `rabbitmq` service, publish to `food_delivery`.
 
-  Also interact with `mysql` service with Hibernate
+  Also interact with `mysql` service using Hibernate:
 
   FoodOrder
   ``` java
@@ -495,7 +508,7 @@ Following sections are all collapsible, expand them to see more.
   This service is the api gateway of the system, it routes the traffic to the specific service based on its uri and also provides load balancing and flow control.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-gateway-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-gateway-service)
 
   the route setting is in [here](https://github.com/FudanSELab/train-ticket/blob/master/ts-gateway-service/src/main/resources/application.yml)
 
@@ -509,10 +522,10 @@ Following sections are all collapsible, expand them to see more.
   <summary>ts-inside-payment-service</summary>
 
   ### Functionality
-  /api/v1/inside_pay_service/inside_payment/**: provide APIs to do inside payment, query money, top up money into account, query money info, create account.
+  /api/v1/inside_pay_service/inside_payment/**: provide APIs to manage payments.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-inside-payment-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-inside-payment-service)
 
   ### Interactions
   | Service | URI | Method | Data Sent |
@@ -523,7 +536,7 @@ Following sections are all collapsible, expand them to see more.
   | ts-order-other-service | /api/v1/orderOtherService/orderOther/status/{orderId}/{orderStatus} | GET |  |
   | ts-payment-service | /api/v1/paymentservice/payment | POST | third-party payment data |
 
-  Also interact with `mysql` service with Hibernate
+  Also interact with `mysql` service using Hibernate:
 
   Money
   ``` java
@@ -551,7 +564,7 @@ Following sections are all collapsible, expand them to see more.
   This service is only used for testing purpose.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-news-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-news-service)
 
   ### Interactions
   N/A
@@ -563,16 +576,19 @@ Following sections are all collapsible, expand them to see more.
   <summary>ts-notification-service</summary>
 
   ### Functionality
-  /api/v1/notifyservice/notification/**: provide API to send email when preserve success, order create success, update order success and cancel notification success.
+  /api/v1/notifyservice/notification/**: provide APIs to send email when successful buying insurance, successful creating order, successful updating order and successful canceling order.
+
+  This service will also consume email event, and send email to user.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-notification-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-notification-service)
 
   ### Interactions
+  A producer of `rabbitmq` service, publish to `email`. However, base on the source code, seems like that this is only used for test purpose. [usage](https://github.com/FudanSELab/train-ticket/blob/master/ts-notification-service/src/main/java/notification/controller/NotificationController.java#L35)
 
-  rabbitmq
+  A consumer of `rabbitmq` service, subscribe to `email`.
 
-  Also interact with `mysql` service with Hibernate
+  Also interact with `mysql` service using Hibernate:
 
   NotifyInfo
   ``` java
@@ -590,7 +606,6 @@ Following sections are all collapsible, expand them to see more.
   private String price;
   ```
 
-
 </details>
 
 
@@ -598,17 +613,17 @@ Following sections are all collapsible, expand them to see more.
   <summary>ts-order-other-service</summary>
 
   ### Functionality
-  /api/v1/orderOtherService/orderOther/**: provide API to manage order, whose train number does not start with G or D.
+  /api/v1/orderOtherService/orderOther/**: provide APIs to manage ticket order, whose train number does not start with G or D.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-order-other-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-order-other-service)
 
   ### Interactions
   | Service | URI | Method | Data Sent |
   | --- | --- | --- | --- |
   | ts-station-service | /api/v1/stationservice/stations/namelist | POST | a list of station id |
 
-  Also interact with `mysql` service with Hibernate
+  Also interact with `mysql` service using Hibernate:
 
   Order
   ``` java
@@ -637,17 +652,17 @@ Following sections are all collapsible, expand them to see more.
   <summary>ts-order-service</summary>
 
   ### Functionality
-  /api/v1/orderservice/order/**: provide API to manage order, whose train number starts with G or D.
+  /api/v1/orderservice/order/**: provide APIs to manage ticket order, whose train number starts with G or D.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-order-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-order-service)
 
   ### Interactions
   | Service | URI | Method | Data Sent |
   | --- | --- | --- | --- |
   | ts-station-service | /api/v1/stationservice/stations/namelist | POST | a list of station id |
 
-  Also interact with `mysql` service with Hibernate
+  Also interact with `mysql` service using Hibernate:
 
   Order
   ``` java
@@ -676,13 +691,13 @@ Following sections are all collapsible, expand them to see more.
   <summary>ts-payment-service</summary>
 
   ### Functionality
-  /api/v1/paymentservice/payment/**: provide API to create payment, top up money and query payment.
+  /api/v1/paymentservice/payment/**: provide APIs to create payment and query payment.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-payment-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-payment-service)
 
   ### Interactions
-  Directly interact with `mysql` service with Hibernate
+  Directly interact with `mysql` service using Hibernate:
 
   Money
   ``` java
@@ -706,10 +721,12 @@ Following sections are all collapsible, expand them to see more.
   <summary>ts-preserve-other-service</summary>
 
   ### Functionality
-  /api/v1/preserveotherservice/preserveOther: provide API to reserve ticket, whose train number does not start with G or D.
+  /api/v1/preserveotherservice/preserveOther: provide APIs to reserve a ticket, whose train number does not start with G or D.
+
+  When a reservation is confirmed, a event will be produced. However, in the source code, the event producing code is commented. [usage](https://github.com/FudanSELab/train-ticket/blob/master/ts-preserve-other-service/src/main/java/preserveOther/service/PreserveOtherServiceImpl.java#L260)
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/blob/master/ts-preserve-other-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/blob/master/ts-preserve-other-service)
 
   ### Interactions
   | Service                 | URI                                                          | Method | Data Sent                  |
@@ -726,7 +743,7 @@ Following sections are all collapsible, expand them to see more.
   | ts-food-service         | /api/v1/foodservice/orders    | POST   | food-order data      |
   | ts-consign-service      | /api/v1/consignservice/consigns      | POST   | consign data      |
 
-  rabbitmq
+  A producer of `rabbitmq` service, publish to `email`.
 
 </details>
 
@@ -735,10 +752,12 @@ Following sections are all collapsible, expand them to see more.
   <summary>ts-preserve-service</summary>
 
   ### Functionality
-  /api/v1/preserveservice/preserve: provide API to reserve ticket, whose train number starts with G or D.
+  /api/v1/preserveservice/preserve: provide APIs to reserve a ticket, whose train number starts with G or D.
+
+  When a reservation is confirmed, a event will be produced. However, in the source code, the event producing code is commented. [usage](https://github.com/FudanSELab/train-ticket/blob/master/ts-preserve-service/src/main/java/preserve/service/PreserveServiceImpl.java#L261)
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/blob/master/ts-preserve-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/blob/master/ts-preserve-service)
 
   ### Interactions
   | Service                 | URI                                                          | Method | Data Sent                  |
@@ -755,7 +774,7 @@ Following sections are all collapsible, expand them to see more.
   | ts-food-service         | /api/v1/foodservice/orders                                   | POST   | food-order data    |
   | ts-consign-service      | /api/v1/consignservice/consigns                              | POST   | consign data  |
 
-  rabbitmq
+  A producer of `rabbitmq` service, publish to `email`.
 
 </details>
 
@@ -764,13 +783,13 @@ Following sections are all collapsible, expand them to see more.
   <summary>ts-price-service</summary>
 
   ### Functionality
-  /api/v1/priceservice/prices/**: provide API to calculate tickets' price and manage price configs.
+  /api/v1/priceservice/prices/**: provide APIs to calculate ticket's price and manage price configuration.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-price-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-price-service)
 
   ### Interactions
-  Directly interact with `mysql` service with Hibernate
+  Directly interact with `mysql` service using Hibernate:
 
   PriceConfig
   ``` java
@@ -791,7 +810,7 @@ Following sections are all collapsible, expand them to see more.
   /api/v1/rebookservice/rebook/**: provides APIs to manage ticket changing/rebooking, as well as, calculating price difference.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-rebook-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-rebook-service)
 
   ### Interactions
   | Service                   | URI                                                  | Method | Data Sent                                 |
@@ -819,10 +838,10 @@ Following sections are all collapsible, expand them to see more.
   <summary>ts-route-plan-service</summary>
 
   ### Functionality
-  /api/v1/routeplanservice/routePlan/**: provide APIs to get cheapest route, quickest route and minimum stop route.
+  /api/v1/routeplanservice/routePlan/**: provide APIs to get cheapest route, quickest route and route with minimum stop.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-route-plan-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-route-plan-service)
 
   ### Interactions
   | Service            | URI                                             | Method | Data Sent               |
@@ -845,10 +864,10 @@ Following sections are all collapsible, expand them to see more.
   /api/v1/routeservice/routes/**: provide CRUD APIs to manage route information.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-route-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-route-service)
 
   ### Interactions
-  Directly interact with `mysql` service with Hibernate
+  Directly interact with `mysql` service using Hibernate:
 
   Route
   ``` java
@@ -866,10 +885,10 @@ Following sections are all collapsible, expand them to see more.
   <summary>ts-seat-service</summary>
 
   ### Functionality
-  /api/v1/seatservice/seats/**: provide APIs to allocate seats for users and query left tickets in an interval.
+  /api/v1/seatservice/seats/**: provide APIs to reserve seats and query remaining seats within a route.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-seat-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-seat-service)
 
   ### Interactions
   | Service                | URI                                              | Method | Data Sent                     |
@@ -885,10 +904,10 @@ Following sections are all collapsible, expand them to see more.
   <summary>ts-security-service</summary>
 
   ### Functionality
-  /api/v1/securityservice/securityConfigs/**: provide CRUD APIs to manage security config files and check account id.
+  /api/v1/securityservice/securityConfigs/**: provide CRUD APIs to manage security configuration and verify account id.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-security-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-security-service)
 
   ### Interactions
   | Service                | URI                                                          | Method | Data Sent                   |
@@ -896,7 +915,7 @@ Following sections are all collapsible, expand them to see more.
   | ts-order-service       | /api/v1/orderservice/order/security/{checkDate}/{accountId} | GET    |  |
   | ts-order-other-service | /api/v1/orderOtherService/orderOther/security/{checkDate}/{accountId} | GET    | |
 
-  Also interact with `mysql` service with Hibernate
+  Also interact with `mysql` service using Hibernate:
 
   SecurityConfig
   ``` java
@@ -916,10 +935,10 @@ Following sections are all collapsible, expand them to see more.
   /api/v1/stationfoodservice/stationfoodstores/**: provide CRUD APIs to manage station food information.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-station-food-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-station-food-service)
 
   ### Interactions
-  Directly interact with `mysql` service with Hibernate
+  Directly interact with `mysql` service using Hibernate:
 
   StationFoodStore
   ``` java
@@ -939,13 +958,13 @@ Following sections are all collapsible, expand them to see more.
   <summary>ts-station-service</summary>
 
   ### Functionality
-  /api/v1/stationservice/stations/**: provide CRUD APIs to manage station information, and it also provide APIs to get station name by id and get station id by name.
+  /api/v1/stationservice/stations/**: provide CRUD APIs to manage station information, to query station name by id, and to query station id by name.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-station-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-station-service)
 
   ### Interactions
-  Directly interact with `mysql` service with Hibernate
+  Directly interact with `mysql` service using Hibernate:
 
   Station
   ``` java
@@ -963,7 +982,7 @@ Following sections are all collapsible, expand them to see more.
   This standalone service provides CRUD APIs to manage ticket office information.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-ticket-office-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-ticket-office-service)
 
   ### Interactions
   Directly interact with `mysql` service with Javascript mysql driver
@@ -978,10 +997,10 @@ Following sections are all collapsible, expand them to see more.
   /api/v1/trainfoodservice/trainfoods/**: provide CRUD APIs to manage train food information.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-train-food-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-train-food-service)
 
   ### Interactions
-  Directly interact with `mysql` service with Hibernate
+  Directly interact with `mysql` service using Hibernate:
 
   TrainFood
   ``` java
@@ -1000,10 +1019,10 @@ Following sections are all collapsible, expand them to see more.
   /api/v1/trainservice/trains/**: provide CRUD APIs to manage train information.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-train-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-train-service)
 
   ### Interactions
-  Directly interact with `mysql` service with Hibernate
+  Directly interact with `mysql` service using Hibernate:
 
   TrainType
   ``` java
@@ -1021,10 +1040,10 @@ Following sections are all collapsible, expand them to see more.
   <summary>ts-travel-plan-service</summary>
 
   ### Functionality
-  /api/v1/travelplanservice/travelPlan/**: provide APIs to get travel plan, includes cheapest travel plan, quickest travel plan, min station travel plan.
+  /api/v1/travelplanservice/travelPlan/**: provide APIs to query travel plan, includes cheapest travel plan, quickest travel plan, and travel plan with minimum stop.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-travel-plan-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-travel-plan-service)
 
   ### Interactions
   | Service | URI | Method | Data Sent |
@@ -1047,7 +1066,7 @@ Following sections are all collapsible, expand them to see more.
   /api/v1/travelservice/**: provide APIs to manage high speed train's trip.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-travel-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-travel-service)
 
   ### Interactions
   | Service | URI | Method | Data Sent |
@@ -1058,7 +1077,7 @@ Following sections are all collapsible, expand them to see more.
   | ts-route-service | /api/v1/routeservice/routes/{routeId} | GET | |
   | ts-seat-service | /api/v1/seatservice/seats/left_tickets | POST | seat data |
 
-  Also interact with `mysql` service with Hibernate
+  Also interact with `mysql` service using Hibernate:
 
   Trip
   ``` java
@@ -1083,7 +1102,7 @@ Following sections are all collapsible, expand them to see more.
   /api/v1/travel2service/**: provide APIs to manage normal train's trip.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-travel2-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-travel2-service)
 
   ### Interactions
   | Service | URI | Method | Data Sent |
@@ -1094,7 +1113,7 @@ Following sections are all collapsible, expand them to see more.
   | ts-route-service | /api/v1/routeservice/routes/{routeId} | GET | |
   | ts-seat-service | /api/v1/seatservice/seats/left_tickets | POST | seat data |
 
-  Also interact with `mysql` service with Hibernate
+  Also interact with `mysql` service using Hibernate:
 
   Trip
   ``` java
@@ -1119,7 +1138,7 @@ Following sections are all collapsible, expand them to see more.
   This service provides all the UI interface to interact with the system.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-ui-dashboard)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-ui-dashboard)
 
   ### Interactions
 
@@ -1134,7 +1153,7 @@ Following sections are all collapsible, expand them to see more.
   /api/v1/userservice/users/**: provide APIs to manage user information.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-user-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-user-service)
 
   ### Interactions
   | Service | URI | Method | Data Sent |
@@ -1142,7 +1161,7 @@ Following sections are all collapsible, expand them to see more.
   | ts-auth-service | /api/v1/auth | POST | auth data |
   | ts-auth-service | /api/v1/users/{userId} | DELETE |  |
 
-  Also interact with `mysql` service with Hibernate
+  Also interact with `mysql` service using Hibernate:
 
   User
   ``` java
@@ -1165,7 +1184,7 @@ Following sections are all collapsible, expand them to see more.
   /api/v1/verifycode/**: generate verification code image; verify verification code;
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-verification-code-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-verification-code-service)
 
   ### Interactions
   N/A
@@ -1177,10 +1196,10 @@ Following sections are all collapsible, expand them to see more.
   <summary>ts-voucher-service</summary>
 
   ### Functionality
-  /getVoucher: provide APIs to generate the reimbursement voucher based on the order id.
+  /getVoucher: generate the reimbursement voucher based on the order id.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-voucher-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-voucher-service)
 
   ### Interactions
   | Service | URI | Method | Data Sent |
@@ -1211,13 +1230,13 @@ Following sections are all collapsible, expand them to see more.
   <summary>ts-wait-order-service</summary>
 
   ### Functionality
-  /api/v1/waitorderservice/**: provide APIs to manage waitlist orders.
+  /api/v1/waitorderservice/**: provide APIs to manage waitlist.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-wait-order-service)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/ts-wait-order-service)
 
   ### Interactions
-  Directly interact with `mysql` service with Hibernate
+  Directly interact with `mysql` service using Hibernate:
 
   WaitListOrder
   ``` java
@@ -1245,11 +1264,13 @@ Following sections are all collapsible, expand them to see more.
   <summary>rabbitmq</summary>
 
   ### Functionality
+  This message queue provides async communication between services.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/deployment/kubernetes-manifests/quickstart-k8s/charts/rabbitmq)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/deployment/kubernetes-manifests/quickstart-k8s/charts/rabbitmq)
 
   ### Interactions
+  There are a few service needed message queue for communication.
 
 </details>
 
@@ -1258,11 +1279,13 @@ Following sections are all collapsible, expand them to see more.
   <summary>mysql</summary>
 
   ### Functionality
+  This service provides persistent storage for other services.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/deployment/kubernetes-manifests/quickstart-k8s/charts/mysql)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/deployment/kubernetes-manifests/quickstart-k8s/charts/mysql)
 
   ### Interactions
+  Pretty much all bussiness logic related services will interact with this service to store data.
 
 </details>
 
@@ -1271,12 +1294,12 @@ Following sections are all collapsible, expand them to see more.
   <summary>nacos</summary>
 
   ### Functionality
+  This service provide service discovery.
 
   ### Related Files
-  all code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/deployment/kubernetes-manifests/quickstart-k8s/charts/nacos)
+  All code is in this [folder](https://github.com/FudanSELab/train-ticket/tree/master/deployment/kubernetes-manifests/quickstart-k8s/charts/nacos)
 
   ### Interactions
+  Pretty much all bussiness logic related services needed to register themselve with this service.
 
 </details>
-
-
