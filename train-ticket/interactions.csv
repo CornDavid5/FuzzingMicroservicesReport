@@ -1,0 +1,188 @@
+ts-admin-basic-info-service,ts-contacts-service,/api/v1/contactservice/contacts,GET,
+ts-admin-basic-info-service,ts-contacts-service,/api/v1/contactservice/contacts/{:contactsId},DELETE,
+ts-admin-basic-info-service,ts-contacts-service,/api/v1/contactservice/contacts,PUT,modified contact data
+ts-admin-basic-info-service,ts-contacts-service,/api/v1/contactservice/contacts/admin,POST,new contact data
+ts-admin-basic-info-service,ts-station-service,/api/v1/stationservice/stations,GET,
+ts-admin-basic-info-service,ts-station-service,/api/v1/stationservice/stations,POST,new station data
+ts-admin-basic-info-service,ts-station-service,/api/v1/stationservice/stations/{:id},DELETE,
+ts-admin-basic-info-service,ts-station-service,/api/v1/stationservice/stations,PUT,modified station data
+ts-admin-basic-info-service,ts-train-service,/api/v1/trainservice/trains,GET,
+ts-admin-basic-info-service,ts-train-service,/api/v1/trainservice/trains,POST,new train-type data
+ts-admin-basic-info-service,ts-train-service,/api/v1/trainservice/trains/{:id},DELETE,
+ts-admin-basic-info-service,ts-train-service,/api/v1/trainservice/trains,PUT,modified train-type data
+ts-admin-basic-info-service,ts-config-service,/api/v1/configservice/configs,GET,
+ts-admin-basic-info-service,ts-config-service,/api/v1/configservice/configs,POST,new config data
+ts-admin-basic-info-service,ts-config-service,/api/v1/configservice/configs /{:id},DELETE,
+ts-admin-basic-info-service,ts-config-service,/api/v1/configservice/configs,PUT,modified config data
+ts-admin-basic-info-service,ts-price-service,/api/v1/priceservice/prices,GET,
+ts-admin-basic-info-service,ts-price-service,/api/v1/priceservice/prices,POST,new price data
+ts-admin-basic-info-service,ts-price-service,/api/v1/priceservice/prices/{:pricesId},DELETE,
+ts-admin-basic-info-service,ts-price-service,/api/v1/priceservice/prices,PUT,modified price data
+ts-admin-order-service,ts-order-service,/api/v1/orderservice/order,GET,
+ts-admin-order-service,ts-order-other-service,/api/v1/orderOtherService/orderOther,GET,
+ts-admin-order-service,ts-order-service,/api/v1/orderservice/order/{:orderId},DELETE,
+ts-admin-order-service,ts-order-other-service,/api/v1/orderOtherService/orderOther/{:orderId},DELETE,
+ts-admin-order-service,ts-order-service,/api/v1/orderservice/order/admin,PUT,modified order data
+ts-admin-order-service,ts-order-other-service,/api/v1/orderOtherService/orderOther/admin,PUT,modified order data
+ts-admin-order-service,ts-order-service,/api/v1/orderservice/order/admin,POST,new order data
+ts-admin-order-service,ts-order-other-service,/api/v1/orderOtherService/orderOther/admin,POST,new order data
+ts-admin-route-service,ts-route-service,/api/v1/routeservice/routes,GET,
+ts-admin-route-service,ts-route-service,/api/v1/routeservice/routes,POST,new route data
+ts-admin-route-service,ts-route-service,/api/v1/routeservice/routes/{:routeId},DELETE,
+ts-admin-route-service,ts-station-service,/api/v1/stationservice/stations/idlist,POST,a list of station name
+ts-admin-travel-service,ts-travel-service,/api/v1/travelservice/admin_trip,GET,
+ts-admin-travel-service,ts-travel2-service,/api/v1/travel2service/admin_trip,GET,
+ts-admin-travel-service,ts-travel-service,/api/v1/travelservice/trips,POST,new travel data
+ts-admin-travel-service,ts-travel2-service,/api/v1/travel2service/trips,POST,new travel data
+ts-admin-travel-service,ts-travel-service,/api/v1/travelservice/trips,PUT,modified travel data
+ts-admin-travel-service,ts-travel2-service,/api/v1/travel2service/trips,PUT,modified travel data
+ts-admin-travel-service,ts-travel-service,/api/v1/travelservice/trips/{:tripId},DELETE,
+ts-admin-travel-service,ts-travel2-service,/api/v1/travel2service/trips/{:tripId},DELETE,
+ts-admin-travel-service,ts-station-service,/api/v1/stationservice/stations/idlist,POST,a list of station name
+ts-admin-travel-service,ts-train-service,/api/v1/trainservice/trains/byName/{:trainTypeName},GET,
+ts-admin-travel-service,ts-route-service,/api/v1/routeservice/routes/{:routeId},GET,
+ts-admin-user-service,ts-user-service,/api/v1/userservice/users,GET,
+ts-admin-user-service,ts-user-service,/api/v1/userservice/users,PUT,modified user data
+ts-admin-user-service,ts-user-service,/api/v1/userservice/users,POST,new user data
+ts-admin-user-service,ts-user-service,/api/v1/userservice/users/{:userId},DELETE,
+ts-assurance-service,mysql,,,
+ts-auth-service,ts-verification-code-service,/api/v1/verifycode/verify/{:verifyCode},GET,
+ts-auth-service,mysql,,,
+ts-avatar-service,,,,
+ts-basic-service,ts-station-service,/api/v1/stationservice/stations/id/{:stationName},GET,
+ts-basic-service,ts-station-service,/api/v1/stationservice/stations/idlist,GET,a list of station name
+ts-basic-service,ts-train-service,/api/v1/trainservice/trains/byName/{:trainTypeName},GET,
+ts-basic-service,ts-train-service,/api/v1/trainservice/trains/byNames,GET,a list of train-type name
+ts-basic-service,ts-route-service,/api/v1/routeservice/routes/{:routeId},GET,
+ts-basic-service,ts-route-service,/api/v1/routeservice/routes/byIds/,GET,a list of route id
+ts-basic-service,ts-price-service,/api/v1/priceservice/prices/{:routeId}/{trainType},GET,
+ts-basic-service,ts-price-service,/api/v1/priceservice/prices/byRouteIdsAndTrainTypes,GET,a list of route id and train type
+ts-cancel-service,ts-notification-service,/api/v1/notifyservice/notification/order_cancel_success,POST,notify-info data
+ts-cancel-service,ts-order-service,/api/v1/orderservice/order,PUT,order data
+ts-cancel-service,ts-order-other-service,/api/v1/orderOtherService/orderOther,PUT,order data
+ts-cancel-service,ts-inside-payment-service,/api/v1/inside_pay_service/inside_payment/drawback/{:userId}/{money},GET,
+ts-cancel-service,ts-user-service,/api/v1/userservice/users/id/{:orderId},GET,
+ts-cancel-service,ts-order-service,/api/v1/orderservice/order/{:orderId},GET,
+ts-cancel-service,ts-order-other-service,/api/v1/orderOtherService/orderOther/{:orderId},GET,
+ts-config-service,mysql,,,
+ts-consign-price-service,mysql,,,
+ts-consign-service,ts-consign-price-service,/api/v1/consignpriceservice/consignprice/{:weight}/{isWithinRegion},GET,
+ts-consign-service,mysql,,,
+ts-contacts-service,mysql,,,
+ts-delivery-service,mysql,,,
+rabbitmq,ts-delivery-service,food_delivery,,
+ts-execute-service,ts-order-service,/api/v1/orderservice/order/status/{:orderId}/{status},GET,
+ts-execute-service,ts-order-other-service,/api/v1/orderOtherService/orderOther/status/{:orderId}/{status},GET,
+ts-execute-service,ts-order-service,/api/v1/orderservice/order/{:orderId},GET,
+ts-execute-service,ts-order-other-service,/api/v1/orderOtherService/orderOther/{:orderId},GET,
+ts-food-delivery-service,ts-station-food-service,/api/v1/stationfoodservice/stationfoodstores/bystoreid/{:stationFoodStoreId},GET,
+ts-food-delivery-service,mysql,,,
+ts-food-service,ts-train-food-service,/api/v1/trainfoodservice/trainfoods/{:tripId},GET,
+ts-food-service,ts-travel-service,/api/v1/travelservice/routes/{:tripId},GET,
+ts-food-service,ts-station-food-service,/api/v1/stationfoodservice/stationfoodstores,POST,a list of station name
+ts-food-service,mysql,,,
+ts-food-service,rabbitmq,food_delivery,,
+ts-inside-payment-service,ts-order-service,/api/v1/orderservice/order/{:orderId},GET,
+ts-inside-payment-service,ts-order-other-service,/api/v1/orderOtherService/orderOther/{:orderId},GET,
+ts-inside-payment-service,ts-order-service,/api/v1/orderService/order/status/{:orderId}/{orderStatus},GET,
+ts-inside-payment-service,ts-order-other-service,/api/v1/orderOtherService/orderOther/status/{:orderId}/{orderStatus},GET,
+ts-inside-payment-service,ts-payment-service,/api/v1/paymentservice/payment,POST,third-party payment data
+ts-inside-payment-service,mysql,,,
+ts-news-service,,,,
+ts-notification-service,mysql,,,
+ts-notification-service,rabbitmq,email,,
+rabbitmq,ts-notification-service,email,,
+ts-order-other-service,ts-station-service,/api/v1/stationservice/stations/namelist,POST,a list of station id
+ts-order-other-service,mysql,,,
+ts-order-service,ts-station-service,/api/v1/stationservice/stations/namelist,POST,a list of station id
+ts-order-service,mysql,,,
+ts-payment-service,mysql,,,
+ts-preserve-other-service,ts-basic-service,/api/v1/ticketinfoservice/,POST,travel data
+ts-preserve-other-service,ts-seat-service,/api/v1/seatservice/seats,POST,seat data
+ts-preserve-other-service,ts-user-service,/api/v1/userservice/users/id/{:accountId},GET,
+ts-preserve-other-service,ts-assurance-service,/api/v1/assuranceservice/assurances/{:assuranceType}/{orderId},GET,
+ts-preserve-other-service,ts-station-service,/api/v1/stationservice/stations/id/{:stationName},GET,
+ts-preserve-other-service,ts-security-service,/api/v1/securityservice/securityConfigs/{:accountId},GET,
+ts-preserve-other-service,ts-travel2-service,/api/v1/travel2service/trip_detail,POST,trip-all-detail-info data
+ts-preserve-other-service,ts-contacts-service,/api/v1/contactservice/contacts/{:contactsId},GET,
+ts-preserve-other-service,ts-order-other-service,/api/v1/orderOtherService/orderOther,POST,order data
+ts-preserve-other-service,ts-food-service,/api/v1/foodservice/orders,POST,food-order data
+ts-preserve-other-service,ts-consign-service,/api/v1/consignservice/consigns,POST,consign data
+ts-preserve-other-service,rabbitmq,email,,
+ts-preserve-service,ts-basic-service,/api/v1/basicservice/basic/travel,POST,travel data
+ts-preserve-service,ts-seat-service,/api/v1/seatservice/seats,POST,seat data
+ts-preserve-service,ts-user-service,/api/v1/userservice/users/id/{:accountId},GET,
+ts-preserve-service,ts-assurance-service,/api/v1/assuranceservice/assurances/{:assuranceType}/{orderId},GET,
+ts-preserve-service,ts-station-service,/api/v1/stationservice/stations/id/{:stationName},GET,
+ts-preserve-service,ts-security-service,/api/v1/securityservice/securityConfigs/{:accountId},GET,
+ts-preserve-service,ts-travel-service,/api/v1/travelservice/trip_detail,POST,trip-all-detail-info data
+ts-preserve-service,ts-contacts-service,/api/v1/contactservice/contacts/{:contactsId},GET,
+ts-preserve-service,ts-order-service,/api/v1/orderService/order,POST,order data
+ts-preserve-service,ts-food-service,/api/v1/foodservice/orders,POST,food-order data
+ts-preserve-service,ts-consign-service,/api/v1/consignservice/consigns,POST,consign data
+ts-preserve-service,rabbitmq,email,,
+ts-price-service,mysql,,,
+ts-rebook-service,ts-seat-service,/api/v1/seatservice/seats,POST,seat data
+ts-rebook-service,ts-travel-service,/api/v1/travelservice/trip_detail,POST,trip-all-detail-info data
+ts-rebook-service,ts-travel2-service,/api/v1/travel2service/trip_detail,POST,trip-all-detail-info data
+ts-rebook-service,ts-order-service,/api/v1/orderService/order{:orderId},GET,
+ts-rebook-service,ts-order-other-service,/api/v1/orderOtherService/orderOther/{:orderId},GET,
+ts-rebook-service,ts-order-service,/api/v1/orderService/order,POST,new order data
+ts-rebook-service,ts-order-other-service,/api/v1/orderOtherService/orderOther,POST,new order data
+ts-rebook-service,ts-order-service,/api/v1/orderService/order,PUT,modified order data
+ts-rebook-service,ts-order-other-service,/api/v1/orderOtherService/orderOther,PUT,modified order data
+ts-rebook-service,ts-order-service,/api/v1/orderService/order{:orderId},DELETE,
+ts-rebook-service,ts-order-other-service,/api/v1/orderOtherService/orderOther/{:orderId},DELETE,
+ts-rebook-service,ts-train-service,/api/v1/trainservice/trains/byName/ {:trainTypeName},GET,
+ts-rebook-service,ts-route-service,/api/v1/routeservice/routes/{:routeId},GET,
+ts-rebook-service,ts-inside-payment-service,/api/v1/inside_pay_service/inside_payment/drawback/{:userId}/{money},GET,
+ts-rebook-service,ts-inside-payment-service,/api/v1/inside_pay_service/inside_payment/difference,POST,payment-difference-info data
+ts-route-plan-service,ts-route-service,/api/v1/routeservice/routes/{:routeId},GET,
+ts-route-plan-service,ts-travel-service,/api/v1/travelservice/trips/routes,POST,a list of route id
+ts-route-plan-service,ts-travel2-service,/api/v1/travel2service/trips/routes,POST,a list of route id
+ts-route-plan-service,ts-travel-service,/api/v1/travelservice/trips/left,POST,trip-info data
+ts-route-plan-service,ts-travel2-service,/api/v1/travel2service/trips/left,POST,trip-info data
+ts-route-plan-service,ts-travel-service,/api/v1/travelservice/routes/{:tripId},GET,
+ts-route-plan-service,ts-travel2-service,/api/v1/travel2service/routes/{:tripId},GET,
+ts-route-service,mysql,,,
+ts-seat-service,ts-order-service,/api/v1/orderservice/order/tickets,POST,seat data
+ts-seat-service,ts-order-other-service,/api/v1/orderOtherService/orderOther/tickets,POST,seat data
+ts-seat-service,ts-config-service,/api/v1/configservice/configs/{:configName},GET,
+ts-security-service,ts-order-service,/api/v1/orderservice/order/security/{:checkDate}/{accountId},GET,
+ts-security-service,ts-order-other-service,/api/v1/orderOtherService/orderOther/security/{:checkDate}/{accountId},GET,
+ts-security-service,mysql,,,
+ts-station-food-service,mysql,,,
+ts-station-service,mysql,,,
+ts-ticket-office-service,mysql,,,
+ts-train-food-service,mysql,,,
+ts-train-service,mysql,,,
+ts-travel-plan-service,ts-seat-service,/api/v1/seatservice/seats/left_tickets,POST,seat data
+ts-travel-plan-service,ts-route-plan-service,/api/v1/routeplanservice/routePlan/cheapestRoute,POST,route-plan-info data
+ts-travel-plan-service,ts-route-plan-service,/api/v1/routeplanservice/routePlan/quickestRoute,POST,route-plan-info data
+ts-travel-plan-service,ts-route-plan-service,/api/v1/routeplanservice/routePlan/minStopStations,POST,route-plan-info data
+ts-travel-plan-service,ts-travel-service,/api/v1/travelservice/trips/left,POST,trip-info data
+ts-travel-plan-service,ts-travel2-service,/api/v1/travel2service/trips/left,POST,trip-info data
+ts-travel-plan-service,ts-train-service,/api/v1/trainservice/trains/byName/{:trainTypeName},GET,
+ts-travel-service,ts-basic-service,/api/v1/basicservice/basic/travel,POST,travel data
+ts-travel-service,ts-basic-service,/api/v1/basicservice/basic/travels,POST,a list of travel data
+ts-travel-service,ts-train-service,/api/v1/trainservice/trains/byName/{:trainTypeName},GET,
+ts-travel-service,ts-route-service,/api/v1/routeservice/routes/{:routeId},GET,
+ts-travel-service,ts-seat-service,/api/v1/seatservice/seats/left_tickets,POST,seat data
+ts-travel-service,mysql,,,
+ts-travel2-service,ts-basic-service,/api/v1/basicservice/basic/travel,POST,travel data
+ts-travel2-service,ts-basic-service,/api/v1/basicservice/basic/travels,POST,a list of travel data
+ts-travel2-service,ts-train-service,/api/v1/trainservice/trains/byName/{:trainTypeName},GET,
+ts-travel2-service,ts-route-service,/api/v1/routeservice/routes/{:routeId},GET,
+ts-travel2-service,ts-seat-service,/api/v1/seatservice/seats/left_tickets,POST,seat data
+ts-travel2-service,mysql,,,
+ts-ui-dashboard,,,,
+ts-user-service,ts-auth-service,/api/v1/auth,POST,auth data
+ts-user-service,ts-auth-service,/api/v1/users/{:userId},DELETE,
+ts-user-service,mysql,,,
+ts-verification-code-service,,,,
+ts-voucher-service,ts-order-other-service,/api/v1/orderOtherService/orderOther/{:orderId},GET,
+ts-voucher-service,ts-order-service,/api/v1/orderservice/order/{:orderId},GET,
+ts-voucher-service,mysql,,,
+ts-wait-order-service,mysql,,,
+mysql,,,,
+nacos,,,,

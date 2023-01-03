@@ -1,4 +1,6 @@
 # Train Ticket
+Train Ticket is a system to simulate real train management system, it supports user to reserve a ticket, modify or cancel a ticket, or order food, etc. It also supports administrator to manage ticket order and manage train route, etc.
+
 Source Repository: https://github.com/FudanSELab/train-ticket
 
 Important:
@@ -22,7 +24,7 @@ Even though in its README file, it states that there are `41` microservices used
   If you use docker-compose, please make sure you have at least 24G memory 50G disk in Linux.
   If you use k8s (+istio), please make sure you have at least four same configuration Linux servers.
   ```
-- This project supports monitoring and tracing, it may be easier to analyze dependency if I could run the those services. The kubernetes failed deployment screenshots are in `screenshots` folder.
+- This project supports monitoring and tracing, it may be easier to analyze dependency if I could run the those services. The failed k8s deployment screenshots are in this [folder](./resources/k8s/).
 - The interaction between services is done by RESTful http request. For most of the service, which is written in Java, they uses spring web framework's [RestTemplate exchange](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/client/RestTemplate.html) for synchronous http request. There is 1 service, `ts-voucher-service`, which is written in Python and uses [urllib](https://docs.python.org/3/library/urllib.html) library for http request.
 - All RESTful request is done by sending request directly to the service's uri, because kubernetes' CoreDNS will resolve the uri. Following is example code:
   ``` java
@@ -1303,3 +1305,29 @@ Following sections are all collapsible, expand them to see more.
   Pretty much all bussiness logic related services needed to register themselve with this service.
 
 </details>
+
+
+## Task 3
+This report provide a `Jupyter notebook` for interactive visualization.
+
+Note:
+- the result does not include `ts-gateway-servie` service, because almost all business logic related service will interact with it, including it will make the graph too crowded.
+- the data passed between bussiness logic related service and `mysql` service is not displayed in the graph, because the actual data passed between them is an implementation detail of the ORM library.
+- the data passed between bussiness logic related service and `rabbitmq` service is not displayed in the graph, because the actual data passed between them is an implementation detail of the rabbitmq library.
+
+Prerequisite:
+- Python 3.10+
+
+Generate graph steps:
+- (optional) create a virtual environment
+- install dependencies, run `python -m pip install -r requirements.txt`
+- generate html, run `python generate.py`
+  - note: due to a bug in the visualization library, this step will start the browser and open a empty page
+- open the html file in your browser
+
+Interact with the graph:
+- you can drag the view
+- you can zoom in and zoom out
+- you can drag the node
+- you can select and highlight a node
+- you can hover over an edge to see more details the interaction
