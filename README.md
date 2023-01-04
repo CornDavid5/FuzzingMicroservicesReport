@@ -1,2 +1,2 @@
 # Fuzzing Microservices Report
-Please visit corresponding folder for the report
+Please check out corresponding folder for the task report.
