@@ -1322,8 +1322,8 @@ Generate graph steps:
 - (optional) create a virtual environment
 - install dependencies, run `python -m pip install -r requirements.txt`
 - generate html, run `python generate.py`
-  - note: due to a bug in the visualization library, this step will start the browser and open a empty page
-- open the html file in your browser
+  - note: due to a bug in the visualization library, depends on wether you have set the `BROWSER` environement variable, this step will start the browser and open a empty page or it will print out some error messages in the terminal, please ignore them
+- manully open the html file in your browser
 
 Interact with the graph:
 - you can drag the view
