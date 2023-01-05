@@ -407,8 +407,8 @@ Following sections are all collapsible, expand them to see more.
 
   | Service | Method | Data Sent |
   | --- | --- | --- |
-  | hotel_reserv_reservation_mmc | get | HotelId + "_" + InDate + "_" + OutDate |
-  | hotel_reserv_reservation_mmc | set | HotelId + "_" + InDate + "_" + OutDate = NumOfRemainingRooms |
+  | hotel_reserv_reservation_mmc | get | HotelId + "\_" + InDate + "_" + OutDate |
+  | hotel_reserv_reservation_mmc | set | HotelId + "\_" + InDate + "_" + OutDate = NumOfRemainingRooms |
   | hotel_reserv_reservation_mmc | get | HotelId + "_cap" |
   | hotel_reserv_reservation_mmc | set | HotelId + "_cap" = NumOfRemainingRooms |
 
