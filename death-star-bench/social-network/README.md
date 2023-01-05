@@ -545,6 +545,9 @@ Following sections are all collapsible, expand them to see more.
 # Task 3
 This report provide a Python script to generate a html file for interactive visualization.
 
+Note:
+- The following graph doesn't include the interaction between jaeger and other services.
+
 Prerequisite:
 - Python 3.10+
 
