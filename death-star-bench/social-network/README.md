@@ -509,7 +509,7 @@ Following sections are all collapsible, expand them to see more.
   | user-timeline-redis | set | user_id = (post_id, timestamp) |
 
   | Service | Database | Collection | Data Sent |
-  | --- | --- | --- |
+  | --- | --- | --- | --- |
   | user-timeline-mongodb | user-timeline | user-timeline |  |
 
 </details>
