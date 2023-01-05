@@ -1,0 +1,24 @@
+| hotel_reserv_frontend | hotel_reserv_profile | GetProfiles | (HotelIds, Locale) |
+| hotel_reserv_frontend | hotel_reserv_search | Nearby | (Lat, Lon, InDate, OutDate) |
+| hotel_reserv_frontend | hotel_reserv_recommendation | GetRecommendations | (Require, Lat, Lon,) |
+| hotel_reserv_frontend | hotel_reserv_user | CheckUser | (Username, Password) |
+| hotel_reserv_frontend | hotel_reserv_reservation | CheckAvailability | (CustomerName, HotelId, InDate, OutDate, RoomNumber) |
+| hotel_reserv_frontend | hotel_reserv_reservation | MakeReservation | (CustomerName, HotelId, InDate, OutDate, RoomNumber) |
+| hotel_reserv_profile | hotel_reserv_profile_mongo | profile-db | hotels | HotelId |
+| hotel_reserv_profile | hotel_reserv_profile_mmc | get | HotelId |
+| hotel_reserv_profile | hotel_reserv_profile_mmc | set | HotelId = Hotel |
+| hotel_reserv_search | hotel_reserv_rate | GetRates | (HotelIds, InDate, OutDate) |
+| hotel_reserv_search | hotel_reserv_geo | Nearby | (Lat, Lon) |
+| hotel_reserv_geo | hotel_reserv_geo_mongo | geo-db | geo | point |
+| hotel_reserv_rate | hotel_reserv_rate_mongo | rate-db | inventory | HotelId |
+| hotel_reserv_rate | hotel_reserv_rate_mmc | get | HotelId |
+| hotel_reserv_rate | hotel_reserv_rate_mmc | set | HotelId = RatePlans |
+| hotel_reserv_recommendation | hotel_reserv_recommendation_mongo | recommendation-db | recommendation | HotelProfiles |
+| hotel_reserv_user | hotel_reserv_user_mongo | user-db | user | Users |
+| hotel_reserv_reservation | hotel_reserv_reservation_mongo | reservation-db | reservation | (HotelId, InDate, OutDate) |
+| hotel_reserv_reservation | hotel_reserv_reservation_mongo | reservation-db | reservation | (HotelId, CustomerName, InDate, OutDate, Number) |
+| hotel_reserv_reservation | hotel_reserv_reservation_mongo | reservation-db | number | HotelId |
+| hotel_reserv_reservation | hotel_reserv_reservation_mmc | get | HotelId + "_" + InDate + "_" + OutDate |
+| hotel_reserv_reservation | hotel_reserv_reservation_mmc | set | HotelId + "_" + InDate + "_" + OutDate = NumOfRemainingRooms |
+| hotel_reserv_reservation | hotel_reserv_reservation_mmc | get | HotelId + "_cap" |
+| hotel_reserv_reservation | hotel_reserv_reservation_mmc | set | HotelId + "_cap" = NumOfRemainingRooms |
