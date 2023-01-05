@@ -66,8 +66,10 @@ Following sections are all collapsible, expand them to see more.
   - Note: I couldn't find any usage in the source code for default docker compose deployment. Maybe it was used in other scenario.
 
   ### Related Files
+  N/A
 
   ### Interactions
+  N/A
 
 </details>
 
@@ -78,8 +80,10 @@ Following sections are all collapsible, expand them to see more.
   This service provides storage for all image.
 
   ### Related Files
+  N/A
 
   ### Interactions
+  N/A
 
 </details>
 
@@ -146,6 +150,7 @@ Following sections are all collapsible, expand them to see more.
   [source code](https://github.com/delimitrou/DeathStarBench/tree/master/socialNetwork/src/UniqueIdService)
 
   ### Interactions
+  N/A
 
 </details>
 
@@ -175,6 +180,7 @@ Following sections are all collapsible, expand them to see more.
   [config](https://github.com/delimitrou/DeathStarBench/blob/master/socialNetwork/config/service-config.json#L25)
 
   ### Interactions
+  N/A
 
 </details>
 
@@ -188,6 +194,7 @@ Following sections are all collapsible, expand them to see more.
   [config](https://github.com/delimitrou/DeathStarBench/blob/master/socialNetwork/config/service-config.json#L185)
 
   ### Interactions
+  N/A
 
 </details>
 
@@ -203,6 +210,7 @@ Following sections are all collapsible, expand them to see more.
   [source code](https://github.com/delimitrou/DeathStarBench/tree/master/socialNetwork/src/MediaService)
 
   ### Interactions
+  N/A
 
 </details>
 
@@ -285,6 +293,7 @@ Following sections are all collapsible, expand them to see more.
   [config](https://github.com/delimitrou/DeathStarBench/blob/master/socialNetwork/config/service-config.json#L117)
 
   ### Interactions
+  N/A
 
 
 </details>
@@ -350,6 +359,7 @@ Following sections are all collapsible, expand them to see more.
   [config](https://github.com/delimitrou/DeathStarBench/blob/master/socialNetwork/config/service-config.json#L87)
 
   ### Interactions
+  N/A
 
 </details>
 
@@ -363,6 +373,7 @@ Following sections are all collapsible, expand them to see more.
   [config](https://github.com/delimitrou/DeathStarBench/blob/master/socialNetwork/config/service-config.json#L80)
 
   ### Interactions
+  N/A
 
 </details>
 
@@ -407,7 +418,9 @@ Following sections are all collapsible, expand them to see more.
   [config](https://github.com/delimitrou/DeathStarBench/blob/master/socialNetwork/config/service-config.json#L2)
 
   ### Interactions
+  N/A
 
+</details>
 
 <details>
   <summary>social-graph-redis</summary>
@@ -419,6 +432,7 @@ Following sections are all collapsible, expand them to see more.
   [config](https://github.com/delimitrou/DeathStarBench/blob/master/socialNetwork/config/service-config.json#L49)
 
   ### Interactions
+  N/A
 
 </details>
 
@@ -455,6 +469,7 @@ Following sections are all collapsible, expand them to see more.
   [config](https://github.com/delimitrou/DeathStarBench/blob/master/socialNetwork/config/service-config.json#L164)
 
   ### Interactions
+  N/A
 
 </details>
 
@@ -468,6 +483,7 @@ Following sections are all collapsible, expand them to see more.
   [config](https://github.com/delimitrou/DeathStarBench/blob/master/socialNetwork/config/service-config.json#L149)
 
   ### Interactions
+  N/A
 
 </details>
 
@@ -508,6 +524,7 @@ Following sections are all collapsible, expand them to see more.
   [config](https://github.com/delimitrou/DeathStarBench/blob/master/socialNetwork/config/service-config.json#L73)
 
   ### Interactions
+  N/A
 
 </details>
 
@@ -521,6 +538,7 @@ Following sections are all collapsible, expand them to see more.
   [config](https://github.com/delimitrou/DeathStarBench/blob/master/socialNetwork/config/service-config.json#L40)
 
   ### Interactions
+  N/A
 
 </details>
 
