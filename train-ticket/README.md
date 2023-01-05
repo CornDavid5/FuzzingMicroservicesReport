@@ -1308,7 +1308,7 @@ Following sections are all collapsible, expand them to see more.
 
 
 ## Task 3
-This report provide a `Jupyter notebook` for interactive visualization.
+This report provide a Python script to generate a html file for interactive visualization.
 
 Note:
 - the result does not include `ts-gateway-servie` service, because almost all business logic related service will interact with it, including it will make the graph too crowded.
@@ -1330,4 +1330,4 @@ Interact with the graph:
 - you can zoom in and zoom out
 - you can drag the node
 - you can select and highlight a node
-- you can hover over an edge to see more details the interaction
+- you can hover over an edge to see more details about the interaction
