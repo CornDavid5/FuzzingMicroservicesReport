@@ -1,0 +1,47 @@
+| media-frontend | media-mongodb | media | media | (filename = media_id + '.' +  media_type, file = media_file) |
+| nginx-thrift | compose-post-service| /api/post/compose| ComposePost| (req_id, username, user_id, post.text, post.media_ids, post.media_types, post.post_type)|
+| nginx-thrift | home-timeline-service| /api/home-timeline/read| ReadHomeTimeline| (req_id, user_id, start, stop)|
+| nginx-thrift | social-graph-service | /api/user/follow | Follow | (req_id, post.user_id, post.followee_id) |
+| nginx-thrift | social-graph-service | /api/user/follow | FollowWithUsername | (req_id, post.user_name, post.followee_name) |
+| nginx-thrift | social-graph-service | /api/user/unfollow| Unfollow| (req_id, post.user_id, post.followee_id)|
+| nginx-thrift | social-graph-service | /api/user/unfollow| UnfollowWithUsername| (req_id, post.user_name, post.followee_name)|
+| nginx-thrift | social-graph-service| /api/user/get_follower| GetFollowers| (req_id, user_id)|
+| nginx-thrift | social-graph-service| /api/user/get_followee| GetFollowees| (req_id, user_id)|
+| nginx-thrift | user-service | /api/user/register | RegisterUser | (req_id, post.first_name, post.last_name, post.username, post.password) |
+| nginx-thrift | user-service| /api/user/login| Login| (req_id, username, password)|
+| nginx-thrift | user-timeline-service| /api/user-timeline/read| ReadUserTimeline| (req_id, user_id, start, stop)|
+| url-shorten-service | url-shorten-mongodb | url-shorten | url-shorten | (shortened_url = shortened_url, expanded_url = original_url) |
+| text-service | url-shorten-service | ComposeUrls | (req_id, urls) |
+| text-service | user-mention-service | ComposeUserMentions | (req_id, mention_usernames) |
+| user-mention-service | user-mongodb | user | user | |
+| user-mention-service | user-memcached | get | username + ':' + user_id |
+| home-timeline-service | social-graph-service | GetFollowers | (followers_id, req_id, user_id) |
+| home-timeline-service | post-storage-service | ReadPosts | (req_id, post_ids) |
+| home-timeline-service | home-timeline-redis | set | follower_id = (post_id_str, timestamp) |
+| home-timeline-service | home-timeline-redis | get | user_id |
+| compose-post-service | user-service | ComposeCreatorWithUserId | (req_id, user_id,     username) |
+| compose-post-service | text-service | ComposeText | (req_id, text) |
+| compose-post-service | media-service | ComposeMedia | (req_id, media_types, media_ids) |
+| compose-post-service | unique-id-service | ComposeUniqueId | (post_type) |
+| compose-post-service | post-storage-service | StorePost | (post) |
+| compose-post-service | user-timeline-service | WriteUserTimeline | (post_id, user_id, timestamp) |
+| compose-post-service | home-timeline-service | WriteHomeTimeline | (post_id, user_id, timestamp, user_mentions_id) |
+| user-service | social-graph-service | InsertUser | (req_id, user_id) |
+| user-service | user-memcached | get | username + ":user_id" |
+| user-service | user-memcached | get | username + ":login" |
+| user-service | user-mongodb | user | user | (user_id, first_name, last_name, username, salt, salted_password) |
+| social-graph-service| user-service | GetUserId | (req_id, user_name) |
+| social-graph-service| social-graph-redis | get | user_id + ":followers" |
+| social-graph-service| social-graph-redis | get | user_id + ":followees" |
+| social-graph-service| social-graph-redis | set | user_id + ":followees" = (followee_id, timestamp) |
+| social-graph-service| social-graph-redis | set | followee_id + ":followers" = (user_id, timestamp) |
+| social-graph-service| social-graph-redis | del | user_id + ":followees" = (followee_id) |
+| social-graph-service| social-graph-redis | del | followee_id + ":followers" = (user_id) |
+| social-graph-service| social-graph-mongodb | social-graph | social-graph | (user_id, followee_id, timestamp) |
+| post-storage-service | post-storage-memcached | get | post_id |
+| post-storage-service | post-storage-memcached | set | post_id = (post_id, timestamp, text, req_id, post_type, creator(user_id, username), url_list, uesr_mention_list, media_list) |
+| post-storage-service | post-storage-mongodb | post | post | (post_id, timestamp, text, req_id, post_type, creator(user_id, username), url_list, uesr_mention_list, media_list) |
+| user-timeline-service | post-storage-service | ReadPosts | (req_id, post_ids) |
+| user-timeline-service | user-timeline-redis | get | user_id |
+| user-timeline-service | user-timeline-redis | set | user_id = (post_id, timestamp) |
+| user-timeline-service | user-timeline-mongodb | user-timeline | user-timeline |  |
