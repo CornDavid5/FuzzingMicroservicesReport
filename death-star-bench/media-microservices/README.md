@@ -283,7 +283,7 @@ Following sections are all collapsible, expand them to see more.
   [source code](https://github.com/delimitrou/DeathStarBench/tree/master/mediaMicroservices/src/ComposeReviewService)
 
   ### Interactions
-    | Service | RPC Call | Data Sent |
+  | Service | RPC Call | Data Sent |
   | --- | --- | --- |
   | review-storage-service | StoreReview | (req_id, new_review) |
   | user-review-service | UploadUserReview | (req_id, new_review.user_id, new_review.review_id, new_review.timestamp) |
