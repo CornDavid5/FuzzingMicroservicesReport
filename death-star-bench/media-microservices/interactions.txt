@@ -1,0 +1,70 @@
+| nginx-web-server | cast-info-service | /wrk2-api/cast-info/write | WriteCastInfo | (req_id, cast_id, cast_name, cast_gender, cast_intro) |
+| nginx-web-server | movie-info-service | /wrk2-api/movie-info/write | WriteMovieInfo | (req_id, movie_id, movie_title, casts, movie_plot_id, movie_thumbnail_ids, movie_photo_ids, movie_video_ids, movie_avg_rating, movie_num_rating) |
+| nginx-web-server | movie-id-service | /wrk2-api/movie/register |RegisterMovieId | (req_id, title, movie_id) |
+| nginx-web-server | plot-service | /wrk2-api/plot/write | WritePlot | (req_id, plot_id, plot) |
+| nginx-web-server | user-service | /wrk2-api/user/register | RegisterUser | (req_id, first_name, last_name, username, password) |
+| nginx-web-server | user-service | /wrk2-api/review/compose | UploadUserWithUsername | (req_id, username) |
+| nginx-web-server | text-service | /wrk2-api/review/compose | UploadText | (req_id, text) |
+| nginx-web-server | movie-id-service | /wrk2-api/review/compose | UploadMovieId | (req_id, title, rating) |
+| nginx-web-server | unique-id-service | /wrk2-api/review/compose | UploadUniqueId | (req_id) |
+| unique-id-service | compose-review-service | UploadUniqueId | (req_id, review_id) |
+| movie-id-service | compose-review-service | UploadMovieId | (req_id, movie_id) |
+| movie-id-service | rating-service | UploadRating | (req_id, movie_id, rating) |
+| movie-id-service | movie-id-mongodb | movie-id | movie-id | (title) |
+| movie-id-service | movie-id-mongodb | movie-id | movie-id | (title, movie_id) |
+| movie-id-service | movie-id-memcached | get | title |
+| movie-id-service | movie-id-memcached | set | title = (movie_id) |
+| text-service | compose-review-servic  | compose-review-service | UploadRating | (req_id, rating) |
+| rating-service | compose-review-service | UploadRating | (req_id, rating) |
+| rating-service | rating-redis | inc | movie_id + ":uncommit_sum" |e | UploadText | (req_id, movie_id) |
+| user-service | compose-review-service | UploadUserId | (req_id, user_id) |
+| user-service | user-mongodb | user | user | (username) |
+| user-service | user-mongodb | user | user | (user_id, first_name, last_name, username, salt, salted_password) |
+| user-service | user-memcached | get | username + ":user_id" |
+| user-service | user-memcached | set | username + ":user_id" = user_id |
+| user-service | user-memcached | get | username + ":password" |
+| user-service | user-memcached | set | username + ":password" = password |
+| user-service | user-memcached | get | username + ":salt" |
+| user-service | user-memcached | set | username + ":salt" = salt |
+| compose-review-service | review-storage-service | StoreReview | (req_id, new_review) |
+| compose-review-service | user-review-service | UploadUserReview | (req_id, new_review.user_id, new_review.review_id, new_review.timestamp) |
+| compose-review-service | movie-review-service | UploadMovieReview | (req_id, new_review.movie_id, new_review.review_id, new_review.timestamp) |
+| compose-review-service | compose-review-memcached | get | unique_id + ":review_id" |
+| compose-review-service | compose-review-memcached | add | unique_id + ":review_id" = (unique_id) |
+| compose-review-service | compose-review-memcached | get | movie_id + ":movie_id"|
+| compose-review-service | compose-review-memcached | add | movie_id + ":movie_id" = (movie_id) |
+| compose-review-service | compose-review-memcached | get | user_id + ":user_id" |
+| compose-review-service | compose-review-memcached | add | user_id + ":user_id" = (user_id) |
+| compose-review-service | compose-review-memcached | get | text + ":text" |
+| compose-review-service | compose-review-memcached | add | text + ":text" = (text) |
+| compose-review-service | compose-review-memcached | get | rating + ":rating" |
+| compose-review-service | compose-review-memcached | add | rating + ":rating" = (rating) |
+| compose-review-service | compose-review-memcached | get | req_id + ":counter" |
+| compose-review-service | compose-review-memcached | add | req_id + ":counter" = (0) |
+| compose-review-service | compose-review-memcached | inc | req_id + ":counter" |
+| review-storage-service | review-storage-mongodb | review | review | (req_id, review_id, timestamp, user_id, movie_id, text, rating) |
+| review-storage-service | review-storage-memcached | get | review_id |
+| review-storage-service | review-storage-memcached | set | review_id = review_id |
+| user-review-service | review-storage-service | ReadReviews | (req_id, review_ids) |
+| user-review-service | user-review-mongodb | user-review | user-review | (user_id) |
+| user-review-service | user-review-mongodb | user-review | user-review | (user_id, reviews) |
+| user-review-service | user-review-redis | get | user_id |
+| user-review-service | user-review-redis | add | user_id = (review_id, timestamp) |
+| user-review-service | user-review-redis | del | user_id |
+| movie-review-service | review-storage-service | ReadReviews | (req_id, review_ids) |
+| movie-review-service | movie-review-mongodb | movie-review | movie-review | (movie_id) |
+| movie-review-service | movie-review-mongodb | movie-review | movie-review | (movie_id, reviews) |
+| movie-review-service | movie-review-redis | get | movie_id |
+| movie-review-service | movie-review-redis | add | movie_id = (review_id, timestamp) |
+| movie-review-service | movie-review-redis | del | movie_id |
+| cast-info-service | cast-info-mongodb | cast-info | cast-info | (cast_info_id, name, gender, intro) |
+| cast-info-service | cast-info-memcached | get | cast_info_id |
+| cast-info-service | cast-info-memcached | set | cast_info_id = cast_info_id |
+| plot-service | plot-mongodb | plot | plot | (plot_id) |
+| plot-service | plot-mongodb | plot | plot | (plot_id, plot) |
+| plot-service | plot-memcached | get | plot_id |
+| plot-service | plot-memcached | set | plot_id = (ploy_id) |
+| movie-info-service | movie-info-mongodb | movie-info | movie-info | (movie_id) |
+| movie-info-service | movie-info-mongodb | movie-info | movie-info | (movie_id, title, plot_id, avg_rating, num_rating, casts, thumbnail_ids, photo_ids, video_ids) |
+| movie-info-service | movie-info-memcached | get | movie_id |
+| movie-info-service | movie-info-memcached | set | movie_id = movie_info |
