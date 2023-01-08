@@ -39,4 +39,4 @@ Note:
 - each service will pre-populate the database with some data, you can find them in the `db.go` file under each service's folder in [here](https://github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/cmd)
 
 # Test Coverage
-This project is written in `Go`, and there is no test presented in the source code. This is done deliberately by the author of this project, they choose to remove any test in the source code, as you can see in this [configuration](https://github.com/delimitrou/DeathStarBench/blob/master/hotelReservation/Gopkg.toml#L57)
+This project is written in `Go`, and there is no test presented in the source code.
