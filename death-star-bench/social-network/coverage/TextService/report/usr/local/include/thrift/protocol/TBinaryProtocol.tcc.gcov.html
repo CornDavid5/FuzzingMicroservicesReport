@@ -1,0 +1,530 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - /usr/local/include/thrift/protocol/TBinaryProtocol.tcc</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">usr/local/include/thrift/protocol</a> - TBinaryProtocol.tcc<span style="font-size: 80%;"> (source / <a href="TBinaryProtocol.tcc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">141</td>
+            <td class="headerCovTableEntry">208</td>
+            <td class="headerCovTableEntryLo">67.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 03:48:04</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">32</td>
+            <td class="headerCovTableEntry">42</td>
+            <td class="headerCovTableEntryMed">76.2 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * Licensed to the Apache Software Foundation (ASF) under one
+<span class="lineNum">       3 </span>            :  * or more contributor license agreements. See the NOTICE file
+<span class="lineNum">       4 </span>            :  * distributed with this work for additional information
+<span class="lineNum">       5 </span>            :  * regarding copyright ownership. The ASF licenses this file
+<span class="lineNum">       6 </span>            :  * to you under the Apache License, Version 2.0 (the
+<span class="lineNum">       7 </span>            :  * &quot;License&quot;); you may not use this file except in compliance
+<span class="lineNum">       8 </span>            :  * with the License. You may obtain a copy of the License at
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *   http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * Unless required by applicable law or agreed to in writing,
+<span class="lineNum">      13 </span>            :  * software distributed under the License is distributed on an
+<span class="lineNum">      14 </span>            :  * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+<span class="lineNum">      15 </span>            :  * KIND, either express or implied. See the License for the
+<span class="lineNum">      16 </span>            :  * specific language governing permissions and limitations
+<span class="lineNum">      17 </span>            :  * under the License.
+<span class="lineNum">      18 </span>            :  */
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #ifndef _THRIFT_PROTOCOL_TBINARYPROTOCOL_TCC_
+<span class="lineNum">      21 </span>            : #define _THRIFT_PROTOCOL_TBINARYPROTOCOL_TCC_ 1
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : #include &lt;thrift/protocol/TBinaryProtocol.h&gt;
+<span class="lineNum">      24 </span>            : 
+<span class="lineNum">      25 </span>            : #include &lt;limits&gt;
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : namespace apache {
+<span class="lineNum">      28 </span>            : namespace thrift {
+<span class="lineNum">      29 </span>            : namespace protocol {
+<a name="30"><span class="lineNum">      30 </span>            : </a>
+<span class="lineNum">      31 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">      32 </span><span class="lineCov">         36 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::writeMessageBegin(const std::string&amp; name,</span>
+<span class="lineNum">      33 </span>            :                                                                      const TMessageType messageType,
+<span class="lineNum">      34 </span>            :                                                                      const int32_t seqid) {
+<span class="lineNum">      35 </span><span class="lineCov">         36 :   if (this-&gt;strict_write_) {</span>
+<span class="lineNum">      36 </span><span class="lineCov">         36 :     int32_t version = (VERSION_1) | ((int32_t)messageType);</span>
+<span class="lineNum">      37 </span><span class="lineCov">         36 :     uint32_t wsize = 0;</span>
+<span class="lineNum">      38 </span><span class="lineCov">         36 :     wsize += writeI32(version);</span>
+<span class="lineNum">      39 </span><span class="lineCov">         36 :     wsize += writeString(name);</span>
+<span class="lineNum">      40 </span><span class="lineCov">         36 :     wsize += writeI32(seqid);</span>
+<span class="lineNum">      41 </span><span class="lineCov">         36 :     return wsize;</span>
+<span class="lineNum">      42 </span>            :   } else {
+<span class="lineNum">      43 </span><span class="lineNoCov">          0 :     uint32_t wsize = 0;</span>
+<span class="lineNum">      44 </span><span class="lineNoCov">          0 :     wsize += writeString(name);</span>
+<span class="lineNum">      45 </span><span class="lineNoCov">          0 :     wsize += writeByte((int8_t)messageType);</span>
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 :     wsize += writeI32(seqid);</span>
+<span class="lineNum">      47 </span><span class="lineNoCov">          0 :     return wsize;</span>
+<span class="lineNum">      48 </span>            :   }
+<span class="lineNum">      49 </span>            : }
+<a name="50"><span class="lineNum">      50 </span>            : </a>
+<span class="lineNum">      51 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">      52 </span><span class="lineCov">         36 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::writeMessageEnd() {</span>
+<span class="lineNum">      53 </span><span class="lineCov">         36 :   return 0;</span>
+<span class="lineNum">      54 </span>            : }
+<a name="55"><span class="lineNum">      55 </span>            : </a>
+<span class="lineNum">      56 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">      57 </span><span class="lineCov">         48 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::writeStructBegin(const char* name) {</span>
+<span class="lineNum">      58 </span>            :   (void)name;
+<span class="lineNum">      59 </span><span class="lineCov">         48 :   return 0;</span>
+<span class="lineNum">      60 </span>            : }
+<a name="61"><span class="lineNum">      61 </span>            : </a>
+<span class="lineNum">      62 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">      63 </span><span class="lineCov">         48 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::writeStructEnd() {</span>
+<span class="lineNum">      64 </span><span class="lineCov">         48 :   return 0;</span>
+<span class="lineNum">      65 </span>            : }
+<a name="66"><span class="lineNum">      66 </span>            : </a>
+<span class="lineNum">      67 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">      68 </span><span class="lineCov">        120 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::writeFieldBegin(const char* name,</span>
+<span class="lineNum">      69 </span>            :                                                                    const TType fieldType,
+<span class="lineNum">      70 </span>            :                                                                    const int16_t fieldId) {
+<span class="lineNum">      71 </span>            :   (void)name;
+<span class="lineNum">      72 </span><span class="lineCov">        120 :   uint32_t wsize = 0;</span>
+<span class="lineNum">      73 </span><span class="lineCov">        120 :   wsize += writeByte((int8_t)fieldType);</span>
+<span class="lineNum">      74 </span><span class="lineCov">        120 :   wsize += writeI16(fieldId);</span>
+<span class="lineNum">      75 </span><span class="lineCov">        120 :   return wsize;</span>
+<span class="lineNum">      76 </span>            : }
+<a name="77"><span class="lineNum">      77 </span>            : </a>
+<span class="lineNum">      78 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">      79 </span><span class="lineCov">        120 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::writeFieldEnd() {</span>
+<span class="lineNum">      80 </span><span class="lineCov">        120 :   return 0;</span>
+<span class="lineNum">      81 </span>            : }
+<a name="82"><span class="lineNum">      82 </span>            : </a>
+<span class="lineNum">      83 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">      84 </span><span class="lineCov">         48 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::writeFieldStop() {</span>
+<span class="lineNum">      85 </span><span class="lineCov">         48 :   return writeByte((int8_t)T_STOP);</span>
+<span class="lineNum">      86 </span>            : }
+<a name="87"><span class="lineNum">      87 </span>            : </a>
+<span class="lineNum">      88 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">      89 </span><span class="lineCov">         24 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::writeMapBegin(const TType keyType,</span>
+<span class="lineNum">      90 </span>            :                                                                  const TType valType,
+<span class="lineNum">      91 </span>            :                                                                  const uint32_t size) {
+<span class="lineNum">      92 </span><span class="lineCov">         24 :   uint32_t wsize = 0;</span>
+<span class="lineNum">      93 </span><span class="lineCov">         24 :   wsize += writeByte((int8_t)keyType);</span>
+<span class="lineNum">      94 </span><span class="lineCov">         24 :   wsize += writeByte((int8_t)valType);</span>
+<span class="lineNum">      95 </span><span class="lineCov">         24 :   wsize += writeI32((int32_t)size);</span>
+<span class="lineNum">      96 </span><span class="lineCov">         24 :   return wsize;</span>
+<span class="lineNum">      97 </span>            : }
+<a name="98"><span class="lineNum">      98 </span>            : </a>
+<span class="lineNum">      99 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     100 </span><span class="lineCov">         24 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::writeMapEnd() {</span>
+<span class="lineNum">     101 </span><span class="lineCov">         24 :   return 0;</span>
+<span class="lineNum">     102 </span>            : }
+<a name="103"><span class="lineNum">     103 </span>            : </a>
+<span class="lineNum">     104 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     105 </span><span class="lineCov">         48 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::writeListBegin(const TType elemType,</span>
+<span class="lineNum">     106 </span>            :                                                                   const uint32_t size) {
+<span class="lineNum">     107 </span><span class="lineCov">         48 :   uint32_t wsize = 0;</span>
+<span class="lineNum">     108 </span><span class="lineCov">         48 :   wsize += writeByte((int8_t)elemType);</span>
+<span class="lineNum">     109 </span><span class="lineCov">         48 :   wsize += writeI32((int32_t)size);</span>
+<span class="lineNum">     110 </span><span class="lineCov">         48 :   return wsize;</span>
+<span class="lineNum">     111 </span>            : }
+<a name="112"><span class="lineNum">     112 </span>            : </a>
+<span class="lineNum">     113 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     114 </span><span class="lineCov">         48 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::writeListEnd() {</span>
+<span class="lineNum">     115 </span><span class="lineCov">         48 :   return 0;</span>
+<span class="lineNum">     116 </span>            : }
+<a name="117"><span class="lineNum">     117 </span>            : </a>
+<span class="lineNum">     118 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::writeSetBegin(const TType elemType,</span>
+<span class="lineNum">     120 </span>            :                                                                  const uint32_t size) {
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :   uint32_t wsize = 0;</span>
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :   wsize += writeByte((int8_t)elemType);</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :   wsize += writeI32((int32_t)size);</span>
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :   return wsize;</span>
+<span class="lineNum">     125 </span>            : }
+<a name="126"><span class="lineNum">     126 </span>            : </a>
+<span class="lineNum">     127 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::writeSetEnd() {</span>
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :   return 0;</span>
+<span class="lineNum">     130 </span>            : }
+<a name="131"><span class="lineNum">     131 </span>            : </a>
+<span class="lineNum">     132 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::writeBool(const bool value) {</span>
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :   uint8_t tmp = value ? 1 : 0;</span>
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :   this-&gt;trans_-&gt;write(&amp;tmp, 1);</span>
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :   return 1;</span>
+<span class="lineNum">     137 </span>            : }
+<a name="138"><span class="lineNum">     138 </span>            : </a>
+<span class="lineNum">     139 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     140 </span><span class="lineCov">        264 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::writeByte(const int8_t byte) {</span>
+<span class="lineNum">     141 </span><span class="lineCov">        264 :   this-&gt;trans_-&gt;write((uint8_t*)&amp;byte, 1);</span>
+<span class="lineNum">     142 </span><span class="lineCov">        264 :   return 1;</span>
+<span class="lineNum">     143 </span>            : }
+<a name="144"><span class="lineNum">     144 </span>            : </a>
+<span class="lineNum">     145 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     146 </span><span class="lineCov">        120 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::writeI16(const int16_t i16) {</span>
+<span class="lineNum">     147 </span><span class="lineCov">        120 :   int16_t net = (int16_t)ByteOrder_::toWire16(i16);</span>
+<span class="lineNum">     148 </span><span class="lineCov">        120 :   this-&gt;trans_-&gt;write((uint8_t*)&amp;net, 2);</span>
+<span class="lineNum">     149 </span><span class="lineCov">        120 :   return 2;</span>
+<span class="lineNum">     150 </span>            : }
+<a name="151"><span class="lineNum">     151 </span>            : </a>
+<span class="lineNum">     152 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     153 </span><span class="lineCov">        240 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::writeI32(const int32_t i32) {</span>
+<span class="lineNum">     154 </span><span class="lineCov">        240 :   int32_t net = (int32_t)ByteOrder_::toWire32(i32);</span>
+<span class="lineNum">     155 </span><span class="lineCov">        240 :   this-&gt;trans_-&gt;write((uint8_t*)&amp;net, 4);</span>
+<span class="lineNum">     156 </span><span class="lineCov">        240 :   return 4;</span>
+<span class="lineNum">     157 </span>            : }
+<a name="158"><span class="lineNum">     158 </span>            : </a>
+<span class="lineNum">     159 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     160 </span><span class="lineCov">         24 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::writeI64(const int64_t i64) {</span>
+<span class="lineNum">     161 </span><span class="lineCov">         24 :   int64_t net = (int64_t)ByteOrder_::toWire64(i64);</span>
+<span class="lineNum">     162 </span><span class="lineCov">         24 :   this-&gt;trans_-&gt;write((uint8_t*)&amp;net, 8);</span>
+<span class="lineNum">     163 </span><span class="lineCov">         24 :   return 8;</span>
+<span class="lineNum">     164 </span>            : }
+<a name="165"><span class="lineNum">     165 </span>            : </a>
+<span class="lineNum">     166 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::writeDouble(const double dub) {</span>
+<span class="lineNum">     168 </span>            :   BOOST_STATIC_ASSERT(sizeof(double) == sizeof(uint64_t));
+<span class="lineNum">     169 </span>            :   BOOST_STATIC_ASSERT(std::numeric_limits&lt;double&gt;::is_iec559);
+<span class="lineNum">     170 </span>            : 
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :   uint64_t bits = bitwise_cast&lt;uint64_t&gt;(dub);</span>
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :   bits = ByteOrder_::toWire64(bits);</span>
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 :   this-&gt;trans_-&gt;write((uint8_t*)&amp;bits, 8);</span>
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :   return 8;</span>
+<span class="lineNum">     175 </span>            : }
+<span class="lineNum">     176 </span>            : 
+<a name="177"><span class="lineNum">     177 </span>            : template &lt;class Transport_, class ByteOrder_&gt;</a>
+<span class="lineNum">     178 </span>            : template &lt;typename StrType&gt;
+<span class="lineNum">     179 </span><span class="lineCov">         96 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::writeString(const StrType&amp; str) {</span>
+<span class="lineNum">     180 </span><span class="lineCov">         96 :   if (str.size() &gt; static_cast&lt;size_t&gt;((std::numeric_limits&lt;int32_t&gt;::max)()))</span>
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :     throw TProtocolException(TProtocolException::SIZE_LIMIT);</span>
+<span class="lineNum">     182 </span><span class="lineCov">         96 :   uint32_t size = static_cast&lt;uint32_t&gt;(str.size());</span>
+<span class="lineNum">     183 </span><span class="lineCov">         96 :   uint32_t result = writeI32((int32_t)size);</span>
+<span class="lineNum">     184 </span><span class="lineCov">         96 :   if (size &gt; 0) {</span>
+<span class="lineNum">     185 </span><span class="lineCov">         96 :     this-&gt;trans_-&gt;write((uint8_t*)str.data(), size);</span>
+<span class="lineNum">     186 </span>            :   }
+<span class="lineNum">     187 </span><span class="lineCov">         96 :   return result + size;</span>
+<span class="lineNum">     188 </span>            : }
+<a name="189"><span class="lineNum">     189 </span>            : </a>
+<span class="lineNum">     190 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     191 </span><span class="lineNoCov">          0 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::writeBinary(const std::string&amp; str) {</span>
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :   return TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::writeString(str);</span>
+<span class="lineNum">     193 </span>            : }
+<span class="lineNum">     194 </span>            : 
+<span class="lineNum">     195 </span>            : /**
+<span class="lineNum">     196 </span>            :  * Reading functions
+<span class="lineNum">     197 </span>            :  */
+<a name="198"><span class="lineNum">     198 </span>            : </a>
+<span class="lineNum">     199 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     200 </span><span class="lineCov">         46 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::readMessageBegin(std::string&amp; name,</span>
+<span class="lineNum">     201 </span>            :                                                                     TMessageType&amp; messageType,
+<span class="lineNum">     202 </span>            :                                                                     int32_t&amp; seqid) {
+<span class="lineNum">     203 </span><span class="lineCov">         46 :   uint32_t result = 0;</span>
+<span class="lineNum">     204 </span>            :   int32_t sz;
+<span class="lineNum">     205 </span><span class="lineCov">         46 :   result += readI32(sz);</span>
+<span class="lineNum">     206 </span>            : 
+<span class="lineNum">     207 </span><span class="lineCov">         36 :   if (sz &lt; 0) {</span>
+<span class="lineNum">     208 </span>            :     // Check for correct version number
+<span class="lineNum">     209 </span><span class="lineCov">         36 :     int32_t version = sz &amp; VERSION_MASK;</span>
+<span class="lineNum">     210 </span><span class="lineCov">         36 :     if (version != VERSION_1) {</span>
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :       throw TProtocolException(TProtocolException::BAD_VERSION, &quot;Bad version identifier&quot;);</span>
+<span class="lineNum">     212 </span>            :     }
+<span class="lineNum">     213 </span><span class="lineCov">         36 :     messageType = (TMessageType)(sz &amp; 0x000000ff);</span>
+<span class="lineNum">     214 </span><span class="lineCov">         36 :     result += readString(name);</span>
+<span class="lineNum">     215 </span><span class="lineCov">         36 :     result += readI32(seqid);</span>
+<span class="lineNum">     216 </span>            :   } else {
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :     if (this-&gt;strict_read_) {</span>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :       throw TProtocolException(TProtocolException::BAD_VERSION,</span>
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 :                                &quot;No version identifier... old protocol client in strict mode?&quot;);</span>
+<span class="lineNum">     220 </span>            :     } else {
+<span class="lineNum">     221 </span>            :       // Handle pre-versioned input
+<span class="lineNum">     222 </span>            :       int8_t type;
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :       result += readStringBody(name, sz);</span>
+<span class="lineNum">     224 </span><span class="lineNoCov">          0 :       result += readByte(type);</span>
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :       messageType = (TMessageType)type;</span>
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :       result += readI32(seqid);</span>
+<span class="lineNum">     227 </span>            :     }
+<span class="lineNum">     228 </span>            :   }
+<span class="lineNum">     229 </span><span class="lineCov">         36 :   return result;</span>
+<span class="lineNum">     230 </span>            : }
+<a name="231"><span class="lineNum">     231 </span>            : </a>
+<span class="lineNum">     232 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     233 </span><span class="lineCov">         36 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::readMessageEnd() {</span>
+<span class="lineNum">     234 </span><span class="lineCov">         36 :   return 0;</span>
+<span class="lineNum">     235 </span>            : }
+<a name="236"><span class="lineNum">     236 </span>            : </a>
+<span class="lineNum">     237 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     238 </span><span class="lineCov">         36 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::readStructBegin(std::string&amp; name) {</span>
+<span class="lineNum">     239 </span><span class="lineCov">         36 :   name = &quot;&quot;;</span>
+<span class="lineNum">     240 </span><span class="lineCov">         36 :   return 0;</span>
+<span class="lineNum">     241 </span>            : }
+<a name="242"><span class="lineNum">     242 </span>            : </a>
+<span class="lineNum">     243 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     244 </span><span class="lineCov">         36 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::readStructEnd() {</span>
+<span class="lineNum">     245 </span><span class="lineCov">         36 :   return 0;</span>
+<span class="lineNum">     246 </span>            : }
+<a name="247"><span class="lineNum">     247 </span>            : </a>
+<span class="lineNum">     248 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     249 </span><span class="lineCov">         96 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::readFieldBegin(std::string&amp; name,</span>
+<span class="lineNum">     250 </span>            :                                                                   TType&amp; fieldType,
+<span class="lineNum">     251 </span>            :                                                                   int16_t&amp; fieldId) {
+<span class="lineNum">     252 </span>            :   (void)name;
+<span class="lineNum">     253 </span><span class="lineCov">         96 :   uint32_t result = 0;</span>
+<span class="lineNum">     254 </span>            :   int8_t type;
+<span class="lineNum">     255 </span><span class="lineCov">         96 :   result += readByte(type);</span>
+<span class="lineNum">     256 </span><span class="lineCov">         96 :   fieldType = (TType)type;</span>
+<span class="lineNum">     257 </span><span class="lineCov">         96 :   if (fieldType == T_STOP) {</span>
+<span class="lineNum">     258 </span><span class="lineCov">         36 :     fieldId = 0;</span>
+<span class="lineNum">     259 </span><span class="lineCov">         36 :     return result;</span>
+<span class="lineNum">     260 </span>            :   }
+<span class="lineNum">     261 </span><span class="lineCov">         60 :   result += readI16(fieldId);</span>
+<span class="lineNum">     262 </span><span class="lineCov">         60 :   return result;</span>
+<span class="lineNum">     263 </span>            : }
+<a name="264"><span class="lineNum">     264 </span>            : </a>
+<span class="lineNum">     265 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     266 </span><span class="lineCov">         60 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::readFieldEnd() {</span>
+<span class="lineNum">     267 </span><span class="lineCov">         60 :   return 0;</span>
+<span class="lineNum">     268 </span>            : }
+<a name="269"><span class="lineNum">     269 </span>            : </a>
+<span class="lineNum">     270 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     271 </span><span class="lineCov">         12 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::readMapBegin(TType&amp; keyType,</span>
+<span class="lineNum">     272 </span>            :                                                                 TType&amp; valType,
+<span class="lineNum">     273 </span>            :                                                                 uint32_t&amp; size) {
+<span class="lineNum">     274 </span>            :   int8_t k, v;
+<span class="lineNum">     275 </span><span class="lineCov">         12 :   uint32_t result = 0;</span>
+<span class="lineNum">     276 </span>            :   int32_t sizei;
+<span class="lineNum">     277 </span><span class="lineCov">         12 :   result += readByte(k);</span>
+<span class="lineNum">     278 </span><span class="lineCov">         12 :   keyType = (TType)k;</span>
+<span class="lineNum">     279 </span><span class="lineCov">         12 :   result += readByte(v);</span>
+<span class="lineNum">     280 </span><span class="lineCov">         12 :   valType = (TType)v;</span>
+<span class="lineNum">     281 </span><span class="lineCov">         12 :   result += readI32(sizei);</span>
+<span class="lineNum">     282 </span><span class="lineCov">         12 :   if (sizei &lt; 0) {</span>
+<span class="lineNum">     283 </span><span class="lineNoCov">          0 :     throw TProtocolException(TProtocolException::NEGATIVE_SIZE);</span>
+<span class="lineNum">     284 </span><span class="lineCov">         12 :   } else if (this-&gt;container_limit_ &amp;&amp; sizei &gt; this-&gt;container_limit_) {</span>
+<span class="lineNum">     285 </span><span class="lineNoCov">          0 :     throw TProtocolException(TProtocolException::SIZE_LIMIT);</span>
+<span class="lineNum">     286 </span>            :   }
+<span class="lineNum">     287 </span><span class="lineCov">         12 :   size = (uint32_t)sizei;</span>
+<span class="lineNum">     288 </span><span class="lineCov">         12 :   return result;</span>
+<span class="lineNum">     289 </span>            : }
+<a name="290"><span class="lineNum">     290 </span>            : </a>
+<span class="lineNum">     291 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     292 </span><span class="lineCov">         12 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::readMapEnd() {</span>
+<span class="lineNum">     293 </span><span class="lineCov">         12 :   return 0;</span>
+<span class="lineNum">     294 </span>            : }
+<a name="295"><span class="lineNum">     295 </span>            : </a>
+<span class="lineNum">     296 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     297 </span><span class="lineCov">         24 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::readListBegin(TType&amp; elemType, uint32_t&amp; size) {</span>
+<span class="lineNum">     298 </span>            :   int8_t e;
+<span class="lineNum">     299 </span><span class="lineCov">         24 :   uint32_t result = 0;</span>
+<span class="lineNum">     300 </span>            :   int32_t sizei;
+<span class="lineNum">     301 </span><span class="lineCov">         24 :   result += readByte(e);</span>
+<span class="lineNum">     302 </span><span class="lineCov">         24 :   elemType = (TType)e;</span>
+<span class="lineNum">     303 </span><span class="lineCov">         24 :   result += readI32(sizei);</span>
+<span class="lineNum">     304 </span><span class="lineCov">         24 :   if (sizei &lt; 0) {</span>
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 :     throw TProtocolException(TProtocolException::NEGATIVE_SIZE);</span>
+<span class="lineNum">     306 </span><span class="lineCov">         24 :   } else if (this-&gt;container_limit_ &amp;&amp; sizei &gt; this-&gt;container_limit_) {</span>
+<span class="lineNum">     307 </span><span class="lineNoCov">          0 :     throw TProtocolException(TProtocolException::SIZE_LIMIT);</span>
+<span class="lineNum">     308 </span>            :   }
+<span class="lineNum">     309 </span><span class="lineCov">         24 :   size = (uint32_t)sizei;</span>
+<span class="lineNum">     310 </span><span class="lineCov">         24 :   return result;</span>
+<span class="lineNum">     311 </span>            : }
+<a name="312"><span class="lineNum">     312 </span>            : </a>
+<span class="lineNum">     313 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     314 </span><span class="lineCov">         24 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::readListEnd() {</span>
+<span class="lineNum">     315 </span><span class="lineCov">         24 :   return 0;</span>
+<span class="lineNum">     316 </span>            : }
+<a name="317"><span class="lineNum">     317 </span>            : </a>
+<span class="lineNum">     318 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     319 </span><span class="lineNoCov">          0 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::readSetBegin(TType&amp; elemType, uint32_t&amp; size) {</span>
+<span class="lineNum">     320 </span>            :   int8_t e;
+<span class="lineNum">     321 </span><span class="lineNoCov">          0 :   uint32_t result = 0;</span>
+<span class="lineNum">     322 </span>            :   int32_t sizei;
+<span class="lineNum">     323 </span><span class="lineNoCov">          0 :   result += readByte(e);</span>
+<span class="lineNum">     324 </span><span class="lineNoCov">          0 :   elemType = (TType)e;</span>
+<span class="lineNum">     325 </span><span class="lineNoCov">          0 :   result += readI32(sizei);</span>
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 :   if (sizei &lt; 0) {</span>
+<span class="lineNum">     327 </span><span class="lineNoCov">          0 :     throw TProtocolException(TProtocolException::NEGATIVE_SIZE);</span>
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 :   } else if (this-&gt;container_limit_ &amp;&amp; sizei &gt; this-&gt;container_limit_) {</span>
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :     throw TProtocolException(TProtocolException::SIZE_LIMIT);</span>
+<span class="lineNum">     330 </span>            :   }
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :   size = (uint32_t)sizei;</span>
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :   return result;</span>
+<span class="lineNum">     333 </span>            : }
+<a name="334"><span class="lineNum">     334 </span>            : </a>
+<span class="lineNum">     335 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     336 </span><span class="lineNoCov">          0 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::readSetEnd() {</span>
+<span class="lineNum">     337 </span><span class="lineNoCov">          0 :   return 0;</span>
+<span class="lineNum">     338 </span>            : }
+<a name="339"><span class="lineNum">     339 </span>            : </a>
+<span class="lineNum">     340 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     341 </span><span class="lineNoCov">          0 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::readBool(bool&amp; value) {</span>
+<span class="lineNum">     342 </span>            :   uint8_t b[1];
+<span class="lineNum">     343 </span><span class="lineNoCov">          0 :   this-&gt;trans_-&gt;readAll(b, 1);</span>
+<span class="lineNum">     344 </span><span class="lineNoCov">          0 :   value = *(int8_t*)b != 0;</span>
+<span class="lineNum">     345 </span><span class="lineNoCov">          0 :   return 1;</span>
+<span class="lineNum">     346 </span>            : }
+<a name="347"><span class="lineNum">     347 </span>            : </a>
+<span class="lineNum">     348 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     349 </span><span class="lineCov">        144 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::readByte(int8_t&amp; byte) {</span>
+<span class="lineNum">     350 </span>            :   uint8_t b[1];
+<span class="lineNum">     351 </span><span class="lineCov">        144 :   this-&gt;trans_-&gt;readAll(b, 1);</span>
+<span class="lineNum">     352 </span><span class="lineCov">        144 :   byte = *(int8_t*)b;</span>
+<span class="lineNum">     353 </span><span class="lineCov">        144 :   return 1;</span>
+<span class="lineNum">     354 </span>            : }
+<a name="355"><span class="lineNum">     355 </span>            : </a>
+<span class="lineNum">     356 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     357 </span><span class="lineCov">         60 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::readI16(int16_t&amp; i16) {</span>
+<span class="lineNum">     358 </span>            :   union bytes {
+<span class="lineNum">     359 </span>            :     uint8_t b[2];
+<span class="lineNum">     360 </span>            :     int16_t all;
+<span class="lineNum">     361 </span>            :   } theBytes;
+<span class="lineNum">     362 </span><span class="lineCov">         60 :   this-&gt;trans_-&gt;readAll(theBytes.b, 2);</span>
+<span class="lineNum">     363 </span><span class="lineCov">         60 :   i16 = (int16_t)ByteOrder_::fromWire16(theBytes.all);</span>
+<span class="lineNum">     364 </span><span class="lineCov">         60 :   return 2;</span>
+<span class="lineNum">     365 </span>            : }
+<a name="366"><span class="lineNum">     366 </span>            : </a>
+<span class="lineNum">     367 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     368 </span><span class="lineCov">        174 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::readI32(int32_t&amp; i32) {</span>
+<span class="lineNum">     369 </span>            :   union bytes {
+<span class="lineNum">     370 </span>            :     uint8_t b[4];
+<span class="lineNum">     371 </span>            :     int32_t all;
+<span class="lineNum">     372 </span>            :   } theBytes;
+<span class="lineNum">     373 </span><span class="lineCov">        174 :   this-&gt;trans_-&gt;readAll(theBytes.b, 4);</span>
+<span class="lineNum">     374 </span><span class="lineCov">        164 :   i32 = (int32_t)ByteOrder_::fromWire32(theBytes.all);</span>
+<span class="lineNum">     375 </span><span class="lineCov">        164 :   return 4;</span>
+<span class="lineNum">     376 </span>            : }
+<a name="377"><span class="lineNum">     377 </span>            : </a>
+<span class="lineNum">     378 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     379 </span><span class="lineCov">         12 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::readI64(int64_t&amp; i64) {</span>
+<span class="lineNum">     380 </span>            :   union bytes {
+<span class="lineNum">     381 </span>            :     uint8_t b[8];
+<span class="lineNum">     382 </span>            :     int64_t all;
+<span class="lineNum">     383 </span>            :   } theBytes;
+<span class="lineNum">     384 </span><span class="lineCov">         12 :   this-&gt;trans_-&gt;readAll(theBytes.b, 8);</span>
+<span class="lineNum">     385 </span><span class="lineCov">         12 :   i64 = (int64_t)ByteOrder_::fromWire64(theBytes.all);</span>
+<span class="lineNum">     386 </span><span class="lineCov">         12 :   return 8;</span>
+<span class="lineNum">     387 </span>            : }
+<a name="388"><span class="lineNum">     388 </span>            : </a>
+<span class="lineNum">     389 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     390 </span><span class="lineNoCov">          0 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::readDouble(double&amp; dub) {</span>
+<span class="lineNum">     391 </span>            :   BOOST_STATIC_ASSERT(sizeof(double) == sizeof(uint64_t));
+<span class="lineNum">     392 </span>            :   BOOST_STATIC_ASSERT(std::numeric_limits&lt;double&gt;::is_iec559);
+<span class="lineNum">     393 </span>            : 
+<span class="lineNum">     394 </span>            :   union bytes {
+<span class="lineNum">     395 </span>            :     uint8_t b[8];
+<span class="lineNum">     396 </span>            :     uint64_t all;
+<span class="lineNum">     397 </span>            :   } theBytes;
+<span class="lineNum">     398 </span><span class="lineNoCov">          0 :   this-&gt;trans_-&gt;readAll(theBytes.b, 8);</span>
+<span class="lineNum">     399 </span><span class="lineNoCov">          0 :   theBytes.all = ByteOrder_::fromWire64(theBytes.all);</span>
+<span class="lineNum">     400 </span><span class="lineNoCov">          0 :   dub = bitwise_cast&lt;double&gt;(theBytes.all);</span>
+<span class="lineNum">     401 </span><span class="lineNoCov">          0 :   return 8;</span>
+<span class="lineNum">     402 </span>            : }
+<span class="lineNum">     403 </span>            : 
+<a name="404"><span class="lineNum">     404 </span>            : template &lt;class Transport_, class ByteOrder_&gt;</a>
+<span class="lineNum">     405 </span>            : template &lt;typename StrType&gt;
+<span class="lineNum">     406 </span><span class="lineCov">         56 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::readString(StrType&amp; str) {</span>
+<span class="lineNum">     407 </span>            :   uint32_t result;
+<span class="lineNum">     408 </span>            :   int32_t size;
+<span class="lineNum">     409 </span><span class="lineCov">         56 :   result = readI32(size);</span>
+<span class="lineNum">     410 </span><span class="lineCov">         56 :   return result + readStringBody(str, size);</span>
+<span class="lineNum">     411 </span>            : }
+<a name="412"><span class="lineNum">     412 </span>            : </a>
+<span class="lineNum">     413 </span>            : template &lt;class Transport_, class ByteOrder_&gt;
+<span class="lineNum">     414 </span><span class="lineNoCov">          0 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::readBinary(std::string&amp; str) {</span>
+<span class="lineNum">     415 </span><span class="lineNoCov">          0 :   return TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::readString(str);</span>
+<span class="lineNum">     416 </span>            : }
+<span class="lineNum">     417 </span>            : 
+<a name="418"><span class="lineNum">     418 </span>            : template &lt;class Transport_, class ByteOrder_&gt;</a>
+<span class="lineNum">     419 </span>            : template &lt;typename StrType&gt;
+<span class="lineNum">     420 </span><span class="lineCov">         56 : uint32_t TBinaryProtocolT&lt;Transport_, ByteOrder_&gt;::readStringBody(StrType&amp; str, int32_t size) {</span>
+<span class="lineNum">     421 </span><span class="lineCov">         56 :   uint32_t result = 0;</span>
+<span class="lineNum">     422 </span>            : 
+<span class="lineNum">     423 </span>            :   // Catch error cases
+<span class="lineNum">     424 </span><span class="lineCov">         56 :   if (size &lt; 0) {</span>
+<span class="lineNum">     425 </span><span class="lineNoCov">          0 :     throw TProtocolException(TProtocolException::NEGATIVE_SIZE);</span>
+<span class="lineNum">     426 </span>            :   }
+<span class="lineNum">     427 </span><span class="lineCov">         56 :   if (this-&gt;string_limit_ &gt; 0 &amp;&amp; size &gt; this-&gt;string_limit_) {</span>
+<span class="lineNum">     428 </span><span class="lineNoCov">          0 :     throw TProtocolException(TProtocolException::SIZE_LIMIT);</span>
+<span class="lineNum">     429 </span>            :   }
+<span class="lineNum">     430 </span>            : 
+<span class="lineNum">     431 </span>            :   // Catch empty string case
+<span class="lineNum">     432 </span><span class="lineCov">         56 :   if (size == 0) {</span>
+<span class="lineNum">     433 </span><span class="lineNoCov">          0 :     str.clear();</span>
+<span class="lineNum">     434 </span><span class="lineNoCov">          0 :     return result;</span>
+<span class="lineNum">     435 </span>            :   }
+<span class="lineNum">     436 </span>            : 
+<span class="lineNum">     437 </span>            :   // Try to borrow first
+<span class="lineNum">     438 </span>            :   const uint8_t* borrow_buf;
+<span class="lineNum">     439 </span><span class="lineCov">         56 :   uint32_t got = size;</span>
+<span class="lineNum">     440 </span><span class="lineCov">         56 :   if ((borrow_buf = this-&gt;trans_-&gt;borrow(NULL, &amp;got))) {</span>
+<span class="lineNum">     441 </span><span class="lineCov">         56 :     str.assign((const char*)borrow_buf, size);</span>
+<span class="lineNum">     442 </span><span class="lineCov">         56 :     this-&gt;trans_-&gt;consume(size);</span>
+<span class="lineNum">     443 </span><span class="lineCov">         56 :     return size;</span>
+<span class="lineNum">     444 </span>            :   }
+<span class="lineNum">     445 </span>            : 
+<span class="lineNum">     446 </span><span class="lineNoCov">          0 :   str.resize(size);</span>
+<span class="lineNum">     447 </span><span class="lineNoCov">          0 :   this-&gt;trans_-&gt;readAll(reinterpret_cast&lt;uint8_t*&gt;(&amp;str[0]), size);</span>
+<span class="lineNum">     448 </span><span class="lineNoCov">          0 :   return (uint32_t)size;</span>
+<span class="lineNum">     449 </span>            : }
+<span class="lineNum">     450 </span>            : }
+<span class="lineNum">     451 </span>            : }
+<span class="lineNum">     452 </span>            : } // apache::thrift::protocol
+<span class="lineNum">     453 </span>            : 
+<span class="lineNum">     454 </span>            : #endif // #ifndef _THRIFT_PROTOCOL_TBINARYPROTOCOL_TCC_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

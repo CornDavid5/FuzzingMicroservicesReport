@@ -1,0 +1,600 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/log/sinks/basic_sink_frontend.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">boost/log/sinks</a> - basic_sink_frontend.hpp<span style="font-size: 80%;"> (source / <a href="basic_sink_frontend.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">39</td>
+            <td class="headerCovTableEntry">80</td>
+            <td class="headerCovTableEntryLo">48.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 03:48:04</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntryLo">47.1 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *          Copyright Andrey Semashev 2007 - 2015.
+<span class="lineNum">       3 </span>            :  * Distributed under the Boost Software License, Version 1.0.
+<span class="lineNum">       4 </span>            :  *    (See accompanying file LICENSE_1_0.txt or copy at
+<span class="lineNum">       5 </span>            :  *          http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       6 </span>            :  */
+<span class="lineNum">       7 </span>            : /*!
+<span class="lineNum">       8 </span>            :  * \file   basic_sink_frontend.hpp
+<span class="lineNum">       9 </span>            :  * \author Andrey Semashev
+<span class="lineNum">      10 </span>            :  * \date   14.07.2009
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * The header contains implementation of a base class for sink frontends.
+<span class="lineNum">      13 </span>            :  */
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : #ifndef BOOST_LOG_SINKS_BASIC_SINK_FRONTEND_HPP_INCLUDED_
+<span class="lineNum">      16 </span>            : #define BOOST_LOG_SINKS_BASIC_SINK_FRONTEND_HPP_INCLUDED_
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #include &lt;boost/mpl/bool.hpp&gt;
+<span class="lineNum">      19 </span>            : #include &lt;boost/log/detail/config.hpp&gt;
+<span class="lineNum">      20 </span>            : #include &lt;boost/log/detail/cleanup_scope_guard.hpp&gt;
+<span class="lineNum">      21 </span>            : #include &lt;boost/log/detail/code_conversion.hpp&gt;
+<span class="lineNum">      22 </span>            : #include &lt;boost/log/detail/attachable_sstream_buf.hpp&gt;
+<span class="lineNum">      23 </span>            : #include &lt;boost/log/detail/fake_mutex.hpp&gt;
+<span class="lineNum">      24 </span>            : #include &lt;boost/log/core/record_view.hpp&gt;
+<span class="lineNum">      25 </span>            : #include &lt;boost/log/sinks/sink.hpp&gt;
+<span class="lineNum">      26 </span>            : #include &lt;boost/log/sinks/frontend_requirements.hpp&gt;
+<span class="lineNum">      27 </span>            : #include &lt;boost/log/expressions/filter.hpp&gt;
+<span class="lineNum">      28 </span>            : #include &lt;boost/log/expressions/formatter.hpp&gt;
+<span class="lineNum">      29 </span>            : #if !defined(BOOST_LOG_NO_THREADS)
+<span class="lineNum">      30 </span>            : #include &lt;boost/thread/exceptions.hpp&gt;
+<span class="lineNum">      31 </span>            : #include &lt;boost/thread/tss.hpp&gt;
+<span class="lineNum">      32 </span>            : #include &lt;boost/thread/locks.hpp&gt;
+<span class="lineNum">      33 </span>            : #include &lt;boost/log/detail/locks.hpp&gt;
+<span class="lineNum">      34 </span>            : #include &lt;boost/log/detail/light_rw_mutex.hpp&gt;
+<span class="lineNum">      35 </span>            : #endif // !defined(BOOST_LOG_NO_THREADS)
+<span class="lineNum">      36 </span>            : #include &lt;boost/log/detail/header.hpp&gt;
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            : #ifdef BOOST_HAS_PRAGMA_ONCE
+<span class="lineNum">      39 </span>            : #pragma once
+<span class="lineNum">      40 </span>            : #endif
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            : namespace boost {
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            : BOOST_LOG_OPEN_NAMESPACE
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            : namespace sinks {
+<a name="47"><span class="lineNum">      47 </span>            : </a>
+<span class="lineNum">      48 </span>            : //! A base class for a logging sink frontend
+<span class="lineNum">      49 </span><span class="lineNoCov">          0 : class BOOST_LOG_NO_VTABLE basic_sink_frontend :</span>
+<span class="lineNum">      50 </span>            :     public sink
+<span class="lineNum">      51 </span>            : {
+<span class="lineNum">      52 </span>            :     //! Base type
+<span class="lineNum">      53 </span>            :     typedef sink base_type;
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            : public:
+<span class="lineNum">      56 </span>            :     //! An exception handler type
+<span class="lineNum">      57 </span>            :     typedef base_type::exception_handler_type exception_handler_type;
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span>            : #if !defined(BOOST_LOG_NO_THREADS)
+<span class="lineNum">      60 </span>            : protected:
+<span class="lineNum">      61 </span>            :     //! Mutex type
+<span class="lineNum">      62 </span>            :     typedef boost::log::aux::light_rw_mutex mutex_type;
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span>            : private:
+<span class="lineNum">      65 </span>            :     //! Synchronization mutex
+<span class="lineNum">      66 </span>            :     mutable mutex_type m_Mutex;
+<span class="lineNum">      67 </span>            : #endif
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span>            : private:
+<span class="lineNum">      70 </span>            :     //! Filter
+<span class="lineNum">      71 </span>            :     filter m_Filter;
+<span class="lineNum">      72 </span>            :     //! Exception handler
+<span class="lineNum">      73 </span>            :     exception_handler_type m_ExceptionHandler;
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span>            : public:
+<span class="lineNum">      76 </span>            :     /*!
+<span class="lineNum">      77 </span>            :      * \brief Initializing constructor
+<span class="lineNum">      78 </span>            :      *
+<a name="79"><span class="lineNum">      79 </span>            :      * \param cross_thread The flag indicates whether the sink passes log records between different threads</a>
+<span class="lineNum">      80 </span>            :      */
+<span class="lineNum">      81 </span><span class="lineCov">          2 :     explicit basic_sink_frontend(bool cross_thread) : sink(cross_thread)</span>
+<span class="lineNum">      82 </span>            :     {
+<span class="lineNum">      83 </span><span class="lineCov">          2 :     }</span>
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span>            :     /*!
+<span class="lineNum">      86 </span>            :      * The method sets sink-specific filter functional object
+<span class="lineNum">      87 </span>            :      */
+<span class="lineNum">      88 </span>            :     template&lt; typename FunT &gt;
+<span class="lineNum">      89 </span>            :     void set_filter(FunT const&amp; filter)
+<span class="lineNum">      90 </span>            :     {
+<span class="lineNum">      91 </span>            :         BOOST_LOG_EXPR_IF_MT(boost::log::aux::exclusive_lock_guard&lt; mutex_type &gt; lock(m_Mutex);)
+<span class="lineNum">      92 </span>            :         m_Filter = filter;
+<span class="lineNum">      93 </span>            :     }
+<span class="lineNum">      94 </span>            :     /*!
+<span class="lineNum">      95 </span>            :      * The method resets the filter
+<span class="lineNum">      96 </span>            :      */
+<span class="lineNum">      97 </span>            :     void reset_filter()
+<span class="lineNum">      98 </span>            :     {
+<span class="lineNum">      99 </span>            :         BOOST_LOG_EXPR_IF_MT(boost::log::aux::exclusive_lock_guard&lt; mutex_type &gt; lock(m_Mutex);)
+<span class="lineNum">     100 </span>            :         m_Filter.reset();
+<span class="lineNum">     101 </span>            :     }
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span>            :     /*!
+<span class="lineNum">     104 </span>            :      * The method sets an exception handler function
+<span class="lineNum">     105 </span>            :      */
+<span class="lineNum">     106 </span>            :     template&lt; typename FunT &gt;
+<span class="lineNum">     107 </span>            :     void set_exception_handler(FunT const&amp; handler)
+<span class="lineNum">     108 </span>            :     {
+<span class="lineNum">     109 </span>            :         BOOST_LOG_EXPR_IF_MT(boost::log::aux::exclusive_lock_guard&lt; mutex_type &gt; lock(m_Mutex);)
+<span class="lineNum">     110 </span>            :         m_ExceptionHandler = handler;
+<span class="lineNum">     111 </span>            :     }
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span>            :     /*!
+<span class="lineNum">     114 </span>            :      * The method resets the exception handler function
+<span class="lineNum">     115 </span>            :      */
+<span class="lineNum">     116 </span>            :     void reset_exception_handler()
+<span class="lineNum">     117 </span>            :     {
+<span class="lineNum">     118 </span>            :         BOOST_LOG_EXPR_IF_MT(boost::log::aux::exclusive_lock_guard&lt; mutex_type &gt; lock(m_Mutex);)
+<span class="lineNum">     119 </span>            :         m_ExceptionHandler.clear();
+<span class="lineNum">     120 </span>            :     }
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span>            :     /*!
+<span class="lineNum">     123 </span>            :      * The method returns \c true if no filter is set or the attribute values pass the filter
+<span class="lineNum">     124 </span>            :      *
+<a name="125"><span class="lineNum">     125 </span>            :      * \param attrs A set of attribute values of a logging record</a>
+<span class="lineNum">     126 </span>            :      */
+<span class="lineNum">     127 </span><span class="lineCov">          2 :     bool will_consume(attribute_value_set const&amp; attrs)</span>
+<span class="lineNum">     128 </span>            :     {
+<span class="lineNum">     129 </span><span class="lineCov">          4 :         BOOST_LOG_EXPR_IF_MT(boost::log::aux::shared_lock_guard&lt; mutex_type &gt; lock(m_Mutex);)</span>
+<span class="lineNum">     130 </span>            :         try
+<span class="lineNum">     131 </span>            :         {
+<span class="lineNum">     132 </span><span class="lineCov">          2 :             return m_Filter(attrs);</span>
+<span class="lineNum">     133 </span>            :         }
+<span class="lineNum">     134 </span>            : #if !defined(BOOST_LOG_NO_THREADS)
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :         catch (thread_interrupted&amp;)</span>
+<span class="lineNum">     136 </span>            :         {
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :             throw;</span>
+<span class="lineNum">     138 </span>            :         }
+<span class="lineNum">     139 </span>            : #endif
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 :         catch (...)</span>
+<span class="lineNum">     141 </span>            :         {
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :             if (m_ExceptionHandler.empty())</span>
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :                 throw;</span>
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :             m_ExceptionHandler();</span>
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :             return false;</span>
+<span class="lineNum">     146 </span>            :         }
+<span class="lineNum">     147 </span>            :     }
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span>            : protected:
+<a name="150"><span class="lineNum">     150 </span>            : #if !defined(BOOST_LOG_NO_THREADS)</a>
+<span class="lineNum">     151 </span>            :     //! Returns reference to the frontend mutex
+<span class="lineNum">     152 </span><span class="lineCov">          4 :     mutex_type&amp; frontend_mutex() const { return m_Mutex; }</span>
+<span class="lineNum">     153 </span>            : #endif
+<a name="154"><span class="lineNum">     154 </span>            : </a>
+<span class="lineNum">     155 </span>            :     //! Returns reference to the exception handler
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :     exception_handler_type&amp; exception_handler() { return m_ExceptionHandler; }</span>
+<span class="lineNum">     157 </span>            :     //! Returns reference to the exception handler
+<span class="lineNum">     158 </span>            :     exception_handler_type const&amp; exception_handler() const { return m_ExceptionHandler; }
+<span class="lineNum">     159 </span>            : 
+<span class="lineNum">     160 </span>            :     //! Feeds log record to the backend
+<span class="lineNum">     161 </span>            :     template&lt; typename BackendMutexT, typename BackendT &gt;
+<span class="lineNum">     162 </span>            :     void feed_record(record_view const&amp; rec, BackendMutexT&amp; backend_mutex, BackendT&amp; backend)
+<span class="lineNum">     163 </span>            :     {
+<span class="lineNum">     164 </span>            :         try
+<span class="lineNum">     165 </span>            :         {
+<span class="lineNum">     166 </span>            :             BOOST_LOG_EXPR_IF_MT(boost::log::aux::exclusive_lock_guard&lt; BackendMutexT &gt; lock(backend_mutex);)
+<span class="lineNum">     167 </span>            :             backend.consume(rec);
+<span class="lineNum">     168 </span>            :         }
+<span class="lineNum">     169 </span>            : #if !defined(BOOST_LOG_NO_THREADS)
+<span class="lineNum">     170 </span>            :         catch (thread_interrupted&amp;)
+<span class="lineNum">     171 </span>            :         {
+<span class="lineNum">     172 </span>            :             throw;
+<span class="lineNum">     173 </span>            :         }
+<span class="lineNum">     174 </span>            : #endif
+<span class="lineNum">     175 </span>            :         catch (...)
+<span class="lineNum">     176 </span>            :         {
+<span class="lineNum">     177 </span>            :             BOOST_LOG_EXPR_IF_MT(boost::log::aux::shared_lock_guard&lt; mutex_type &gt; lock(m_Mutex);)
+<span class="lineNum">     178 </span>            :             if (m_ExceptionHandler.empty())
+<span class="lineNum">     179 </span>            :                 throw;
+<span class="lineNum">     180 </span>            :             m_ExceptionHandler();
+<span class="lineNum">     181 </span>            :         }
+<span class="lineNum">     182 </span>            :     }
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span>            :     //! Attempts to feeds log record to the backend, does not block if \a backend_mutex is locked
+<span class="lineNum">     185 </span>            :     template&lt; typename BackendMutexT, typename BackendT &gt;
+<span class="lineNum">     186 </span>            :     bool try_feed_record(record_view const&amp; rec, BackendMutexT&amp; backend_mutex, BackendT&amp; backend)
+<span class="lineNum">     187 </span>            :     {
+<span class="lineNum">     188 </span>            : #if !defined(BOOST_LOG_NO_THREADS)
+<span class="lineNum">     189 </span>            :         unique_lock&lt; BackendMutexT &gt; lock;
+<span class="lineNum">     190 </span>            :         try
+<span class="lineNum">     191 </span>            :         {
+<span class="lineNum">     192 </span>            :             unique_lock&lt; BackendMutexT &gt; tmp_lock(backend_mutex, try_to_lock);
+<span class="lineNum">     193 </span>            :             if (!tmp_lock.owns_lock())
+<span class="lineNum">     194 </span>            :                 return false;
+<span class="lineNum">     195 </span>            :             lock.swap(tmp_lock);
+<span class="lineNum">     196 </span>            :         }
+<span class="lineNum">     197 </span>            :         catch (thread_interrupted&amp;)
+<span class="lineNum">     198 </span>            :         {
+<span class="lineNum">     199 </span>            :             throw;
+<span class="lineNum">     200 </span>            :         }
+<span class="lineNum">     201 </span>            :         catch (...)
+<span class="lineNum">     202 </span>            :         {
+<span class="lineNum">     203 </span>            :             boost::log::aux::shared_lock_guard&lt; mutex_type &gt; frontend_lock(this-&gt;frontend_mutex());
+<span class="lineNum">     204 </span>            :             if (this-&gt;exception_handler().empty())
+<span class="lineNum">     205 </span>            :                 throw;
+<span class="lineNum">     206 </span>            :             this-&gt;exception_handler()();
+<span class="lineNum">     207 </span>            :             return false;
+<span class="lineNum">     208 </span>            :         }
+<span class="lineNum">     209 </span>            : #endif
+<span class="lineNum">     210 </span>            :         // No need to lock anything in the feed_record method
+<span class="lineNum">     211 </span>            :         boost::log::aux::fake_mutex m;
+<span class="lineNum">     212 </span>            :         feed_record(rec, m, backend);
+<span class="lineNum">     213 </span>            :         return true;
+<span class="lineNum">     214 </span>            :     }
+<span class="lineNum">     215 </span>            : 
+<a name="216"><span class="lineNum">     216 </span>            :     //! Flushes record buffers in the backend, if one supports it</a>
+<span class="lineNum">     217 </span>            :     template&lt; typename BackendMutexT, typename BackendT &gt;
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :     void flush_backend(BackendMutexT&amp; backend_mutex, BackendT&amp; backend)</span>
+<span class="lineNum">     219 </span>            :     {
+<span class="lineNum">     220 </span>            :         typedef typename BackendT::frontend_requirements frontend_requirements;
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 :         flush_backend_impl(backend_mutex, backend,</span>
+<span class="lineNum">     222 </span>            :             typename has_requirement&lt; frontend_requirements, flushing &gt;::type());
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     224 </span>            : 
+<span class="lineNum">     225 </span>            : private:
+<a name="226"><span class="lineNum">     226 </span>            :     //! Flushes record buffers in the backend (the actual implementation)</a>
+<span class="lineNum">     227 </span>            :     template&lt; typename BackendMutexT, typename BackendT &gt;
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :     void flush_backend_impl(BackendMutexT&amp; backend_mutex, BackendT&amp; backend, mpl::true_)</span>
+<span class="lineNum">     229 </span>            :     {
+<span class="lineNum">     230 </span>            :         try
+<span class="lineNum">     231 </span>            :         {
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :             BOOST_LOG_EXPR_IF_MT(boost::log::aux::exclusive_lock_guard&lt; BackendMutexT &gt; lock(backend_mutex);)</span>
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :             backend.flush();</span>
+<span class="lineNum">     234 </span>            :         }
+<span class="lineNum">     235 </span>            : #if !defined(BOOST_LOG_NO_THREADS)
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :         catch (thread_interrupted&amp;)</span>
+<span class="lineNum">     237 </span>            :         {
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :             throw;</span>
+<span class="lineNum">     239 </span>            :         }
+<span class="lineNum">     240 </span>            : #endif
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :         catch (...)</span>
+<span class="lineNum">     242 </span>            :         {
+<span class="lineNum">     243 </span><span class="lineNoCov">          0 :             BOOST_LOG_EXPR_IF_MT(boost::log::aux::shared_lock_guard&lt; mutex_type &gt; lock(m_Mutex);)</span>
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :             if (m_ExceptionHandler.empty())</span>
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :                 throw;</span>
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :             m_ExceptionHandler();</span>
+<span class="lineNum">     247 </span>            :         }
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     249 </span>            :     //! Flushes record buffers in the backend (stub for backends that don't support flushing)
+<span class="lineNum">     250 </span>            :     template&lt; typename BackendMutexT, typename BackendT &gt;
+<span class="lineNum">     251 </span>            :     void flush_backend_impl(BackendMutexT&amp;, BackendT&amp;, mpl::false_)
+<span class="lineNum">     252 </span>            :     {
+<span class="lineNum">     253 </span>            :     }
+<span class="lineNum">     254 </span>            : };
+<span class="lineNum">     255 </span>            : 
+<a name="256"><span class="lineNum">     256 </span>            : //! A base class for a logging sink frontend with formatting support</a>
+<span class="lineNum">     257 </span>            : template&lt; typename CharT &gt;
+<span class="lineNum">     258 </span><span class="lineNoCov">          0 : class BOOST_LOG_NO_VTABLE basic_formatting_sink_frontend :</span>
+<span class="lineNum">     259 </span>            :     public basic_sink_frontend
+<span class="lineNum">     260 </span>            : {
+<span class="lineNum">     261 </span>            :     typedef basic_sink_frontend base_type;
+<span class="lineNum">     262 </span>            : 
+<span class="lineNum">     263 </span>            : public:
+<span class="lineNum">     264 </span>            :     //! Character type
+<span class="lineNum">     265 </span>            :     typedef CharT char_type;
+<span class="lineNum">     266 </span>            :     //! Formatted string type
+<span class="lineNum">     267 </span>            :     typedef std::basic_string&lt; char_type &gt; string_type;
+<span class="lineNum">     268 </span>            : 
+<span class="lineNum">     269 </span>            :     //! Formatter function object type
+<span class="lineNum">     270 </span>            :     typedef basic_formatter&lt; char_type &gt; formatter_type;
+<span class="lineNum">     271 </span>            :     //! Output stream type
+<span class="lineNum">     272 </span>            :     typedef typename formatter_type::stream_type stream_type;
+<span class="lineNum">     273 </span>            : 
+<span class="lineNum">     274 </span>            : #if !defined(BOOST_LOG_NO_THREADS)
+<span class="lineNum">     275 </span>            : protected:
+<span class="lineNum">     276 </span>            :     //! Mutex type
+<span class="lineNum">     277 </span>            :     typedef typename base_type::mutex_type mutex_type;
+<span class="lineNum">     278 </span>            : #endif
+<a name="279"><span class="lineNum">     279 </span>            : </a>
+<span class="lineNum">     280 </span>            : private:
+<span class="lineNum">     281 </span><span class="lineNoCov">          0 :     struct formatting_context</span>
+<span class="lineNum">     282 </span>            :     {
+<span class="lineNum">     283 </span>            : #if !defined(BOOST_LOG_NO_THREADS)
+<span class="lineNum">     284 </span>            :         //! Object version
+<span class="lineNum">     285 </span>            :         const unsigned int m_Version;
+<span class="lineNum">     286 </span>            : #endif
+<span class="lineNum">     287 </span>            :         //! Formatted log record storage
+<span class="lineNum">     288 </span>            :         string_type m_FormattedRecord;
+<span class="lineNum">     289 </span>            :         //! Formatting stream
+<span class="lineNum">     290 </span>            :         stream_type m_FormattingStream;
+<span class="lineNum">     291 </span>            :         //! Formatter functor
+<span class="lineNum">     292 </span>            :         formatter_type m_Formatter;
+<span class="lineNum">     293 </span>            : 
+<span class="lineNum">     294 </span>            :         formatting_context() :
+<span class="lineNum">     295 </span>            : #if !defined(BOOST_LOG_NO_THREADS)
+<span class="lineNum">     296 </span>            :             m_Version(0),
+<span class="lineNum">     297 </span>            : #endif
+<span class="lineNum">     298 </span>            :             m_FormattingStream(m_FormattedRecord)
+<span class="lineNum">     299 </span>            :         {
+<span class="lineNum">     300 </span>            :             m_FormattingStream.exceptions(std::ios_base::badbit | std::ios_base::failbit);
+<a name="301"><span class="lineNum">     301 </span>            :         }</a>
+<span class="lineNum">     302 </span>            : #if !defined(BOOST_LOG_NO_THREADS)
+<span class="lineNum">     303 </span><span class="lineCov">          2 :         formatting_context(unsigned int version, std::locale const&amp; loc, formatter_type const&amp; formatter) :</span>
+<span class="lineNum">     304 </span>            :             m_Version(version),
+<span class="lineNum">     305 </span>            :             m_FormattingStream(m_FormattedRecord),
+<span class="lineNum">     306 </span><span class="lineCov">          2 :             m_Formatter(formatter)</span>
+<span class="lineNum">     307 </span>            :         {
+<span class="lineNum">     308 </span><span class="lineCov">          2 :             m_FormattingStream.exceptions(std::ios_base::badbit | std::ios_base::failbit);</span>
+<span class="lineNum">     309 </span><span class="lineCov">          2 :             m_FormattingStream.imbue(loc);</span>
+<span class="lineNum">     310 </span><span class="lineCov">          2 :         }</span>
+<span class="lineNum">     311 </span>            : #endif
+<span class="lineNum">     312 </span>            :     };
+<span class="lineNum">     313 </span>            : 
+<span class="lineNum">     314 </span>            : private:
+<span class="lineNum">     315 </span>            : #if !defined(BOOST_LOG_NO_THREADS)
+<span class="lineNum">     316 </span>            : 
+<span class="lineNum">     317 </span>            :     //! State version
+<span class="lineNum">     318 </span>            :     volatile unsigned int m_Version;
+<span class="lineNum">     319 </span>            : 
+<span class="lineNum">     320 </span>            :     //! Formatter functor
+<span class="lineNum">     321 </span>            :     formatter_type m_Formatter;
+<span class="lineNum">     322 </span>            :     //! Locale to perform formatting
+<span class="lineNum">     323 </span>            :     std::locale m_Locale;
+<span class="lineNum">     324 </span>            : 
+<span class="lineNum">     325 </span>            :     //! Formatting state
+<span class="lineNum">     326 </span>            :     thread_specific_ptr&lt; formatting_context &gt; m_pContext;
+<span class="lineNum">     327 </span>            : 
+<span class="lineNum">     328 </span>            : #else
+<span class="lineNum">     329 </span>            : 
+<span class="lineNum">     330 </span>            :     //! Formatting state
+<span class="lineNum">     331 </span>            :     formatting_context m_Context;
+<span class="lineNum">     332 </span>            : 
+<span class="lineNum">     333 </span>            : #endif // !defined(BOOST_LOG_NO_THREADS)
+<span class="lineNum">     334 </span>            : 
+<span class="lineNum">     335 </span>            : public:
+<span class="lineNum">     336 </span>            :     /*!
+<span class="lineNum">     337 </span>            :      * \brief Initializing constructor
+<span class="lineNum">     338 </span>            :      *
+<a name="339"><span class="lineNum">     339 </span>            :      * \param cross_thread The flag indicates whether the sink passes log records between different threads</a>
+<span class="lineNum">     340 </span>            :      */
+<span class="lineNum">     341 </span><span class="lineCov">          2 :     explicit basic_formatting_sink_frontend(bool cross_thread) :</span>
+<span class="lineNum">     342 </span>            :         basic_sink_frontend(cross_thread)
+<span class="lineNum">     343 </span>            : #if !defined(BOOST_LOG_NO_THREADS)
+<span class="lineNum">     344 </span><span class="lineCov">          2 :         , m_Version(0)</span>
+<span class="lineNum">     345 </span>            : #endif
+<span class="lineNum">     346 </span>            :     {
+<span class="lineNum">     347 </span><span class="lineCov">          2 :     }</span>
+<span class="lineNum">     348 </span>            : 
+<span class="lineNum">     349 </span>            :     /*!
+<span class="lineNum">     350 </span>            :      * The method sets sink-specific formatter function object
+<a name="351"><span class="lineNum">     351 </span>            :      */</a>
+<span class="lineNum">     352 </span>            :     template&lt; typename FunT &gt;
+<span class="lineNum">     353 </span><span class="lineCov">          2 :     void set_formatter(FunT const&amp; formatter)</span>
+<span class="lineNum">     354 </span>            :     {
+<span class="lineNum">     355 </span>            : #if !defined(BOOST_LOG_NO_THREADS)
+<span class="lineNum">     356 </span><span class="lineCov">          4 :         boost::log::aux::exclusive_lock_guard&lt; mutex_type &gt; lock(this-&gt;frontend_mutex());</span>
+<span class="lineNum">     357 </span><span class="lineCov">          2 :         m_Formatter = formatter;</span>
+<span class="lineNum">     358 </span><span class="lineCov">          2 :         ++m_Version;</span>
+<span class="lineNum">     359 </span>            : #else
+<span class="lineNum">     360 </span>            :         m_Context.m_Formatter = formatter;
+<span class="lineNum">     361 </span>            : #endif
+<span class="lineNum">     362 </span><span class="lineCov">          2 :     }</span>
+<span class="lineNum">     363 </span>            :     /*!
+<span class="lineNum">     364 </span>            :      * The method resets the formatter
+<span class="lineNum">     365 </span>            :      */
+<span class="lineNum">     366 </span>            :     void reset_formatter()
+<span class="lineNum">     367 </span>            :     {
+<span class="lineNum">     368 </span>            : #if !defined(BOOST_LOG_NO_THREADS)
+<span class="lineNum">     369 </span>            :         boost::log::aux::exclusive_lock_guard&lt; mutex_type &gt; lock(this-&gt;frontend_mutex());
+<span class="lineNum">     370 </span>            :         m_Formatter.reset();
+<span class="lineNum">     371 </span>            :         ++m_Version;
+<span class="lineNum">     372 </span>            : #else
+<span class="lineNum">     373 </span>            :         m_Context.m_Formatter.reset();
+<span class="lineNum">     374 </span>            : #endif
+<span class="lineNum">     375 </span>            :     }
+<span class="lineNum">     376 </span>            : 
+<span class="lineNum">     377 </span>            :     /*!
+<span class="lineNum">     378 </span>            :      * The method returns the current locale used for formatting
+<span class="lineNum">     379 </span>            :      */
+<span class="lineNum">     380 </span>            :     std::locale getloc() const
+<span class="lineNum">     381 </span>            :     {
+<span class="lineNum">     382 </span>            : #if !defined(BOOST_LOG_NO_THREADS)
+<span class="lineNum">     383 </span>            :         boost::log::aux::exclusive_lock_guard&lt; mutex_type &gt; lock(this-&gt;frontend_mutex());
+<span class="lineNum">     384 </span>            :         return m_Locale;
+<span class="lineNum">     385 </span>            : #else
+<span class="lineNum">     386 </span>            :         return m_Context.m_FormattingStream.getloc();
+<span class="lineNum">     387 </span>            : #endif
+<span class="lineNum">     388 </span>            :     }
+<span class="lineNum">     389 </span>            :     /*!
+<span class="lineNum">     390 </span>            :      * The method sets the locale used for formatting
+<span class="lineNum">     391 </span>            :      */
+<span class="lineNum">     392 </span>            :     void imbue(std::locale const&amp; loc)
+<span class="lineNum">     393 </span>            :     {
+<span class="lineNum">     394 </span>            : #if !defined(BOOST_LOG_NO_THREADS)
+<span class="lineNum">     395 </span>            :         boost::log::aux::exclusive_lock_guard&lt; mutex_type &gt; lock(this-&gt;frontend_mutex());
+<span class="lineNum">     396 </span>            :         m_Locale = loc;
+<span class="lineNum">     397 </span>            :         ++m_Version;
+<span class="lineNum">     398 </span>            : #else
+<span class="lineNum">     399 </span>            :         m_Context.m_FormattingStream.imbue(loc);
+<span class="lineNum">     400 </span>            : #endif
+<span class="lineNum">     401 </span>            :     }
+<span class="lineNum">     402 </span>            : 
+<span class="lineNum">     403 </span>            : protected:
+<span class="lineNum">     404 </span>            :     //! Returns reference to the formatter
+<span class="lineNum">     405 </span>            :     formatter_type&amp; formatter()
+<span class="lineNum">     406 </span>            :     {
+<span class="lineNum">     407 </span>            : #if !defined(BOOST_LOG_NO_THREADS)
+<span class="lineNum">     408 </span>            :         return m_Formatter;
+<span class="lineNum">     409 </span>            : #else
+<span class="lineNum">     410 </span>            :         return m_Context.m_Formatter;
+<span class="lineNum">     411 </span>            : #endif
+<span class="lineNum">     412 </span>            :     }
+<span class="lineNum">     413 </span>            : 
+<a name="414"><span class="lineNum">     414 </span>            :     //! Feeds log record to the backend</a>
+<span class="lineNum">     415 </span>            :     template&lt; typename BackendMutexT, typename BackendT &gt;
+<span class="lineNum">     416 </span><span class="lineCov">          2 :     void feed_record(record_view const&amp; rec, BackendMutexT&amp; backend_mutex, BackendT&amp; backend)</span>
+<span class="lineNum">     417 </span>            :     {
+<span class="lineNum">     418 </span>            :         formatting_context* context;
+<span class="lineNum">     419 </span>            : 
+<span class="lineNum">     420 </span>            : #if !defined(BOOST_LOG_NO_THREADS)
+<span class="lineNum">     421 </span><span class="lineCov">          2 :         context = m_pContext.get();</span>
+<span class="lineNum">     422 </span><span class="lineCov">          2 :         if (!context || context-&gt;m_Version != m_Version)</span>
+<span class="lineNum">     423 </span>            :         {
+<span class="lineNum">     424 </span>            :             {
+<span class="lineNum">     425 </span><span class="lineCov">          4 :                 boost::log::aux::shared_lock_guard&lt; mutex_type &gt; lock(this-&gt;frontend_mutex());</span>
+<span class="lineNum">     426 </span><span class="lineCov">          2 :                 context = new formatting_context(m_Version, m_Locale, m_Formatter);</span>
+<span class="lineNum">     427 </span>            :             }
+<span class="lineNum">     428 </span><span class="lineCov">          2 :             m_pContext.reset(context);</span>
+<span class="lineNum">     429 </span>            :         }
+<span class="lineNum">     430 </span>            : #else
+<span class="lineNum">     431 </span>            :         context = &amp;m_Context;
+<span class="lineNum">     432 </span>            : #endif
+<span class="lineNum">     433 </span>            : 
+<span class="lineNum">     434 </span><span class="lineCov">          4 :         boost::log::aux::cleanup_guard&lt; stream_type &gt; cleanup1(context-&gt;m_FormattingStream);</span>
+<span class="lineNum">     435 </span><span class="lineCov">          4 :         boost::log::aux::cleanup_guard&lt; string_type &gt; cleanup2(context-&gt;m_FormattedRecord);</span>
+<span class="lineNum">     436 </span>            : 
+<span class="lineNum">     437 </span>            :         try
+<span class="lineNum">     438 </span>            :         {
+<span class="lineNum">     439 </span>            :             // Perform the formatting
+<span class="lineNum">     440 </span><span class="lineCov">          2 :             context-&gt;m_Formatter(rec, context-&gt;m_FormattingStream);</span>
+<span class="lineNum">     441 </span><span class="lineCov">          2 :             context-&gt;m_FormattingStream.flush();</span>
+<span class="lineNum">     442 </span>            : 
+<span class="lineNum">     443 </span>            :             // Feed the record
+<span class="lineNum">     444 </span><span class="lineCov">          4 :             BOOST_LOG_EXPR_IF_MT(boost::log::aux::exclusive_lock_guard&lt; BackendMutexT &gt; lock(backend_mutex);)</span>
+<span class="lineNum">     445 </span><span class="lineCov">          2 :             backend.consume(rec, context-&gt;m_FormattedRecord);</span>
+<span class="lineNum">     446 </span>            :         }
+<span class="lineNum">     447 </span>            : #if !defined(BOOST_LOG_NO_THREADS)
+<span class="lineNum">     448 </span><span class="lineNoCov">          0 :         catch (thread_interrupted&amp;)</span>
+<span class="lineNum">     449 </span>            :         {
+<span class="lineNum">     450 </span><span class="lineNoCov">          0 :             throw;</span>
+<span class="lineNum">     451 </span>            :         }
+<span class="lineNum">     452 </span>            : #endif
+<span class="lineNum">     453 </span><span class="lineNoCov">          0 :         catch (...)</span>
+<span class="lineNum">     454 </span>            :         {
+<span class="lineNum">     455 </span><span class="lineNoCov">          0 :             BOOST_LOG_EXPR_IF_MT(boost::log::aux::shared_lock_guard&lt; mutex_type &gt; lock(this-&gt;frontend_mutex());)</span>
+<span class="lineNum">     456 </span><span class="lineNoCov">          0 :             if (this-&gt;exception_handler().empty())</span>
+<span class="lineNum">     457 </span><span class="lineNoCov">          0 :                 throw;</span>
+<span class="lineNum">     458 </span><span class="lineNoCov">          0 :             this-&gt;exception_handler()();</span>
+<span class="lineNum">     459 </span>            :         }
+<span class="lineNum">     460 </span><span class="lineCov">          2 :     }</span>
+<span class="lineNum">     461 </span>            : 
+<a name="462"><span class="lineNum">     462 </span>            :     //! Attempts to feeds log record to the backend, does not block if \a backend_mutex is locked</a>
+<span class="lineNum">     463 </span>            :     template&lt; typename BackendMutexT, typename BackendT &gt;
+<span class="lineNum">     464 </span><span class="lineCov">          2 :     bool try_feed_record(record_view const&amp; rec, BackendMutexT&amp; backend_mutex, BackendT&amp; backend)</span>
+<span class="lineNum">     465 </span>            :     {
+<span class="lineNum">     466 </span>            : #if !defined(BOOST_LOG_NO_THREADS)
+<span class="lineNum">     467 </span><span class="lineCov">          4 :         unique_lock&lt; BackendMutexT &gt; lock;</span>
+<span class="lineNum">     468 </span>            :         try
+<span class="lineNum">     469 </span>            :         {
+<span class="lineNum">     470 </span><span class="lineCov">          4 :             unique_lock&lt; BackendMutexT &gt; tmp_lock(backend_mutex, try_to_lock);</span>
+<span class="lineNum">     471 </span><span class="lineCov">          2 :             if (!tmp_lock.owns_lock())</span>
+<span class="lineNum">     472 </span><span class="lineNoCov">          0 :                 return false;</span>
+<span class="lineNum">     473 </span><span class="lineCov">          2 :             lock.swap(tmp_lock);</span>
+<span class="lineNum">     474 </span>            :         }
+<span class="lineNum">     475 </span><span class="lineNoCov">          0 :         catch (thread_interrupted&amp;)</span>
+<span class="lineNum">     476 </span>            :         {
+<span class="lineNum">     477 </span><span class="lineNoCov">          0 :             throw;</span>
+<span class="lineNum">     478 </span>            :         }
+<span class="lineNum">     479 </span><span class="lineNoCov">          0 :         catch (...)</span>
+<span class="lineNum">     480 </span>            :         {
+<span class="lineNum">     481 </span><span class="lineNoCov">          0 :             boost::log::aux::shared_lock_guard&lt; mutex_type &gt; frontend_lock(this-&gt;frontend_mutex());</span>
+<span class="lineNum">     482 </span><span class="lineNoCov">          0 :             if (this-&gt;exception_handler().empty())</span>
+<span class="lineNum">     483 </span><span class="lineNoCov">          0 :                 throw;</span>
+<span class="lineNum">     484 </span><span class="lineNoCov">          0 :             this-&gt;exception_handler()();</span>
+<span class="lineNum">     485 </span><span class="lineNoCov">          0 :             return false;</span>
+<span class="lineNum">     486 </span>            :         }
+<span class="lineNum">     487 </span>            : #endif
+<span class="lineNum">     488 </span>            :         // No need to lock anything in the feed_record method
+<span class="lineNum">     489 </span>            :         boost::log::aux::fake_mutex m;
+<span class="lineNum">     490 </span><span class="lineCov">          2 :         feed_record(rec, m, backend);</span>
+<span class="lineNum">     491 </span><span class="lineCov">          2 :         return true;</span>
+<span class="lineNum">     492 </span>            :     }
+<span class="lineNum">     493 </span>            : };
+<span class="lineNum">     494 </span>            : 
+<span class="lineNum">     495 </span>            : namespace aux {
+<span class="lineNum">     496 </span>            : 
+<span class="lineNum">     497 </span>            :     template&lt;
+<span class="lineNum">     498 </span>            :         typename BackendT,
+<span class="lineNum">     499 </span>            :         bool RequiresFormattingV = has_requirement&lt;
+<span class="lineNum">     500 </span>            :             typename BackendT::frontend_requirements,
+<span class="lineNum">     501 </span>            :             formatted_records
+<span class="lineNum">     502 </span>            :         &gt;::value
+<span class="lineNum">     503 </span>            :     &gt;
+<span class="lineNum">     504 </span>            :     struct make_sink_frontend_base
+<span class="lineNum">     505 </span>            :     {
+<span class="lineNum">     506 </span>            :         typedef basic_sink_frontend type;
+<span class="lineNum">     507 </span>            :     };
+<span class="lineNum">     508 </span>            :     template&lt; typename BackendT &gt;
+<span class="lineNum">     509 </span>            :     struct make_sink_frontend_base&lt; BackendT, true &gt;
+<span class="lineNum">     510 </span>            :     {
+<span class="lineNum">     511 </span>            :         typedef basic_formatting_sink_frontend&lt; typename BackendT::char_type &gt; type;
+<span class="lineNum">     512 </span>            :     };
+<span class="lineNum">     513 </span>            : 
+<span class="lineNum">     514 </span>            : } // namespace aux
+<span class="lineNum">     515 </span>            : 
+<span class="lineNum">     516 </span>            : } // namespace sinks
+<span class="lineNum">     517 </span>            : 
+<span class="lineNum">     518 </span>            : BOOST_LOG_CLOSE_NAMESPACE // namespace log
+<span class="lineNum">     519 </span>            : 
+<span class="lineNum">     520 </span>            : } // namespace boost
+<span class="lineNum">     521 </span>            : 
+<span class="lineNum">     522 </span>            : #include &lt;boost/log/detail/footer.hpp&gt;
+<span class="lineNum">     523 </span>            : 
+<span class="lineNum">     524 </span>            : #endif // BOOST_LOG_SINKS_BASIC_SINK_FRONTEND_HPP_INCLUDED_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

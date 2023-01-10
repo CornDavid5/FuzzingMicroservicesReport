@@ -1,0 +1,221 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - /usr/local/include/yaml-cpp/node/node.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">usr/local/include/yaml-cpp/node</a> - node.h<span style="font-size: 80%;"> (source / <a href="node.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 03:43:12</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #ifndef NODE_NODE_H_62B23520_7C8E_11DE_8A39_0800200C9A66</a>
+<span class="lineNum">       2 </span>            : #define NODE_NODE_H_62B23520_7C8E_11DE_8A39_0800200C9A66
+<span class="lineNum">       3 </span>            : 
+<span class="lineNum">       4 </span>            : #if defined(_MSC_VER) ||                                            \
+<span class="lineNum">       5 </span>            :     (defined(__GNUC__) &amp;&amp; (__GNUC__ == 3 &amp;&amp; __GNUC_MINOR__ &gt;= 4) || \
+<span class="lineNum">       6 </span>            :      (__GNUC__ &gt;= 4))  // GCC supports &quot;pragma once&quot; correctly since 3.4
+<span class="lineNum">       7 </span>            : #pragma once
+<span class="lineNum">       8 </span>            : #endif
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span>            : #include &lt;stdexcept&gt;
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span>            : #include &quot;yaml-cpp/dll.h&quot;
+<span class="lineNum">      13 </span>            : #include &quot;yaml-cpp/emitterstyle.h&quot;
+<span class="lineNum">      14 </span>            : #include &quot;yaml-cpp/mark.h&quot;
+<span class="lineNum">      15 </span>            : #include &quot;yaml-cpp/node/detail/bool_type.h&quot;
+<span class="lineNum">      16 </span>            : #include &quot;yaml-cpp/node/detail/iterator_fwd.h&quot;
+<span class="lineNum">      17 </span>            : #include &quot;yaml-cpp/node/ptr.h&quot;
+<span class="lineNum">      18 </span>            : #include &quot;yaml-cpp/node/type.h&quot;
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : namespace YAML {
+<span class="lineNum">      21 </span>            : namespace detail {
+<span class="lineNum">      22 </span>            : class node;
+<span class="lineNum">      23 </span>            : class node_data;
+<span class="lineNum">      24 </span>            : struct iterator_value;
+<span class="lineNum">      25 </span>            : }  // namespace detail
+<span class="lineNum">      26 </span>            : }  // namespace YAML
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : namespace YAML {
+<span class="lineNum">      29 </span>            : class YAML_CPP_API Node {
+<span class="lineNum">      30 </span>            :  public:
+<span class="lineNum">      31 </span>            :   friend class NodeBuilder;
+<span class="lineNum">      32 </span>            :   friend class NodeEvents;
+<span class="lineNum">      33 </span>            :   friend struct detail::iterator_value;
+<span class="lineNum">      34 </span>            :   friend class detail::node;
+<span class="lineNum">      35 </span>            :   friend class detail::node_data;
+<span class="lineNum">      36 </span>            :   template &lt;typename&gt;
+<span class="lineNum">      37 </span>            :   friend class detail::iterator_base;
+<span class="lineNum">      38 </span>            :   template &lt;typename T, typename S&gt;
+<span class="lineNum">      39 </span>            :   friend struct as_if;
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            :   typedef YAML::iterator iterator;
+<span class="lineNum">      42 </span>            :   typedef YAML::const_iterator const_iterator;
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            :   Node();
+<span class="lineNum">      45 </span>            :   explicit Node(NodeType::value type);
+<span class="lineNum">      46 </span>            :   template &lt;typename T&gt;
+<span class="lineNum">      47 </span>            :   explicit Node(const T&amp; rhs);
+<span class="lineNum">      48 </span>            :   explicit Node(const detail::iterator_value&amp; rhs);
+<span class="lineNum">      49 </span>            :   Node(const Node&amp; rhs);
+<span class="lineNum">      50 </span>            :   ~Node();
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            :   YAML::Mark Mark() const;
+<span class="lineNum">      53 </span>            :   NodeType::value Type() const;
+<a name="54"><span class="lineNum">      54 </span>            :   bool IsDefined() const;</a>
+<span class="lineNum">      55 </span>            :   bool IsNull() const { return Type() == NodeType::Null; }
+<a name="56"><span class="lineNum">      56 </span><span class="lineCov">         62 :   bool IsScalar() const { return Type() == NodeType::Scalar; }</span></a>
+<span class="lineNum">      57 </span>            :   bool IsSequence() const { return Type() == NodeType::Sequence; }
+<span class="lineNum">      58 </span><span class="lineCov">          6 :   bool IsMap() const { return Type() == NodeType::Map; }</span>
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span>            :   // bool conversions
+<span class="lineNum">      61 </span>            :   YAML_CPP_OPERATOR_BOOL()
+<span class="lineNum">      62 </span>            :   bool operator!() const { return !IsDefined(); }
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span>            :   // access
+<span class="lineNum">      65 </span>            :   template &lt;typename T&gt;
+<span class="lineNum">      66 </span>            :   T as() const;
+<span class="lineNum">      67 </span>            :   template &lt;typename T, typename S&gt;
+<span class="lineNum">      68 </span>            :   T as(const S&amp; fallback) const;
+<span class="lineNum">      69 </span>            :   const std::string&amp; Scalar() const;
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            :   const std::string&amp; Tag() const;
+<span class="lineNum">      72 </span>            :   void SetTag(const std::string&amp; tag);
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span>            :   // style
+<span class="lineNum">      75 </span>            :   // WARNING: This API might change in future releases.
+<span class="lineNum">      76 </span>            :   EmitterStyle::value Style() const;
+<span class="lineNum">      77 </span>            :   void SetStyle(EmitterStyle::value style);
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span>            :   // assignment
+<span class="lineNum">      80 </span>            :   bool is(const Node&amp; rhs) const;
+<span class="lineNum">      81 </span>            :   template &lt;typename T&gt;
+<span class="lineNum">      82 </span>            :   Node&amp; operator=(const T&amp; rhs);
+<span class="lineNum">      83 </span>            :   Node&amp; operator=(const Node&amp; rhs);
+<span class="lineNum">      84 </span>            :   void reset(const Node&amp; rhs = Node());
+<span class="lineNum">      85 </span>            : 
+<span class="lineNum">      86 </span>            :   // size/iterator
+<span class="lineNum">      87 </span>            :   std::size_t size() const;
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span>            :   const_iterator begin() const;
+<span class="lineNum">      90 </span>            :   iterator begin();
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span>            :   const_iterator end() const;
+<span class="lineNum">      93 </span>            :   iterator end();
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span>            :   // sequence
+<span class="lineNum">      96 </span>            :   template &lt;typename T&gt;
+<span class="lineNum">      97 </span>            :   void push_back(const T&amp; rhs);
+<span class="lineNum">      98 </span>            :   void push_back(const Node&amp; rhs);
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span>            :   // indexing
+<span class="lineNum">     101 </span>            :   template &lt;typename Key&gt;
+<span class="lineNum">     102 </span>            :   const Node operator[](const Key&amp; key) const;
+<span class="lineNum">     103 </span>            :   template &lt;typename Key&gt;
+<span class="lineNum">     104 </span>            :   Node operator[](const Key&amp; key);
+<span class="lineNum">     105 </span>            :   template &lt;typename Key&gt;
+<span class="lineNum">     106 </span>            :   bool remove(const Key&amp; key);
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span>            :   const Node operator[](const Node&amp; key) const;
+<span class="lineNum">     109 </span>            :   Node operator[](const Node&amp; key);
+<span class="lineNum">     110 </span>            :   bool remove(const Node&amp; key);
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span>            :   // map
+<span class="lineNum">     113 </span>            :   template &lt;typename Key, typename Value&gt;
+<span class="lineNum">     114 </span>            :   void force_insert(const Key&amp; key, const Value&amp; value);
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span>            :  private:
+<span class="lineNum">     117 </span>            :   enum Zombie { ZombieNode };
+<span class="lineNum">     118 </span>            :   explicit Node(Zombie);
+<span class="lineNum">     119 </span>            :   explicit Node(detail::node&amp; node, detail::shared_memory_holder pMemory);
+<span class="lineNum">     120 </span>            : 
+<span class="lineNum">     121 </span>            :   void EnsureNodeExists() const;
+<span class="lineNum">     122 </span>            : 
+<span class="lineNum">     123 </span>            :   template &lt;typename T&gt;
+<span class="lineNum">     124 </span>            :   void Assign(const T&amp; rhs);
+<span class="lineNum">     125 </span>            :   void Assign(const char* rhs);
+<span class="lineNum">     126 </span>            :   void Assign(char* rhs);
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span>            :   void AssignData(const Node&amp; rhs);
+<span class="lineNum">     129 </span>            :   void AssignNode(const Node&amp; rhs);
+<span class="lineNum">     130 </span>            : 
+<span class="lineNum">     131 </span>            :  private:
+<span class="lineNum">     132 </span>            :   bool m_isValid;
+<span class="lineNum">     133 </span>            :   mutable detail::shared_memory_holder m_pMemory;
+<span class="lineNum">     134 </span>            :   mutable detail::node* m_pNode;
+<span class="lineNum">     135 </span>            : };
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span>            : YAML_CPP_API bool operator==(const Node&amp; lhs, const Node&amp; rhs);
+<span class="lineNum">     138 </span>            : 
+<span class="lineNum">     139 </span>            : YAML_CPP_API Node Clone(const Node&amp; node);
+<span class="lineNum">     140 </span>            : 
+<span class="lineNum">     141 </span>            : template &lt;typename T&gt;
+<span class="lineNum">     142 </span>            : struct convert;
+<span class="lineNum">     143 </span>            : }
+<span class="lineNum">     144 </span>            : 
+<span class="lineNum">     145 </span>            : #endif  // NODE_NODE_H_62B23520_7C8E_11DE_8A39_0800200C9A66
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

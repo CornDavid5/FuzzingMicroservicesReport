@@ -1,0 +1,674 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/proto/transform/default.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">boost/proto/transform</a> - default.hpp<span style="font-size: 80%;"> (source / <a href="default.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 03:46:44</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : ///////////////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">       2 </span>            : /// \file default.hpp
+<span class="lineNum">       3 </span>            : /// Contains definition of the _default transform, which gives operators their
+<span class="lineNum">       4 </span>            : /// usual C++ meanings and uses Boost.Typeof to deduce return types.
+<span class="lineNum">       5 </span>            : //
+<span class="lineNum">       6 </span>            : //  Copyright 2008 Eric Niebler. Distributed under the Boost
+<span class="lineNum">       7 </span>            : //  Software License, Version 1.0. (See accompanying file
+<span class="lineNum">       8 </span>            : //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span>            : #ifndef BOOST_PROTO_TRANSFORM_DEFAULT_HPP_EAN_04_04_2008
+<span class="lineNum">      11 </span>            : #define BOOST_PROTO_TRANSFORM_DEFAULT_HPP_EAN_04_04_2008
+<span class="lineNum">      12 </span>            : 
+<span class="lineNum">      13 </span>            : #include &lt;boost/preprocessor/iteration/iterate.hpp&gt;
+<span class="lineNum">      14 </span>            : #include &lt;boost/preprocessor/repetition/repeat.hpp&gt;
+<span class="lineNum">      15 </span>            : #include &lt;boost/preprocessor/arithmetic/add.hpp&gt;
+<span class="lineNum">      16 </span>            : #include &lt;boost/preprocessor/arithmetic/sub.hpp&gt;
+<span class="lineNum">      17 </span>            : #include &lt;boost/preprocessor/repetition/enum.hpp&gt;
+<span class="lineNum">      18 </span>            : #include &lt;boost/preprocessor/repetition/enum_shifted.hpp&gt;
+<span class="lineNum">      19 </span>            : #include &lt;boost/preprocessor/repetition/enum_shifted_params.hpp&gt;
+<span class="lineNum">      20 </span>            : #include &lt;boost/ref.hpp&gt;
+<span class="lineNum">      21 </span>            : #include &lt;boost/get_pointer.hpp&gt;
+<span class="lineNum">      22 </span>            : #include &lt;boost/utility/enable_if.hpp&gt;
+<span class="lineNum">      23 </span>            : #include &lt;boost/type_traits/is_member_pointer.hpp&gt;
+<span class="lineNum">      24 </span>            : #include &lt;boost/type_traits/is_member_object_pointer.hpp&gt;
+<span class="lineNum">      25 </span>            : #include &lt;boost/type_traits/is_member_function_pointer.hpp&gt;
+<span class="lineNum">      26 </span>            : #include &lt;boost/proto/proto_fwd.hpp&gt;
+<span class="lineNum">      27 </span>            : #include &lt;boost/proto/traits.hpp&gt;
+<span class="lineNum">      28 </span>            : #include &lt;boost/proto/transform/impl.hpp&gt;
+<span class="lineNum">      29 </span>            : #include &lt;boost/proto/transform/arg.hpp&gt;
+<span class="lineNum">      30 </span>            : #include &lt;boost/proto/detail/decltype.hpp&gt;
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : namespace boost { namespace proto
+<span class="lineNum">      33 </span>            : {
+<span class="lineNum">      34 </span>            :     namespace detail
+<span class="lineNum">      35 </span>            :     {
+<span class="lineNum">      36 </span>            :         template&lt;typename Grammar, typename Tag&gt;
+<span class="lineNum">      37 </span>            :         struct default_case
+<span class="lineNum">      38 </span>            :           : not_&lt;_&gt;
+<span class="lineNum">      39 </span>            :         {};
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            :         template&lt;typename Grammar&gt;
+<span class="lineNum">      42 </span>            :         struct default_case&lt;Grammar, tag::terminal&gt;
+<span class="lineNum">      43 </span>            :           : when&lt;terminal&lt;_&gt;, _value&gt;
+<span class="lineNum">      44 </span>            :         {};
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            :         template&lt;typename Grammar&gt;
+<span class="lineNum">      47 </span>            :         struct default_cases
+<span class="lineNum">      48 </span>            :         {
+<span class="lineNum">      49 </span>            :             template&lt;typename Tag&gt;
+<span class="lineNum">      50 </span>            :             struct case_
+<span class="lineNum">      51 </span>            :               : default_case&lt;Grammar, Tag&gt;
+<span class="lineNum">      52 </span>            :             {};
+<span class="lineNum">      53 </span>            :         };
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            :         #define BOOST_PROTO_UNARY_DEFAULT_EVAL(OP, TAG, MAKE)                                       \
+<span class="lineNum">      56 </span>            :         template&lt;typename Grammar&gt;                                                                  \
+<span class="lineNum">      57 </span>            :         struct BOOST_PP_CAT(default_, TAG)                                                          \
+<span class="lineNum">      58 </span>            :           : transform&lt;BOOST_PP_CAT(default_, TAG)&lt;Grammar&gt; &gt;                                        \
+<span class="lineNum">      59 </span>            :         {                                                                                           \
+<span class="lineNum">      60 </span>            :             template&lt;typename Expr, typename State, typename Data&gt;                                  \
+<span class="lineNum">      61 </span>            :             struct impl                                                                             \
+<span class="lineNum">      62 </span>            :               : transform_impl&lt;Expr, State, Data&gt;                                                   \
+<span class="lineNum">      63 </span>            :             {                                                                                       \
+<span class="lineNum">      64 </span>            :             private:                                                                                \
+<span class="lineNum">      65 </span>            :                 typedef typename result_of::child_c&lt;Expr, 0&gt;::type e0;                              \
+<span class="lineNum">      66 </span>            :                 typedef typename Grammar::template impl&lt;e0, State, Data&gt;::result_type r0;           \
+<span class="lineNum">      67 </span>            :             public:                                                                                 \
+<span class="lineNum">      68 </span>            :                 BOOST_PROTO_DECLTYPE_(OP proto::detail::MAKE&lt;r0&gt;(), result_type)                    \
+<span class="lineNum">      69 </span>            :                 result_type operator ()(                                                            \
+<span class="lineNum">      70 </span>            :                     typename impl::expr_param e                                                     \
+<span class="lineNum">      71 </span>            :                   , typename impl::state_param s                                                    \
+<span class="lineNum">      72 </span>            :                   , typename impl::data_param d                                                     \
+<span class="lineNum">      73 </span>            :                 ) const                                                                             \
+<span class="lineNum">      74 </span>            :                 {                                                                                   \
+<span class="lineNum">      75 </span>            :                     typename Grammar::template impl&lt;e0, State, Data&gt; t0;                            \
+<span class="lineNum">      76 </span>            :                     return OP t0(proto::child_c&lt;0&gt;(e), s, d);                                       \
+<span class="lineNum">      77 </span>            :                 }                                                                                   \
+<span class="lineNum">      78 </span>            :             };                                                                                      \
+<span class="lineNum">      79 </span>            :         };                                                                                          \
+<span class="lineNum">      80 </span>            :                                                                                                     \
+<span class="lineNum">      81 </span>            :         template&lt;typename Grammar&gt;                                                                  \
+<span class="lineNum">      82 </span>            :         struct default_case&lt;Grammar, tag::TAG&gt;                                                      \
+<span class="lineNum">      83 </span>            :           : when&lt;unary_expr&lt;tag::TAG, Grammar&gt;, BOOST_PP_CAT(default_, TAG)&lt;Grammar&gt; &gt;              \
+<span class="lineNum">      84 </span>            :         {};                                                                                         \
+<span class="lineNum">      85 </span>            :         /**/
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span>            :         #define BOOST_PROTO_BINARY_DEFAULT_EVAL(OP, TAG, LMAKE, RMAKE)                              \
+<span class="lineNum">      88 </span>            :         template&lt;typename Grammar&gt;                                                                  \
+<span class="lineNum">      89 </span>            :         struct BOOST_PP_CAT(default_, TAG)                                                          \
+<span class="lineNum">      90 </span>            :           : transform&lt;BOOST_PP_CAT(default_, TAG)&lt;Grammar&gt; &gt;                                        \
+<span class="lineNum">      91 </span>            :         {                                                                                           \
+<span class="lineNum">      92 </span>            :             template&lt;typename Expr, typename State, typename Data&gt;                                  \
+<span class="lineNum">      93 </span>            :             struct impl                                                                             \
+<span class="lineNum">      94 </span>            :               : transform_impl&lt;Expr, State, Data&gt;                                                   \
+<span class="lineNum">      95 </span>            :             {                                                                                       \
+<span class="lineNum">      96 </span>            :             private:                                                                                \
+<span class="lineNum">      97 </span>            :                 typedef typename result_of::child_c&lt;Expr, 0&gt;::type e0;                              \
+<span class="lineNum">      98 </span>            :                 typedef typename result_of::child_c&lt;Expr, 1&gt;::type e1;                              \
+<span class="lineNum">      99 </span>            :                 typedef typename Grammar::template impl&lt;e0, State, Data&gt;::result_type r0;           \
+<span class="lineNum">     100 </span>            :                 typedef typename Grammar::template impl&lt;e1, State, Data&gt;::result_type r1;           \
+<span class="lineNum">     101 </span>            :             public:                                                                                 \
+<span class="lineNum">     102 </span>            :                 BOOST_PROTO_DECLTYPE_(                                                              \
+<span class="lineNum">     103 </span>            :                     proto::detail::LMAKE&lt;r0&gt;() OP proto::detail::RMAKE&lt;r1&gt;()                        \
+<span class="lineNum">     104 </span>            :                   , result_type                                                                     \
+<span class="lineNum">     105 </span>            :                 )                                                                                   \
+<span class="lineNum">     106 </span>            :                 result_type operator ()(                                                            \
+<span class="lineNum">     107 </span>            :                     typename impl::expr_param e                                                     \
+<span class="lineNum">     108 </span>            :                   , typename impl::state_param s                                                    \
+<span class="lineNum">     109 </span>            :                   , typename impl::data_param d                                                     \
+<span class="lineNum">     110 </span>            :                 ) const                                                                             \
+<span class="lineNum">     111 </span>            :                 {                                                                                   \
+<span class="lineNum">     112 </span>            :                     typename Grammar::template impl&lt;e0, State, Data&gt; t0;                            \
+<span class="lineNum">     113 </span>            :                     typename Grammar::template impl&lt;e1, State, Data&gt; t1;                            \
+<span class="lineNum">     114 </span>            :                     return t0(proto::child_c&lt;0&gt;(e), s, d)                                           \
+<span class="lineNum">     115 </span>            :                         OP t1(proto::child_c&lt;1&gt;(e), s, d);                                          \
+<span class="lineNum">     116 </span>            :                 }                                                                                   \
+<span class="lineNum">     117 </span>            :             };                                                                                      \
+<span class="lineNum">     118 </span>            :         };                                                                                          \
+<span class="lineNum">     119 </span>            :                                                                                                     \
+<span class="lineNum">     120 </span>            :         template&lt;typename Grammar&gt;                                                                  \
+<span class="lineNum">     121 </span>            :         struct default_case&lt;Grammar, tag::TAG&gt;                                                      \
+<span class="lineNum">     122 </span>            :           : when&lt;binary_expr&lt;tag::TAG, Grammar, Grammar&gt;, BOOST_PP_CAT(default_, TAG)&lt;Grammar&gt; &gt;    \
+<span class="lineNum">     123 </span>            :         {};                                                                                         \
+<span class="lineNum">     124 </span>            :         /**/
+<span class="lineNum">     125 </span>            : 
+<span class="lineNum">     126 </span>            :         BOOST_PROTO_UNARY_DEFAULT_EVAL(+, unary_plus, make)
+<span class="lineNum">     127 </span>            :         BOOST_PROTO_UNARY_DEFAULT_EVAL(-, negate, make)
+<span class="lineNum">     128 </span>            :         BOOST_PROTO_UNARY_DEFAULT_EVAL(*, dereference, make)
+<span class="lineNum">     129 </span>            :         BOOST_PROTO_UNARY_DEFAULT_EVAL(~, complement, make)
+<span class="lineNum">     130 </span>            :         BOOST_PROTO_UNARY_DEFAULT_EVAL(&amp;, address_of, make)
+<span class="lineNum">     131 </span>            :         BOOST_PROTO_UNARY_DEFAULT_EVAL(!, logical_not, make)
+<span class="lineNum">     132 </span>            :         BOOST_PROTO_UNARY_DEFAULT_EVAL(++, pre_inc, make_mutable)
+<span class="lineNum">     133 </span>            :         BOOST_PROTO_UNARY_DEFAULT_EVAL(--, pre_dec, make_mutable)
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(&lt;&lt;, shift_left, make_mutable, make)
+<span class="lineNum">     136 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(&gt;&gt;, shift_right, make_mutable, make_mutable)
+<span class="lineNum">     137 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(*, multiplies, make, make)
+<span class="lineNum">     138 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(/, divides, make, make)
+<span class="lineNum">     139 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(%, modulus, make, make)
+<span class="lineNum">     140 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(+, plus, make, make)
+<span class="lineNum">     141 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(-, minus, make, make)
+<span class="lineNum">     142 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(&lt;, less, make, make)
+<a name="143"><span class="lineNum">     143 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(&gt;, greater, make, make)</a>
+<span class="lineNum">     144 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(&lt;=, less_equal, make, make)
+<span class="lineNum">     145 </span><span class="lineCov">          5 :         BOOST_PROTO_BINARY_DEFAULT_EVAL(&gt;=, greater_equal, make, make)</span>
+<span class="lineNum">     146 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(==, equal_to, make, make)
+<span class="lineNum">     147 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(!=, not_equal_to, make, make)
+<span class="lineNum">     148 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(||, logical_or, make, make)
+<span class="lineNum">     149 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(&amp;&amp;, logical_and, make, make)
+<span class="lineNum">     150 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(&amp;, bitwise_and, make, make)
+<span class="lineNum">     151 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(|, bitwise_or, make, make)
+<span class="lineNum">     152 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(^, bitwise_xor, make, make)
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(=, assign, make_mutable, make)
+<span class="lineNum">     155 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(&lt;&lt;=, shift_left_assign, make_mutable, make)
+<span class="lineNum">     156 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(&gt;&gt;=, shift_right_assign, make_mutable, make)
+<span class="lineNum">     157 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(*=, multiplies_assign, make_mutable, make)
+<span class="lineNum">     158 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(/=, divides_assign, make_mutable, make)
+<span class="lineNum">     159 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(%=, modulus_assign, make_mutable, make)
+<span class="lineNum">     160 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(+=, plus_assign, make_mutable, make)
+<span class="lineNum">     161 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(-=, minus_assign, make_mutable, make)
+<span class="lineNum">     162 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(&amp;=, bitwise_and_assign, make_mutable, make)
+<span class="lineNum">     163 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(|=, bitwise_or_assign, make_mutable, make)
+<span class="lineNum">     164 </span>            :         BOOST_PROTO_BINARY_DEFAULT_EVAL(^=, bitwise_xor_assign, make_mutable, make)
+<span class="lineNum">     165 </span>            : 
+<span class="lineNum">     166 </span>            :         #undef BOOST_PROTO_UNARY_DEFAULT_EVAL
+<span class="lineNum">     167 </span>            :         #undef BOOST_PROTO_BINARY_DEFAULT_EVAL
+<span class="lineNum">     168 </span>            : 
+<span class="lineNum">     169 </span>            :         /// INTERNAL ONLY
+<span class="lineNum">     170 </span>            :         template&lt;typename Grammar, typename Expr, typename State, typename Data&gt;
+<span class="lineNum">     171 </span>            :         struct is_member_function_invocation
+<span class="lineNum">     172 </span>            :           : is_member_function_pointer&lt;
+<span class="lineNum">     173 </span>            :                 typename uncvref&lt;
+<span class="lineNum">     174 </span>            :                     typename Grammar::template impl&lt;
+<span class="lineNum">     175 </span>            :                         typename result_of::child_c&lt;Expr, 1&gt;::type
+<span class="lineNum">     176 </span>            :                       , State
+<span class="lineNum">     177 </span>            :                       , Data
+<span class="lineNum">     178 </span>            :                     &gt;::result_type
+<span class="lineNum">     179 </span>            :                 &gt;::type
+<span class="lineNum">     180 </span>            :             &gt;
+<span class="lineNum">     181 </span>            :         {};
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span>            :         /// INTERNAL ONLY
+<span class="lineNum">     184 </span>            :         template&lt;typename Grammar, typename Expr, typename State, typename Data, bool IsMemFunCall&gt;
+<span class="lineNum">     185 </span>            :         struct default_mem_ptr_impl
+<span class="lineNum">     186 </span>            :           : transform_impl&lt;Expr, State, Data&gt;
+<span class="lineNum">     187 </span>            :         {
+<span class="lineNum">     188 </span>            :         private:
+<span class="lineNum">     189 </span>            :             typedef typename result_of::child_c&lt;Expr, 0&gt;::type e0;
+<span class="lineNum">     190 </span>            :             typedef typename result_of::child_c&lt;Expr, 1&gt;::type e1;
+<span class="lineNum">     191 </span>            :             typedef typename Grammar::template impl&lt;e0, State, Data&gt;::result_type r0;
+<span class="lineNum">     192 </span>            :             typedef typename Grammar::template impl&lt;e1, State, Data&gt;::result_type r1;
+<span class="lineNum">     193 </span>            :         public:
+<span class="lineNum">     194 </span>            :             typedef typename detail::mem_ptr_fun&lt;r0, r1&gt;::result_type result_type;
+<span class="lineNum">     195 </span>            :             result_type operator ()(
+<span class="lineNum">     196 </span>            :                 typename default_mem_ptr_impl::expr_param e
+<span class="lineNum">     197 </span>            :               , typename default_mem_ptr_impl::state_param s
+<span class="lineNum">     198 </span>            :               , typename default_mem_ptr_impl::data_param d
+<span class="lineNum">     199 </span>            :             ) const
+<span class="lineNum">     200 </span>            :             {
+<span class="lineNum">     201 </span>            :                 typename Grammar::template impl&lt;e0, State, Data&gt; t0;
+<span class="lineNum">     202 </span>            :                 typename Grammar::template impl&lt;e1, State, Data&gt; t1;
+<span class="lineNum">     203 </span>            :                 return detail::mem_ptr_fun&lt;r0, r1&gt;()(
+<span class="lineNum">     204 </span>            :                     t0(proto::child_c&lt;0&gt;(e), s, d)
+<span class="lineNum">     205 </span>            :                   , t1(proto::child_c&lt;1&gt;(e), s, d)
+<span class="lineNum">     206 </span>            :                 );
+<span class="lineNum">     207 </span>            :             }
+<span class="lineNum">     208 </span>            :         };
+<span class="lineNum">     209 </span>            : 
+<span class="lineNum">     210 </span>            :         /// INTERNAL ONLY
+<span class="lineNum">     211 </span>            :         template&lt;typename Grammar, typename Expr, typename State, typename Data&gt;
+<span class="lineNum">     212 </span>            :         struct default_mem_ptr_impl&lt;Grammar, Expr, State, Data, true&gt;
+<span class="lineNum">     213 </span>            :           : transform_impl&lt;Expr, State, Data&gt;
+<span class="lineNum">     214 </span>            :         {
+<span class="lineNum">     215 </span>            :         private:
+<span class="lineNum">     216 </span>            :             typedef typename result_of::child_c&lt;Expr, 0&gt;::type e0;
+<span class="lineNum">     217 </span>            :             typedef typename result_of::child_c&lt;Expr, 1&gt;::type e1;
+<span class="lineNum">     218 </span>            :             typedef typename Grammar::template impl&lt;e0, State, Data&gt;::result_type r0;
+<span class="lineNum">     219 </span>            :             typedef typename Grammar::template impl&lt;e1, State, Data&gt;::result_type r1;
+<span class="lineNum">     220 </span>            :         public:
+<span class="lineNum">     221 </span>            :             typedef detail::memfun&lt;r0, r1&gt; result_type;
+<span class="lineNum">     222 </span>            :             result_type const operator ()(
+<span class="lineNum">     223 </span>            :                 typename default_mem_ptr_impl::expr_param e
+<span class="lineNum">     224 </span>            :               , typename default_mem_ptr_impl::state_param s
+<span class="lineNum">     225 </span>            :               , typename default_mem_ptr_impl::data_param d
+<span class="lineNum">     226 </span>            :             ) const
+<span class="lineNum">     227 </span>            :             {
+<span class="lineNum">     228 </span>            :                 typename Grammar::template impl&lt;e0, State, Data&gt; t0;
+<span class="lineNum">     229 </span>            :                 typename Grammar::template impl&lt;e1, State, Data&gt; t1;
+<span class="lineNum">     230 </span>            :                 return detail::memfun&lt;r0, r1&gt;(
+<span class="lineNum">     231 </span>            :                     t0(proto::child_c&lt;0&gt;(e), s, d)
+<span class="lineNum">     232 </span>            :                   , t1(proto::child_c&lt;1&gt;(e), s, d)
+<span class="lineNum">     233 </span>            :                 );
+<span class="lineNum">     234 </span>            :             }
+<span class="lineNum">     235 </span>            :         };
+<span class="lineNum">     236 </span>            : 
+<span class="lineNum">     237 </span>            :         template&lt;typename Grammar&gt;
+<span class="lineNum">     238 </span>            :         struct default_mem_ptr
+<span class="lineNum">     239 </span>            :           : transform&lt;default_mem_ptr&lt;Grammar&gt; &gt;
+<span class="lineNum">     240 </span>            :         {
+<span class="lineNum">     241 </span>            :             template&lt;typename Expr, typename State, typename Data&gt;
+<span class="lineNum">     242 </span>            :             struct impl
+<span class="lineNum">     243 </span>            :               : default_mem_ptr_impl&lt;
+<span class="lineNum">     244 </span>            :                     Grammar
+<span class="lineNum">     245 </span>            :                   , Expr
+<span class="lineNum">     246 </span>            :                   , State
+<span class="lineNum">     247 </span>            :                   , Data
+<span class="lineNum">     248 </span>            :                   , is_member_function_invocation&lt;Grammar, Expr, State, Data&gt;::value
+<span class="lineNum">     249 </span>            :                 &gt;
+<span class="lineNum">     250 </span>            :             {};
+<span class="lineNum">     251 </span>            :         };
+<span class="lineNum">     252 </span>            : 
+<span class="lineNum">     253 </span>            :         template&lt;typename Grammar&gt;
+<span class="lineNum">     254 </span>            :         struct default_case&lt;Grammar, tag::mem_ptr&gt;
+<span class="lineNum">     255 </span>            :           : when&lt;mem_ptr&lt;Grammar, Grammar&gt;, default_mem_ptr&lt;Grammar&gt; &gt;
+<span class="lineNum">     256 </span>            :         {};
+<span class="lineNum">     257 </span>            : 
+<span class="lineNum">     258 </span>            :         template&lt;typename Grammar&gt;
+<span class="lineNum">     259 </span>            :         struct default_post_inc
+<span class="lineNum">     260 </span>            :           : transform&lt;default_post_inc&lt;Grammar&gt; &gt;
+<span class="lineNum">     261 </span>            :         {
+<span class="lineNum">     262 </span>            :             template&lt;typename Expr, typename State, typename Data&gt;
+<span class="lineNum">     263 </span>            :             struct impl
+<span class="lineNum">     264 </span>            :               : transform_impl&lt;Expr, State, Data&gt;
+<span class="lineNum">     265 </span>            :             {
+<span class="lineNum">     266 </span>            :             private:
+<span class="lineNum">     267 </span>            :                 typedef typename result_of::child_c&lt;Expr, 0&gt;::type e0;
+<span class="lineNum">     268 </span>            :                 typedef typename Grammar::template impl&lt;e0, State, Data&gt;::result_type r0;
+<span class="lineNum">     269 </span>            :             public:
+<span class="lineNum">     270 </span>            :                 BOOST_PROTO_DECLTYPE_(proto::detail::make_mutable&lt;r0&gt;() ++, result_type)
+<span class="lineNum">     271 </span>            :                 result_type operator ()(
+<span class="lineNum">     272 </span>            :                     typename impl::expr_param e
+<span class="lineNum">     273 </span>            :                   , typename impl::state_param s
+<span class="lineNum">     274 </span>            :                   , typename impl::data_param d
+<span class="lineNum">     275 </span>            :                 ) const
+<span class="lineNum">     276 </span>            :                 {
+<span class="lineNum">     277 </span>            :                     typename Grammar::template impl&lt;e0, State, Data&gt; t0;
+<span class="lineNum">     278 </span>            :                     return t0(proto::child_c&lt;0&gt;(e), s, d) ++;
+<span class="lineNum">     279 </span>            :                 }
+<span class="lineNum">     280 </span>            :             };
+<span class="lineNum">     281 </span>            :         };
+<span class="lineNum">     282 </span>            : 
+<span class="lineNum">     283 </span>            :         template&lt;typename Grammar&gt;
+<span class="lineNum">     284 </span>            :         struct default_case&lt;Grammar, tag::post_inc&gt;
+<span class="lineNum">     285 </span>            :           : when&lt;post_inc&lt;Grammar&gt;, default_post_inc&lt;Grammar&gt; &gt;
+<span class="lineNum">     286 </span>            :         {};
+<span class="lineNum">     287 </span>            : 
+<span class="lineNum">     288 </span>            :         template&lt;typename Grammar&gt;
+<span class="lineNum">     289 </span>            :         struct default_post_dec
+<span class="lineNum">     290 </span>            :           : transform&lt;default_post_dec&lt;Grammar&gt; &gt;
+<span class="lineNum">     291 </span>            :         {
+<span class="lineNum">     292 </span>            :             template&lt;typename Expr, typename State, typename Data&gt;
+<span class="lineNum">     293 </span>            :             struct impl
+<span class="lineNum">     294 </span>            :               : transform_impl&lt;Expr, State, Data&gt;
+<span class="lineNum">     295 </span>            :             {
+<span class="lineNum">     296 </span>            :             private:
+<span class="lineNum">     297 </span>            :                 typedef typename result_of::child_c&lt;Expr, 0&gt;::type e0;
+<span class="lineNum">     298 </span>            :                 typedef typename Grammar::template impl&lt;e0, State, Data&gt;::result_type r0;
+<span class="lineNum">     299 </span>            :             public:
+<span class="lineNum">     300 </span>            :                 BOOST_PROTO_DECLTYPE_(proto::detail::make_mutable&lt;r0&gt;() --, result_type)
+<span class="lineNum">     301 </span>            :                 result_type operator ()(
+<span class="lineNum">     302 </span>            :                     typename impl::expr_param e
+<span class="lineNum">     303 </span>            :                   , typename impl::state_param s
+<span class="lineNum">     304 </span>            :                   , typename impl::data_param d
+<span class="lineNum">     305 </span>            :                 ) const
+<span class="lineNum">     306 </span>            :                 {
+<span class="lineNum">     307 </span>            :                     typename Grammar::template impl&lt;e0, State, Data&gt; t0;
+<span class="lineNum">     308 </span>            :                     return t0(proto::child_c&lt;0&gt;(e), s, d) --;
+<span class="lineNum">     309 </span>            :                 }
+<span class="lineNum">     310 </span>            :             };
+<span class="lineNum">     311 </span>            :         };
+<span class="lineNum">     312 </span>            : 
+<span class="lineNum">     313 </span>            :         template&lt;typename Grammar&gt;
+<span class="lineNum">     314 </span>            :         struct default_case&lt;Grammar, tag::post_dec&gt;
+<span class="lineNum">     315 </span>            :           : when&lt;post_dec&lt;Grammar&gt;, default_post_dec&lt;Grammar&gt; &gt;
+<span class="lineNum">     316 </span>            :         {};
+<span class="lineNum">     317 </span>            : 
+<span class="lineNum">     318 </span>            :         template&lt;typename Grammar&gt;
+<span class="lineNum">     319 </span>            :         struct default_subscript
+<span class="lineNum">     320 </span>            :           : transform&lt;default_subscript&lt;Grammar&gt; &gt;
+<span class="lineNum">     321 </span>            :         {
+<span class="lineNum">     322 </span>            :             template&lt;typename Expr, typename State, typename Data&gt;
+<span class="lineNum">     323 </span>            :             struct impl
+<span class="lineNum">     324 </span>            :               : transform_impl&lt;Expr, State, Data&gt;
+<span class="lineNum">     325 </span>            :             {
+<span class="lineNum">     326 </span>            :             private:
+<span class="lineNum">     327 </span>            :                 typedef typename result_of::child_c&lt;Expr, 0&gt;::type e0;
+<span class="lineNum">     328 </span>            :                 typedef typename result_of::child_c&lt;Expr, 1&gt;::type e1;
+<span class="lineNum">     329 </span>            :                 typedef typename Grammar::template impl&lt;e0, State, Data&gt;::result_type r0;
+<span class="lineNum">     330 </span>            :                 typedef typename Grammar::template impl&lt;e1, State, Data&gt;::result_type r1;
+<span class="lineNum">     331 </span>            :             public:
+<span class="lineNum">     332 </span>            :                 BOOST_PROTO_DECLTYPE_(
+<span class="lineNum">     333 </span>            :                     proto::detail::make_subscriptable&lt;r0&gt;() [ proto::detail::make&lt;r1&gt;() ]
+<span class="lineNum">     334 </span>            :                   , result_type
+<span class="lineNum">     335 </span>            :                 )
+<span class="lineNum">     336 </span>            :                 result_type operator ()(
+<span class="lineNum">     337 </span>            :                     typename impl::expr_param e
+<span class="lineNum">     338 </span>            :                   , typename impl::state_param s
+<span class="lineNum">     339 </span>            :                   , typename impl::data_param d
+<span class="lineNum">     340 </span>            :                 ) const
+<span class="lineNum">     341 </span>            :                 {
+<span class="lineNum">     342 </span>            :                     typename Grammar::template impl&lt;e0, State, Data&gt; t0;
+<span class="lineNum">     343 </span>            :                     typename Grammar::template impl&lt;e1, State, Data&gt; t1;
+<span class="lineNum">     344 </span>            :                     return t0(proto::child_c&lt;0&gt;(e), s, d) [
+<span class="lineNum">     345 </span>            :                             t1(proto::child_c&lt;1&gt;(e), s, d) ];
+<span class="lineNum">     346 </span>            :                 }
+<span class="lineNum">     347 </span>            :             };
+<span class="lineNum">     348 </span>            :         };
+<span class="lineNum">     349 </span>            : 
+<span class="lineNum">     350 </span>            :         template&lt;typename Grammar&gt;
+<span class="lineNum">     351 </span>            :         struct default_case&lt;Grammar, tag::subscript&gt;
+<span class="lineNum">     352 </span>            :           : when&lt;subscript&lt;Grammar, Grammar&gt;, default_subscript&lt;Grammar&gt; &gt;
+<span class="lineNum">     353 </span>            :         {};
+<span class="lineNum">     354 </span>            : 
+<span class="lineNum">     355 </span>            :         template&lt;typename Grammar&gt;
+<span class="lineNum">     356 </span>            :         struct default_if_else_
+<span class="lineNum">     357 </span>            :         {
+<span class="lineNum">     358 </span>            :             template&lt;typename Expr, typename State, typename Data&gt;
+<span class="lineNum">     359 </span>            :             struct impl
+<span class="lineNum">     360 </span>            :               : transform_impl&lt;Expr, State, Data&gt;
+<span class="lineNum">     361 </span>            :             {
+<span class="lineNum">     362 </span>            :             private:
+<span class="lineNum">     363 </span>            :                 typedef typename result_of::child_c&lt;Expr, 0&gt;::type e0;
+<span class="lineNum">     364 </span>            :                 typedef typename result_of::child_c&lt;Expr, 1&gt;::type e1;
+<span class="lineNum">     365 </span>            :                 typedef typename result_of::child_c&lt;Expr, 2&gt;::type e2;
+<span class="lineNum">     366 </span>            :                 typedef typename Grammar::template impl&lt;e0, State, Data&gt;::result_type r0;
+<span class="lineNum">     367 </span>            :                 typedef typename Grammar::template impl&lt;e1, State, Data&gt;::result_type r1;
+<span class="lineNum">     368 </span>            :                 typedef typename Grammar::template impl&lt;e2, State, Data&gt;::result_type r2;
+<span class="lineNum">     369 </span>            :             public:
+<span class="lineNum">     370 </span>            :                 BOOST_PROTO_DECLTYPE_(
+<span class="lineNum">     371 </span>            :                     proto::detail::make&lt;r0&gt;()
+<span class="lineNum">     372 </span>            :                   ? proto::detail::make&lt;r1&gt;()
+<span class="lineNum">     373 </span>            :                   : proto::detail::make&lt;r2&gt;()
+<span class="lineNum">     374 </span>            :                   , result_type
+<span class="lineNum">     375 </span>            :                 )
+<span class="lineNum">     376 </span>            :                 result_type operator ()(
+<span class="lineNum">     377 </span>            :                     typename impl::expr_param e
+<span class="lineNum">     378 </span>            :                   , typename impl::state_param s
+<span class="lineNum">     379 </span>            :                   , typename impl::data_param d
+<span class="lineNum">     380 </span>            :                 ) const
+<span class="lineNum">     381 </span>            :                 {
+<span class="lineNum">     382 </span>            :                     typename Grammar::template impl&lt;e0, State, Data&gt; t0;
+<span class="lineNum">     383 </span>            :                     typename Grammar::template impl&lt;e1, State, Data&gt; t1;
+<span class="lineNum">     384 </span>            :                     typename Grammar::template impl&lt;e2, State, Data&gt; t2;
+<span class="lineNum">     385 </span>            :                     return t0(proto::child_c&lt;0&gt;(e), s, d)
+<span class="lineNum">     386 </span>            :                           ? t1(proto::child_c&lt;1&gt;(e), s, d)
+<span class="lineNum">     387 </span>            :                           : t2(proto::child_c&lt;2&gt;(e), s, d);
+<span class="lineNum">     388 </span>            :                 }
+<span class="lineNum">     389 </span>            :             };
+<span class="lineNum">     390 </span>            :         };
+<span class="lineNum">     391 </span>            : 
+<span class="lineNum">     392 </span>            :         template&lt;typename Grammar&gt;
+<span class="lineNum">     393 </span>            :         struct default_case&lt;Grammar, tag::if_else_&gt;
+<span class="lineNum">     394 </span>            :           : when&lt;if_else_&lt;Grammar, Grammar, Grammar&gt;, default_if_else_&lt;Grammar&gt; &gt;
+<span class="lineNum">     395 </span>            :         {};
+<span class="lineNum">     396 </span>            : 
+<span class="lineNum">     397 </span>            :         template&lt;typename Grammar&gt;
+<span class="lineNum">     398 </span>            :         struct default_comma
+<span class="lineNum">     399 </span>            :           : transform&lt;default_comma&lt;Grammar&gt; &gt;
+<span class="lineNum">     400 </span>            :         {
+<span class="lineNum">     401 </span>            :             template&lt;typename Expr, typename State, typename Data&gt;
+<span class="lineNum">     402 </span>            :             struct impl
+<span class="lineNum">     403 </span>            :               : transform_impl&lt;Expr, State, Data&gt;
+<span class="lineNum">     404 </span>            :             {
+<span class="lineNum">     405 </span>            :             private:
+<span class="lineNum">     406 </span>            :                 typedef typename result_of::child_c&lt;Expr, 0&gt;::type e0;
+<span class="lineNum">     407 </span>            :                 typedef typename result_of::child_c&lt;Expr, 1&gt;::type e1;
+<span class="lineNum">     408 </span>            :                 typedef typename Grammar::template impl&lt;e0, State, Data&gt;::result_type r0;
+<span class="lineNum">     409 </span>            :                 typedef typename Grammar::template impl&lt;e1, State, Data&gt;::result_type r1;
+<span class="lineNum">     410 </span>            :             public:
+<span class="lineNum">     411 </span>            :                 typedef typename proto::detail::comma_result&lt;r0, r1&gt;::type result_type;
+<span class="lineNum">     412 </span>            :                 result_type operator ()(
+<span class="lineNum">     413 </span>            :                     typename impl::expr_param e
+<span class="lineNum">     414 </span>            :                   , typename impl::state_param s
+<span class="lineNum">     415 </span>            :                   , typename impl::data_param d
+<span class="lineNum">     416 </span>            :                 ) const
+<span class="lineNum">     417 </span>            :                 {
+<span class="lineNum">     418 </span>            :                     typename Grammar::template impl&lt;e0, State, Data&gt; t0;
+<span class="lineNum">     419 </span>            :                     typename Grammar::template impl&lt;e1, State, Data&gt; t1;
+<span class="lineNum">     420 </span>            :                     return t0(proto::child_c&lt;0&gt;(e), s, d)
+<span class="lineNum">     421 </span>            :                           , t1(proto::child_c&lt;1&gt;(e), s, d);
+<span class="lineNum">     422 </span>            :                 }
+<span class="lineNum">     423 </span>            :             };
+<span class="lineNum">     424 </span>            :         };
+<span class="lineNum">     425 </span>            : 
+<span class="lineNum">     426 </span>            :         template&lt;typename Grammar&gt;
+<span class="lineNum">     427 </span>            :         struct default_case&lt;Grammar, tag::comma&gt;
+<span class="lineNum">     428 </span>            :           : when&lt;comma&lt;Grammar, Grammar&gt;, default_comma&lt;Grammar&gt; &gt;
+<span class="lineNum">     429 </span>            :         {};
+<span class="lineNum">     430 </span>            : 
+<span class="lineNum">     431 </span>            :         template&lt;typename Grammar, typename Expr, typename State, typename Data, long Arity&gt;
+<span class="lineNum">     432 </span>            :         struct default_function_impl;
+<span class="lineNum">     433 </span>            : 
+<span class="lineNum">     434 </span>            :         template&lt;typename Grammar&gt;
+<span class="lineNum">     435 </span>            :         struct default_function
+<span class="lineNum">     436 </span>            :           : transform&lt;default_function&lt;Grammar&gt; &gt;
+<span class="lineNum">     437 </span>            :         {
+<span class="lineNum">     438 </span>            :             template&lt;typename Expr, typename State, typename Data&gt;
+<span class="lineNum">     439 </span>            :             struct impl
+<span class="lineNum">     440 </span>            :               : default_function_impl&lt;
+<span class="lineNum">     441 </span>            :                     Grammar
+<span class="lineNum">     442 </span>            :                   , Expr
+<span class="lineNum">     443 </span>            :                   , State
+<span class="lineNum">     444 </span>            :                   , Data
+<span class="lineNum">     445 </span>            :                   , transform_impl&lt;Expr, State, Data&gt;::expr::proto_arity_c
+<span class="lineNum">     446 </span>            :                 &gt;
+<span class="lineNum">     447 </span>            :             {};
+<span class="lineNum">     448 </span>            :         };
+<span class="lineNum">     449 </span>            : 
+<span class="lineNum">     450 </span>            :         template&lt;typename Grammar&gt;
+<span class="lineNum">     451 </span>            :         struct default_case&lt;Grammar, tag::function&gt;
+<span class="lineNum">     452 </span>            :           : when&lt;function&lt;Grammar, vararg&lt;Grammar&gt; &gt;, default_function&lt;Grammar&gt; &gt;
+<span class="lineNum">     453 </span>            :         {};
+<span class="lineNum">     454 </span>            : 
+<span class="lineNum">     455 </span>            :         #define BOOST_PROTO_DEFAULT_EVAL_TYPE(Z, N, DATA)                                       \
+<span class="lineNum">     456 </span>            :             typedef                                                                             \
+<span class="lineNum">     457 </span>            :                 typename result_of::child_c&lt;DATA, N&gt;::type                                      \
+<span class="lineNum">     458 </span>            :             BOOST_PP_CAT(e, N);                                                                 \
+<span class="lineNum">     459 </span>            :                                                                                                 \
+<span class="lineNum">     460 </span>            :             typedef                                                                             \
+<span class="lineNum">     461 </span>            :                 typename Grammar::template impl&lt;BOOST_PP_CAT(e, N), State, Data&gt;::result_type   \
+<span class="lineNum">     462 </span>            :             BOOST_PP_CAT(r, N);                                                                 \
+<span class="lineNum">     463 </span>            :             /**/
+<span class="lineNum">     464 </span>            : 
+<span class="lineNum">     465 </span>            :         #define BOOST_PROTO_DEFAULT_EVAL(Z, N, DATA)                                            \
+<span class="lineNum">     466 </span>            :             typename Grammar::template impl&lt;BOOST_PP_CAT(e, N), State, Data&gt;()(                 \
+<span class="lineNum">     467 </span>            :                 proto::child_c&lt;N&gt;(DATA), s, d                                                   \
+<span class="lineNum">     468 </span>            :             )                                                                                   \
+<span class="lineNum">     469 </span>            :             /**/
+<span class="lineNum">     470 </span>            : 
+<span class="lineNum">     471 </span>            :         template&lt;typename Grammar, typename Expr, typename State, typename Data&gt;
+<span class="lineNum">     472 </span>            :         struct default_function_impl&lt;Grammar, Expr, State, Data, 1&gt;
+<span class="lineNum">     473 </span>            :           : transform_impl&lt;Expr, State, Data&gt;
+<span class="lineNum">     474 </span>            :         {
+<span class="lineNum">     475 </span>            :             BOOST_PROTO_DEFAULT_EVAL_TYPE(~, 0, Expr)
+<span class="lineNum">     476 </span>            : 
+<span class="lineNum">     477 </span>            :             typedef
+<span class="lineNum">     478 </span>            :                 typename proto::detail::result_of_fixup&lt;r0&gt;::type
+<span class="lineNum">     479 </span>            :             function_type;
+<span class="lineNum">     480 </span>            : 
+<span class="lineNum">     481 </span>            :             typedef
+<span class="lineNum">     482 </span>            :                 typename BOOST_PROTO_RESULT_OF&lt;function_type()&gt;::type
+<span class="lineNum">     483 </span>            :             result_type;
+<span class="lineNum">     484 </span>            : 
+<span class="lineNum">     485 </span>            :             result_type operator ()(
+<span class="lineNum">     486 </span>            :                 typename default_function_impl::expr_param e
+<span class="lineNum">     487 </span>            :               , typename default_function_impl::state_param s
+<span class="lineNum">     488 </span>            :               , typename default_function_impl::data_param d
+<span class="lineNum">     489 </span>            :             ) const
+<span class="lineNum">     490 </span>            :             {
+<span class="lineNum">     491 </span>            :                 return BOOST_PROTO_DEFAULT_EVAL(~, 0, e)();
+<span class="lineNum">     492 </span>            :             }
+<span class="lineNum">     493 </span>            :         };
+<span class="lineNum">     494 </span>            : 
+<span class="lineNum">     495 </span>            :         template&lt;typename Grammar, typename Expr, typename State, typename Data&gt;
+<span class="lineNum">     496 </span>            :         struct default_function_impl&lt;Grammar, Expr, State, Data, 2&gt;
+<span class="lineNum">     497 </span>            :           : transform_impl&lt;Expr, State, Data&gt;
+<span class="lineNum">     498 </span>            :         {
+<span class="lineNum">     499 </span>            :             BOOST_PROTO_DEFAULT_EVAL_TYPE(~, 0, Expr)
+<span class="lineNum">     500 </span>            :             BOOST_PROTO_DEFAULT_EVAL_TYPE(~, 1, Expr)
+<span class="lineNum">     501 </span>            : 
+<span class="lineNum">     502 </span>            :             typedef
+<span class="lineNum">     503 </span>            :                 typename proto::detail::result_of_fixup&lt;r0&gt;::type
+<span class="lineNum">     504 </span>            :             function_type;
+<span class="lineNum">     505 </span>            : 
+<span class="lineNum">     506 </span>            :             typedef
+<span class="lineNum">     507 </span>            :                 typename detail::result_of_&lt;function_type(r1)&gt;::type
+<span class="lineNum">     508 </span>            :             result_type;
+<span class="lineNum">     509 </span>            : 
+<span class="lineNum">     510 </span>            :             result_type operator ()(
+<span class="lineNum">     511 </span>            :                 typename default_function_impl::expr_param e
+<span class="lineNum">     512 </span>            :               , typename default_function_impl::state_param s
+<span class="lineNum">     513 </span>            :               , typename default_function_impl::data_param d
+<span class="lineNum">     514 </span>            :             ) const
+<span class="lineNum">     515 </span>            :             {
+<span class="lineNum">     516 </span>            :                 return this-&gt;invoke(
+<span class="lineNum">     517 </span>            :                     e
+<span class="lineNum">     518 </span>            :                   , s
+<span class="lineNum">     519 </span>            :                   , d
+<span class="lineNum">     520 </span>            :                   , is_member_function_pointer&lt;function_type&gt;()
+<span class="lineNum">     521 </span>            :                   , is_member_object_pointer&lt;function_type&gt;()
+<span class="lineNum">     522 </span>            :                 );
+<span class="lineNum">     523 </span>            :             }
+<span class="lineNum">     524 </span>            : 
+<span class="lineNum">     525 </span>            :         private:
+<span class="lineNum">     526 </span>            :             result_type invoke(
+<span class="lineNum">     527 </span>            :                 typename default_function_impl::expr_param e
+<span class="lineNum">     528 </span>            :               , typename default_function_impl::state_param s
+<span class="lineNum">     529 </span>            :               , typename default_function_impl::data_param d
+<span class="lineNum">     530 </span>            :               , mpl::false_
+<span class="lineNum">     531 </span>            :               , mpl::false_
+<span class="lineNum">     532 </span>            :             ) const
+<span class="lineNum">     533 </span>            :             {
+<span class="lineNum">     534 </span>            :                 return BOOST_PROTO_DEFAULT_EVAL(~, 0, e)(BOOST_PROTO_DEFAULT_EVAL(~, 1, e));
+<span class="lineNum">     535 </span>            :             }
+<span class="lineNum">     536 </span>            : 
+<span class="lineNum">     537 </span>            :             result_type invoke(
+<span class="lineNum">     538 </span>            :                 typename default_function_impl::expr_param e
+<span class="lineNum">     539 </span>            :               , typename default_function_impl::state_param s
+<span class="lineNum">     540 </span>            :               , typename default_function_impl::data_param d
+<span class="lineNum">     541 </span>            :               , mpl::true_
+<span class="lineNum">     542 </span>            :               , mpl::false_
+<span class="lineNum">     543 </span>            :             ) const
+<span class="lineNum">     544 </span>            :             {
+<span class="lineNum">     545 </span>            :                 BOOST_PROTO_USE_GET_POINTER();
+<span class="lineNum">     546 </span>            :                 typedef typename detail::class_member_traits&lt;function_type&gt;::class_type class_type;
+<span class="lineNum">     547 </span>            :                 return (
+<span class="lineNum">     548 </span>            :                     BOOST_PROTO_GET_POINTER(class_type, (BOOST_PROTO_DEFAULT_EVAL(~, 1, e))) -&gt;* 
+<span class="lineNum">     549 </span>            :                     BOOST_PROTO_DEFAULT_EVAL(~, 0, e)
+<span class="lineNum">     550 </span>            :                 )();
+<span class="lineNum">     551 </span>            :             }
+<span class="lineNum">     552 </span>            : 
+<span class="lineNum">     553 </span>            :             result_type invoke(
+<span class="lineNum">     554 </span>            :                 typename default_function_impl::expr_param e
+<span class="lineNum">     555 </span>            :               , typename default_function_impl::state_param s
+<span class="lineNum">     556 </span>            :               , typename default_function_impl::data_param d
+<span class="lineNum">     557 </span>            :               , mpl::false_
+<span class="lineNum">     558 </span>            :               , mpl::true_
+<span class="lineNum">     559 </span>            :             ) const
+<span class="lineNum">     560 </span>            :             {
+<span class="lineNum">     561 </span>            :                 BOOST_PROTO_USE_GET_POINTER();
+<span class="lineNum">     562 </span>            :                 typedef typename detail::class_member_traits&lt;function_type&gt;::class_type class_type;
+<span class="lineNum">     563 </span>            :                 return (
+<span class="lineNum">     564 </span>            :                     BOOST_PROTO_GET_POINTER(class_type, (BOOST_PROTO_DEFAULT_EVAL(~, 1, e))) -&gt;*
+<span class="lineNum">     565 </span>            :                     BOOST_PROTO_DEFAULT_EVAL(~, 0, e)
+<span class="lineNum">     566 </span>            :                 );
+<span class="lineNum">     567 </span>            :             }
+<span class="lineNum">     568 </span>            :         };
+<span class="lineNum">     569 </span>            : 
+<span class="lineNum">     570 </span>            :         #include &lt;boost/proto/transform/detail/default_function_impl.hpp&gt;
+<span class="lineNum">     571 </span>            : 
+<span class="lineNum">     572 </span>            :         #undef BOOST_PROTO_DEFAULT_EVAL_TYPE
+<span class="lineNum">     573 </span>            :         #undef BOOST_PROTO_DEFAULT_EVAL
+<span class="lineNum">     574 </span>            :     }
+<span class="lineNum">     575 </span>            : 
+<span class="lineNum">     576 </span>            :     template&lt;typename Grammar /*= detail::_default*/&gt;
+<span class="lineNum">     577 </span>            :     struct _default
+<span class="lineNum">     578 </span>            :       : switch_&lt;detail::default_cases&lt;Grammar&gt; &gt;
+<span class="lineNum">     579 </span>            :     {};
+<span class="lineNum">     580 </span>            : 
+<span class="lineNum">     581 </span>            :     template&lt;typename Grammar&gt;
+<span class="lineNum">     582 </span>            :     struct is_callable&lt;_default&lt;Grammar&gt; &gt;
+<span class="lineNum">     583 </span>            :       : mpl::true_
+<span class="lineNum">     584 </span>            :     {};
+<span class="lineNum">     585 </span>            : 
+<span class="lineNum">     586 </span>            :     namespace detail
+<span class="lineNum">     587 </span>            :     {
+<span class="lineNum">     588 </span>            :         // Loopy indirection that allows proto::_default&lt;&gt; to be
+<span class="lineNum">     589 </span>            :         // used without specifying a Grammar argument.
+<span class="lineNum">     590 </span>            :         struct _default
+<span class="lineNum">     591 </span>            :           : proto::_default&lt;&gt;
+<span class="lineNum">     592 </span>            :         {};
+<span class="lineNum">     593 </span>            :     }
+<span class="lineNum">     594 </span>            : 
+<span class="lineNum">     595 </span>            : }}
+<span class="lineNum">     596 </span>            : 
+<span class="lineNum">     597 </span>            : #endif
+<span class="lineNum">     598 </span>            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

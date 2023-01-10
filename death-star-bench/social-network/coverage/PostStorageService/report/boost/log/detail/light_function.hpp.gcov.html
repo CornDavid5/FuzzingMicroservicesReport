@@ -1,0 +1,597 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/log/detail/light_function.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">boost/log/detail</a> - light_function.hpp<span style="font-size: 80%;"> (source / <a href="light_function.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">73</td>
+            <td class="headerCovTableEntry">75</td>
+            <td class="headerCovTableEntryHi">97.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 03:45:06</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">30</td>
+            <td class="headerCovTableEntry">39</td>
+            <td class="headerCovTableEntryMed">76.9 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *          Copyright Andrey Semashev 2007 - 2015.
+<span class="lineNum">       3 </span>            :  * Distributed under the Boost Software License, Version 1.0.
+<span class="lineNum">       4 </span>            :  *    (See accompanying file LICENSE_1_0.txt or copy at
+<span class="lineNum">       5 </span>            :  *          http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       6 </span>            :  */
+<span class="lineNum">       7 </span>            : /*!
+<span class="lineNum">       8 </span>            :  * \file   light_function.hpp
+<span class="lineNum">       9 </span>            :  * \author Andrey Semashev
+<span class="lineNum">      10 </span>            :  * \date   20.06.2010
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * \brief  This header is the Boost.Log library impl, see the library documentation
+<span class="lineNum">      13 </span>            :  *         at http://www.boost.org/doc/libs/release/libs/log/doc/html/index.html.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  * The file contains a lightweight alternative of Boost.Function. It does not provide all
+<span class="lineNum">      16 </span>            :  * features of Boost.Function but doesn't introduce dependency on Boost.Bind.
+<span class="lineNum">      17 </span>            :  */
+<span class="lineNum">      18 </span>            : 
+<span class="lineNum">      19 </span>            : #ifndef BOOST_LOG_DETAIL_LIGHT_FUNCTION_HPP_INCLUDED_
+<span class="lineNum">      20 </span>            : #define BOOST_LOG_DETAIL_LIGHT_FUNCTION_HPP_INCLUDED_
+<span class="lineNum">      21 </span>            : 
+<span class="lineNum">      22 </span>            : #include &lt;cstddef&gt;
+<span class="lineNum">      23 </span>            : #include &lt;boost/move/core.hpp&gt;
+<span class="lineNum">      24 </span>            : #include &lt;boost/move/utility.hpp&gt;
+<span class="lineNum">      25 </span>            : #include &lt;boost/log/detail/config.hpp&gt;
+<span class="lineNum">      26 </span>            : #include &lt;boost/utility/explicit_operator_bool.hpp&gt;
+<span class="lineNum">      27 </span>            : #include &lt;boost/type_traits/remove_cv.hpp&gt;
+<span class="lineNum">      28 </span>            : #if defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+<span class="lineNum">      29 </span>            : #include &lt;boost/preprocessor/iteration/iterate.hpp&gt;
+<span class="lineNum">      30 </span>            : #include &lt;boost/preprocessor/repetition/enum_params.hpp&gt;
+<span class="lineNum">      31 </span>            : #include &lt;boost/preprocessor/repetition/enum_binary_params.hpp&gt;
+<span class="lineNum">      32 </span>            : #include &lt;boost/preprocessor/repetition/enum_trailing_params.hpp&gt;
+<span class="lineNum">      33 </span>            : #include &lt;boost/preprocessor/repetition/enum_trailing_binary_params.hpp&gt;
+<span class="lineNum">      34 </span>            : #endif
+<span class="lineNum">      35 </span>            : #if defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
+<span class="lineNum">      36 </span>            : #include &lt;boost/utility/enable_if.hpp&gt;
+<span class="lineNum">      37 </span>            : #else
+<span class="lineNum">      38 </span>            : #include &lt;boost/type_traits/remove_reference.hpp&gt;
+<span class="lineNum">      39 </span>            : #endif
+<span class="lineNum">      40 </span>            : #if defined(BOOST_NO_CXX11_NULLPTR)
+<span class="lineNum">      41 </span>            : #include &lt;boost/assert.hpp&gt;
+<span class="lineNum">      42 </span>            : #endif
+<span class="lineNum">      43 </span>            : #include &lt;boost/log/detail/header.hpp&gt;
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            : #ifdef BOOST_HAS_PRAGMA_ONCE
+<span class="lineNum">      46 </span>            : #pragma once
+<span class="lineNum">      47 </span>            : #endif
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span>            : #ifndef BOOST_LOG_LIGHT_FUNCTION_LIMIT
+<span class="lineNum">      50 </span>            : #define BOOST_LOG_LIGHT_FUNCTION_LIMIT 2
+<span class="lineNum">      51 </span>            : #endif
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span>            : namespace boost {
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            : BOOST_LOG_OPEN_NAMESPACE
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span>            : namespace aux {
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span>            : #if defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span>            : template&lt; typename T, typename ThisT &gt;
+<span class="lineNum">      62 </span>            : struct is_cv_same { enum _ { value = false }; };
+<span class="lineNum">      63 </span>            : template&lt; typename T &gt;
+<span class="lineNum">      64 </span>            : struct is_cv_same&lt; T, T &gt; { enum _ { value = true }; };
+<span class="lineNum">      65 </span>            : template&lt; typename T &gt;
+<span class="lineNum">      66 </span>            : struct is_cv_same&lt; T, const T &gt; { enum _ { value = true }; };
+<span class="lineNum">      67 </span>            : template&lt; typename T &gt;
+<span class="lineNum">      68 </span>            : struct is_cv_same&lt; T, volatile T &gt; { enum _ { value = true }; };
+<span class="lineNum">      69 </span>            : template&lt; typename T &gt;
+<span class="lineNum">      70 </span>            : struct is_cv_same&lt; T, const volatile T &gt; { enum _ { value = true }; };
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span>            : template&lt; typename T, typename ThisT &gt;
+<span class="lineNum">      73 </span>            : struct is_rv_or_same { enum _ { value = false }; };
+<span class="lineNum">      74 </span>            : template&lt; typename T &gt;
+<span class="lineNum">      75 </span>            : struct is_rv_or_same&lt; T, T &gt; { enum _ { value = true }; };
+<span class="lineNum">      76 </span>            : template&lt; typename T, typename ThisT &gt;
+<span class="lineNum">      77 </span>            : struct is_rv_or_same&lt; boost::rv&lt; T &gt;, ThisT &gt; { enum _ { value = true }; };
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span>            : #endif
+<span class="lineNum">      80 </span>            : 
+<span class="lineNum">      81 </span>            : template&lt; typename SignatureT &gt;
+<span class="lineNum">      82 </span>            : class light_function;
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span>            : #if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+<span class="lineNum">      85 </span>            : 
+<span class="lineNum">      86 </span>            : template&lt; typename ResultT, typename... ArgsT &gt;
+<span class="lineNum">      87 </span>            : class light_function&lt; ResultT (ArgsT...) &gt;
+<span class="lineNum">      88 </span>            : {
+<span class="lineNum">      89 </span>            :     typedef light_function this_type;
+<span class="lineNum">      90 </span>            :     BOOST_COPYABLE_AND_MOVABLE(this_type)
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span>            : public:
+<span class="lineNum">      93 </span>            :     typedef ResultT result_type;
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span>            : private:
+<span class="lineNum">      96 </span>            :     struct impl_base
+<span class="lineNum">      97 </span>            :     {
+<span class="lineNum">      98 </span>            :         typedef result_type (*invoke_type)(void*, ArgsT...);
+<span class="lineNum">      99 </span>            :         const invoke_type invoke;
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span>            :         typedef impl_base* (*clone_type)(const void*);
+<span class="lineNum">     102 </span>            :         const clone_type clone;
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span>            :         typedef void (*destroy_type)(void*);
+<a name="105"><span class="lineNum">     105 </span>            :         const destroy_type destroy;</a>
+<span class="lineNum">     106 </span>            : 
+<span class="lineNum">     107 </span><span class="lineCov">          6 :         impl_base(invoke_type inv, clone_type cl, destroy_type dstr) : invoke(inv), clone(cl), destroy(dstr)</span>
+<span class="lineNum">     108 </span>            :         {
+<span class="lineNum">     109 </span><span class="lineCov">          6 :         }</span>
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span>            :         BOOST_DELETED_FUNCTION(impl_base(impl_base const&amp;))
+<span class="lineNum">     112 </span>            :         BOOST_DELETED_FUNCTION(impl_base&amp; operator= (impl_base const&amp;))
+<span class="lineNum">     113 </span>            :     };
+<span class="lineNum">     114 </span>            : 
+<span class="lineNum">     115 </span>            : #if !defined(BOOST_LOG_NO_MEMBER_TEMPLATE_FRIENDS)
+<span class="lineNum">     116 </span>            :     template&lt; typename FunT &gt;
+<span class="lineNum">     117 </span>            :     class impl;
+<span class="lineNum">     118 </span>            :     template&lt; typename FunT &gt;
+<span class="lineNum">     119 </span>            :     friend class impl;
+<span class="lineNum">     120 </span>            : #endif
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span>            :     template&lt; typename FunT &gt;
+<span class="lineNum">     123 </span>            :     class impl :
+<span class="lineNum">     124 </span>            :         public impl_base
+<span class="lineNum">     125 </span>            :     {
+<span class="lineNum">     126 </span>            :         typedef impl&lt; FunT &gt; this_type;
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span>            :         FunT m_Function;
+<a name="129"><span class="lineNum">     129 </span>            : </a>
+<span class="lineNum">     130 </span>            :     public:
+<span class="lineNum">     131 </span><span class="lineCov">          4 :         explicit impl(FunT const&amp; fun) :</span>
+<span class="lineNum">     132 </span>            :             impl_base(&amp;this_type::invoke_impl, &amp;this_type::clone_impl, &amp;this_type::destroy_impl),
+<span class="lineNum">     133 </span><span class="lineCov">          4 :             m_Function(fun)</span>
+<span class="lineNum">     134 </span>            :         {
+<span class="lineNum">     135 </span><span class="lineCov">          4 :         }</span>
+<a name="136"><span class="lineNum">     136 </span>            : </a>
+<span class="lineNum">     137 </span>            : #if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
+<span class="lineNum">     138 </span><span class="lineCov">          2 :         explicit impl(FunT&amp;&amp; fun) :</span>
+<span class="lineNum">     139 </span>            :             impl_base(&amp;this_type::invoke_impl, &amp;this_type::clone_impl, &amp;this_type::destroy_impl),
+<span class="lineNum">     140 </span><span class="lineCov">          2 :             m_Function(boost::move(fun))</span>
+<span class="lineNum">     141 </span>            :         {
+<span class="lineNum">     142 </span><span class="lineCov">          2 :         }</span>
+<a name="143"><span class="lineNum">     143 </span>            : #endif // !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)</a>
+<span class="lineNum">     144 </span>            : 
+<span class="lineNum">     145 </span><span class="lineCov">          4 :         static void destroy_impl(void* self)</span>
+<span class="lineNum">     146 </span>            :         {
+<a name="147"><span class="lineNum">     147 </span><span class="lineCov">          4 :             delete static_cast&lt; impl* &gt;(static_cast&lt; impl_base* &gt;(self));</span></a>
+<span class="lineNum">     148 </span><span class="lineCov">          4 :         }</span>
+<span class="lineNum">     149 </span><span class="lineCov">          2 :         static impl_base* clone_impl(const void* self)</span>
+<span class="lineNum">     150 </span>            :         {
+<a name="151"><span class="lineNum">     151 </span><span class="lineCov">          2 :             return new impl(static_cast&lt; const impl* &gt;(static_cast&lt; const impl_base* &gt;(self))-&gt;m_Function);</span></a>
+<span class="lineNum">     152 </span>            :         }
+<span class="lineNum">     153 </span><span class="lineCov">         20 :         static result_type invoke_impl(void* self, ArgsT... args)</span>
+<span class="lineNum">     154 </span>            :         {
+<span class="lineNum">     155 </span><span class="lineCov">         20 :             return static_cast&lt; impl* &gt;(static_cast&lt; impl_base* &gt;(self))-&gt;m_Function(args...);</span>
+<span class="lineNum">     156 </span>            :         }
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span>            :         BOOST_DELETED_FUNCTION(impl(impl const&amp;))
+<span class="lineNum">     159 </span>            :         BOOST_DELETED_FUNCTION(impl&amp; operator= (impl const&amp;))
+<span class="lineNum">     160 </span>            :     };
+<span class="lineNum">     161 </span>            : 
+<span class="lineNum">     162 </span>            : private:
+<span class="lineNum">     163 </span>            :     impl_base* m_pImpl;
+<span class="lineNum">     164 </span>            : 
+<span class="lineNum">     165 </span>            : public:
+<span class="lineNum">     166 </span>            :     BOOST_CONSTEXPR light_function() BOOST_NOEXCEPT : m_pImpl(NULL)
+<span class="lineNum">     167 </span>            :     {
+<span class="lineNum">     168 </span>            :     }
+<span class="lineNum">     169 </span>            :     light_function(this_type const&amp; that)
+<span class="lineNum">     170 </span>            :     {
+<span class="lineNum">     171 </span>            :         if (that.m_pImpl)
+<span class="lineNum">     172 </span>            :             m_pImpl = that.m_pImpl-&gt;clone(that.m_pImpl);
+<span class="lineNum">     173 </span>            :         else
+<span class="lineNum">     174 </span>            :             m_pImpl = NULL;
+<span class="lineNum">     175 </span>            :     }
+<span class="lineNum">     176 </span>            : 
+<span class="lineNum">     177 </span>            :     light_function(BOOST_RV_REF(this_type) that) BOOST_NOEXCEPT
+<span class="lineNum">     178 </span>            :     {
+<span class="lineNum">     179 </span>            :         m_pImpl = that.m_pImpl;
+<span class="lineNum">     180 </span>            :         that.m_pImpl = NULL;
+<span class="lineNum">     181 </span>            :     }
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span>            :     light_function(BOOST_RV_REF(const this_type) that) BOOST_NOEXCEPT
+<span class="lineNum">     184 </span>            :     {
+<span class="lineNum">     185 </span>            :         m_pImpl = that.m_pImpl;
+<span class="lineNum">     186 </span>            :         ((this_type&amp;)that).m_pImpl = NULL;
+<span class="lineNum">     187 </span>            :     }
+<span class="lineNum">     188 </span>            : 
+<a name="189"><span class="lineNum">     189 </span>            : #if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)</a>
+<span class="lineNum">     190 </span>            :     template&lt; typename FunT &gt;
+<span class="lineNum">     191 </span><span class="lineCov">          4 :     light_function(FunT&amp;&amp; fun) :</span>
+<span class="lineNum">     192 </span><span class="lineCov">          4 :         m_pImpl(new impl&lt; typename remove_cv&lt; typename remove_reference&lt; FunT &gt;::type &gt;::type &gt;(boost::forward&lt; FunT &gt;(fun)))</span>
+<span class="lineNum">     193 </span>            :     {
+<span class="lineNum">     194 </span><span class="lineCov">          4 :     }</span>
+<span class="lineNum">     195 </span>            : #else
+<span class="lineNum">     196 </span>            :     template&lt; typename FunT &gt;
+<span class="lineNum">     197 </span>            :     light_function(FunT const&amp; fun, typename disable_if_c&lt; is_rv_or_same&lt; FunT, this_type &gt;::value, int &gt;::type = 0) :
+<span class="lineNum">     198 </span>            :         m_pImpl(new impl&lt; FunT &gt;(fun))
+<span class="lineNum">     199 </span>            :     {
+<span class="lineNum">     200 </span>            :     }
+<span class="lineNum">     201 </span>            :     template&lt; typename FunT &gt;
+<span class="lineNum">     202 </span>            :     light_function(BOOST_RV_REF(FunT) fun, typename disable_if_c&lt; is_cv_same&lt; FunT, this_type &gt;::value, int &gt;::type = 0) :
+<span class="lineNum">     203 </span>            :         m_pImpl(new impl&lt; typename remove_cv&lt; FunT &gt;::type &gt;(fun))
+<span class="lineNum">     204 </span>            :     {
+<span class="lineNum">     205 </span>            :     }
+<span class="lineNum">     206 </span>            : #endif
+<span class="lineNum">     207 </span>            : 
+<span class="lineNum">     208 </span>            :     //! Constructor from NULL
+<span class="lineNum">     209 </span>            : #if !defined(BOOST_NO_CXX11_NULLPTR)
+<span class="lineNum">     210 </span>            :     BOOST_CONSTEXPR light_function(std::nullptr_t) BOOST_NOEXCEPT
+<span class="lineNum">     211 </span>            : #else
+<span class="lineNum">     212 </span>            :     BOOST_CONSTEXPR light_function(int p) BOOST_NOEXCEPT
+<span class="lineNum">     213 </span>            : #endif
+<span class="lineNum">     214 </span>            :         : m_pImpl(NULL)
+<span class="lineNum">     215 </span>            :     {
+<span class="lineNum">     216 </span>            : #if defined(BOOST_NO_CXX11_NULLPTR)
+<span class="lineNum">     217 </span>            :         BOOST_ASSERT(p == 0);
+<a name="218"><span class="lineNum">     218 </span>            : #endif</a>
+<span class="lineNum">     219 </span>            :     }
+<span class="lineNum">     220 </span><span class="lineCov">          2 :     ~light_function()</span>
+<span class="lineNum">     221 </span>            :     {
+<span class="lineNum">     222 </span><span class="lineCov">          2 :         clear();</span>
+<span class="lineNum">     223 </span><span class="lineCov">          2 :     }</span>
+<span class="lineNum">     224 </span>            : 
+<span class="lineNum">     225 </span>            :     light_function&amp; operator= (BOOST_RV_REF(this_type) that) BOOST_NOEXCEPT
+<span class="lineNum">     226 </span>            :     {
+<span class="lineNum">     227 </span>            :         this-&gt;swap(that);
+<span class="lineNum">     228 </span>            :         return *this;
+<span class="lineNum">     229 </span>            :     }
+<span class="lineNum">     230 </span>            :     light_function&amp; operator= (BOOST_COPY_ASSIGN_REF(this_type) that)
+<span class="lineNum">     231 </span>            :     {
+<span class="lineNum">     232 </span>            :         light_function tmp = static_cast&lt; this_type const&amp; &gt;(that);
+<span class="lineNum">     233 </span>            :         this-&gt;swap(tmp);
+<span class="lineNum">     234 </span>            :         return *this;
+<span class="lineNum">     235 </span>            :     }
+<span class="lineNum">     236 </span>            :     //! Assignment of NULL
+<span class="lineNum">     237 </span>            : #if !defined(BOOST_NO_CXX11_NULLPTR)
+<span class="lineNum">     238 </span>            :     light_function&amp; operator= (std::nullptr_t)
+<span class="lineNum">     239 </span>            : #else
+<span class="lineNum">     240 </span>            :     light_function&amp; operator= (int p)
+<span class="lineNum">     241 </span>            : #endif
+<span class="lineNum">     242 </span>            :     {
+<span class="lineNum">     243 </span>            : #if defined(BOOST_NO_CXX11_NULLPTR)
+<span class="lineNum">     244 </span>            :         BOOST_ASSERT(p == 0);
+<span class="lineNum">     245 </span>            : #endif
+<span class="lineNum">     246 </span>            :         clear();
+<span class="lineNum">     247 </span>            :         return *this;
+<span class="lineNum">     248 </span>            :     }
+<span class="lineNum">     249 </span>            : #if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
+<span class="lineNum">     250 </span>            :     template&lt; typename FunT &gt;
+<span class="lineNum">     251 </span>            :     light_function&amp; operator= (FunT&amp;&amp; fun)
+<span class="lineNum">     252 </span>            :     {
+<span class="lineNum">     253 </span>            :         light_function tmp(boost::forward&lt; FunT &gt;(fun));
+<span class="lineNum">     254 </span>            :         this-&gt;swap(tmp);
+<span class="lineNum">     255 </span>            :         return *this;
+<span class="lineNum">     256 </span>            :     }
+<span class="lineNum">     257 </span>            : #else
+<span class="lineNum">     258 </span>            :     template&lt; typename FunT &gt;
+<span class="lineNum">     259 </span>            :     typename disable_if_c&lt; is_rv_or_same&lt; FunT, this_type &gt;::value, this_type&amp; &gt;::type
+<span class="lineNum">     260 </span>            :     operator= (FunT const&amp; fun)
+<span class="lineNum">     261 </span>            :     {
+<span class="lineNum">     262 </span>            :         light_function tmp(fun);
+<span class="lineNum">     263 </span>            :         this-&gt;swap(tmp);
+<span class="lineNum">     264 </span>            :         return *this;
+<span class="lineNum">     265 </span>            :     }
+<a name="266"><span class="lineNum">     266 </span>            : #endif</a>
+<span class="lineNum">     267 </span>            : 
+<span class="lineNum">     268 </span><span class="lineCov">          4 :     result_type operator() (ArgsT... args) const</span>
+<span class="lineNum">     269 </span>            :     {
+<span class="lineNum">     270 </span><span class="lineCov">          4 :         return m_pImpl-&gt;invoke(m_pImpl, args...);</span>
+<span class="lineNum">     271 </span>            :     }
+<span class="lineNum">     272 </span>            : 
+<span class="lineNum">     273 </span>            :     BOOST_EXPLICIT_OPERATOR_BOOL_NOEXCEPT()
+<a name="274"><span class="lineNum">     274 </span>            :     bool operator! () const BOOST_NOEXCEPT { return (m_pImpl == NULL); }</a>
+<span class="lineNum">     275 </span>            :     bool empty() const BOOST_NOEXCEPT { return (m_pImpl == NULL); }
+<span class="lineNum">     276 </span><span class="lineCov">          2 :     void clear() BOOST_NOEXCEPT</span>
+<span class="lineNum">     277 </span>            :     {
+<span class="lineNum">     278 </span><span class="lineCov">          2 :         if (m_pImpl)</span>
+<span class="lineNum">     279 </span>            :         {
+<span class="lineNum">     280 </span><span class="lineCov">          2 :             m_pImpl-&gt;destroy(m_pImpl);</span>
+<span class="lineNum">     281 </span><span class="lineCov">          2 :             m_pImpl = NULL;</span>
+<span class="lineNum">     282 </span>            :         }
+<span class="lineNum">     283 </span><span class="lineCov">          2 :     }</span>
+<span class="lineNum">     284 </span>            : 
+<span class="lineNum">     285 </span>            :     void swap(this_type&amp; that) BOOST_NOEXCEPT
+<span class="lineNum">     286 </span>            :     {
+<span class="lineNum">     287 </span>            :         impl_base* p = m_pImpl;
+<span class="lineNum">     288 </span>            :         m_pImpl = that.m_pImpl;
+<span class="lineNum">     289 </span>            :         that.m_pImpl = p;
+<span class="lineNum">     290 </span>            :     }
+<span class="lineNum">     291 </span>            : };
+<span class="lineNum">     292 </span>            : 
+<span class="lineNum">     293 </span>            : template&lt; typename... ArgsT &gt;
+<span class="lineNum">     294 </span>            : class light_function&lt; void (ArgsT...) &gt;
+<span class="lineNum">     295 </span>            : {
+<span class="lineNum">     296 </span>            :     typedef light_function this_type;
+<span class="lineNum">     297 </span>            :     BOOST_COPYABLE_AND_MOVABLE(this_type)
+<span class="lineNum">     298 </span>            : 
+<span class="lineNum">     299 </span>            : public:
+<span class="lineNum">     300 </span>            :     typedef void result_type;
+<span class="lineNum">     301 </span>            : 
+<span class="lineNum">     302 </span>            : private:
+<span class="lineNum">     303 </span>            :     struct impl_base
+<span class="lineNum">     304 </span>            :     {
+<span class="lineNum">     305 </span>            :         typedef void (*invoke_type)(void*, ArgsT...);
+<span class="lineNum">     306 </span>            :         const invoke_type invoke;
+<span class="lineNum">     307 </span>            : 
+<span class="lineNum">     308 </span>            :         typedef impl_base* (*clone_type)(const void*);
+<span class="lineNum">     309 </span>            :         const clone_type clone;
+<span class="lineNum">     310 </span>            : 
+<span class="lineNum">     311 </span>            :         typedef void (*destroy_type)(void*);
+<a name="312"><span class="lineNum">     312 </span>            :         const destroy_type destroy;</a>
+<span class="lineNum">     313 </span>            : 
+<span class="lineNum">     314 </span><span class="lineCov">         18 :         impl_base(invoke_type inv, clone_type cl, destroy_type dstr) : invoke(inv), clone(cl), destroy(dstr)</span>
+<span class="lineNum">     315 </span>            :         {
+<span class="lineNum">     316 </span><span class="lineCov">         18 :         }</span>
+<span class="lineNum">     317 </span>            : 
+<span class="lineNum">     318 </span>            :         BOOST_DELETED_FUNCTION(impl_base(impl_base const&amp;))
+<span class="lineNum">     319 </span>            :         BOOST_DELETED_FUNCTION(impl_base&amp; operator= (impl_base const&amp;))
+<span class="lineNum">     320 </span>            :     };
+<span class="lineNum">     321 </span>            : 
+<span class="lineNum">     322 </span>            : #if !defined(BOOST_LOG_NO_MEMBER_TEMPLATE_FRIENDS)
+<span class="lineNum">     323 </span>            :     template&lt; typename FunT &gt;
+<span class="lineNum">     324 </span>            :     class impl;
+<span class="lineNum">     325 </span>            :     template&lt; typename FunT &gt;
+<span class="lineNum">     326 </span>            :     friend class impl;
+<span class="lineNum">     327 </span>            : #endif
+<span class="lineNum">     328 </span>            : 
+<span class="lineNum">     329 </span>            :     template&lt; typename FunT &gt;
+<span class="lineNum">     330 </span>            :     class impl :
+<span class="lineNum">     331 </span>            :         public impl_base
+<span class="lineNum">     332 </span>            :     {
+<span class="lineNum">     333 </span>            :         typedef impl&lt; FunT &gt; this_type;
+<span class="lineNum">     334 </span>            : 
+<span class="lineNum">     335 </span>            :         FunT m_Function;
+<a name="336"><span class="lineNum">     336 </span>            : </a>
+<span class="lineNum">     337 </span>            :     public:
+<span class="lineNum">     338 </span><span class="lineCov">         14 :         explicit impl(FunT const&amp; fun) :</span>
+<span class="lineNum">     339 </span>            :             impl_base(&amp;this_type::invoke_impl, &amp;this_type::clone_impl, &amp;this_type::destroy_impl),
+<span class="lineNum">     340 </span><span class="lineCov">         14 :             m_Function(fun)</span>
+<span class="lineNum">     341 </span>            :         {
+<span class="lineNum">     342 </span><span class="lineCov">         14 :         }</span>
+<a name="343"><span class="lineNum">     343 </span>            : </a>
+<span class="lineNum">     344 </span>            : #if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
+<span class="lineNum">     345 </span><span class="lineCov">          4 :         explicit impl(FunT&amp;&amp; fun) :</span>
+<span class="lineNum">     346 </span>            :             impl_base(&amp;this_type::invoke_impl, &amp;this_type::clone_impl, &amp;this_type::destroy_impl),
+<span class="lineNum">     347 </span><span class="lineCov">          4 :             m_Function(boost::move(fun))</span>
+<span class="lineNum">     348 </span>            :         {
+<span class="lineNum">     349 </span><span class="lineCov">          4 :         }</span>
+<a name="350"><span class="lineNum">     350 </span>            : #endif // !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)</a>
+<span class="lineNum">     351 </span>            : 
+<span class="lineNum">     352 </span><span class="lineCov">         14 :         static void destroy_impl(void* self)</span>
+<span class="lineNum">     353 </span>            :         {
+<a name="354"><span class="lineNum">     354 </span><span class="lineCov">         14 :             delete static_cast&lt; impl* &gt;(static_cast&lt; impl_base* &gt;(self));</span></a>
+<span class="lineNum">     355 </span><span class="lineCov">         14 :         }</span>
+<span class="lineNum">     356 </span><span class="lineCov">         14 :         static impl_base* clone_impl(const void* self)</span>
+<span class="lineNum">     357 </span>            :         {
+<a name="358"><span class="lineNum">     358 </span><span class="lineCov">         14 :             return new impl(static_cast&lt; const impl* &gt;(static_cast&lt; const impl_base* &gt;(self))-&gt;m_Function);</span></a>
+<span class="lineNum">     359 </span>            :         }
+<span class="lineNum">     360 </span><span class="lineCov">          4 :         static result_type invoke_impl(void* self, ArgsT... args)</span>
+<span class="lineNum">     361 </span>            :         {
+<span class="lineNum">     362 </span><span class="lineCov">          4 :             static_cast&lt; impl* &gt;(static_cast&lt; impl_base* &gt;(self))-&gt;m_Function(args...);</span>
+<span class="lineNum">     363 </span><span class="lineCov">          4 :         }</span>
+<span class="lineNum">     364 </span>            : 
+<span class="lineNum">     365 </span>            :         BOOST_DELETED_FUNCTION(impl(impl const&amp;))
+<span class="lineNum">     366 </span>            :         BOOST_DELETED_FUNCTION(impl&amp; operator= (impl const&amp;))
+<span class="lineNum">     367 </span>            :     };
+<span class="lineNum">     368 </span>            : 
+<span class="lineNum">     369 </span>            : private:
+<span class="lineNum">     370 </span>            :     impl_base* m_pImpl;
+<a name="371"><span class="lineNum">     371 </span>            : </a>
+<span class="lineNum">     372 </span>            : public:
+<span class="lineNum">     373 </span><span class="lineCov">          2 :     BOOST_CONSTEXPR light_function() BOOST_NOEXCEPT : m_pImpl(NULL)</span>
+<a name="374"><span class="lineNum">     374 </span>            :     {</a>
+<span class="lineNum">     375 </span><span class="lineCov">          2 :     }</span>
+<span class="lineNum">     376 </span><span class="lineCov">          6 :     light_function(this_type const&amp; that)</span>
+<span class="lineNum">     377 </span>            :     {
+<span class="lineNum">     378 </span><span class="lineCov">          6 :         if (that.m_pImpl)</span>
+<span class="lineNum">     379 </span><span class="lineCov">          6 :             m_pImpl = that.m_pImpl-&gt;clone(that.m_pImpl);</span>
+<span class="lineNum">     380 </span>            :         else
+<span class="lineNum">     381 </span><span class="lineNoCov">          0 :             m_pImpl = NULL;</span>
+<span class="lineNum">     382 </span><span class="lineCov">          6 :     }</span>
+<span class="lineNum">     383 </span>            :     light_function(BOOST_RV_REF(this_type) that) BOOST_NOEXCEPT
+<span class="lineNum">     384 </span>            :     {
+<span class="lineNum">     385 </span>            :         m_pImpl = that.m_pImpl;
+<span class="lineNum">     386 </span>            :         that.m_pImpl = NULL;
+<span class="lineNum">     387 </span>            :     }
+<span class="lineNum">     388 </span>            : 
+<span class="lineNum">     389 </span>            :     light_function(BOOST_RV_REF(const this_type) that) BOOST_NOEXCEPT
+<span class="lineNum">     390 </span>            :     {
+<span class="lineNum">     391 </span>            :         m_pImpl = that.m_pImpl;
+<span class="lineNum">     392 </span>            :         ((this_type&amp;)that).m_pImpl = NULL;
+<span class="lineNum">     393 </span>            :     }
+<span class="lineNum">     394 </span>            : 
+<a name="395"><span class="lineNum">     395 </span>            : #if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)</a>
+<span class="lineNum">     396 </span>            :     template&lt; typename FunT &gt;
+<span class="lineNum">     397 </span><span class="lineCov">          4 :     light_function(FunT&amp;&amp; fun) :</span>
+<span class="lineNum">     398 </span><span class="lineCov">          4 :         m_pImpl(new impl&lt; typename remove_cv&lt; typename remove_reference&lt; FunT &gt;::type &gt;::type &gt;(boost::forward&lt; FunT &gt;(fun)))</span>
+<span class="lineNum">     399 </span>            :     {
+<span class="lineNum">     400 </span><span class="lineCov">          4 :     }</span>
+<span class="lineNum">     401 </span>            : #else
+<span class="lineNum">     402 </span>            :     template&lt; typename FunT &gt;
+<span class="lineNum">     403 </span>            :     light_function(FunT const&amp; fun, typename disable_if_c&lt; is_rv_or_same&lt; FunT, this_type &gt;::value, int &gt;::type = 0) :
+<span class="lineNum">     404 </span>            :         m_pImpl(new impl&lt; FunT &gt;(fun))
+<span class="lineNum">     405 </span>            :     {
+<span class="lineNum">     406 </span>            :     }
+<span class="lineNum">     407 </span>            :     template&lt; typename FunT &gt;
+<span class="lineNum">     408 </span>            :     light_function(BOOST_RV_REF(FunT) fun, typename disable_if_c&lt; is_cv_same&lt; FunT, this_type &gt;::value, int &gt;::type = 0) :
+<span class="lineNum">     409 </span>            :         m_pImpl(new impl&lt; typename remove_cv&lt; FunT &gt;::type &gt;(fun))
+<span class="lineNum">     410 </span>            :     {
+<span class="lineNum">     411 </span>            :     }
+<span class="lineNum">     412 </span>            : #endif
+<span class="lineNum">     413 </span>            : 
+<span class="lineNum">     414 </span>            :     //! Constructor from NULL
+<span class="lineNum">     415 </span>            : #if !defined(BOOST_NO_CXX11_NULLPTR)
+<span class="lineNum">     416 </span>            :     BOOST_CONSTEXPR light_function(std::nullptr_t) BOOST_NOEXCEPT
+<span class="lineNum">     417 </span>            : #else
+<span class="lineNum">     418 </span>            :     BOOST_CONSTEXPR light_function(int p) BOOST_NOEXCEPT
+<span class="lineNum">     419 </span>            : #endif
+<span class="lineNum">     420 </span>            :         : m_pImpl(NULL)
+<span class="lineNum">     421 </span>            :     {
+<span class="lineNum">     422 </span>            : #if defined(BOOST_NO_CXX11_NULLPTR)
+<span class="lineNum">     423 </span>            :         BOOST_ASSERT(p == 0);
+<a name="424"><span class="lineNum">     424 </span>            : #endif</a>
+<span class="lineNum">     425 </span>            :     }
+<span class="lineNum">     426 </span><span class="lineCov">          6 :     ~light_function()</span>
+<span class="lineNum">     427 </span>            :     {
+<span class="lineNum">     428 </span><span class="lineCov">          6 :         clear();</span>
+<span class="lineNum">     429 </span><span class="lineCov">          6 :     }</span>
+<span class="lineNum">     430 </span>            : 
+<span class="lineNum">     431 </span>            :     light_function&amp; operator= (BOOST_RV_REF(this_type) that) BOOST_NOEXCEPT
+<span class="lineNum">     432 </span>            :     {
+<span class="lineNum">     433 </span>            :         this-&gt;swap(that);
+<a name="434"><span class="lineNum">     434 </span>            :         return *this;</a>
+<span class="lineNum">     435 </span>            :     }
+<span class="lineNum">     436 </span><span class="lineCov">          2 :     light_function&amp; operator= (BOOST_COPY_ASSIGN_REF(this_type) that)</span>
+<span class="lineNum">     437 </span>            :     {
+<span class="lineNum">     438 </span><span class="lineCov">          4 :         light_function tmp = static_cast&lt; this_type const&amp; &gt;(that);</span>
+<span class="lineNum">     439 </span><span class="lineCov">          2 :         this-&gt;swap(tmp);</span>
+<span class="lineNum">     440 </span><span class="lineCov">          4 :         return *this;</span>
+<span class="lineNum">     441 </span>            :     }
+<span class="lineNum">     442 </span>            :     //! Assignment of NULL
+<span class="lineNum">     443 </span>            : #if !defined(BOOST_NO_CXX11_NULLPTR)
+<span class="lineNum">     444 </span>            :     light_function&amp; operator= (std::nullptr_t)
+<span class="lineNum">     445 </span>            : #else
+<span class="lineNum">     446 </span>            :     light_function&amp; operator= (int p)
+<span class="lineNum">     447 </span>            : #endif
+<span class="lineNum">     448 </span>            :     {
+<span class="lineNum">     449 </span>            : #if defined(BOOST_NO_CXX11_NULLPTR)
+<span class="lineNum">     450 </span>            :         BOOST_ASSERT(p == 0);
+<span class="lineNum">     451 </span>            : #endif
+<span class="lineNum">     452 </span>            :         clear();
+<span class="lineNum">     453 </span>            :         return *this;
+<span class="lineNum">     454 </span>            :     }
+<span class="lineNum">     455 </span>            : #if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
+<span class="lineNum">     456 </span>            :     template&lt; typename FunT &gt;
+<span class="lineNum">     457 </span>            :     light_function&amp; operator= (FunT&amp;&amp; fun)
+<span class="lineNum">     458 </span>            :     {
+<span class="lineNum">     459 </span>            :         light_function tmp(boost::forward&lt; FunT &gt;(fun));
+<span class="lineNum">     460 </span>            :         this-&gt;swap(tmp);
+<span class="lineNum">     461 </span>            :         return *this;
+<span class="lineNum">     462 </span>            :     }
+<span class="lineNum">     463 </span>            : #else
+<span class="lineNum">     464 </span>            :     template&lt; typename FunT &gt;
+<span class="lineNum">     465 </span>            :     typename disable_if_c&lt; is_rv_or_same&lt; FunT, this_type &gt;::value, this_type&amp; &gt;::type
+<span class="lineNum">     466 </span>            :     operator= (FunT const&amp; fun)
+<span class="lineNum">     467 </span>            :     {
+<span class="lineNum">     468 </span>            :         light_function tmp(fun);
+<span class="lineNum">     469 </span>            :         this-&gt;swap(tmp);
+<span class="lineNum">     470 </span>            :         return *this;
+<span class="lineNum">     471 </span>            :     }
+<a name="472"><span class="lineNum">     472 </span>            : #endif</a>
+<span class="lineNum">     473 </span>            : 
+<span class="lineNum">     474 </span><span class="lineCov">          4 :     result_type operator() (ArgsT... args) const</span>
+<span class="lineNum">     475 </span>            :     {
+<span class="lineNum">     476 </span><span class="lineCov">          4 :         m_pImpl-&gt;invoke(m_pImpl, args...);</span>
+<span class="lineNum">     477 </span><span class="lineCov">          4 :     }</span>
+<span class="lineNum">     478 </span>            : 
+<a name="479"><span class="lineNum">     479 </span>            :     BOOST_EXPLICIT_OPERATOR_BOOL_NOEXCEPT()</a>
+<a name="480"><span class="lineNum">     480 </span>            :     bool operator! () const BOOST_NOEXCEPT { return (m_pImpl == NULL); }</a>
+<span class="lineNum">     481 </span><span class="lineNoCov">          0 :     bool empty() const BOOST_NOEXCEPT { return (m_pImpl == NULL); }</span>
+<span class="lineNum">     482 </span><span class="lineCov">          6 :     void clear() BOOST_NOEXCEPT</span>
+<span class="lineNum">     483 </span>            :     {
+<span class="lineNum">     484 </span><span class="lineCov">          6 :         if (m_pImpl)</span>
+<span class="lineNum">     485 </span>            :         {
+<span class="lineNum">     486 </span><span class="lineCov">          6 :             m_pImpl-&gt;destroy(m_pImpl);</span>
+<span class="lineNum">     487 </span><span class="lineCov">          6 :             m_pImpl = NULL;</span>
+<span class="lineNum">     488 </span>            :         }
+<a name="489"><span class="lineNum">     489 </span><span class="lineCov">          6 :     }</span></a>
+<span class="lineNum">     490 </span>            : 
+<span class="lineNum">     491 </span><span class="lineCov">          2 :     void swap(this_type&amp; that) BOOST_NOEXCEPT</span>
+<span class="lineNum">     492 </span>            :     {
+<span class="lineNum">     493 </span><span class="lineCov">          2 :         impl_base* p = m_pImpl;</span>
+<span class="lineNum">     494 </span><span class="lineCov">          2 :         m_pImpl = that.m_pImpl;</span>
+<span class="lineNum">     495 </span><span class="lineCov">          2 :         that.m_pImpl = p;</span>
+<span class="lineNum">     496 </span><span class="lineCov">          2 :     }</span>
+<span class="lineNum">     497 </span>            : };
+<span class="lineNum">     498 </span>            : 
+<span class="lineNum">     499 </span>            : #else // !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+<span class="lineNum">     500 </span>            : 
+<span class="lineNum">     501 </span>            : #define BOOST_PP_FILENAME_1 &lt;boost/log/detail/light_function_pp.hpp&gt;
+<span class="lineNum">     502 </span>            : #define BOOST_PP_ITERATION_LIMITS (0, BOOST_LOG_LIGHT_FUNCTION_LIMIT)
+<span class="lineNum">     503 </span>            : #include BOOST_PP_ITERATE()
+<span class="lineNum">     504 </span>            : 
+<span class="lineNum">     505 </span>            : #endif // !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+<span class="lineNum">     506 </span>            : 
+<span class="lineNum">     507 </span>            : template&lt; typename SignatureT &gt;
+<span class="lineNum">     508 </span>            : inline void swap(light_function&lt; SignatureT &gt;&amp; left, light_function&lt; SignatureT &gt;&amp; right)
+<span class="lineNum">     509 </span>            : {
+<span class="lineNum">     510 </span>            :     left.swap(right);
+<span class="lineNum">     511 </span>            : }
+<span class="lineNum">     512 </span>            : 
+<span class="lineNum">     513 </span>            : } // namespace aux
+<span class="lineNum">     514 </span>            : 
+<span class="lineNum">     515 </span>            : BOOST_LOG_CLOSE_NAMESPACE // namespace log
+<span class="lineNum">     516 </span>            : 
+<span class="lineNum">     517 </span>            : } // namespace boost
+<span class="lineNum">     518 </span>            : 
+<span class="lineNum">     519 </span>            : #include &lt;boost/log/detail/footer.hpp&gt;
+<span class="lineNum">     520 </span>            : 
+<span class="lineNum">     521 </span>            : #endif // BOOST_LOG_DETAIL_LIGHT_FUNCTION_HPP_INCLUDED_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - /usr/local/include/opentracing/string_view.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">usr/local/include/opentracing</a> - string_view.h<span style="font-size: 80%;"> (source / <a href="string_view.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 03:44:21</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #ifndef OPENTRACING_STRING_VIEW_H</a>
+<span class="lineNum">       2 </span>            : #define OPENTRACING_STRING_VIEW_H
+<span class="lineNum">       3 </span>            : 
+<span class="lineNum">       4 </span>            : #include &lt;opentracing/version.h&gt;
+<span class="lineNum">       5 </span>            : #include &lt;algorithm&gt;
+<span class="lineNum">       6 </span>            : #include &lt;cstring&gt;
+<span class="lineNum">       7 </span>            : #include &lt;ostream&gt;
+<span class="lineNum">       8 </span>            : #include &lt;string&gt;
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span>            : // ===========
+<span class="lineNum">      11 </span>            : // string_view.h
+<span class="lineNum">      12 </span>            : // ===========
+<span class="lineNum">      13 </span>            : // class string_view - Constant reference to an external string
+<span class="lineNum">      14 </span>            : //
+<span class="lineNum">      15 </span>            : // -----------------
+<span class="lineNum">      16 </span>            : // String References
+<span class="lineNum">      17 </span>            : // -----------------
+<span class="lineNum">      18 </span>            : // This string references is a simplified version of the boost::string_ref.
+<span class="lineNum">      19 </span>            : // Its purpose is to avoid a number of efficiency problems that appear
+<span class="lineNum">      20 </span>            : // commonly when interacting with 'std::string' and c-strings.
+<span class="lineNum">      21 </span>            : //
+<span class="lineNum">      22 </span>            : // See the boost documentation for more background:
+<span class="lineNum">      23 </span>            : // http://www.boost.org/doc/libs/master/libs/utility/doc/html/string_ref.html
+<span class="lineNum">      24 </span>            : //
+<span class="lineNum">      25 </span>            : // -----
+<span class="lineNum">      26 </span>            : // Note:
+<span class="lineNum">      27 </span>            : // -----
+<span class="lineNum">      28 </span>            : // Although we have the ability to use wide string refs, there are side
+<span class="lineNum">      29 </span>            : // effects in exposing an OpenTracing interface that works with narrow and wide
+<span class="lineNum">      30 </span>            : // strings at the same time. Storage on the implementation will have a 'native'
+<span class="lineNum">      31 </span>            : // format.
+<span class="lineNum">      32 </span>            : //
+<span class="lineNum">      33 </span>            : // Exposing references to that format avoid copies means clients would be
+<span class="lineNum">      34 </span>            : // dependent on that format. If they're dependent on that detail and then switch
+<span class="lineNum">      35 </span>            : // out the implementation to a different format, there would be lots of code
+<span class="lineNum">      36 </span>            : // that breaks if it was expecting wstring and starts receiving string all of a
+<span class="lineNum">      37 </span>            : // sudden. That design issue still needs to be addressed.
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : namespace opentracing {
+<span class="lineNum">      40 </span>            : BEGIN_OPENTRACING_ABI_NAMESPACE
+<span class="lineNum">      41 </span>            : // ===============
+<span class="lineNum">      42 </span>            : // class string_view
+<span class="lineNum">      43 </span>            : // ===============
+<span class="lineNum">      44 </span>            : // Represent a constant reference to an external character array. The external
+<span class="lineNum">      45 </span>            : // array need not be null-terminated, if explicitly created with a known length.
+<span class="lineNum">      46 </span>            : //
+<span class="lineNum">      47 </span>            : // This class does not own the data. It is expected to be used in situations
+<span class="lineNum">      48 </span>            : // where the character data resides in some other buffer, whose lifetime extends
+<span class="lineNum">      49 </span>            : // past that of the string_view. For this reason, it is not in general safe to
+<span class="lineNum">      50 </span>            : // store a string_view.
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            : class string_view {
+<span class="lineNum">      53 </span>            :  public:
+<span class="lineNum">      54 </span>            :   // Construct an empty string_view
+<span class="lineNum">      55 </span>            :   string_view() noexcept : data_(nullptr), length_(0) {}
+<a name="56"><span class="lineNum">      56 </span>            : </a>
+<span class="lineNum">      57 </span>            :   // create string reference from const character pointer
+<span class="lineNum">      58 </span><span class="lineCov">          8 :   string_view(const char* str) noexcept</span>
+<span class="lineNum">      59 </span><span class="lineCov">          8 :       : data_(str), length_(std::strlen(str)) {}</span>
+<a name="60"><span class="lineNum">      60 </span>            : </a>
+<span class="lineNum">      61 </span>            :   // Create constant string reference from pointer and length
+<span class="lineNum">      62 </span><span class="lineCov">         24 :   string_view(const std::basic_string&lt;char&gt;&amp; str) noexcept</span>
+<span class="lineNum">      63 </span><span class="lineCov">         24 :       : data_(str.c_str()), length_(str.length()) {}</span>
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span>            :   // Create constant string reference from pointer and length
+<span class="lineNum">      66 </span>            :   string_view(const char* str, size_t len) noexcept
+<span class="lineNum">      67 </span>            :       : data_(str), length_(len) {}
+<a name="68"><span class="lineNum">      68 </span>            : </a>
+<span class="lineNum">      69 </span>            :   // Implicit conversion to std::string
+<span class="lineNum">      70 </span><span class="lineCov">         24 :   operator std::string() const { return {data_, length_}; }</span>
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span>            :   // Return address of the referenced string
+<span class="lineNum">      73 </span>            :   const char* data() const noexcept { return data_; }
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span>            :   // Returns true if `length_` == 0
+<span class="lineNum">      76 </span>            :   bool empty() const noexcept { return length_ == 0; }
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span>            :   // Return the length of the referenced string
+<span class="lineNum">      79 </span>            :   size_t length() const noexcept { return length_; }
+<span class="lineNum">      80 </span>            :   size_t size() const noexcept { return length_; }
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span>            :   // Returns a RandomAccessIterator to the first element.
+<span class="lineNum">      83 </span>            :   const char* begin() const noexcept { return data(); }
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span>            :   // Returns a RandomAccessIterator for the last element.
+<span class="lineNum">      86 </span>            :   const char* end() const noexcept { return data() + length(); }
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span>            :   // Returns the character in the i-th position.
+<span class="lineNum">      89 </span>            :   const char&amp; operator[](std::size_t i) { return *(data() + i); }
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span>            :  private:
+<span class="lineNum">      92 </span>            :   const char* data_;  // Pointer to external storage
+<span class="lineNum">      93 </span>            :   size_t length_;     // Length of data pointed to by 'data_'
+<span class="lineNum">      94 </span>            : };
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span>            : inline bool operator==(string_view lhs, string_view rhs) noexcept {
+<span class="lineNum">      97 </span>            :   return lhs.length() == rhs.length() &amp;&amp;
+<span class="lineNum">      98 </span>            :          std::equal(lhs.data(), lhs.data() + lhs.length(), rhs.data());
+<span class="lineNum">      99 </span>            : }
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span>            : inline bool operator==(string_view lhs, const std::string&amp; rhs) noexcept {
+<span class="lineNum">     102 </span>            :   return lhs == string_view(rhs);
+<span class="lineNum">     103 </span>            : }
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span>            : inline bool operator==(const std::string&amp; lhs, string_view rhs) noexcept {
+<span class="lineNum">     106 </span>            :   return string_view(lhs) == rhs;
+<span class="lineNum">     107 </span>            : }
+<span class="lineNum">     108 </span>            : 
+<span class="lineNum">     109 </span>            : inline bool operator==(string_view lhs, const char* rhs) noexcept {
+<span class="lineNum">     110 </span>            :   return lhs == string_view(rhs);
+<span class="lineNum">     111 </span>            : }
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span>            : inline bool operator==(const char* lhs, string_view rhs) noexcept {
+<span class="lineNum">     114 </span>            :   return string_view(lhs) == rhs;
+<span class="lineNum">     115 </span>            : }
+<span class="lineNum">     116 </span>            : 
+<span class="lineNum">     117 </span>            : inline bool operator!=(string_view lhs, string_view rhs) noexcept {
+<span class="lineNum">     118 </span>            :   return !(lhs == rhs);
+<span class="lineNum">     119 </span>            : }
+<span class="lineNum">     120 </span>            : 
+<span class="lineNum">     121 </span>            : inline bool operator!=(string_view lhs, const std::string&amp; rhs) noexcept {
+<span class="lineNum">     122 </span>            :   return !(lhs == rhs);
+<span class="lineNum">     123 </span>            : }
+<span class="lineNum">     124 </span>            : 
+<span class="lineNum">     125 </span>            : inline bool operator!=(const std::string&amp; lhs, string_view rhs) noexcept {
+<span class="lineNum">     126 </span>            :   return !(lhs == rhs);
+<span class="lineNum">     127 </span>            : }
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span>            : inline bool operator!=(string_view lhs, const char* rhs) noexcept {
+<span class="lineNum">     130 </span>            :   return !(lhs == rhs);
+<span class="lineNum">     131 </span>            : }
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span>            : inline bool operator!=(const char* lhs, string_view rhs) noexcept {
+<span class="lineNum">     134 </span>            :   return !(lhs == rhs);
+<span class="lineNum">     135 </span>            : }
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span>            : inline std::ostream&amp; operator&lt;&lt;(std::ostream&amp; os,
+<span class="lineNum">     138 </span>            :                                 const opentracing::string_view&amp; ref) {
+<span class="lineNum">     139 </span>            :   return os.write(ref.data(), static_cast&lt;std::streamsize&gt;(ref.length()));
+<span class="lineNum">     140 </span>            : }
+<span class="lineNum">     141 </span>            : END_OPENTRACING_ABI_NAMESPACE
+<span class="lineNum">     142 </span>            : }  // namespace opentracing
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span>            : #endif  // OPENTRACING_STRING_VIEW_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

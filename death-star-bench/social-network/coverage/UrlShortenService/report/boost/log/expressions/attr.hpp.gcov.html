@@ -1,0 +1,352 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/log/expressions/attr.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">boost/log/expressions</a> - attr.hpp<span style="font-size: 80%;"> (source / <a href="attr.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 03:43:12</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *          Copyright Andrey Semashev 2007 - 2015.
+<span class="lineNum">       3 </span>            :  * Distributed under the Boost Software License, Version 1.0.
+<span class="lineNum">       4 </span>            :  *    (See accompanying file LICENSE_1_0.txt or copy at
+<span class="lineNum">       5 </span>            :  *          http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       6 </span>            :  */
+<span class="lineNum">       7 </span>            : /*!
+<span class="lineNum">       8 </span>            :  * \file   attr.hpp
+<span class="lineNum">       9 </span>            :  * \author Andrey Semashev
+<span class="lineNum">      10 </span>            :  * \date   21.07.2012
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * The header contains implementation of a generic attribute placeholder in template expressions.
+<span class="lineNum">      13 </span>            :  */
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : #ifndef BOOST_LOG_EXPRESSIONS_ATTR_HPP_INCLUDED_
+<span class="lineNum">      16 </span>            : #define BOOST_LOG_EXPRESSIONS_ATTR_HPP_INCLUDED_
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #include &lt;boost/mpl/bool.hpp&gt;
+<span class="lineNum">      19 </span>            : #include &lt;boost/utility/result_of.hpp&gt;
+<span class="lineNum">      20 </span>            : #include &lt;boost/phoenix/core/actor.hpp&gt;
+<span class="lineNum">      21 </span>            : #include &lt;boost/phoenix/core/terminal_fwd.hpp&gt;
+<span class="lineNum">      22 </span>            : #include &lt;boost/phoenix/core/is_nullary.hpp&gt;
+<span class="lineNum">      23 </span>            : #include &lt;boost/phoenix/core/environment.hpp&gt;
+<span class="lineNum">      24 </span>            : #include &lt;boost/fusion/sequence/intrinsic/at_c.hpp&gt;
+<span class="lineNum">      25 </span>            : #include &lt;boost/type_traits/remove_cv.hpp&gt;
+<span class="lineNum">      26 </span>            : #include &lt;boost/type_traits/remove_reference.hpp&gt;
+<span class="lineNum">      27 </span>            : #include &lt;boost/log/detail/config.hpp&gt;
+<span class="lineNum">      28 </span>            : #include &lt;boost/log/detail/copy_cv.hpp&gt;
+<span class="lineNum">      29 </span>            : #include &lt;boost/log/detail/custom_terminal_spec.hpp&gt;
+<span class="lineNum">      30 </span>            : #include &lt;boost/log/attributes/attribute_name.hpp&gt;
+<span class="lineNum">      31 </span>            : #include &lt;boost/log/attributes/value_extraction.hpp&gt;
+<span class="lineNum">      32 </span>            : #include &lt;boost/log/attributes/fallback_policy.hpp&gt;
+<span class="lineNum">      33 </span>            : #include &lt;boost/log/expressions/attr_fwd.hpp&gt;
+<span class="lineNum">      34 </span>            : #include &lt;boost/log/detail/header.hpp&gt;
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            : #ifdef BOOST_HAS_PRAGMA_ONCE
+<span class="lineNum">      37 </span>            : #pragma once
+<span class="lineNum">      38 </span>            : #endif
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span>            : namespace boost {
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            : BOOST_LOG_OPEN_NAMESPACE
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            : namespace expressions {
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            : /*!
+<span class="lineNum">      47 </span>            :  * An attribute value extraction terminal
+<a name="48"><span class="lineNum">      48 </span>            :  */</a>
+<span class="lineNum">      49 </span>            : template&lt; typename T, typename FallbackPolicyT, typename TagT &gt;
+<span class="lineNum">      50 </span><span class="lineCov">         10 : class attribute_terminal</span>
+<span class="lineNum">      51 </span>            : {
+<span class="lineNum">      52 </span>            : private:
+<span class="lineNum">      53 </span>            :     //! Value extractor type
+<span class="lineNum">      54 </span>            :     typedef value_extractor&lt; T, FallbackPolicyT, TagT &gt; value_extractor_type;
+<span class="lineNum">      55 </span>            :     //! Self type
+<span class="lineNum">      56 </span>            :     typedef attribute_terminal&lt; T, FallbackPolicyT, TagT &gt; this_type;
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span>            : public:
+<span class="lineNum">      59 </span>            :     //! Internal typedef for type categorization
+<span class="lineNum">      60 </span>            :     typedef void _is_boost_log_terminal;
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span>            :     //! Attribute tag type
+<span class="lineNum">      63 </span>            :     typedef TagT tag_type;
+<span class="lineNum">      64 </span>            :     //! Attribute value type
+<span class="lineNum">      65 </span>            :     typedef typename value_extractor_type::value_type value_type;
+<span class="lineNum">      66 </span>            :     //! Fallback policy type
+<span class="lineNum">      67 </span>            :     typedef typename value_extractor_type::fallback_policy fallback_policy;
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span>            :     //! Function result type
+<span class="lineNum">      70 </span>            :     template&lt; typename &gt;
+<span class="lineNum">      71 </span>            :     struct result;
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span>            :     template&lt; typename ThisT, typename ContextT &gt;
+<span class="lineNum">      74 </span>            :     struct result&lt; ThisT(ContextT) &gt;
+<span class="lineNum">      75 </span>            :     {
+<span class="lineNum">      76 </span>            :         typedef typename remove_cv&lt;
+<span class="lineNum">      77 </span>            :             typename remove_reference&lt; typename phoenix::result_of::env&lt; ContextT &gt;::type &gt;::type
+<span class="lineNum">      78 </span>            :         &gt;::type env_type;
+<span class="lineNum">      79 </span>            :         typedef typename env_type::args_type args_type;
+<span class="lineNum">      80 </span>            :         typedef typename boost::log::aux::copy_cv&lt; ThisT, value_extractor_type &gt;::type cv_value_extractor_type;
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span>            :         typedef typename boost::result_of&lt; cv_value_extractor_type(attribute_name const&amp;, typename fusion::result_of::at_c&lt; args_type, 0 &gt;::type) &gt;::type type;
+<span class="lineNum">      83 </span>            :     };
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span>            : private:
+<span class="lineNum">      86 </span>            :     //! Attribute value name
+<span class="lineNum">      87 </span>            :     const attribute_name m_name;
+<span class="lineNum">      88 </span>            :     //! Attribute value extractor
+<span class="lineNum">      89 </span>            :     value_extractor_type m_value_extractor;
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span>            : public:
+<span class="lineNum">      92 </span>            :     /*!
+<a name="93"><span class="lineNum">      93 </span>            :      * Initializing constructor</a>
+<span class="lineNum">      94 </span>            :      */
+<span class="lineNum">      95 </span><span class="lineCov">          4 :     explicit attribute_terminal(attribute_name const&amp; name) : m_name(name)</span>
+<span class="lineNum">      96 </span>            :     {
+<span class="lineNum">      97 </span><span class="lineCov">          4 :     }</span>
+<span class="lineNum">      98 </span>            : 
+<span class="lineNum">      99 </span>            :     /*!
+<span class="lineNum">     100 </span>            :      * Initializing constructor
+<span class="lineNum">     101 </span>            :      */
+<span class="lineNum">     102 </span>            :     template&lt; typename U &gt;
+<span class="lineNum">     103 </span>            :     attribute_terminal(attribute_name const&amp; name, U const&amp; arg) : m_name(name), m_value_extractor(arg)
+<span class="lineNum">     104 </span>            :     {
+<span class="lineNum">     105 </span>            :     }
+<span class="lineNum">     106 </span>            : 
+<span class="lineNum">     107 </span>            :     /*!
+<a name="108"><span class="lineNum">     108 </span>            :      * \returns Attribute value name</a>
+<span class="lineNum">     109 </span>            :      */
+<span class="lineNum">     110 </span><span class="lineCov">          2 :     attribute_name get_name() const</span>
+<span class="lineNum">     111 </span>            :     {
+<span class="lineNum">     112 </span><span class="lineCov">          2 :         return m_name;</span>
+<span class="lineNum">     113 </span>            :     }
+<span class="lineNum">     114 </span>            : 
+<span class="lineNum">     115 </span>            :     /*!
+<a name="116"><span class="lineNum">     116 </span>            :      * \returns Fallback policy</a>
+<span class="lineNum">     117 </span>            :      */
+<span class="lineNum">     118 </span><span class="lineCov">          2 :     fallback_policy const&amp; get_fallback_policy() const</span>
+<span class="lineNum">     119 </span>            :     {
+<span class="lineNum">     120 </span><span class="lineCov">          2 :         return m_value_extractor.get_fallback_policy();</span>
+<span class="lineNum">     121 </span>            :     }
+<span class="lineNum">     122 </span>            : 
+<span class="lineNum">     123 </span>            :     /*!
+<span class="lineNum">     124 </span>            :      * The operator extracts attribute value
+<span class="lineNum">     125 </span>            :      */
+<span class="lineNum">     126 </span>            :     template&lt; typename ContextT &gt;
+<span class="lineNum">     127 </span>            :     typename result&lt; this_type(ContextT const&amp;) &gt;::type
+<span class="lineNum">     128 </span>            :     operator() (ContextT const&amp; ctx)
+<span class="lineNum">     129 </span>            :     {
+<span class="lineNum">     130 </span>            :         return m_value_extractor(m_name, fusion::at_c&lt; 0 &gt;(phoenix::env(ctx).args()));
+<span class="lineNum">     131 </span>            :     }
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span>            :     /*!
+<span class="lineNum">     134 </span>            :      * The operator extracts attribute value
+<span class="lineNum">     135 </span>            :      */
+<a name="136"><span class="lineNum">     136 </span>            :     template&lt; typename ContextT &gt;</a>
+<span class="lineNum">     137 </span>            :     typename result&lt; const this_type(ContextT const&amp;) &gt;::type
+<span class="lineNum">     138 </span><span class="lineCov">          2 :     operator() (ContextT const&amp; ctx) const</span>
+<span class="lineNum">     139 </span>            :     {
+<span class="lineNum">     140 </span><span class="lineCov">          2 :         return m_value_extractor(m_name, fusion::at_c&lt; 0 &gt;(phoenix::env(ctx).args()));</span>
+<span class="lineNum">     141 </span>            :     }
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span>            :     BOOST_DELETED_FUNCTION(attribute_terminal())
+<span class="lineNum">     144 </span>            : };
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span>            : /*!
+<span class="lineNum">     147 </span>            :  * An attribute value extraction terminal actor
+<a name="148"><span class="lineNum">     148 </span>            :  */</a>
+<span class="lineNum">     149 </span>            : template&lt; typename T, typename FallbackPolicyT, typename TagT, template&lt; typename &gt; class ActorT &gt;
+<span class="lineNum">     150 </span><span class="lineCov">          6 : class attribute_actor :</span>
+<span class="lineNum">     151 </span>            :     public ActorT&lt; attribute_terminal&lt; T, FallbackPolicyT, TagT &gt; &gt;
+<span class="lineNum">     152 </span>            : {
+<span class="lineNum">     153 </span>            : public:
+<span class="lineNum">     154 </span>            :     //! Attribute tag type
+<span class="lineNum">     155 </span>            :     typedef TagT tag_type;
+<span class="lineNum">     156 </span>            :     //! Fallback policy
+<span class="lineNum">     157 </span>            :     typedef FallbackPolicyT fallback_policy;
+<span class="lineNum">     158 </span>            :     //! Base terminal type
+<span class="lineNum">     159 </span>            :     typedef attribute_terminal&lt; T, fallback_policy, tag_type &gt; terminal_type;
+<span class="lineNum">     160 </span>            :     //! Attribute value type
+<span class="lineNum">     161 </span>            :     typedef typename terminal_type::value_type value_type;
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span>            :     //! Base actor type
+<span class="lineNum">     164 </span>            :     typedef ActorT&lt; terminal_type &gt; base_type;
+<span class="lineNum">     165 </span>            : 
+<a name="166"><span class="lineNum">     166 </span>            : public:</a>
+<span class="lineNum">     167 </span>            :     //! Initializing constructor
+<span class="lineNum">     168 </span><span class="lineCov">          4 :     explicit attribute_actor(base_type const&amp; act) : base_type(act)</span>
+<span class="lineNum">     169 </span>            :     {
+<span class="lineNum">     170 </span><span class="lineCov">          4 :     }</span>
+<span class="lineNum">     171 </span>            : 
+<span class="lineNum">     172 </span>            :     /*!
+<a name="173"><span class="lineNum">     173 </span>            :      * \returns The attribute name</a>
+<span class="lineNum">     174 </span>            :      */
+<span class="lineNum">     175 </span><span class="lineCov">          2 :     attribute_name get_name() const</span>
+<span class="lineNum">     176 </span>            :     {
+<span class="lineNum">     177 </span><span class="lineCov">          2 :         return this-&gt;proto_expr_.child0.get_name();</span>
+<span class="lineNum">     178 </span>            :     }
+<span class="lineNum">     179 </span>            : 
+<span class="lineNum">     180 </span>            :     /*!
+<a name="181"><span class="lineNum">     181 </span>            :      * \returns Fallback policy</a>
+<span class="lineNum">     182 </span>            :      */
+<span class="lineNum">     183 </span><span class="lineCov">          2 :     fallback_policy const&amp; get_fallback_policy() const</span>
+<span class="lineNum">     184 </span>            :     {
+<span class="lineNum">     185 </span><span class="lineCov">          2 :         return this-&gt;proto_expr_.child0.get_fallback_policy();</span>
+<span class="lineNum">     186 </span>            :     }
+<span class="lineNum">     187 </span>            : 
+<span class="lineNum">     188 </span>            :     //! Expression with cached attribute name
+<span class="lineNum">     189 </span>            :     typedef attribute_actor&lt; value_type, fallback_to_none, tag_type, ActorT &gt; or_none_result_type;
+<span class="lineNum">     190 </span>            : 
+<span class="lineNum">     191 </span>            :     //! Generates an expression that extracts the attribute value or a default value
+<span class="lineNum">     192 </span>            :     or_none_result_type or_none() const
+<span class="lineNum">     193 </span>            :     {
+<span class="lineNum">     194 </span>            :         typedef typename or_none_result_type::terminal_type result_terminal;
+<span class="lineNum">     195 </span>            :         typename or_none_result_type::base_type act = {{ result_terminal(get_name()) }};
+<span class="lineNum">     196 </span>            :         return or_none_result_type(act);
+<span class="lineNum">     197 </span>            :     }
+<span class="lineNum">     198 </span>            : 
+<span class="lineNum">     199 </span>            :     //! Expression with cached attribute name
+<span class="lineNum">     200 </span>            :     typedef attribute_actor&lt; value_type, fallback_to_throw, tag_type, ActorT &gt; or_throw_result_type;
+<span class="lineNum">     201 </span>            : 
+<span class="lineNum">     202 </span>            :     //! Generates an expression that extracts the attribute value or throws an exception
+<span class="lineNum">     203 </span>            :     or_throw_result_type or_throw() const
+<span class="lineNum">     204 </span>            :     {
+<span class="lineNum">     205 </span>            :         typedef typename or_throw_result_type::terminal_type result_terminal;
+<span class="lineNum">     206 </span>            :         typename or_throw_result_type::base_type act = {{ result_terminal(get_name()) }};
+<span class="lineNum">     207 </span>            :         return or_throw_result_type(act);
+<span class="lineNum">     208 </span>            :     }
+<span class="lineNum">     209 </span>            : 
+<span class="lineNum">     210 </span>            :     //! Generates an expression that extracts the attribute value or a default value
+<span class="lineNum">     211 </span>            :     template&lt; typename DefaultT &gt;
+<span class="lineNum">     212 </span>            :     attribute_actor&lt; value_type, fallback_to_default&lt; DefaultT &gt;, tag_type, ActorT &gt; or_default(DefaultT const&amp; def_val) const
+<span class="lineNum">     213 </span>            :     {
+<span class="lineNum">     214 </span>            :         typedef attribute_actor&lt; value_type, fallback_to_default&lt; DefaultT &gt;, tag_type, ActorT &gt; or_default_result_type;
+<span class="lineNum">     215 </span>            :         typedef typename or_default_result_type::terminal_type result_terminal;
+<span class="lineNum">     216 </span>            :         typename or_default_result_type::base_type act = {{ result_terminal(get_name(), def_val) }};
+<span class="lineNum">     217 </span>            :         return or_default_result_type(act);
+<span class="lineNum">     218 </span>            :     }
+<span class="lineNum">     219 </span>            : };
+<span class="lineNum">     220 </span>            : 
+<span class="lineNum">     221 </span>            : /*!
+<span class="lineNum">     222 </span>            :  * The function generates a terminal node in a template expression. The node will extract the value of the attribute
+<span class="lineNum">     223 </span>            :  * with the specified name and type.
+<span class="lineNum">     224 </span>            :  */
+<span class="lineNum">     225 </span>            : template&lt; typename AttributeValueT &gt;
+<span class="lineNum">     226 </span>            : BOOST_FORCEINLINE attribute_actor&lt; AttributeValueT &gt; attr(attribute_name const&amp; name)
+<span class="lineNum">     227 </span>            : {
+<span class="lineNum">     228 </span>            :     typedef attribute_actor&lt; AttributeValueT &gt; result_type;
+<span class="lineNum">     229 </span>            :     typedef typename result_type::terminal_type result_terminal;
+<span class="lineNum">     230 </span><span class="lineCov">          2 :     typename result_type::base_type act = {{ result_terminal(name) }};</span>
+<span class="lineNum">     231 </span><span class="lineCov">          2 :     return result_type(act);</span>
+<span class="lineNum">     232 </span>            : }
+<span class="lineNum">     233 </span>            : 
+<span class="lineNum">     234 </span>            : /*!
+<span class="lineNum">     235 </span>            :  * The function generates a terminal node in a template expression. The node will extract the value of the attribute
+<span class="lineNum">     236 </span>            :  * with the specified name and type.
+<span class="lineNum">     237 </span>            :  */
+<span class="lineNum">     238 </span>            : template&lt; typename AttributeValueT, typename TagT &gt;
+<span class="lineNum">     239 </span>            : BOOST_FORCEINLINE attribute_actor&lt; AttributeValueT, fallback_to_none, TagT &gt; attr(attribute_name const&amp; name)
+<span class="lineNum">     240 </span>            : {
+<span class="lineNum">     241 </span>            :     typedef attribute_actor&lt; AttributeValueT, fallback_to_none, TagT &gt; result_type;
+<span class="lineNum">     242 </span>            :     typedef typename result_type::terminal_type result_terminal;
+<span class="lineNum">     243 </span>            :     typename result_type::base_type act = {{ result_terminal(name) }};
+<span class="lineNum">     244 </span>            :     return result_type(act);
+<span class="lineNum">     245 </span>            : }
+<span class="lineNum">     246 </span>            : 
+<span class="lineNum">     247 </span>            : } // namespace expressions
+<span class="lineNum">     248 </span>            : 
+<span class="lineNum">     249 </span>            : BOOST_LOG_CLOSE_NAMESPACE // namespace log
+<span class="lineNum">     250 </span>            : 
+<span class="lineNum">     251 </span>            : #ifndef BOOST_LOG_DOXYGEN_PASS
+<span class="lineNum">     252 </span>            : 
+<span class="lineNum">     253 </span>            : namespace phoenix {
+<span class="lineNum">     254 </span>            : 
+<span class="lineNum">     255 </span>            : namespace result_of {
+<span class="lineNum">     256 </span>            : 
+<span class="lineNum">     257 </span>            : template&lt; typename T, typename FallbackPolicyT, typename TagT &gt;
+<span class="lineNum">     258 </span>            : struct is_nullary&lt; custom_terminal&lt; boost::log::expressions::attribute_terminal&lt; T, FallbackPolicyT, TagT &gt; &gt; &gt; :
+<span class="lineNum">     259 </span>            :     public mpl::false_
+<span class="lineNum">     260 </span>            : {
+<span class="lineNum">     261 </span>            : };
+<span class="lineNum">     262 </span>            : 
+<span class="lineNum">     263 </span>            : } // namespace result_of
+<span class="lineNum">     264 </span>            : 
+<span class="lineNum">     265 </span>            : } // namespace phoenix
+<span class="lineNum">     266 </span>            : 
+<span class="lineNum">     267 </span>            : #endif
+<span class="lineNum">     268 </span>            : 
+<span class="lineNum">     269 </span>            : } // namespace boost
+<span class="lineNum">     270 </span>            : 
+<span class="lineNum">     271 </span>            : #include &lt;boost/log/detail/footer.hpp&gt;
+<span class="lineNum">     272 </span>            : #if defined(BOOST_LOG_EXPRESSIONS_FORMATTERS_STREAM_HPP_INCLUDED_)
+<span class="lineNum">     273 </span>            : #include &lt;boost/log/detail/attr_output_impl.hpp&gt;
+<span class="lineNum">     274 </span>            : #endif
+<span class="lineNum">     275 </span>            : 
+<span class="lineNum">     276 </span>            : #endif // BOOST_LOG_EXPRESSIONS_ATTR_HPP_INCLUDED_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

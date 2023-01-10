@@ -1,0 +1,522 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/array.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">boost</a> - array.hpp<span style="font-size: 80%;"> (source / <a href="array.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 03:45:06</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* The following code declares class array,</a>
+<span class="lineNum">       2 </span>            :  * an STL container (as wrapper) for arrays of constant size.
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * See
+<span class="lineNum">       5 </span>            :  *      http://www.boost.org/libs/array/
+<span class="lineNum">       6 </span>            :  * for documentation.
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  * The original author site is at: http://www.josuttis.com/
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  * (C) Copyright Nicolai M. Josuttis 2001.
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * Distributed under the Boost Software License, Version 1.0. (See
+<span class="lineNum">      13 </span>            :  * accompanying file LICENSE_1_0.txt or copy at
+<span class="lineNum">      14 </span>            :  * http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">      15 </span>            :  *
+<span class="lineNum">      16 </span>            :  * 14 Apr 2012 - (mtc) Added support for boost::hash
+<span class="lineNum">      17 </span>            :  * 28 Dec 2010 - (mtc) Added cbegin and cend (and crbegin and crend) for C++Ox compatibility.
+<span class="lineNum">      18 </span>            :  * 10 Mar 2010 - (mtc) fill method added, matching resolution of the standard library working group.
+<span class="lineNum">      19 </span>            :  *      See &lt;http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-defects.html#776&gt; or Trac issue #3168
+<span class="lineNum">      20 </span>            :  *      Eventually, we should remove &quot;assign&quot; which is now a synonym for &quot;fill&quot; (Marshall Clow)
+<span class="lineNum">      21 </span>            :  * 10 Mar 2010 - added workaround for SUNCC and !STLPort [trac #3893] (Marshall Clow)
+<span class="lineNum">      22 </span>            :  * 29 Jan 2004 - c_array() added, BOOST_NO_PRIVATE_IN_AGGREGATE removed (Nico Josuttis)
+<span class="lineNum">      23 </span>            :  * 23 Aug 2002 - fix for Non-MSVC compilers combined with MSVC libraries.
+<span class="lineNum">      24 </span>            :  * 05 Aug 2001 - minor update (Nico Josuttis)
+<span class="lineNum">      25 </span>            :  * 20 Jan 2001 - STLport fix (Beman Dawes)
+<span class="lineNum">      26 </span>            :  * 29 Sep 2000 - Initial Revision (Nico Josuttis)
+<span class="lineNum">      27 </span>            :  *
+<span class="lineNum">      28 </span>            :  * Jan 29, 2004
+<span class="lineNum">      29 </span>            :  */
+<span class="lineNum">      30 </span>            : #ifndef BOOST_ARRAY_HPP
+<span class="lineNum">      31 </span>            : #define BOOST_ARRAY_HPP
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : #include &lt;boost/detail/workaround.hpp&gt;
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : #if BOOST_WORKAROUND(BOOST_MSVC, &gt;= 1400)  
+<span class="lineNum">      36 </span>            : # pragma warning(push)  
+<span class="lineNum">      37 </span>            : # pragma warning(disable:4996) // 'std::equal': Function call with parameters that may be unsafe
+<span class="lineNum">      38 </span>            : # pragma warning(disable:4510) // boost::array&lt;T,N&gt;' : default constructor could not be generated 
+<span class="lineNum">      39 </span>            : # pragma warning(disable:4610) // warning C4610: class 'boost::array&lt;T,N&gt;' can never be instantiated - user defined constructor required 
+<span class="lineNum">      40 </span>            : #endif
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            : #include &lt;cstddef&gt;
+<span class="lineNum">      43 </span>            : #include &lt;stdexcept&gt;
+<span class="lineNum">      44 </span>            : #include &lt;boost/assert.hpp&gt;
+<span class="lineNum">      45 </span>            : #include &lt;boost/swap.hpp&gt;
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span>            : // Handles broken standard libraries better than &lt;iterator&gt;
+<span class="lineNum">      48 </span>            : #include &lt;boost/detail/iterator.hpp&gt;
+<span class="lineNum">      49 </span>            : #include &lt;boost/throw_exception.hpp&gt;
+<span class="lineNum">      50 </span>            : #include &lt;boost/functional/hash_fwd.hpp&gt;
+<span class="lineNum">      51 </span>            : #include &lt;algorithm&gt;
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span>            : // FIXES for broken compilers
+<span class="lineNum">      54 </span>            : #include &lt;boost/config.hpp&gt;
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span>            : namespace boost {
+<a name="58"><span class="lineNum">      58 </span>            : </a>
+<span class="lineNum">      59 </span>            :     template&lt;class T, std::size_t N&gt;
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :     class array {</span>
+<span class="lineNum">      61 </span>            :       public:
+<span class="lineNum">      62 </span>            :         T elems[N];    // fixed-size array of elements of type T
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span>            :       public:
+<span class="lineNum">      65 </span>            :         // type definitions
+<span class="lineNum">      66 </span>            :         typedef T              value_type;
+<span class="lineNum">      67 </span>            :         typedef T*             iterator;
+<span class="lineNum">      68 </span>            :         typedef const T*       const_iterator;
+<span class="lineNum">      69 </span>            :         typedef T&amp;             reference;
+<span class="lineNum">      70 </span>            :         typedef const T&amp;       const_reference;
+<span class="lineNum">      71 </span>            :         typedef std::size_t    size_type;
+<span class="lineNum">      72 </span>            :         typedef std::ptrdiff_t difference_type;
+<a name="73"><span class="lineNum">      73 </span>            : </a>
+<span class="lineNum">      74 </span>            :         // iterator support
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :         iterator        begin()       { return elems; }</span>
+<span class="lineNum">      76 </span>            :         const_iterator  begin() const { return elems; }
+<a name="77"><span class="lineNum">      77 </span>            :         const_iterator cbegin() const { return elems; }</a>
+<span class="lineNum">      78 </span>            :         
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :         iterator        end()       { return elems+N; }</span>
+<span class="lineNum">      80 </span>            :         const_iterator  end() const { return elems+N; }
+<span class="lineNum">      81 </span>            :         const_iterator cend() const { return elems+N; }
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span>            :         // reverse iterator support
+<span class="lineNum">      84 </span>            : #if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) &amp;&amp; !defined(BOOST_MSVC_STD_ITERATOR) &amp;&amp; !defined(BOOST_NO_STD_ITERATOR_TRAITS)
+<span class="lineNum">      85 </span>            :         typedef std::reverse_iterator&lt;iterator&gt; reverse_iterator;
+<span class="lineNum">      86 </span>            :         typedef std::reverse_iterator&lt;const_iterator&gt; const_reverse_iterator;
+<span class="lineNum">      87 </span>            : #elif defined(_MSC_VER) &amp;&amp; (_MSC_VER == 1300) &amp;&amp; defined(BOOST_DINKUMWARE_STDLIB) &amp;&amp; (BOOST_DINKUMWARE_STDLIB == 310)
+<span class="lineNum">      88 </span>            :         // workaround for broken reverse_iterator in VC7
+<span class="lineNum">      89 </span>            :         typedef std::reverse_iterator&lt;std::_Ptrit&lt;value_type, difference_type, iterator,
+<span class="lineNum">      90 </span>            :                                       reference, iterator, reference&gt; &gt; reverse_iterator;
+<span class="lineNum">      91 </span>            :         typedef std::reverse_iterator&lt;std::_Ptrit&lt;value_type, difference_type, const_iterator,
+<span class="lineNum">      92 </span>            :                                       const_reference, iterator, reference&gt; &gt; const_reverse_iterator;
+<span class="lineNum">      93 </span>            : #elif defined(_RWSTD_NO_CLASS_PARTIAL_SPEC) 
+<span class="lineNum">      94 </span>            :         typedef std::reverse_iterator&lt;iterator, std::random_access_iterator_tag, 
+<span class="lineNum">      95 </span>            :               value_type, reference, iterator, difference_type&gt; reverse_iterator; 
+<span class="lineNum">      96 </span>            :         typedef std::reverse_iterator&lt;const_iterator, std::random_access_iterator_tag,
+<span class="lineNum">      97 </span>            :               value_type, const_reference, const_iterator, difference_type&gt; const_reverse_iterator;
+<span class="lineNum">      98 </span>            : #else
+<span class="lineNum">      99 </span>            :         // workaround for broken reverse_iterator implementations
+<span class="lineNum">     100 </span>            :         typedef std::reverse_iterator&lt;iterator,T&gt; reverse_iterator;
+<span class="lineNum">     101 </span>            :         typedef std::reverse_iterator&lt;const_iterator,T&gt; const_reverse_iterator;
+<span class="lineNum">     102 </span>            : #endif
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span>            :         reverse_iterator rbegin() { return reverse_iterator(end()); }
+<span class="lineNum">     105 </span>            :         const_reverse_iterator rbegin() const {
+<span class="lineNum">     106 </span>            :             return const_reverse_iterator(end());
+<span class="lineNum">     107 </span>            :         }
+<span class="lineNum">     108 </span>            :         const_reverse_iterator crbegin() const {
+<span class="lineNum">     109 </span>            :             return const_reverse_iterator(end());
+<span class="lineNum">     110 </span>            :         }
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span>            :         reverse_iterator rend() { return reverse_iterator(begin()); }
+<span class="lineNum">     113 </span>            :         const_reverse_iterator rend() const {
+<span class="lineNum">     114 </span>            :             return const_reverse_iterator(begin());
+<span class="lineNum">     115 </span>            :         }
+<span class="lineNum">     116 </span>            :         const_reverse_iterator crend() const {
+<span class="lineNum">     117 </span>            :             return const_reverse_iterator(begin());
+<span class="lineNum">     118 </span>            :         }
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span>            :         // operator[]
+<span class="lineNum">     121 </span>            :         reference operator[](size_type i) 
+<span class="lineNum">     122 </span>            :         { 
+<span class="lineNum">     123 </span>            :             BOOST_ASSERT_MSG( i &lt; N, &quot;out of range&quot; );
+<span class="lineNum">     124 </span>            :             return elems[i];
+<span class="lineNum">     125 </span>            :         }
+<span class="lineNum">     126 </span>            :         
+<span class="lineNum">     127 </span>            :         const_reference operator[](size_type i) const 
+<span class="lineNum">     128 </span>            :         {     
+<span class="lineNum">     129 </span>            :             BOOST_ASSERT_MSG( i &lt; N, &quot;out of range&quot; );
+<span class="lineNum">     130 </span>            :             return elems[i]; 
+<span class="lineNum">     131 </span>            :         }
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span>            :         // at() with range check
+<span class="lineNum">     134 </span>            :         reference at(size_type i) { rangecheck(i); return elems[i]; }
+<span class="lineNum">     135 </span>            :         const_reference at(size_type i) const { rangecheck(i); return elems[i]; }
+<span class="lineNum">     136 </span>            :     
+<span class="lineNum">     137 </span>            :         // front() and back()
+<span class="lineNum">     138 </span>            :         reference front() 
+<span class="lineNum">     139 </span>            :         { 
+<span class="lineNum">     140 </span>            :             return elems[0]; 
+<span class="lineNum">     141 </span>            :         }
+<span class="lineNum">     142 </span>            :         
+<span class="lineNum">     143 </span>            :         const_reference front() const 
+<span class="lineNum">     144 </span>            :         {
+<span class="lineNum">     145 </span>            :             return elems[0];
+<span class="lineNum">     146 </span>            :         }
+<span class="lineNum">     147 </span>            :         
+<span class="lineNum">     148 </span>            :         reference back() 
+<span class="lineNum">     149 </span>            :         { 
+<span class="lineNum">     150 </span>            :             return elems[N-1]; 
+<span class="lineNum">     151 </span>            :         }
+<span class="lineNum">     152 </span>            :         
+<span class="lineNum">     153 </span>            :         const_reference back() const 
+<span class="lineNum">     154 </span>            :         { 
+<span class="lineNum">     155 </span>            :             return elems[N-1]; 
+<span class="lineNum">     156 </span>            :         }
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span>            :         // size is constant
+<span class="lineNum">     159 </span>            :         static size_type size() { return N; }
+<span class="lineNum">     160 </span>            :         static bool empty() { return false; }
+<span class="lineNum">     161 </span>            :         static size_type max_size() { return N; }
+<span class="lineNum">     162 </span>            :         enum { static_size = N };
+<span class="lineNum">     163 </span>            : 
+<span class="lineNum">     164 </span>            :         // swap (note: linear complexity)
+<span class="lineNum">     165 </span>            :         void swap (array&lt;T,N&gt;&amp; y) {
+<span class="lineNum">     166 </span>            :             for (size_type i = 0; i &lt; N; ++i)
+<span class="lineNum">     167 </span>            :                 boost::swap(elems[i],y.elems[i]);
+<span class="lineNum">     168 </span>            :         }
+<a name="169"><span class="lineNum">     169 </span>            : </a>
+<span class="lineNum">     170 </span>            :         // direct access to data (read-only)
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :         const T* data() const { return elems; }</span>
+<span class="lineNum">     172 </span>            :         T* data() { return elems; }
+<span class="lineNum">     173 </span>            : 
+<span class="lineNum">     174 </span>            :         // use array as C array (direct read/write access to data)
+<span class="lineNum">     175 </span>            :         T* c_array() { return elems; }
+<span class="lineNum">     176 </span>            : 
+<span class="lineNum">     177 </span>            :         // assignment with type conversion
+<span class="lineNum">     178 </span>            :         template &lt;typename T2&gt;
+<span class="lineNum">     179 </span>            :         array&lt;T,N&gt;&amp; operator= (const array&lt;T2,N&gt;&amp; rhs) {
+<span class="lineNum">     180 </span>            :             std::copy(rhs.begin(),rhs.end(), begin());
+<span class="lineNum">     181 </span>            :             return *this;
+<span class="lineNum">     182 </span>            :         }
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span>            :         // assign one value to all elements
+<span class="lineNum">     185 </span>            :         void assign (const T&amp; value) { fill ( value ); }    // A synonym for fill
+<span class="lineNum">     186 </span>            :         void fill   (const T&amp; value)
+<span class="lineNum">     187 </span>            :         {
+<span class="lineNum">     188 </span>            :             std::fill_n(begin(),size(),value);
+<span class="lineNum">     189 </span>            :         }
+<span class="lineNum">     190 </span>            : 
+<span class="lineNum">     191 </span>            :         // check range (may be private because it is static)
+<span class="lineNum">     192 </span>            :         static void rangecheck (size_type i) {
+<span class="lineNum">     193 </span>            :             if (i &gt;= size()) {
+<span class="lineNum">     194 </span>            :                 std::out_of_range e(&quot;array&lt;&gt;: index out of range&quot;);
+<span class="lineNum">     195 </span>            :                 boost::throw_exception(e);
+<span class="lineNum">     196 </span>            :             }
+<span class="lineNum">     197 </span>            :         }
+<span class="lineNum">     198 </span>            : 
+<span class="lineNum">     199 </span>            :     };
+<span class="lineNum">     200 </span>            : 
+<span class="lineNum">     201 </span>            : #if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+<span class="lineNum">     202 </span>            :     template&lt; class T &gt;
+<span class="lineNum">     203 </span>            :     class array&lt; T, 0 &gt; {
+<span class="lineNum">     204 </span>            : 
+<span class="lineNum">     205 </span>            :       public:
+<span class="lineNum">     206 </span>            :         // type definitions
+<span class="lineNum">     207 </span>            :         typedef T              value_type;
+<span class="lineNum">     208 </span>            :         typedef T*             iterator;
+<span class="lineNum">     209 </span>            :         typedef const T*       const_iterator;
+<span class="lineNum">     210 </span>            :         typedef T&amp;             reference;
+<span class="lineNum">     211 </span>            :         typedef const T&amp;       const_reference;
+<span class="lineNum">     212 </span>            :         typedef std::size_t    size_type;
+<span class="lineNum">     213 </span>            :         typedef std::ptrdiff_t difference_type;
+<span class="lineNum">     214 </span>            : 
+<span class="lineNum">     215 </span>            :         // iterator support
+<span class="lineNum">     216 </span>            :         iterator        begin()       { return       iterator( reinterpret_cast&lt;       T * &gt;( this ) ); }
+<span class="lineNum">     217 </span>            :         const_iterator  begin() const { return const_iterator( reinterpret_cast&lt; const T * &gt;( this ) ); }
+<span class="lineNum">     218 </span>            :         const_iterator cbegin() const { return const_iterator( reinterpret_cast&lt; const T * &gt;( this ) ); }
+<span class="lineNum">     219 </span>            : 
+<span class="lineNum">     220 </span>            :         iterator        end()       { return  begin(); }
+<span class="lineNum">     221 </span>            :         const_iterator  end() const { return  begin(); }
+<span class="lineNum">     222 </span>            :         const_iterator cend() const { return cbegin(); }
+<span class="lineNum">     223 </span>            : 
+<span class="lineNum">     224 </span>            :         // reverse iterator support
+<span class="lineNum">     225 </span>            : #if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) &amp;&amp; !defined(BOOST_MSVC_STD_ITERATOR) &amp;&amp; !defined(BOOST_NO_STD_ITERATOR_TRAITS)
+<span class="lineNum">     226 </span>            :         typedef std::reverse_iterator&lt;iterator&gt; reverse_iterator;
+<span class="lineNum">     227 </span>            :         typedef std::reverse_iterator&lt;const_iterator&gt; const_reverse_iterator;
+<span class="lineNum">     228 </span>            : #elif defined(_MSC_VER) &amp;&amp; (_MSC_VER == 1300) &amp;&amp; defined(BOOST_DINKUMWARE_STDLIB) &amp;&amp; (BOOST_DINKUMWARE_STDLIB == 310)
+<span class="lineNum">     229 </span>            :         // workaround for broken reverse_iterator in VC7
+<span class="lineNum">     230 </span>            :         typedef std::reverse_iterator&lt;std::_Ptrit&lt;value_type, difference_type, iterator,
+<span class="lineNum">     231 </span>            :                                       reference, iterator, reference&gt; &gt; reverse_iterator;
+<span class="lineNum">     232 </span>            :         typedef std::reverse_iterator&lt;std::_Ptrit&lt;value_type, difference_type, const_iterator,
+<span class="lineNum">     233 </span>            :                                       const_reference, iterator, reference&gt; &gt; const_reverse_iterator;
+<span class="lineNum">     234 </span>            : #elif defined(_RWSTD_NO_CLASS_PARTIAL_SPEC) 
+<span class="lineNum">     235 </span>            :         typedef std::reverse_iterator&lt;iterator, std::random_access_iterator_tag, 
+<span class="lineNum">     236 </span>            :               value_type, reference, iterator, difference_type&gt; reverse_iterator; 
+<span class="lineNum">     237 </span>            :         typedef std::reverse_iterator&lt;const_iterator, std::random_access_iterator_tag,
+<span class="lineNum">     238 </span>            :               value_type, const_reference, const_iterator, difference_type&gt; const_reverse_iterator;
+<span class="lineNum">     239 </span>            : #else
+<span class="lineNum">     240 </span>            :         // workaround for broken reverse_iterator implementations
+<span class="lineNum">     241 </span>            :         typedef std::reverse_iterator&lt;iterator,T&gt; reverse_iterator;
+<span class="lineNum">     242 </span>            :         typedef std::reverse_iterator&lt;const_iterator,T&gt; const_reverse_iterator;
+<span class="lineNum">     243 </span>            : #endif
+<span class="lineNum">     244 </span>            : 
+<span class="lineNum">     245 </span>            :         reverse_iterator rbegin() { return reverse_iterator(end()); }
+<span class="lineNum">     246 </span>            :         const_reverse_iterator rbegin() const {
+<span class="lineNum">     247 </span>            :             return const_reverse_iterator(end());
+<span class="lineNum">     248 </span>            :         }
+<span class="lineNum">     249 </span>            :         const_reverse_iterator crbegin() const {
+<span class="lineNum">     250 </span>            :             return const_reverse_iterator(end());
+<span class="lineNum">     251 </span>            :         }
+<span class="lineNum">     252 </span>            : 
+<span class="lineNum">     253 </span>            :         reverse_iterator rend() { return reverse_iterator(begin()); }
+<span class="lineNum">     254 </span>            :         const_reverse_iterator rend() const {
+<span class="lineNum">     255 </span>            :             return const_reverse_iterator(begin());
+<span class="lineNum">     256 </span>            :         }
+<span class="lineNum">     257 </span>            :         const_reverse_iterator crend() const {
+<span class="lineNum">     258 </span>            :             return const_reverse_iterator(begin());
+<span class="lineNum">     259 </span>            :         }
+<span class="lineNum">     260 </span>            : 
+<span class="lineNum">     261 </span>            :         // operator[]
+<span class="lineNum">     262 </span>            :         reference operator[](size_type /*i*/)
+<span class="lineNum">     263 </span>            :         {
+<span class="lineNum">     264 </span>            :             return failed_rangecheck();
+<span class="lineNum">     265 </span>            :         }
+<span class="lineNum">     266 </span>            : 
+<span class="lineNum">     267 </span>            :         const_reference operator[](size_type /*i*/) const
+<span class="lineNum">     268 </span>            :         {
+<span class="lineNum">     269 </span>            :             return failed_rangecheck();
+<span class="lineNum">     270 </span>            :         }
+<span class="lineNum">     271 </span>            : 
+<span class="lineNum">     272 </span>            :         // at() with range check
+<span class="lineNum">     273 </span>            :         reference at(size_type /*i*/)               {   return failed_rangecheck(); }
+<span class="lineNum">     274 </span>            :         const_reference at(size_type /*i*/) const   {   return failed_rangecheck(); }
+<span class="lineNum">     275 </span>            : 
+<span class="lineNum">     276 </span>            :         // front() and back()
+<span class="lineNum">     277 </span>            :         reference front()
+<span class="lineNum">     278 </span>            :         {
+<span class="lineNum">     279 </span>            :             return failed_rangecheck();
+<span class="lineNum">     280 </span>            :         }
+<span class="lineNum">     281 </span>            : 
+<span class="lineNum">     282 </span>            :         const_reference front() const
+<span class="lineNum">     283 </span>            :         {
+<span class="lineNum">     284 </span>            :             return failed_rangecheck();
+<span class="lineNum">     285 </span>            :         }
+<span class="lineNum">     286 </span>            : 
+<span class="lineNum">     287 </span>            :         reference back()
+<span class="lineNum">     288 </span>            :         {
+<span class="lineNum">     289 </span>            :             return failed_rangecheck();
+<span class="lineNum">     290 </span>            :         }
+<span class="lineNum">     291 </span>            : 
+<span class="lineNum">     292 </span>            :         const_reference back() const
+<span class="lineNum">     293 </span>            :         {
+<span class="lineNum">     294 </span>            :             return failed_rangecheck();
+<span class="lineNum">     295 </span>            :         }
+<span class="lineNum">     296 </span>            : 
+<span class="lineNum">     297 </span>            :         // size is constant
+<span class="lineNum">     298 </span>            :         static size_type size() { return 0; }
+<span class="lineNum">     299 </span>            :         static bool empty() { return true; }
+<span class="lineNum">     300 </span>            :         static size_type max_size() { return 0; }
+<span class="lineNum">     301 </span>            :         enum { static_size = 0 };
+<span class="lineNum">     302 </span>            : 
+<span class="lineNum">     303 </span>            :         void swap (array&lt;T,0&gt;&amp; /*y*/) {
+<span class="lineNum">     304 </span>            :         }
+<span class="lineNum">     305 </span>            : 
+<span class="lineNum">     306 </span>            :         // direct access to data (read-only)
+<span class="lineNum">     307 </span>            :         const T* data() const { return 0; }
+<span class="lineNum">     308 </span>            :         T* data() { return 0; }
+<span class="lineNum">     309 </span>            : 
+<span class="lineNum">     310 </span>            :         // use array as C array (direct read/write access to data)
+<span class="lineNum">     311 </span>            :         T* c_array() { return 0; }
+<span class="lineNum">     312 </span>            : 
+<span class="lineNum">     313 </span>            :         // assignment with type conversion
+<span class="lineNum">     314 </span>            :         template &lt;typename T2&gt;
+<span class="lineNum">     315 </span>            :         array&lt;T,0&gt;&amp; operator= (const array&lt;T2,0&gt;&amp; ) {
+<span class="lineNum">     316 </span>            :             return *this;
+<span class="lineNum">     317 </span>            :         }
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span>            :         // assign one value to all elements
+<span class="lineNum">     320 </span>            :         void assign (const T&amp; value) { fill ( value ); }
+<span class="lineNum">     321 </span>            :         void fill   (const T&amp; ) {}
+<span class="lineNum">     322 </span>            :         
+<span class="lineNum">     323 </span>            :         // check range (may be private because it is static)
+<span class="lineNum">     324 </span>            :         static reference failed_rangecheck () {
+<span class="lineNum">     325 </span>            :                 std::out_of_range e(&quot;attempt to access element of an empty array&quot;);
+<span class="lineNum">     326 </span>            :                 boost::throw_exception(e);
+<span class="lineNum">     327 </span>            : #if defined(BOOST_NO_EXCEPTIONS) || (!defined(BOOST_MSVC) &amp;&amp; !defined(__PATHSCALE__))
+<span class="lineNum">     328 </span>            :                 //
+<span class="lineNum">     329 </span>            :                 // We need to return something here to keep
+<span class="lineNum">     330 </span>            :                 // some compilers happy: however we will never
+<span class="lineNum">     331 </span>            :                 // actually get here....
+<span class="lineNum">     332 </span>            :                 //
+<span class="lineNum">     333 </span>            :                 static T placeholder;
+<span class="lineNum">     334 </span>            :                 return placeholder;
+<span class="lineNum">     335 </span>            : #endif
+<span class="lineNum">     336 </span>            :             }
+<span class="lineNum">     337 </span>            :     };
+<span class="lineNum">     338 </span>            : #endif
+<span class="lineNum">     339 </span>            : 
+<span class="lineNum">     340 </span>            :     // comparisons
+<span class="lineNum">     341 </span>            :     template&lt;class T, std::size_t N&gt;
+<span class="lineNum">     342 </span>            :     bool operator== (const array&lt;T,N&gt;&amp; x, const array&lt;T,N&gt;&amp; y) {
+<span class="lineNum">     343 </span>            :         return std::equal(x.begin(), x.end(), y.begin());
+<span class="lineNum">     344 </span>            :     }
+<span class="lineNum">     345 </span>            :     template&lt;class T, std::size_t N&gt;
+<span class="lineNum">     346 </span>            :     bool operator&lt; (const array&lt;T,N&gt;&amp; x, const array&lt;T,N&gt;&amp; y) {
+<span class="lineNum">     347 </span>            :         return std::lexicographical_compare(x.begin(),x.end(),y.begin(),y.end());
+<span class="lineNum">     348 </span>            :     }
+<span class="lineNum">     349 </span>            :     template&lt;class T, std::size_t N&gt;
+<span class="lineNum">     350 </span>            :     bool operator!= (const array&lt;T,N&gt;&amp; x, const array&lt;T,N&gt;&amp; y) {
+<span class="lineNum">     351 </span>            :         return !(x==y);
+<span class="lineNum">     352 </span>            :     }
+<span class="lineNum">     353 </span>            :     template&lt;class T, std::size_t N&gt;
+<span class="lineNum">     354 </span>            :     bool operator&gt; (const array&lt;T,N&gt;&amp; x, const array&lt;T,N&gt;&amp; y) {
+<span class="lineNum">     355 </span>            :         return y&lt;x;
+<span class="lineNum">     356 </span>            :     }
+<span class="lineNum">     357 </span>            :     template&lt;class T, std::size_t N&gt;
+<span class="lineNum">     358 </span>            :     bool operator&lt;= (const array&lt;T,N&gt;&amp; x, const array&lt;T,N&gt;&amp; y) {
+<span class="lineNum">     359 </span>            :         return !(y&lt;x);
+<span class="lineNum">     360 </span>            :     }
+<span class="lineNum">     361 </span>            :     template&lt;class T, std::size_t N&gt;
+<span class="lineNum">     362 </span>            :     bool operator&gt;= (const array&lt;T,N&gt;&amp; x, const array&lt;T,N&gt;&amp; y) {
+<span class="lineNum">     363 </span>            :         return !(x&lt;y);
+<span class="lineNum">     364 </span>            :     }
+<span class="lineNum">     365 </span>            : 
+<span class="lineNum">     366 </span>            :     // global swap()
+<span class="lineNum">     367 </span>            :     template&lt;class T, std::size_t N&gt;
+<span class="lineNum">     368 </span>            :     inline void swap (array&lt;T,N&gt;&amp; x, array&lt;T,N&gt;&amp; y) {
+<span class="lineNum">     369 </span>            :         x.swap(y);
+<span class="lineNum">     370 </span>            :     }
+<span class="lineNum">     371 </span>            : 
+<span class="lineNum">     372 </span>            : #if defined(__SUNPRO_CC)
+<span class="lineNum">     373 </span>            : //  Trac ticket #4757; the Sun Solaris compiler can't handle
+<span class="lineNum">     374 </span>            : //  syntax like 'T(&amp;get_c_array(boost::array&lt;T,N&gt;&amp; arg))[N]'
+<span class="lineNum">     375 </span>            : //  
+<span class="lineNum">     376 </span>            : //  We can't just use this for all compilers, because the 
+<span class="lineNum">     377 </span>            : //      borland compilers can't handle this form. 
+<span class="lineNum">     378 </span>            :     namespace detail {
+<span class="lineNum">     379 </span>            :        template &lt;typename T, std::size_t N&gt; struct c_array
+<span class="lineNum">     380 </span>            :        {
+<span class="lineNum">     381 </span>            :            typedef T type[N];
+<span class="lineNum">     382 </span>            :        };
+<span class="lineNum">     383 </span>            :     }
+<span class="lineNum">     384 </span>            :     
+<span class="lineNum">     385 </span>            :    // Specific for boost::array: simply returns its elems data member.
+<span class="lineNum">     386 </span>            :    template &lt;typename T, std::size_t N&gt;
+<span class="lineNum">     387 </span>            :    typename detail::c_array&lt;T,N&gt;::type&amp; get_c_array(boost::array&lt;T,N&gt;&amp; arg)
+<span class="lineNum">     388 </span>            :    {
+<span class="lineNum">     389 </span>            :        return arg.elems;
+<span class="lineNum">     390 </span>            :    }
+<span class="lineNum">     391 </span>            : 
+<span class="lineNum">     392 </span>            :    // Specific for boost::array: simply returns its elems data member.
+<span class="lineNum">     393 </span>            :    template &lt;typename T, std::size_t N&gt;
+<span class="lineNum">     394 </span>            :    typename const detail::c_array&lt;T,N&gt;::type&amp; get_c_array(const boost::array&lt;T,N&gt;&amp; arg)
+<span class="lineNum">     395 </span>            :    {
+<span class="lineNum">     396 </span>            :        return arg.elems;
+<span class="lineNum">     397 </span>            :    }
+<span class="lineNum">     398 </span>            : #else
+<span class="lineNum">     399 </span>            : // Specific for boost::array: simply returns its elems data member.
+<span class="lineNum">     400 </span>            :     template &lt;typename T, std::size_t N&gt;
+<span class="lineNum">     401 </span>            :     T(&amp;get_c_array(boost::array&lt;T,N&gt;&amp; arg))[N]
+<span class="lineNum">     402 </span>            :     {
+<span class="lineNum">     403 </span>            :         return arg.elems;
+<span class="lineNum">     404 </span>            :     }
+<span class="lineNum">     405 </span>            :     
+<span class="lineNum">     406 </span>            :     // Const version.
+<span class="lineNum">     407 </span>            :     template &lt;typename T, std::size_t N&gt;
+<span class="lineNum">     408 </span>            :     const T(&amp;get_c_array(const boost::array&lt;T,N&gt;&amp; arg))[N]
+<span class="lineNum">     409 </span>            :     {
+<span class="lineNum">     410 </span>            :         return arg.elems;
+<span class="lineNum">     411 </span>            :     }
+<span class="lineNum">     412 </span>            : #endif
+<span class="lineNum">     413 </span>            :     
+<span class="lineNum">     414 </span>            : #if 0
+<span class="lineNum">     415 </span>            :     // Overload for std::array, assuming that std::array will have
+<span class="lineNum">     416 </span>            :     // explicit conversion functions as discussed at the WG21 meeting
+<span class="lineNum">     417 </span>            :     // in Summit, March 2009.
+<span class="lineNum">     418 </span>            :     template &lt;typename T, std::size_t N&gt;
+<span class="lineNum">     419 </span>            :     T(&amp;get_c_array(std::array&lt;T,N&gt;&amp; arg))[N]
+<span class="lineNum">     420 </span>            :     {
+<span class="lineNum">     421 </span>            :         return static_cast&lt;T(&amp;)[N]&gt;(arg);
+<span class="lineNum">     422 </span>            :     }
+<span class="lineNum">     423 </span>            :     
+<span class="lineNum">     424 </span>            :     // Const version.
+<span class="lineNum">     425 </span>            :     template &lt;typename T, std::size_t N&gt;
+<span class="lineNum">     426 </span>            :     const T(&amp;get_c_array(const std::array&lt;T,N&gt;&amp; arg))[N]
+<span class="lineNum">     427 </span>            :     {
+<span class="lineNum">     428 </span>            :         return static_cast&lt;T(&amp;)[N]&gt;(arg);
+<span class="lineNum">     429 </span>            :     }
+<span class="lineNum">     430 </span>            : #endif
+<span class="lineNum">     431 </span>            : 
+<span class="lineNum">     432 </span>            : 
+<span class="lineNum">     433 </span>            :     template&lt;class T, std::size_t N&gt;
+<span class="lineNum">     434 </span>            :     std::size_t hash_value(const array&lt;T,N&gt;&amp; arr)
+<span class="lineNum">     435 </span>            :     {
+<span class="lineNum">     436 </span>            :         return boost::hash_range(arr.begin(), arr.end());
+<span class="lineNum">     437 </span>            :     }
+<span class="lineNum">     438 </span>            : 
+<span class="lineNum">     439 </span>            : } /* namespace boost */
+<span class="lineNum">     440 </span>            : 
+<span class="lineNum">     441 </span>            : 
+<span class="lineNum">     442 </span>            : #if BOOST_WORKAROUND(BOOST_MSVC, &gt;= 1400)  
+<span class="lineNum">     443 </span>            : # pragma warning(pop)  
+<span class="lineNum">     444 </span>            : #endif 
+<span class="lineNum">     445 </span>            : 
+<span class="lineNum">     446 </span>            : #endif /*BOOST_ARRAY_HPP*/
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

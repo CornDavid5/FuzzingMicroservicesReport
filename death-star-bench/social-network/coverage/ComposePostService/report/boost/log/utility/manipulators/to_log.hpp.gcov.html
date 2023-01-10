@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/log/utility/manipulators/to_log.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">boost/log/utility/manipulators</a> - to_log.hpp<span style="font-size: 80%;"> (source / <a href="to_log.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 03:46:44</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *          Copyright Andrey Semashev 2007 - 2015.
+<span class="lineNum">       3 </span>            :  * Distributed under the Boost Software License, Version 1.0.
+<span class="lineNum">       4 </span>            :  *    (See accompanying file LICENSE_1_0.txt or copy at
+<span class="lineNum">       5 </span>            :  *          http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       6 </span>            :  */
+<span class="lineNum">       7 </span>            : /*!
+<span class="lineNum">       8 </span>            :  * \file   to_log.hpp
+<span class="lineNum">       9 </span>            :  * \author Andrey Semashev
+<span class="lineNum">      10 </span>            :  * \date   06.11.2012
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * This header contains the \c to_log output manipulator.
+<span class="lineNum">      13 </span>            :  */
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : #ifndef BOOST_LOG_UTILITY_MANIPULATORS_TO_LOG_HPP_INCLUDED_
+<span class="lineNum">      16 </span>            : #define BOOST_LOG_UTILITY_MANIPULATORS_TO_LOG_HPP_INCLUDED_
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #include &lt;iosfwd&gt;
+<span class="lineNum">      19 </span>            : #include &lt;boost/mpl/bool.hpp&gt;
+<span class="lineNum">      20 </span>            : #include &lt;boost/log/detail/config.hpp&gt;
+<span class="lineNum">      21 </span>            : #include &lt;boost/log/utility/formatting_ostream_fwd.hpp&gt;
+<span class="lineNum">      22 </span>            : #include &lt;boost/log/detail/header.hpp&gt;
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : #ifdef BOOST_HAS_PRAGMA_ONCE
+<span class="lineNum">      25 </span>            : #pragma once
+<span class="lineNum">      26 </span>            : #endif
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : namespace boost {
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : BOOST_LOG_OPEN_NAMESPACE
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : /*!
+<span class="lineNum">      33 </span>            :  * \brief Generic manipulator for customizing output to log
+<span class="lineNum">      34 </span>            :  */
+<span class="lineNum">      35 </span>            : template&lt; typename T, typename TagT = void &gt;
+<span class="lineNum">      36 </span>            : class to_log_manip
+<span class="lineNum">      37 </span>            : {
+<span class="lineNum">      38 </span>            : public:
+<span class="lineNum">      39 </span>            :     //! Output value type
+<span class="lineNum">      40 </span>            :     typedef T value_type;
+<span class="lineNum">      41 </span>            :     //! Value tag type
+<span class="lineNum">      42 </span>            :     typedef TagT tag_type;
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            : private:
+<span class="lineNum">      45 </span>            :     //! Reference to the value
+<span class="lineNum">      46 </span>            :     value_type const&amp; m_value;
+<a name="47"><span class="lineNum">      47 </span>            : </a>
+<a name="48"><span class="lineNum">      48 </span>            : public:</a>
+<span class="lineNum">      49 </span><span class="lineCov">          2 :     explicit to_log_manip(value_type const&amp; value) : m_value(value) {}</span>
+<a name="50"><span class="lineNum">      50 </span><span class="lineCov">          2 :     to_log_manip(to_log_manip const&amp; that) : m_value(that.m_value) {}</span></a>
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span><span class="lineCov">          2 :     value_type const&amp; get() const { return m_value; }</span>
+<span class="lineNum">      53 </span>            : };
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            : template&lt; typename CharT, typename TraitsT, typename T, typename TagT &gt;
+<span class="lineNum">      56 </span>            : inline std::basic_ostream&lt; CharT, TraitsT &gt;&amp; operator&lt;&lt; (std::basic_ostream&lt; CharT, TraitsT &gt;&amp; strm, to_log_manip&lt; T, TagT &gt; manip)
+<span class="lineNum">      57 </span>            : {
+<span class="lineNum">      58 </span>            :     strm &lt;&lt; manip.get();
+<span class="lineNum">      59 </span>            :     return strm;
+<span class="lineNum">      60 </span>            : }
+<a name="61"><span class="lineNum">      61 </span>            : </a>
+<span class="lineNum">      62 </span>            : template&lt; typename CharT, typename TraitsT, typename AllocatorT, typename T, typename TagT &gt;
+<span class="lineNum">      63 </span><span class="lineCov">          2 : inline basic_formatting_ostream&lt; CharT, TraitsT, AllocatorT &gt;&amp; operator&lt;&lt; (basic_formatting_ostream&lt; CharT, TraitsT, AllocatorT &gt;&amp; strm, to_log_manip&lt; T, TagT &gt; manip)</span>
+<span class="lineNum">      64 </span>            : {
+<span class="lineNum">      65 </span><span class="lineCov">          2 :     strm &lt;&lt; manip.get();</span>
+<span class="lineNum">      66 </span><span class="lineCov">          2 :     return strm;</span>
+<span class="lineNum">      67 </span>            : }
+<a name="68"><span class="lineNum">      68 </span>            : </a>
+<span class="lineNum">      69 </span>            : template&lt; typename T &gt;
+<span class="lineNum">      70 </span><span class="lineCov">          2 : inline to_log_manip&lt; T &gt; to_log(T const&amp; value)</span>
+<span class="lineNum">      71 </span>            : {
+<span class="lineNum">      72 </span><span class="lineCov">          2 :     return to_log_manip&lt; T &gt;(value);</span>
+<span class="lineNum">      73 </span>            : }
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span>            : template&lt; typename TagT, typename T &gt;
+<span class="lineNum">      76 </span>            : inline to_log_manip&lt; T, TagT &gt; to_log(T const&amp; value)
+<span class="lineNum">      77 </span>            : {
+<span class="lineNum">      78 </span>            :     return to_log_manip&lt; T, TagT &gt;(value);
+<span class="lineNum">      79 </span>            : }
+<span class="lineNum">      80 </span>            : 
+<span class="lineNum">      81 </span>            : BOOST_LOG_CLOSE_NAMESPACE // namespace log
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span>            : } // namespace boost
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span>            : #include &lt;boost/log/detail/footer.hpp&gt;
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span>            : #endif // BOOST_LOG_UTILITY_MANIPULATORS_TO_LOG_HPP_INCLUDED_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

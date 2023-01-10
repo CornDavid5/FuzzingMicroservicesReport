@@ -1,0 +1,265 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/log/utility/type_dispatch/type_dispatcher.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">boost/log/utility/type_dispatch</a> - type_dispatcher.hpp<span style="font-size: 80%;"> (source / <a href="type_dispatcher.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">23</td>
+            <td class="headerCovTableEntry">23</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 03:48:04</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">23</td>
+            <td class="headerCovTableEntryLo">39.1 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *          Copyright Andrey Semashev 2007 - 2015.
+<span class="lineNum">       3 </span>            :  * Distributed under the Boost Software License, Version 1.0.
+<span class="lineNum">       4 </span>            :  *    (See accompanying file LICENSE_1_0.txt or copy at
+<span class="lineNum">       5 </span>            :  *          http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       6 </span>            :  */
+<span class="lineNum">       7 </span>            : /*!
+<span class="lineNum">       8 </span>            :  * \file   type_dispatcher.hpp
+<span class="lineNum">       9 </span>            :  * \author Andrey Semashev
+<span class="lineNum">      10 </span>            :  * \date   15.04.2007
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * The header contains definition of generic type dispatcher interfaces.
+<span class="lineNum">      13 </span>            :  */
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : #ifndef BOOST_LOG_TYPE_DISPATCHER_HPP_INCLUDED_
+<span class="lineNum">      16 </span>            : #define BOOST_LOG_TYPE_DISPATCHER_HPP_INCLUDED_
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #include &lt;typeinfo&gt;
+<span class="lineNum">      19 </span>            : #include &lt;boost/static_assert.hpp&gt;
+<span class="lineNum">      20 </span>            : #include &lt;boost/log/detail/config.hpp&gt;
+<span class="lineNum">      21 </span>            : #include &lt;boost/log/detail/visible_type.hpp&gt;
+<span class="lineNum">      22 </span>            : #include &lt;boost/utility/explicit_operator_bool.hpp&gt;
+<span class="lineNum">      23 </span>            : #include &lt;boost/log/detail/header.hpp&gt;
+<span class="lineNum">      24 </span>            : 
+<span class="lineNum">      25 </span>            : #ifdef BOOST_HAS_PRAGMA_ONCE
+<span class="lineNum">      26 </span>            : #pragma once
+<span class="lineNum">      27 </span>            : #endif
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            : namespace boost {
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : BOOST_LOG_OPEN_NAMESPACE
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : /*!
+<span class="lineNum">      34 </span>            :  * \brief A type dispatcher interface
+<span class="lineNum">      35 </span>            :  *
+<span class="lineNum">      36 </span>            :  * All type dispatchers support this interface. It is used to acquire the
+<span class="lineNum">      37 </span>            :  * visitor interface for the requested type.
+<span class="lineNum">      38 </span>            :  */
+<span class="lineNum">      39 </span>            : class type_dispatcher
+<span class="lineNum">      40 </span>            : {
+<span class="lineNum">      41 </span>            : public:
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : #ifndef BOOST_LOG_DOXYGEN_PASS
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            :     //! The base class for type dispatcher callbacks
+<span class="lineNum">      46 </span>            :     class callback_base
+<span class="lineNum">      47 </span>            :     {
+<span class="lineNum">      48 </span>            :     protected:
+<span class="lineNum">      49 </span>            :         void* m_pVisitor;
+<span class="lineNum">      50 </span>            :         void* m_pTrampoline;
+<a name="51"><span class="lineNum">      51 </span>            : </a>
+<span class="lineNum">      52 </span>            :     public:
+<span class="lineNum">      53 </span><span class="lineCov">          4 :         explicit callback_base(void* visitor = 0, void* tramp = 0) BOOST_NOEXCEPT :</span>
+<span class="lineNum">      54 </span>            :             m_pVisitor(visitor),
+<span class="lineNum">      55 </span><span class="lineCov">          4 :             m_pTrampoline(tramp)</span>
+<span class="lineNum">      56 </span>            :         {
+<a name="57"><span class="lineNum">      57 </span><span class="lineCov">          4 :         }</span></a>
+<span class="lineNum">      58 </span>            :         template&lt; typename ValueT &gt;
+<span class="lineNum">      59 </span><span class="lineCov">          4 :         explicit callback_base(void* visitor, void (*tramp)(void*, ValueT const&amp;)) BOOST_NOEXCEPT :</span>
+<span class="lineNum">      60 </span><span class="lineCov">          4 :             m_pVisitor(visitor)</span>
+<span class="lineNum">      61 </span>            :         {
+<span class="lineNum">      62 </span>            :             typedef void (*trampoline_t)(void*, ValueT const&amp;);
+<span class="lineNum">      63 </span>            :             BOOST_STATIC_ASSERT_MSG(sizeof(trampoline_t) == sizeof(void*), &quot;Boost.Log: Unsupported platform, the size of a function pointer differs from the size of a pointer&quot;);
+<span class="lineNum">      64 </span>            :             union
+<span class="lineNum">      65 </span>            :             {
+<span class="lineNum">      66 </span>            :                 void* as_pvoid;
+<span class="lineNum">      67 </span>            :                 trampoline_t as_trampoline;
+<span class="lineNum">      68 </span>            :             }
+<span class="lineNum">      69 </span>            :             caster;
+<span class="lineNum">      70 </span><span class="lineCov">          4 :             caster.as_trampoline = tramp;</span>
+<span class="lineNum">      71 </span><span class="lineCov">          4 :             m_pTrampoline = caster.as_pvoid;</span>
+<span class="lineNum">      72 </span><span class="lineCov">          4 :         }</span>
+<a name="73"><span class="lineNum">      73 </span>            : </a>
+<span class="lineNum">      74 </span>            :         template&lt; typename VisitorT, typename T &gt;
+<span class="lineNum">      75 </span><span class="lineCov">          4 :         static void trampoline(void* visitor, T const&amp; value)</span>
+<span class="lineNum">      76 </span>            :         {
+<span class="lineNum">      77 </span><span class="lineCov">          4 :             (*static_cast&lt; VisitorT* &gt;(visitor))(value);</span>
+<span class="lineNum">      78 </span><span class="lineCov">          4 :         }</span>
+<span class="lineNum">      79 </span>            :     };
+<span class="lineNum">      80 </span>            : 
+<span class="lineNum">      81 </span>            :     //! An interface to the callback for the concrete type visitor
+<span class="lineNum">      82 </span>            :     template&lt; typename T &gt;
+<span class="lineNum">      83 </span>            :     class callback :
+<span class="lineNum">      84 </span>            :         private callback_base
+<span class="lineNum">      85 </span>            :     {
+<span class="lineNum">      86 </span>            :     private:
+<span class="lineNum">      87 </span>            :         //! Type of the trampoline method
+<span class="lineNum">      88 </span>            :         typedef void (*trampoline_t)(void*, T const&amp;);
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span>            :     public:
+<span class="lineNum">      91 </span>            :         //! The type, which the visitor is able to consume
+<span class="lineNum">      92 </span>            :         typedef T supported_type;
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span>            :     public:
+<span class="lineNum">      95 </span>            :         callback() BOOST_NOEXCEPT : callback_base()
+<a name="96"><span class="lineNum">      96 </span>            :         {</a>
+<span class="lineNum">      97 </span>            :         }
+<span class="lineNum">      98 </span><span class="lineCov">          2 :         explicit callback(callback_base const&amp; base) BOOST_NOEXCEPT : callback_base(base)</span>
+<span class="lineNum">      99 </span>            :         {
+<a name="100"><span class="lineNum">     100 </span><span class="lineCov">          2 :         }</span></a>
+<span class="lineNum">     101 </span>            : 
+<span class="lineNum">     102 </span><span class="lineCov">          2 :         void operator() (T const&amp; value) const</span>
+<span class="lineNum">     103 </span>            :         {
+<span class="lineNum">     104 </span>            :             BOOST_STATIC_ASSERT_MSG(sizeof(trampoline_t) == sizeof(void*), &quot;Boost.Log: Unsupported platform, the size of a function pointer differs from the size of a pointer&quot;);
+<span class="lineNum">     105 </span>            :             union
+<span class="lineNum">     106 </span>            :             {
+<span class="lineNum">     107 </span>            :                 void* as_pvoid;
+<span class="lineNum">     108 </span>            :                 trampoline_t as_trampoline;
+<span class="lineNum">     109 </span>            :             }
+<span class="lineNum">     110 </span>            :             caster;
+<span class="lineNum">     111 </span><span class="lineCov">          2 :             caster.as_pvoid = this-&gt;m_pTrampoline;</span>
+<span class="lineNum">     112 </span><span class="lineCov">          2 :             (caster.as_trampoline)(this-&gt;m_pVisitor, value);</span>
+<span class="lineNum">     113 </span><span class="lineCov">          2 :         }</span>
+<span class="lineNum">     114 </span>            : 
+<a name="115"><span class="lineNum">     115 </span><span class="lineCov">          2 :         BOOST_EXPLICIT_OPERATOR_BOOL_NOEXCEPT()</span></a>
+<span class="lineNum">     116 </span>            : 
+<span class="lineNum">     117 </span><span class="lineCov">          2 :         bool operator! () const BOOST_NOEXCEPT { return (this-&gt;m_pVisitor == 0); }</span>
+<span class="lineNum">     118 </span>            :     };
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span>            : #else // BOOST_LOG_DOXYGEN_PASS
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span>            :     /*!
+<span class="lineNum">     123 </span>            :      * This interface is used by type dispatchers to consume the dispatched value.
+<span class="lineNum">     124 </span>            :      */
+<span class="lineNum">     125 </span>            :     template&lt; typename T &gt;
+<span class="lineNum">     126 </span>            :     class callback
+<span class="lineNum">     127 </span>            :     {
+<span class="lineNum">     128 </span>            :     public:
+<span class="lineNum">     129 </span>            :         /*!
+<span class="lineNum">     130 </span>            :          * The operator invokes the visitor-specific logic with the given value
+<span class="lineNum">     131 </span>            :          *
+<span class="lineNum">     132 </span>            :          * \param value The dispatched value
+<span class="lineNum">     133 </span>            :          */
+<span class="lineNum">     134 </span>            :         void operator() (T const&amp; value) const;
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span>            :         /*!
+<span class="lineNum">     137 </span>            :          * The operator checks if the visitor is attached to a receiver
+<span class="lineNum">     138 </span>            :          */
+<span class="lineNum">     139 </span>            :         BOOST_EXPLICIT_OPERATOR_BOOL_NOEXCEPT()
+<span class="lineNum">     140 </span>            : 
+<span class="lineNum">     141 </span>            :         /*!
+<span class="lineNum">     142 </span>            :          * The operator checks if the visitor is not attached to a receiver
+<span class="lineNum">     143 </span>            :          */
+<span class="lineNum">     144 </span>            :         bool operator! () const BOOST_NOEXCEPT;
+<span class="lineNum">     145 </span>            :     };
+<span class="lineNum">     146 </span>            : 
+<span class="lineNum">     147 </span>            : #endif // BOOST_LOG_DOXYGEN_PASS
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span>            : protected:
+<span class="lineNum">     150 </span>            :     //! Pointer to the callback acquisition method
+<span class="lineNum">     151 </span>            :     typedef callback_base (*get_callback_impl_type)(type_dispatcher*, std::type_info const&amp;);
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span>            : private:
+<span class="lineNum">     154 </span>            :     //! Pointer to the callback acquisition method
+<span class="lineNum">     155 </span>            :     get_callback_impl_type m_get_callback_impl;
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span>            : protected:
+<span class="lineNum">     158 </span>            :     /*!
+<a name="159"><span class="lineNum">     159 </span>            :      * Initializing constructor</a>
+<span class="lineNum">     160 </span>            :      */
+<span class="lineNum">     161 </span><span class="lineCov">          4 :     explicit type_dispatcher(get_callback_impl_type get_callback_impl) BOOST_NOEXCEPT : m_get_callback_impl(get_callback_impl)</span>
+<span class="lineNum">     162 </span>            :     {
+<span class="lineNum">     163 </span><span class="lineCov">          4 :     }</span>
+<span class="lineNum">     164 </span>            : 
+<span class="lineNum">     165 </span>            :     // Destructor and copying can only be called from the derived classes
+<span class="lineNum">     166 </span>            :     BOOST_DEFAULTED_FUNCTION(~type_dispatcher(), {})
+<span class="lineNum">     167 </span>            :     BOOST_DEFAULTED_FUNCTION(type_dispatcher(type_dispatcher const&amp; that), : m_get_callback_impl(that.m_get_callback_impl) {})
+<span class="lineNum">     168 </span>            :     BOOST_DEFAULTED_FUNCTION(type_dispatcher&amp; operator= (type_dispatcher const&amp; that), { m_get_callback_impl = that.m_get_callback_impl; return *this; })
+<span class="lineNum">     169 </span>            : 
+<span class="lineNum">     170 </span>            : public:
+<span class="lineNum">     171 </span>            :     /*!
+<span class="lineNum">     172 </span>            :      * The method requests a callback for the value of type \c T
+<span class="lineNum">     173 </span>            :      *
+<span class="lineNum">     174 </span>            :      * \return The type-specific callback or an empty value, if the type is not supported
+<a name="175"><span class="lineNum">     175 </span>            :      */</a>
+<span class="lineNum">     176 </span>            :     template&lt; typename T &gt;
+<span class="lineNum">     177 </span><span class="lineCov">          2 :     callback&lt; T &gt; get_callback()</span>
+<span class="lineNum">     178 </span>            :     {
+<span class="lineNum">     179 </span><span class="lineCov">          2 :         return callback&lt; T &gt;((this-&gt;m_get_callback_impl)(this, typeid(boost::log::aux::visible_type&lt; T &gt;)));</span>
+<span class="lineNum">     180 </span>            :     }
+<span class="lineNum">     181 </span>            : };
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span>            : BOOST_LOG_CLOSE_NAMESPACE // namespace log
+<span class="lineNum">     184 </span>            : 
+<span class="lineNum">     185 </span>            : } // namespace boost
+<span class="lineNum">     186 </span>            : 
+<span class="lineNum">     187 </span>            : #include &lt;boost/log/detail/footer.hpp&gt;
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span>            : #endif // BOOST_LOG_TYPE_DISPATCHER_HPP_INCLUDED_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

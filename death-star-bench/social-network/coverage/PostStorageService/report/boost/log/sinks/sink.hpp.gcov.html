@@ -1,0 +1,191 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/log/sinks/sink.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">boost/log/sinks</a> - sink.hpp<span style="font-size: 80%;"> (source / <a href="sink.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryLo">33.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 03:45:06</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryLo">25.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *          Copyright Andrey Semashev 2007 - 2015.
+<span class="lineNum">       3 </span>            :  * Distributed under the Boost Software License, Version 1.0.
+<span class="lineNum">       4 </span>            :  *    (See accompanying file LICENSE_1_0.txt or copy at
+<span class="lineNum">       5 </span>            :  *          http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       6 </span>            :  */
+<span class="lineNum">       7 </span>            : /*!
+<span class="lineNum">       8 </span>            :  * \file   sink.hpp
+<span class="lineNum">       9 </span>            :  * \author Andrey Semashev
+<span class="lineNum">      10 </span>            :  * \date   22.04.2007
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * The header contains an interface declaration for all sinks. This interface is used by the
+<span class="lineNum">      13 </span>            :  * logging core to feed log records to sinks.
+<span class="lineNum">      14 </span>            :  */
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : #ifndef BOOST_LOG_SINKS_SINK_HPP_INCLUDED_
+<span class="lineNum">      17 </span>            : #define BOOST_LOG_SINKS_SINK_HPP_INCLUDED_
+<span class="lineNum">      18 </span>            : 
+<span class="lineNum">      19 </span>            : #include &lt;string&gt;
+<span class="lineNum">      20 </span>            : #include &lt;boost/log/detail/config.hpp&gt;
+<span class="lineNum">      21 </span>            : #include &lt;boost/log/detail/light_function.hpp&gt;
+<span class="lineNum">      22 </span>            : #include &lt;boost/log/core/record_view.hpp&gt;
+<span class="lineNum">      23 </span>            : #include &lt;boost/log/attributes/attribute_value_set.hpp&gt;
+<span class="lineNum">      24 </span>            : #include &lt;boost/log/detail/header.hpp&gt;
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #ifdef BOOST_HAS_PRAGMA_ONCE
+<span class="lineNum">      27 </span>            : #pragma once
+<span class="lineNum">      28 </span>            : #endif
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : namespace boost {
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : BOOST_LOG_OPEN_NAMESPACE
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            : namespace sinks {
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            : //! A base class for a logging sink frontend
+<span class="lineNum">      37 </span>            : class BOOST_LOG_NO_VTABLE sink
+<span class="lineNum">      38 </span>            : {
+<span class="lineNum">      39 </span>            : public:
+<span class="lineNum">      40 </span>            :     //! An exception handler type
+<span class="lineNum">      41 </span>            :     typedef boost::log::aux::light_function&lt; void () &gt; exception_handler_type;
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : private:
+<span class="lineNum">      44 </span>            :     //! The flag indicates that the sink passes log records across thread boundaries
+<span class="lineNum">      45 </span>            :     const bool m_cross_thread;
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span>            : public:
+<span class="lineNum">      48 </span>            :     /*!
+<a name="49"><span class="lineNum">      49 </span>            :      * Default constructor</a>
+<span class="lineNum">      50 </span>            :      */
+<span class="lineNum">      51 </span><span class="lineCov">          2 :     explicit sink(bool cross_thread) : m_cross_thread(cross_thread)</span>
+<span class="lineNum">      52 </span>            :     {
+<span class="lineNum">      53 </span><span class="lineCov">          2 :     }</span>
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            :     /*!
+<a name="56"><span class="lineNum">      56 </span>            :      * Virtual destructor</a>
+<span class="lineNum">      57 </span>            :      */
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 :     virtual ~sink() {}</span>
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span>            :     /*!
+<span class="lineNum">      61 </span>            :      * The method returns \c true if no filter is set or the attribute values pass the filter
+<span class="lineNum">      62 </span>            :      *
+<span class="lineNum">      63 </span>            :      * \param attributes A set of attribute values of a logging record
+<span class="lineNum">      64 </span>            :      */
+<span class="lineNum">      65 </span>            :     virtual bool will_consume(attribute_value_set const&amp; attributes) = 0;
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span>            :     /*!
+<span class="lineNum">      68 </span>            :      * The method puts logging record to the sink
+<span class="lineNum">      69 </span>            :      *
+<span class="lineNum">      70 </span>            :      * \param rec Logging record to consume
+<span class="lineNum">      71 </span>            :      */
+<span class="lineNum">      72 </span>            :     virtual void consume(record_view const&amp; rec) = 0;
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span>            :     /*!
+<span class="lineNum">      75 </span>            :      * The method attempts to put logging record to the sink. The method may be used by the
+<span class="lineNum">      76 </span>            :      * core in order to determine the most efficient order of sinks to feed records to in
+<span class="lineNum">      77 </span>            :      * case of heavy contention. Sink implementations may implement try/backoff logic in
+<span class="lineNum">      78 </span>            :      * order to improve overall logging throughput.
+<span class="lineNum">      79 </span>            :      *
+<span class="lineNum">      80 </span>            :      * \param rec Logging record to consume
+<a name="81"><span class="lineNum">      81 </span>            :      * \return \c true, if the record was consumed, \c false, if not.</a>
+<span class="lineNum">      82 </span>            :      */
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :     virtual bool try_consume(record_view const&amp; rec)</span>
+<span class="lineNum">      84 </span>            :     {
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :         consume(rec);</span>
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :         return true;</span>
+<span class="lineNum">      87 </span>            :     }
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span>            :     /*!
+<span class="lineNum">      90 </span>            :      * The method performs flushing of any internal buffers that may hold log records. The method
+<span class="lineNum">      91 </span>            :      * may take considerable time to complete and may block both the calling thread and threads
+<span class="lineNum">      92 </span>            :      * attempting to put new records into the sink while this call is in progress.
+<span class="lineNum">      93 </span>            :      */
+<span class="lineNum">      94 </span>            :     virtual void flush() = 0;
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span>            :     /*!
+<span class="lineNum">      97 </span>            :      * The method indicates that the sink passes log records between different threads. This information is
+<span class="lineNum">      98 </span>            :      * needed by the logging core to detach log records from all thread-specific resources before passing it
+<span class="lineNum">      99 </span>            :      * to the sink.
+<span class="lineNum">     100 </span>            :      */
+<span class="lineNum">     101 </span>            :     bool is_cross_thread() const BOOST_NOEXCEPT { return m_cross_thread; }
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span>            :     BOOST_DELETED_FUNCTION(sink(sink const&amp;))
+<span class="lineNum">     104 </span>            :     BOOST_DELETED_FUNCTION(sink&amp; operator= (sink const&amp;))
+<span class="lineNum">     105 </span>            : };
+<span class="lineNum">     106 </span>            : 
+<span class="lineNum">     107 </span>            : } // namespace sinks
+<span class="lineNum">     108 </span>            : 
+<span class="lineNum">     109 </span>            : BOOST_LOG_CLOSE_NAMESPACE // namespace log
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span>            : } // namespace boost
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span>            : #include &lt;boost/log/detail/footer.hpp&gt;
+<span class="lineNum">     114 </span>            : 
+<span class="lineNum">     115 </span>            : #endif // BOOST_LOG_SINKS_SINK_HPP_INCLUDED_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

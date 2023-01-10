@@ -1,0 +1,185 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/log/attributes/current_thread_id.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">boost/log/attributes</a> - current_thread_id.hpp<span style="font-size: 80%;"> (source / <a href="current_thread_id.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntryLo">30.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 03:46:44</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntryLo">37.5 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *          Copyright Andrey Semashev 2007 - 2015.
+<span class="lineNum">       3 </span>            :  * Distributed under the Boost Software License, Version 1.0.
+<span class="lineNum">       4 </span>            :  *    (See accompanying file LICENSE_1_0.txt or copy at
+<span class="lineNum">       5 </span>            :  *          http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       6 </span>            :  */
+<span class="lineNum">       7 </span>            : /*!
+<span class="lineNum">       8 </span>            :  * \file   current_thread_id.hpp
+<span class="lineNum">       9 </span>            :  * \author Andrey Semashev
+<span class="lineNum">      10 </span>            :  * \date   12.09.2009
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * The header contains implementation of a current thread id attribute
+<span class="lineNum">      13 </span>            :  */
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : #ifndef BOOST_LOG_ATTRIBUTES_CURRENT_THREAD_ID_HPP_INCLUDED_
+<span class="lineNum">      16 </span>            : #define BOOST_LOG_ATTRIBUTES_CURRENT_THREAD_ID_HPP_INCLUDED_
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #include &lt;boost/log/detail/config.hpp&gt;
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #ifdef BOOST_HAS_PRAGMA_ONCE
+<span class="lineNum">      21 </span>            : #pragma once
+<span class="lineNum">      22 </span>            : #endif
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : #if defined(BOOST_LOG_NO_THREADS)
+<span class="lineNum">      25 </span>            : #error Boost.Log: The current_thread_id attribute is only available in multithreaded builds
+<span class="lineNum">      26 </span>            : #endif
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : #include &lt;boost/smart_ptr/intrusive_ptr.hpp&gt;
+<span class="lineNum">      29 </span>            : #include &lt;boost/log/detail/thread_id.hpp&gt;
+<span class="lineNum">      30 </span>            : #include &lt;boost/log/attributes/attribute.hpp&gt;
+<span class="lineNum">      31 </span>            : #include &lt;boost/log/attributes/attribute_cast.hpp&gt;
+<span class="lineNum">      32 </span>            : #include &lt;boost/log/attributes/attribute_value_impl.hpp&gt;
+<span class="lineNum">      33 </span>            : #include &lt;boost/log/detail/header.hpp&gt;
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : namespace boost {
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            : BOOST_LOG_OPEN_NAMESPACE
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : //! Thread identifier type
+<span class="lineNum">      40 </span>            : typedef boost::log::aux::thread::id thread_id;
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            : namespace attributes {
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            : /*!
+<span class="lineNum">      45 </span>            :  * \brief A class of an attribute that always returns the current thread identifier
+<span class="lineNum">      46 </span>            :  *
+<span class="lineNum">      47 </span>            :  * \note This attribute can be registered globally, it will still return the correct
+<a name="48"><span class="lineNum">      48 </span>            :  *       thread identifier, no matter which thread emits the log record.</a>
+<span class="lineNum">      49 </span>            :  */
+<span class="lineNum">      50 </span><span class="lineCov">          2 : class current_thread_id :</span>
+<span class="lineNum">      51 </span>            :     public attribute
+<span class="lineNum">      52 </span>            : {
+<span class="lineNum">      53 </span>            : public:
+<span class="lineNum">      54 </span>            :     //! A held attribute value type
+<span class="lineNum">      55 </span>            :     typedef thread_id value_type;
+<span class="lineNum">      56 </span>            : 
+<a name="57"><span class="lineNum">      57 </span>            : protected:</a>
+<span class="lineNum">      58 </span>            :     //! Factory implementation
+<span class="lineNum">      59 </span><span class="lineCov">          2 :     class BOOST_SYMBOL_VISIBLE impl :</span>
+<span class="lineNum">      60 </span>            :         public attribute_value::impl
+<a name="61"><span class="lineNum">      61 </span>            :     {</a>
+<span class="lineNum">      62 </span>            :     public:
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :         bool dispatch(type_dispatcher&amp; dispatcher)</span>
+<span class="lineNum">      64 </span>            :         {
+<span class="lineNum">      65 </span>            :             type_dispatcher::callback&lt; value_type &gt; callback =
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :                 dispatcher.get_callback&lt; value_type &gt;();</span>
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :             if (callback)</span>
+<span class="lineNum">      68 </span>            :             {
+<span class="lineNum">      69 </span><span class="lineNoCov">          0 :                 callback(boost::log::aux::this_thread::get_id());</span>
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 :                 return true;</span>
+<span class="lineNum">      71 </span>            :             }
+<span class="lineNum">      72 </span>            :             else
+<span class="lineNum">      73 </span><span class="lineNoCov">          0 :                 return false;</span>
+<a name="74"><span class="lineNum">      74 </span>            :         }</a>
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :         intrusive_ptr&lt; attribute_value::impl &gt; detach_from_thread()</span>
+<span class="lineNum">      77 </span>            :         {
+<span class="lineNum">      78 </span>            :             typedef attribute_value_impl&lt; value_type &gt; detached_value;
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :             return new detached_value(boost::log::aux::this_thread::get_id());</span>
+<a name="80"><span class="lineNum">      80 </span>            :         }</a>
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :         type_info_wrapper get_type() const { return type_info_wrapper(typeid(value_type)); }</span>
+<span class="lineNum">      83 </span>            :     };
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span>            : public:
+<span class="lineNum">      86 </span>            :     /*!
+<a name="87"><span class="lineNum">      87 </span>            :      * Default constructor</a>
+<span class="lineNum">      88 </span>            :      */
+<span class="lineNum">      89 </span><span class="lineCov">          2 :     current_thread_id() : attribute(new impl())</span>
+<span class="lineNum">      90 </span>            :     {
+<span class="lineNum">      91 </span><span class="lineCov">          2 :     }</span>
+<span class="lineNum">      92 </span>            :     /*!
+<span class="lineNum">      93 </span>            :      * Constructor for casting support
+<span class="lineNum">      94 </span>            :      */
+<span class="lineNum">      95 </span>            :     explicit current_thread_id(cast_source const&amp; source) :
+<span class="lineNum">      96 </span>            :         attribute(source.as&lt; impl &gt;())
+<span class="lineNum">      97 </span>            :     {
+<span class="lineNum">      98 </span>            :     }
+<span class="lineNum">      99 </span>            : };
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span>            : } // namespace attributes
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span>            : BOOST_LOG_CLOSE_NAMESPACE // namespace log
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span>            : } // namespace boost
+<span class="lineNum">     106 </span>            : 
+<span class="lineNum">     107 </span>            : #include &lt;boost/log/detail/footer.hpp&gt;
+<span class="lineNum">     108 </span>            : 
+<span class="lineNum">     109 </span>            : #endif // BOOST_LOG_ATTRIBUTES_CURRENT_THREAD_ID_HPP_INCLUDED_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

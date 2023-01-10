@@ -1,0 +1,405 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/log/core/core.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">boost/log/core</a> - core.hpp<span style="font-size: 80%;"> (source / <a href="core.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 03:48:52</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *          Copyright Andrey Semashev 2007 - 2015.
+<span class="lineNum">       3 </span>            :  * Distributed under the Boost Software License, Version 1.0.
+<span class="lineNum">       4 </span>            :  *    (See accompanying file LICENSE_1_0.txt or copy at
+<span class="lineNum">       5 </span>            :  *          http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       6 </span>            :  */
+<span class="lineNum">       7 </span>            : /*!
+<span class="lineNum">       8 </span>            :  * \file   core/core.hpp
+<span class="lineNum">       9 </span>            :  * \author Andrey Semashev
+<span class="lineNum">      10 </span>            :  * \date   19.04.2007
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * This header contains logging core class definition.
+<span class="lineNum">      13 </span>            :  */
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : #ifndef BOOST_LOG_CORE_CORE_HPP_INCLUDED_
+<span class="lineNum">      16 </span>            : #define BOOST_LOG_CORE_CORE_HPP_INCLUDED_
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #include &lt;utility&gt;
+<span class="lineNum">      19 </span>            : #include &lt;boost/smart_ptr/shared_ptr.hpp&gt;
+<span class="lineNum">      20 </span>            : #include &lt;boost/move/core.hpp&gt;
+<span class="lineNum">      21 </span>            : #include &lt;boost/log/detail/config.hpp&gt;
+<span class="lineNum">      22 </span>            : #include &lt;boost/log/detail/light_function.hpp&gt;
+<span class="lineNum">      23 </span>            : #include &lt;boost/log/core/record.hpp&gt;
+<span class="lineNum">      24 </span>            : #include &lt;boost/log/attributes/attribute_set.hpp&gt;
+<span class="lineNum">      25 </span>            : #include &lt;boost/log/attributes/attribute_name.hpp&gt;
+<span class="lineNum">      26 </span>            : #include &lt;boost/log/attributes/attribute.hpp&gt;
+<span class="lineNum">      27 </span>            : #include &lt;boost/log/attributes/attribute_value_set.hpp&gt;
+<span class="lineNum">      28 </span>            : #include &lt;boost/log/expressions/filter.hpp&gt;
+<span class="lineNum">      29 </span>            : #include &lt;boost/log/detail/header.hpp&gt;
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : #ifdef BOOST_HAS_PRAGMA_ONCE
+<span class="lineNum">      32 </span>            : #pragma once
+<span class="lineNum">      33 </span>            : #endif
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : namespace boost {
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            : BOOST_LOG_OPEN_NAMESPACE
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : #ifndef BOOST_LOG_DOXYGEN_PASS
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            : namespace sinks {
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : class sink;
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            : } // namespace sinks
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span>            : #endif // BOOST_LOG_DOXYGEN_PASS
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span>            : class core;
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span>            : typedef shared_ptr&lt; core &gt; core_ptr;
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span>            : /*!
+<span class="lineNum">      54 </span>            :  * \brief Logging library core class
+<span class="lineNum">      55 </span>            :  *
+<span class="lineNum">      56 </span>            :  * The logging core is used to interconnect log sources and sinks. It also provides
+<span class="lineNum">      57 </span>            :  * a number of basic features, like global filtering and global and thread-specific attribute storage.
+<span class="lineNum">      58 </span>            :  *
+<span class="lineNum">      59 </span>            :  * The logging core is a singleton. Users can acquire the core instance by calling the static method &lt;tt&gt;get&lt;/tt&gt;.
+<span class="lineNum">      60 </span>            :  */
+<span class="lineNum">      61 </span>            : class core
+<span class="lineNum">      62 </span>            : {
+<span class="lineNum">      63 </span>            : public:
+<span class="lineNum">      64 </span>            :     //! Exception handler function type
+<span class="lineNum">      65 </span>            :     typedef boost::log::aux::light_function&lt; void () &gt; exception_handler_type;
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span>            : private:
+<span class="lineNum">      68 </span>            :     //! Implementation type
+<span class="lineNum">      69 </span>            :     struct implementation;
+<span class="lineNum">      70 </span>            :     friend struct implementation;
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span>            : private:
+<span class="lineNum">      73 </span>            :     //! A pointer to the implementation
+<span class="lineNum">      74 </span>            :     implementation* m_impl;
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span>            : private:
+<span class="lineNum">      77 </span>            :     //! \cond
+<span class="lineNum">      78 </span>            :     core();
+<span class="lineNum">      79 </span>            :     //! \endcond
+<span class="lineNum">      80 </span>            : 
+<span class="lineNum">      81 </span>            : public:
+<span class="lineNum">      82 </span>            :     /*!
+<span class="lineNum">      83 </span>            :      * Destructor. Destroys the core, releases any sinks and attributes that were registered.
+<span class="lineNum">      84 </span>            :      */
+<span class="lineNum">      85 </span>            :     ~core();
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span>            :     /*!
+<span class="lineNum">      88 </span>            :      * \return The method returns a pointer to the logging core singleton instance.
+<span class="lineNum">      89 </span>            :      */
+<span class="lineNum">      90 </span>            :     BOOST_LOG_API static core_ptr get();
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span>            :     /*!
+<span class="lineNum">      93 </span>            :      * The method enables or disables logging.
+<span class="lineNum">      94 </span>            :      *
+<span class="lineNum">      95 </span>            :      * Setting this status to \c false allows you to completely wipe out any logging activity, including
+<span class="lineNum">      96 </span>            :      * filtering and generation of attribute values. It is useful if you want to completely disable logging
+<span class="lineNum">      97 </span>            :      * in a running application. The state of logging does not alter any other properties of the logging
+<span class="lineNum">      98 </span>            :      * library, such as filters or sinks, so you can enable logging with the very same settings that you had
+<span class="lineNum">      99 </span>            :      * when the logging was disabled.
+<span class="lineNum">     100 </span>            :      * This feature may also be useful if you want to perform major changes to logging configuration and
+<span class="lineNum">     101 </span>            :      * don't want your application to block on opening or pushing a log record.
+<span class="lineNum">     102 </span>            :      *
+<span class="lineNum">     103 </span>            :      * By default logging is enabled.
+<span class="lineNum">     104 </span>            :      *
+<span class="lineNum">     105 </span>            :      * \param enabled The actual flag of logging activity.
+<span class="lineNum">     106 </span>            :      * \return The previous value of enabled/disabled logging flag
+<span class="lineNum">     107 </span>            :      */
+<span class="lineNum">     108 </span>            :     BOOST_LOG_API bool set_logging_enabled(bool enabled = true);
+<span class="lineNum">     109 </span>            :     /*!
+<span class="lineNum">     110 </span>            :      * The method allows to detect if logging is enabled. See the comment for \c set_logging_enabled.
+<span class="lineNum">     111 </span>            :      */
+<span class="lineNum">     112 </span>            :     BOOST_LOG_API bool get_logging_enabled() const;
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span>            :     /*!
+<span class="lineNum">     115 </span>            :      * The method sets the global logging filter. The filter is applied to every log record that is processed.
+<span class="lineNum">     116 </span>            :      *
+<span class="lineNum">     117 </span>            :      * \param filter The filter function object to be installed.
+<span class="lineNum">     118 </span>            :      */
+<span class="lineNum">     119 </span>            :     BOOST_LOG_API void set_filter(filter const&amp; filter);
+<span class="lineNum">     120 </span>            :     /*!
+<span class="lineNum">     121 </span>            :      * The method removes the global logging filter. All log records are passed to sinks without global filtering applied.
+<span class="lineNum">     122 </span>            :      */
+<span class="lineNum">     123 </span>            :     BOOST_LOG_API void reset_filter();
+<span class="lineNum">     124 </span>            : 
+<span class="lineNum">     125 </span>            :     /*!
+<span class="lineNum">     126 </span>            :      * The method adds a new sink. The sink is included into logging process immediately after being added and until being removed.
+<span class="lineNum">     127 </span>            :      * No sink can be added more than once at the same time. If the sink is already registered, the call is ignored.
+<span class="lineNum">     128 </span>            :      *
+<span class="lineNum">     129 </span>            :      * \param s The sink to be registered.
+<span class="lineNum">     130 </span>            :      */
+<span class="lineNum">     131 </span>            :     BOOST_LOG_API void add_sink(shared_ptr&lt; sinks::sink &gt; const&amp; s);
+<span class="lineNum">     132 </span>            :     /*!
+<span class="lineNum">     133 </span>            :      * The method removes the sink from the output. The sink will not receive any log records after removal.
+<span class="lineNum">     134 </span>            :      * The call has no effect if the sink is not registered.
+<span class="lineNum">     135 </span>            :      *
+<span class="lineNum">     136 </span>            :      * \param s The sink to be unregistered.
+<span class="lineNum">     137 </span>            :      */
+<span class="lineNum">     138 </span>            :     BOOST_LOG_API void remove_sink(shared_ptr&lt; sinks::sink &gt; const&amp; s);
+<span class="lineNum">     139 </span>            :     /*!
+<span class="lineNum">     140 </span>            :      * The method removes all registered sinks from the output. The sinks will not receive any log records after removal.
+<span class="lineNum">     141 </span>            :      */
+<span class="lineNum">     142 </span>            :     BOOST_LOG_API void remove_all_sinks();
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span>            :     /*!
+<span class="lineNum">     145 </span>            :      * The method performs flush on all registered sinks.
+<span class="lineNum">     146 </span>            :      *
+<span class="lineNum">     147 </span>            :      * \note This method may take long time to complete as it may block until all sinks manage to process all buffered log records.
+<span class="lineNum">     148 </span>            :      *       The call will also block all logging attempts until the operation completes.
+<span class="lineNum">     149 </span>            :      */
+<span class="lineNum">     150 </span>            :     BOOST_LOG_API void flush();
+<span class="lineNum">     151 </span>            : 
+<span class="lineNum">     152 </span>            :     /*!
+<span class="lineNum">     153 </span>            :      * The method adds an attribute to the global attribute set. The attribute will be implicitly added to every log record.
+<span class="lineNum">     154 </span>            :      *
+<span class="lineNum">     155 </span>            :      * \param name The attribute name.
+<span class="lineNum">     156 </span>            :      * \param attr The attribute factory.
+<span class="lineNum">     157 </span>            :      * \return A pair of values. If the second member is \c true, then the attribute is added and the first member points to the
+<span class="lineNum">     158 </span>            :      *         attribute. Otherwise the attribute was not added and the first member points to the attribute that prevents
+<span class="lineNum">     159 </span>            :      *         addition.
+<span class="lineNum">     160 </span>            :      */
+<span class="lineNum">     161 </span>            :     BOOST_LOG_API std::pair&lt; attribute_set::iterator, bool &gt; add_global_attribute(attribute_name const&amp; name, attribute const&amp; attr);
+<span class="lineNum">     162 </span>            :     /*!
+<span class="lineNum">     163 </span>            :      * The method removes an attribute from the global attribute set.
+<span class="lineNum">     164 </span>            :      *
+<span class="lineNum">     165 </span>            :      * \pre The attribute was added with the \c add_global_attribute call.
+<span class="lineNum">     166 </span>            :      * \post The attribute is no longer registered as a global attribute. The iterator is invalidated after removal.
+<span class="lineNum">     167 </span>            :      *
+<span class="lineNum">     168 </span>            :      * \param it Iterator to the previously added attribute.
+<span class="lineNum">     169 </span>            :      */
+<span class="lineNum">     170 </span>            :     BOOST_LOG_API void remove_global_attribute(attribute_set::iterator it);
+<span class="lineNum">     171 </span>            : 
+<span class="lineNum">     172 </span>            :     /*!
+<span class="lineNum">     173 </span>            :      * The method returns a copy of the complete set of currently registered global attributes.
+<span class="lineNum">     174 </span>            :      */
+<span class="lineNum">     175 </span>            :     BOOST_LOG_API attribute_set get_global_attributes() const;
+<span class="lineNum">     176 </span>            :     /*!
+<span class="lineNum">     177 </span>            :      * The method replaces the complete set of currently registered global attributes with the provided set.
+<span class="lineNum">     178 </span>            :      *
+<span class="lineNum">     179 </span>            :      * \note The method invalidates all iterators and references that may have been returned
+<span class="lineNum">     180 </span>            :      *       from the \c add_global_attribute method.
+<span class="lineNum">     181 </span>            :      *
+<span class="lineNum">     182 </span>            :      * \param attrs The set of attributes to be installed.
+<span class="lineNum">     183 </span>            :      */
+<span class="lineNum">     184 </span>            :     BOOST_LOG_API void set_global_attributes(attribute_set const&amp; attrs);
+<span class="lineNum">     185 </span>            : 
+<span class="lineNum">     186 </span>            :     /*!
+<span class="lineNum">     187 </span>            :      * The method adds an attribute to the thread-specific attribute set. The attribute will be implicitly added to
+<span class="lineNum">     188 </span>            :      * every log record made in the current thread.
+<span class="lineNum">     189 </span>            :      *
+<span class="lineNum">     190 </span>            :      * \note In single-threaded build the effect is the same as adding the attribute globally. This, however, does
+<span class="lineNum">     191 </span>            :      *       not imply that iterators to thread-specific and global attributes are interchangeable.
+<span class="lineNum">     192 </span>            :      *
+<span class="lineNum">     193 </span>            :      * \param name The attribute name.
+<span class="lineNum">     194 </span>            :      * \param attr The attribute factory.
+<span class="lineNum">     195 </span>            :      * \return A pair of values. If the second member is \c true, then the attribute is added and the first member points to the
+<span class="lineNum">     196 </span>            :      *         attribute. Otherwise the attribute was not added and the first member points to the attribute that prevents
+<span class="lineNum">     197 </span>            :      *         addition.
+<span class="lineNum">     198 </span>            :      */
+<span class="lineNum">     199 </span>            :     BOOST_LOG_API std::pair&lt; attribute_set::iterator, bool &gt; add_thread_attribute(attribute_name const&amp; name, attribute const&amp; attr);
+<span class="lineNum">     200 </span>            :     /*!
+<span class="lineNum">     201 </span>            :      * The method removes an attribute from the thread-specific attribute set.
+<span class="lineNum">     202 </span>            :      *
+<span class="lineNum">     203 </span>            :      * \pre The attribute was added with the \c add_thread_attribute call.
+<span class="lineNum">     204 </span>            :      * \post The attribute is no longer registered as a thread-specific attribute. The iterator is invalidated after removal.
+<span class="lineNum">     205 </span>            :      *
+<span class="lineNum">     206 </span>            :      * \param it Iterator to the previously added attribute.
+<span class="lineNum">     207 </span>            :      */
+<span class="lineNum">     208 </span>            :     BOOST_LOG_API void remove_thread_attribute(attribute_set::iterator it);
+<span class="lineNum">     209 </span>            : 
+<span class="lineNum">     210 </span>            :     /*!
+<span class="lineNum">     211 </span>            :      * The method returns a copy of the complete set of currently registered thread-specific attributes.
+<span class="lineNum">     212 </span>            :      */
+<span class="lineNum">     213 </span>            :     BOOST_LOG_API attribute_set get_thread_attributes() const;
+<span class="lineNum">     214 </span>            :     /*!
+<span class="lineNum">     215 </span>            :      * The method replaces the complete set of currently registered thread-specific attributes with the provided set.
+<span class="lineNum">     216 </span>            :      *
+<span class="lineNum">     217 </span>            :      * \note The method invalidates all iterators and references that may have been returned
+<span class="lineNum">     218 </span>            :      *       from the \c add_thread_attribute method.
+<span class="lineNum">     219 </span>            :      *
+<span class="lineNum">     220 </span>            :      * \param attrs The set of attributes to be installed.
+<span class="lineNum">     221 </span>            :      */
+<span class="lineNum">     222 </span>            :     BOOST_LOG_API void set_thread_attributes(attribute_set const&amp; attrs);
+<span class="lineNum">     223 </span>            : 
+<span class="lineNum">     224 </span>            :     /*!
+<span class="lineNum">     225 </span>            :      * The method sets exception handler function. The function will be called with no arguments
+<span class="lineNum">     226 </span>            :      * in case if an exception occurs during either \c open_record or \c push_record method
+<span class="lineNum">     227 </span>            :      * execution. Since exception handler is called from a \c catch statement, the exception
+<span class="lineNum">     228 </span>            :      * can be rethrown in order to determine its type.
+<span class="lineNum">     229 </span>            :      *
+<span class="lineNum">     230 </span>            :      * By default no handler is installed, thus any exception is propagated as usual.
+<span class="lineNum">     231 </span>            :      *
+<span class="lineNum">     232 </span>            :      * \sa See also: &lt;tt&gt;utility/exception_handler.hpp&lt;/tt&gt;
+<span class="lineNum">     233 </span>            :      * \param handler Exception handling function
+<span class="lineNum">     234 </span>            :      *
+<span class="lineNum">     235 </span>            :      * \note The exception handler can be invoked in several threads concurrently.
+<span class="lineNum">     236 </span>            :      *       Thread interruptions are not affected by exception handlers.
+<span class="lineNum">     237 </span>            :      */
+<span class="lineNum">     238 </span>            :     BOOST_LOG_API void set_exception_handler(exception_handler_type const&amp; handler);
+<span class="lineNum">     239 </span>            : 
+<span class="lineNum">     240 </span>            :     /*!
+<span class="lineNum">     241 </span>            :      * The method attempts to open a new record to be written. While attempting to open a log record all filtering is applied.
+<span class="lineNum">     242 </span>            :      * A successfully opened record can be pushed further to sinks by calling the \c push_record method or simply destroyed by
+<span class="lineNum">     243 </span>            :      * destroying the returned object.
+<span class="lineNum">     244 </span>            :      *
+<span class="lineNum">     245 </span>            :      * More than one open records are allowed, such records exist independently. All attribute values are acquired during opening
+<span class="lineNum">     246 </span>            :      * the record and do not interact between records.
+<span class="lineNum">     247 </span>            :      *
+<span class="lineNum">     248 </span>            :      * The returned records can be copied, however, they must not be passed between different threads.
+<span class="lineNum">     249 </span>            :      *
+<span class="lineNum">     250 </span>            :      * \param source_attributes The set of source-specific attributes to be attached to the record to be opened.
+<span class="lineNum">     251 </span>            :      * \return A valid log record if the record is opened, an invalid record object if not (e.g. because it didn't pass filtering).
+<span class="lineNum">     252 </span>            :      *
+<span class="lineNum">     253 </span>            :      * \b Throws: If an exception handler is installed, only throws if the handler throws. Otherwise may
+<span class="lineNum">     254 </span>            :      *            throw if one of the sinks throws, or some system resource limitation is reached.
+<span class="lineNum">     255 </span>            :      */
+<span class="lineNum">     256 </span>            :     BOOST_LOG_API record open_record(attribute_set const&amp; source_attributes);
+<span class="lineNum">     257 </span>            :     /*!
+<span class="lineNum">     258 </span>            :      * The method attempts to open a new record to be written. While attempting to open a log record all filtering is applied.
+<span class="lineNum">     259 </span>            :      * A successfully opened record can be pushed further to sinks by calling the \c push_record method or simply destroyed by
+<span class="lineNum">     260 </span>            :      * destroying the returned object.
+<span class="lineNum">     261 </span>            :      *
+<span class="lineNum">     262 </span>            :      * More than one open records are allowed, such records exist independently. All attribute values are acquired during opening
+<span class="lineNum">     263 </span>            :      * the record and do not interact between records.
+<span class="lineNum">     264 </span>            :      *
+<span class="lineNum">     265 </span>            :      * The returned records can be copied, however, they must not be passed between different threads.
+<span class="lineNum">     266 </span>            :      *
+<span class="lineNum">     267 </span>            :      * \param source_attributes The set of source-specific attribute values to be attached to the record to be opened.
+<span class="lineNum">     268 </span>            :      * \return A valid log record if the record is opened, an invalid record object if not (e.g. because it didn't pass filtering).
+<span class="lineNum">     269 </span>            :      *
+<span class="lineNum">     270 </span>            :      * \b Throws: If an exception handler is installed, only throws if the handler throws. Otherwise may
+<span class="lineNum">     271 </span>            :      *            throw if one of the sinks throws, or some system resource limitation is reached.
+<span class="lineNum">     272 </span>            :      */
+<span class="lineNum">     273 </span>            :     BOOST_LOG_API record open_record(attribute_value_set const&amp; source_attributes);
+<span class="lineNum">     274 </span>            :     /*!
+<span class="lineNum">     275 </span>            :      * The method attempts to open a new record to be written. While attempting to open a log record all filtering is applied.
+<span class="lineNum">     276 </span>            :      * A successfully opened record can be pushed further to sinks by calling the \c push_record method or simply destroyed by
+<span class="lineNum">     277 </span>            :      * destroying the returned object.
+<span class="lineNum">     278 </span>            :      *
+<span class="lineNum">     279 </span>            :      * More than one open records are allowed, such records exist independently. All attribute values are acquired during opening
+<span class="lineNum">     280 </span>            :      * the record and do not interact between records.
+<span class="lineNum">     281 </span>            :      *
+<span class="lineNum">     282 </span>            :      * The returned records can be copied, however, they must not be passed between different threads.
+<span class="lineNum">     283 </span>            :      *
+<span class="lineNum">     284 </span>            :      * \param source_attributes The set of source-specific attribute values to be attached to the record to be opened. The contents
+<span class="lineNum">     285 </span>            :      *                          of this container are unspecified after this call.
+<span class="lineNum">     286 </span>            :      * \return A valid log record if the record is opened, an invalid record object if not (e.g. because it didn't pass filtering).
+<span class="lineNum">     287 </span>            :      *
+<span class="lineNum">     288 </span>            :      * \b Throws: If an exception handler is installed, only throws if the handler throws. Otherwise may
+<span class="lineNum">     289 </span>            :      *            throw if one of the sinks throws, or some system resource limitation is reached.
+<span class="lineNum">     290 </span>            :      */
+<span class="lineNum">     291 </span>            :     BOOST_FORCEINLINE record open_record(BOOST_RV_REF(attribute_value_set) source_attributes)
+<span class="lineNum">     292 </span>            :     {
+<span class="lineNum">     293 </span>            :         return open_record_move(static_cast&lt; attribute_value_set&amp; &gt;(source_attributes));
+<span class="lineNum">     294 </span>            :     }
+<span class="lineNum">     295 </span>            : 
+<span class="lineNum">     296 </span>            :     /*!
+<span class="lineNum">     297 </span>            :      * The method pushes the record to sinks. The record is moved from in the process.
+<span class="lineNum">     298 </span>            :      *
+<span class="lineNum">     299 </span>            :      * \pre &lt;tt&gt;!!rec == true&lt;/tt&gt;
+<span class="lineNum">     300 </span>            :      * \post &lt;tt&gt;!rec == true&lt;/tt&gt;
+<span class="lineNum">     301 </span>            :      * \param rec A previously successfully opened log record.
+<span class="lineNum">     302 </span>            :      *
+<span class="lineNum">     303 </span>            :      * \b Throws: If an exception handler is installed, only throws if the handler throws. Otherwise may
+<span class="lineNum">     304 </span>            :      *            throw if one of the sinks throws.
+<span class="lineNum">     305 </span>            :      */
+<span class="lineNum">     306 </span>            :     BOOST_FORCEINLINE void push_record(BOOST_RV_REF(record) rec)
+<span class="lineNum">     307 </span>            :     {
+<span class="lineNum">     308 </span><span class="lineCov">          2 :         push_record_move(static_cast&lt; record&amp; &gt;(rec));</span>
+<span class="lineNum">     309 </span>            :     }
+<span class="lineNum">     310 </span>            : 
+<span class="lineNum">     311 </span>            :     BOOST_DELETED_FUNCTION(core(core const&amp;))
+<span class="lineNum">     312 </span>            :     BOOST_DELETED_FUNCTION(core&amp; operator= (core const&amp;))
+<span class="lineNum">     313 </span>            : 
+<span class="lineNum">     314 </span>            : #ifndef BOOST_LOG_DOXYGEN_PASS
+<span class="lineNum">     315 </span>            : private:
+<span class="lineNum">     316 </span>            :     //! Opens log record. This function is mostly needed to maintain ABI stable between C++03 and C++11.
+<span class="lineNum">     317 </span>            :     BOOST_LOG_API record open_record_move(attribute_value_set&amp; source_attributes);
+<span class="lineNum">     318 </span>            :     //! The method pushes the record to sinks.
+<span class="lineNum">     319 </span>            :     BOOST_LOG_API void push_record_move(record&amp; rec);
+<span class="lineNum">     320 </span>            : #endif // BOOST_LOG_DOXYGEN_PASS
+<span class="lineNum">     321 </span>            : };
+<span class="lineNum">     322 </span>            : 
+<span class="lineNum">     323 </span>            : BOOST_LOG_CLOSE_NAMESPACE // namespace log
+<span class="lineNum">     324 </span>            : 
+<span class="lineNum">     325 </span>            : } // namespace boost
+<span class="lineNum">     326 </span>            : 
+<span class="lineNum">     327 </span>            : #include &lt;boost/log/detail/footer.hpp&gt;
+<span class="lineNum">     328 </span>            : 
+<span class="lineNum">     329 </span>            : #endif // BOOST_LOG_CORE_CORE_HPP_INCLUDED_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

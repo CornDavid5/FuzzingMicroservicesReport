@@ -1,0 +1,281 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - /usr/local/include/opentracing/propagation.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">usr/local/include/opentracing</a> - propagation.h<span style="font-size: 80%;"> (source / <a href="propagation.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntryMed">85.7 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 03:39:51</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryLo">57.1 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #ifndef OPENTRACING_PROPAGATION_H</a>
+<span class="lineNum">       2 </span>            : #define OPENTRACING_PROPAGATION_H
+<span class="lineNum">       3 </span>            : 
+<span class="lineNum">       4 </span>            : #include &lt;opentracing/string_view.h&gt;
+<span class="lineNum">       5 </span>            : #include &lt;opentracing/symbols.h&gt;
+<span class="lineNum">       6 </span>            : #include &lt;opentracing/util.h&gt;
+<span class="lineNum">       7 </span>            : #include &lt;opentracing/version.h&gt;
+<span class="lineNum">       8 </span>            : #include &lt;functional&gt;
+<span class="lineNum">       9 </span>            : #include &lt;memory&gt;
+<span class="lineNum">      10 </span>            : #include &lt;string&gt;
+<span class="lineNum">      11 </span>            : #include &lt;system_error&gt;
+<span class="lineNum">      12 </span>            : 
+<span class="lineNum">      13 </span>            : namespace opentracing {
+<span class="lineNum">      14 </span>            : BEGIN_OPENTRACING_ABI_NAMESPACE
+<span class="lineNum">      15 </span>            : class Tracer;
+<span class="lineNum">      16 </span>            : class SpanContext;
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : enum class SpanReferenceType {
+<span class="lineNum">      19 </span>            :   // ChildOfRef refers to a parent Span that caused *and* somehow depends
+<span class="lineNum">      20 </span>            :   // upon the new child Span. Often (but not always), the parent Span cannot
+<span class="lineNum">      21 </span>            :   // finish until the child Span does.
+<span class="lineNum">      22 </span>            :   //
+<span class="lineNum">      23 </span>            :   // An timing diagram for a ChildOfRef that's blocked on the new Span:
+<span class="lineNum">      24 </span>            :   //
+<span class="lineNum">      25 </span>            :   //     [-Parent Span---------]
+<span class="lineNum">      26 </span>            :   //          [-Child Span----]
+<span class="lineNum">      27 </span>            :   //
+<span class="lineNum">      28 </span>            :   // See http://opentracing.io/spec/
+<span class="lineNum">      29 </span>            :   //
+<span class="lineNum">      30 </span>            :   // See opentracing.ChildOf()
+<span class="lineNum">      31 </span>            :   ChildOfRef = 1,
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            :   // FollowsFromRef refers to a parent Span that does not depend in any way
+<span class="lineNum">      34 </span>            :   // on the result of the new child Span. For instance, one might use
+<span class="lineNum">      35 </span>            :   // FollowsFromRefs to describe pipeline stages separated by queues,
+<span class="lineNum">      36 </span>            :   // or a fire-and-forget cache insert at the tail end of a web request.
+<span class="lineNum">      37 </span>            :   //
+<span class="lineNum">      38 </span>            :   // A FollowsFromRef Span is part of the same logical trace as the new Span:
+<span class="lineNum">      39 </span>            :   // i.e., the new Span is somehow caused by the work of its FollowsFromRef.
+<span class="lineNum">      40 </span>            :   //
+<span class="lineNum">      41 </span>            :   // All of the following could be valid timing diagrams for children that
+<span class="lineNum">      42 </span>            :   // &quot;FollowFrom&quot; a parent.
+<span class="lineNum">      43 </span>            :   //
+<span class="lineNum">      44 </span>            :   //     [-Parent Span-]  [-Child Span-]
+<span class="lineNum">      45 </span>            :   //
+<span class="lineNum">      46 </span>            :   //
+<span class="lineNum">      47 </span>            :   //     [-Parent Span--]
+<span class="lineNum">      48 </span>            :   //      [-Child Span-]
+<span class="lineNum">      49 </span>            :   //
+<span class="lineNum">      50 </span>            :   //
+<span class="lineNum">      51 </span>            :   //     [-Parent Span-]
+<span class="lineNum">      52 </span>            :   //                 [-Child Span-]
+<span class="lineNum">      53 </span>            :   //
+<span class="lineNum">      54 </span>            :   // See http://opentracing.io/spec/
+<span class="lineNum">      55 </span>            :   //
+<span class="lineNum">      56 </span>            :   // See opentracing.FollowsFrom()
+<span class="lineNum">      57 </span>            :   FollowsFromRef = 2
+<span class="lineNum">      58 </span>            : };
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span>            : // Returns the std::error_category class used for opentracing propagation
+<span class="lineNum">      61 </span>            : // errors.
+<span class="lineNum">      62 </span>            : //
+<span class="lineNum">      63 </span>            : // See
+<span class="lineNum">      64 </span>            : //   http://blog.think-async.com/2010/04/system-error-support-in-c0x-part-1.html
+<span class="lineNum">      65 </span>            : //   https://ned14.github.io/boost.outcome/md_doc_md_03-tutorial_b.html
+<span class="lineNum">      66 </span>            : OPENTRACING_API const std::error_category&amp; propagation_error_category();
+<span class="lineNum">      67 </span>            : 
+<span class="lineNum">      68 </span>            : // `invalid_span_context_error` occurs when Tracer::Inject() is asked to operate
+<span class="lineNum">      69 </span>            : // on a SpanContext which it is not prepared to handle (for example, since it
+<span class="lineNum">      70 </span>            : // was created by a different tracer implementation).
+<span class="lineNum">      71 </span><span class="lineCov">          2 : const std::error_code invalid_span_context_error(1,</span>
+<span class="lineNum">      72 </span><span class="lineCov">          2 :                                                  propagation_error_category());</span>
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span>            : // `invalid_carrier_error` occurs when Tracer::Inject() or Tracer::Extract()
+<span class="lineNum">      75 </span>            : // implementations expect a different type of `carrier` than they are given.
+<span class="lineNum">      76 </span><span class="lineCov">          2 : const std::error_code invalid_carrier_error(2, propagation_error_category());</span>
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span>            : // `span_context_corrupted_error` occurs when the `carrier` passed to
+<span class="lineNum">      79 </span>            : // Tracer::Extract() is of the expected type but is corrupted.
+<span class="lineNum">      80 </span><span class="lineCov">          2 : const std::error_code span_context_corrupted_error(</span>
+<span class="lineNum">      81 </span><span class="lineCov">          2 :     3, propagation_error_category());</span>
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span>            : // `key_not_found_error` occurs when TextMapReader::LookupKey fails to find
+<span class="lineNum">      84 </span>            : // an entry for the provided key.
+<span class="lineNum">      85 </span><span class="lineCov">          2 : const std::error_code key_not_found_error(4, propagation_error_category());</span>
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span>            : // `lookup_key_not_supported_error` occurs when TextMapReader::LookupKey is
+<span class="lineNum">      88 </span>            : // not supported for the provided key.
+<span class="lineNum">      89 </span><span class="lineCov">          2 : const std::error_code lookup_key_not_supported_error(</span>
+<span class="lineNum">      90 </span><span class="lineCov">          2 :     5, propagation_error_category());</span>
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span>            : // TextMapReader is the Extract() carrier for the TextMap builtin format. With
+<span class="lineNum">      93 </span>            : // it, the caller can decode a SpanContext from entries in a propagated map of
+<span class="lineNum">      94 </span>            : // Unicode strings.
+<a name="95"><span class="lineNum">      95 </span>            : //</a>
+<span class="lineNum">      96 </span>            : // See the HTTPHeaders examples.
+<a name="97"><span class="lineNum">      97 </span><span class="lineCov">         58 : class TextMapReader {</span></a>
+<span class="lineNum">      98 </span>            :  public:
+<span class="lineNum">      99 </span><span class="lineCov">         58 :   virtual ~TextMapReader() = default;</span>
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span>            :   // LookupKey returns the value for the specified `key` if available. If no
+<span class="lineNum">     102 </span>            :   // such key is present, it returns `key_not_found_error`.
+<span class="lineNum">     103 </span>            :   //
+<span class="lineNum">     104 </span>            :   // TextMapReaders are not required to implement this method. If not supported,
+<span class="lineNum">     105 </span>            :   // the function returns `lookup_key_not_supported_error`.
+<span class="lineNum">     106 </span>            :   //
+<a name="107"><span class="lineNum">     107 </span>            :   // Tracers may use this as an alternative to `ForeachKey` as a faster way to</a>
+<span class="lineNum">     108 </span>            :   // extract span context.
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :   virtual expected&lt;string_view&gt; LookupKey(string_view /*key*/) const {</span>
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :     return make_unexpected(lookup_key_not_supported_error);</span>
+<span class="lineNum">     111 </span>            :   }
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span>            :   // ForeachKey returns TextMap contents via repeated calls to the `f`
+<span class="lineNum">     114 </span>            :   // function. If any call to `f` returns an error, ForeachKey terminates and
+<span class="lineNum">     115 </span>            :   // returns that error.
+<span class="lineNum">     116 </span>            :   //
+<span class="lineNum">     117 </span>            :   // NOTE: The backing store for the TextMapReader may contain data unrelated
+<span class="lineNum">     118 </span>            :   // to SpanContext. As such, Inject() and Extract() implementations that
+<span class="lineNum">     119 </span>            :   // call the TextMapWriter and TextMapReader interfaces must agree on a
+<span class="lineNum">     120 </span>            :   // prefix or other convention to distinguish their own key:value pairs.
+<span class="lineNum">     121 </span>            :   //
+<span class="lineNum">     122 </span>            :   // The &quot;foreach&quot; callback pattern reduces unnecessary copying in some cases
+<span class="lineNum">     123 </span>            :   // and also allows implementations to hold locks while the map is read.
+<span class="lineNum">     124 </span>            :   virtual expected&lt;void&gt; ForeachKey(
+<span class="lineNum">     125 </span>            :       std::function&lt;expected&lt;void&gt;(string_view key, string_view value)&gt; f)
+<span class="lineNum">     126 </span>            :       const = 0;
+<span class="lineNum">     127 </span>            : };
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span>            : // TextMapWriter is the Inject() carrier for the TextMap builtin format. With
+<span class="lineNum">     130 </span>            : // it, the caller can encode a SpanContext for propagation as entries in a map
+<span class="lineNum">     131 </span>            : // of unicode strings.
+<a name="132"><span class="lineNum">     132 </span>            : //</a>
+<span class="lineNum">     133 </span>            : // See the HTTPHeaders examples.
+<a name="134"><span class="lineNum">     134 </span><span class="lineCov">         58 : class TextMapWriter {</span></a>
+<span class="lineNum">     135 </span>            :  public:
+<span class="lineNum">     136 </span><span class="lineCov">         58 :   virtual ~TextMapWriter() = default;</span>
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span>            :   // Set a key:value pair to the carrier. Multiple calls to Set() for the
+<span class="lineNum">     139 </span>            :   // same key leads to undefined behavior.
+<span class="lineNum">     140 </span>            :   //
+<span class="lineNum">     141 </span>            :   // NOTE: The backing store for the TextMapWriter may contain data unrelated
+<span class="lineNum">     142 </span>            :   // to SpanContext. As such, Inject() and Extract() implementations that
+<span class="lineNum">     143 </span>            :   // call the TextMapWriter and TextMapReader interfaces must agree on a
+<span class="lineNum">     144 </span>            :   // prefix or other convention to distinguish their own key:value pairs.
+<span class="lineNum">     145 </span>            :   virtual expected&lt;void&gt; Set(string_view key, string_view value) const = 0;
+<span class="lineNum">     146 </span>            : };
+<span class="lineNum">     147 </span>            : 
+<span class="lineNum">     148 </span>            : // HTTPHeadersReader is the Extract() carrier for the HttpHeaders builtin
+<span class="lineNum">     149 </span>            : // format. With it, the caller can decode a SpanContext from entries in HTTP
+<span class="lineNum">     150 </span>            : // request headers.
+<span class="lineNum">     151 </span>            : //
+<span class="lineNum">     152 </span>            : // For example, Extract():
+<span class="lineNum">     153 </span>            : //
+<span class="lineNum">     154 </span>            : //   const Tracer&amp; tracer = /* some tracer */
+<span class="lineNum">     155 </span>            : //   const HTTPHeadersReader&amp; carrier_reader = /* some carrier */
+<span class="lineNum">     156 </span>            : //   auto span_context_maybe = tracer.Extract(carrier_reader);
+<span class="lineNum">     157 </span>            : //   if (!span_context_maybe) {
+<span class="lineNum">     158 </span>            : //     throw std::runtime_error(span_context_maybe.error().message());
+<span class="lineNum">     159 </span>            : //   }
+<span class="lineNum">     160 </span>            : //   auto span = tracer.StartSpan(&quot;op&quot;,
+<span class="lineNum">     161 </span>            : //                                { ChildOf(span_context_maybe-&gt;get()) });
+<span class="lineNum">     162 </span>            : class HTTPHeadersReader : public TextMapReader {};
+<span class="lineNum">     163 </span>            : 
+<span class="lineNum">     164 </span>            : // HTTPHeadersWriter is the Inject() carrier for the TextMap builtin format.
+<span class="lineNum">     165 </span>            : // With it, the caller can encode a SpanContext for propagation as entries in
+<span class="lineNum">     166 </span>            : // http request headers
+<span class="lineNum">     167 </span>            : //
+<span class="lineNum">     168 </span>            : // For example, Inject():
+<span class="lineNum">     169 </span>            : //
+<span class="lineNum">     170 </span>            : //   const HTTPHeadersWriter&amp; carrier_writer = /* some carrier */
+<span class="lineNum">     171 </span>            : //   auto was_successful = span.tracer().Inject(span,
+<span class="lineNum">     172 </span>            : //                                              carrier_writer);
+<span class="lineNum">     173 </span>            : //   if (!was_successful) {
+<span class="lineNum">     174 </span>            : //     throw std::runtime_error(was_successful.error().message());
+<span class="lineNum">     175 </span>            : //   }
+<span class="lineNum">     176 </span>            : class HTTPHeadersWriter : public TextMapWriter {};
+<span class="lineNum">     177 </span>            : 
+<span class="lineNum">     178 </span>            : // CustomCarrierReader is the Extract() carrier for a custom format. With it,
+<span class="lineNum">     179 </span>            : // the caller can decode a SpanContext from entries in a custom protocol.
+<span class="lineNum">     180 </span>            : class CustomCarrierReader {
+<span class="lineNum">     181 </span>            :  public:
+<span class="lineNum">     182 </span>            :   virtual ~CustomCarrierReader() = default;
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span>            :   // Extract is expected to specialize on the tracer implementation so as to
+<span class="lineNum">     185 </span>            :   // most efficiently decode its context.
+<span class="lineNum">     186 </span>            :   virtual expected&lt;std::unique_ptr&lt;SpanContext&gt;&gt; Extract(
+<span class="lineNum">     187 </span>            :       const Tracer&amp; tracer) const = 0;
+<span class="lineNum">     188 </span>            : };
+<span class="lineNum">     189 </span>            : 
+<span class="lineNum">     190 </span>            : // CustomCarrierWriter is the Inject() carrier for a custom format.  With it,
+<span class="lineNum">     191 </span>            : // the caller can encode a SpanContext for propagation as entries in a custom
+<span class="lineNum">     192 </span>            : // protocol.
+<span class="lineNum">     193 </span>            : class CustomCarrierWriter {
+<span class="lineNum">     194 </span>            :  public:
+<span class="lineNum">     195 </span>            :   virtual ~CustomCarrierWriter() = default;
+<span class="lineNum">     196 </span>            : 
+<span class="lineNum">     197 </span>            :   // Inject is expected to specialize on the tracer implementation so as to most
+<span class="lineNum">     198 </span>            :   // efficiently encode its context.
+<span class="lineNum">     199 </span>            :   virtual expected&lt;void&gt; Inject(const Tracer&amp; tracer,
+<span class="lineNum">     200 </span>            :                                 const SpanContext&amp; sc) const = 0;
+<span class="lineNum">     201 </span>            : };
+<span class="lineNum">     202 </span>            : END_OPENTRACING_ABI_NAMESPACE
+<span class="lineNum">     203 </span>            : }  // namespace opentracing
+<span class="lineNum">     204 </span>            : 
+<span class="lineNum">     205 </span>            : #endif  // OPENTRACING_PROPAGATION_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

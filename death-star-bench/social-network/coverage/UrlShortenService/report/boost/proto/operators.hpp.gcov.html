@@ -1,0 +1,454 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/proto/operators.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">boost/proto</a> - operators.hpp<span style="font-size: 80%;"> (source / <a href="operators.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 03:43:12</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : ///////////////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">       2 </span>            : /// \file operators.hpp
+<span class="lineNum">       3 </span>            : /// Contains all the overloaded operators that make it possible to build
+<span class="lineNum">       4 </span>            : /// Proto expression trees.
+<span class="lineNum">       5 </span>            : //
+<span class="lineNum">       6 </span>            : //  Copyright 2008 Eric Niebler. Distributed under the Boost
+<span class="lineNum">       7 </span>            : //  Software License, Version 1.0. (See accompanying file
+<span class="lineNum">       8 </span>            : //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span>            : #ifndef BOOST_PROTO_OPERATORS_HPP_EAN_04_01_2005
+<span class="lineNum">      11 </span>            : #define BOOST_PROTO_OPERATORS_HPP_EAN_04_01_2005
+<span class="lineNum">      12 </span>            : 
+<span class="lineNum">      13 </span>            : #include &lt;boost/config.hpp&gt;
+<span class="lineNum">      14 </span>            : #include &lt;boost/preprocessor/punctuation/comma.hpp&gt;
+<span class="lineNum">      15 </span>            : #include &lt;boost/mpl/logical.hpp&gt;
+<span class="lineNum">      16 </span>            : #include &lt;boost/utility/enable_if.hpp&gt;
+<span class="lineNum">      17 </span>            : #include &lt;boost/proto/proto_fwd.hpp&gt;
+<span class="lineNum">      18 </span>            : #include &lt;boost/proto/tags.hpp&gt;
+<span class="lineNum">      19 </span>            : #include &lt;boost/proto/domain.hpp&gt;
+<span class="lineNum">      20 </span>            : #include &lt;boost/proto/matches.hpp&gt;
+<span class="lineNum">      21 </span>            : #include &lt;boost/proto/generate.hpp&gt;
+<span class="lineNum">      22 </span>            : #include &lt;boost/proto/make_expr.hpp&gt;
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : #if defined(_MSC_VER)
+<span class="lineNum">      25 </span>            : # pragma warning(push)
+<span class="lineNum">      26 </span>            : # pragma warning(disable : 4714) // function 'xxx' marked as __forceinline not inlined
+<span class="lineNum">      27 </span>            : #endif
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            : namespace boost { namespace proto
+<span class="lineNum">      30 </span>            : {
+<span class="lineNum">      31 </span>            :     namespace detail
+<span class="lineNum">      32 </span>            :     {
+<span class="lineNum">      33 </span>            :         template&lt;typename MakeExpr, typename Grammar&gt;
+<span class="lineNum">      34 </span>            :         struct lazy_matches
+<span class="lineNum">      35 </span>            :           : proto::matches&lt;typename MakeExpr::type, Grammar&gt;
+<span class="lineNum">      36 </span>            :         {};
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            :         template&lt;typename Domain, typename Grammar, typename Trait, typename Tag, typename Arg&gt;
+<span class="lineNum">      39 </span>            :         struct enable_unary
+<span class="lineNum">      40 </span>            :           : boost::lazy_enable_if_c&lt;
+<span class="lineNum">      41 </span>            :                 boost::mpl::and_&lt;
+<span class="lineNum">      42 </span>            :                     Trait
+<span class="lineNum">      43 </span>            :                   , lazy_matches&lt;result_of::make_expr&lt;Tag, basic_default_domain, Arg&gt;, Grammar&gt;
+<span class="lineNum">      44 </span>            :                 &gt;::value
+<span class="lineNum">      45 </span>            :               , result_of::make_expr&lt;Tag, Domain, Arg&gt;
+<span class="lineNum">      46 </span>            :             &gt;
+<span class="lineNum">      47 </span>            :         {};
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span>            :         template&lt;typename Domain, typename Trait, typename Tag, typename Arg&gt;
+<span class="lineNum">      50 </span>            :         struct enable_unary&lt;Domain, proto::_, Trait, Tag, Arg &amp;&gt;
+<span class="lineNum">      51 </span>            :           : boost::lazy_enable_if_c&lt;
+<span class="lineNum">      52 </span>            :                 Trait::value
+<span class="lineNum">      53 </span>            :               , result_of::make_expr&lt;Tag, Domain, Arg &amp;&gt;
+<span class="lineNum">      54 </span>            :             &gt;
+<span class="lineNum">      55 </span>            :         {};
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span>            :         template&lt;typename Trait, typename Tag, typename Arg&gt;
+<span class="lineNum">      58 </span>            :         struct enable_unary&lt;deduce_domain, not_a_grammar, Trait, Tag, Arg &amp;&gt;
+<span class="lineNum">      59 </span>            :           : enable_unary&lt;
+<span class="lineNum">      60 </span>            :                 typename domain_of&lt;Arg&gt;::type
+<span class="lineNum">      61 </span>            :               , typename domain_of&lt;Arg&gt;::type::proto_grammar
+<span class="lineNum">      62 </span>            :               , Trait
+<span class="lineNum">      63 </span>            :               , Tag
+<span class="lineNum">      64 </span>            :               , Arg &amp;
+<span class="lineNum">      65 </span>            :             &gt;
+<span class="lineNum">      66 </span>            :         {};
+<span class="lineNum">      67 </span>            : 
+<span class="lineNum">      68 </span>            :         template&lt;typename Domain, typename Grammar, typename Trait, typename Tag, typename Left, typename Right&gt;
+<span class="lineNum">      69 </span>            :         struct enable_binary
+<span class="lineNum">      70 </span>            :           : boost::lazy_enable_if_c&lt;
+<span class="lineNum">      71 </span>            :                 boost::mpl::and_&lt;
+<span class="lineNum">      72 </span>            :                     Trait
+<span class="lineNum">      73 </span>            :                   , lazy_matches&lt;result_of::make_expr&lt;Tag, basic_default_domain, Left, Right&gt;, Grammar&gt;
+<span class="lineNum">      74 </span>            :                 &gt;::value
+<span class="lineNum">      75 </span>            :               , result_of::make_expr&lt;Tag, Domain, Left, Right&gt;
+<span class="lineNum">      76 </span>            :             &gt;
+<span class="lineNum">      77 </span>            :         {};
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span>            :         template&lt;typename Domain, typename Trait, typename Tag, typename Left, typename Right&gt;
+<span class="lineNum">      80 </span>            :         struct enable_binary&lt;Domain, proto::_, Trait, Tag, Left &amp;, Right &amp;&gt;
+<span class="lineNum">      81 </span>            :           : boost::lazy_enable_if_c&lt;
+<span class="lineNum">      82 </span>            :                 Trait::value
+<span class="lineNum">      83 </span>            :               , result_of::make_expr&lt;Tag, Domain, Left &amp;, Right &amp;&gt;
+<span class="lineNum">      84 </span>            :             &gt;
+<span class="lineNum">      85 </span>            :         {};
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span>            :         template&lt;typename Trait, typename Tag, typename Left, typename Right&gt;
+<span class="lineNum">      88 </span>            :         struct enable_binary&lt;deduce_domain, not_a_grammar, Trait, Tag, Left &amp;, Right &amp;&gt;
+<span class="lineNum">      89 </span>            :           : enable_binary&lt;
+<span class="lineNum">      90 </span>            :                 typename deduce_domain2&lt;Left, Right&gt;::type
+<span class="lineNum">      91 </span>            :               , typename deduce_domain2&lt;Left, Right&gt;::type::proto_grammar
+<span class="lineNum">      92 </span>            :               , Trait
+<span class="lineNum">      93 </span>            :               , Tag
+<span class="lineNum">      94 </span>            :               , Left &amp;
+<span class="lineNum">      95 </span>            :               , Right &amp;
+<span class="lineNum">      96 </span>            :             &gt;
+<span class="lineNum">      97 </span>            :         {};
+<span class="lineNum">      98 </span>            : 
+<span class="lineNum">      99 </span>            :     } // detail
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span>            : #define BOOST_PROTO_UNARY_OP_IS_POSTFIX_0
+<span class="lineNum">     102 </span>            : #define BOOST_PROTO_UNARY_OP_IS_POSTFIX_1 , int
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span>            : #ifdef BOOST_NO_CXX11_RVALUE_REFERENCES
+<span class="lineNum">     105 </span>            : 
+<span class="lineNum">     106 </span>            : #define BOOST_PROTO_DEFINE_UNARY_OPERATOR(OP, TAG, TRAIT, DOMAIN, POST)                             \
+<span class="lineNum">     107 </span>            :     template&lt;typename Arg&gt;                                                                          \
+<span class="lineNum">     108 </span>            :     BOOST_PROTO_DISABLE_MSVC_C4714 BOOST_FORCEINLINE                                                \
+<span class="lineNum">     109 </span>            :     typename boost::proto::detail::enable_unary&lt;                                                    \
+<span class="lineNum">     110 </span>            :         DOMAIN                                                                                      \
+<span class="lineNum">     111 </span>            :       , DOMAIN::proto_grammar                                                                       \
+<span class="lineNum">     112 </span>            :       , BOOST_PROTO_APPLY_UNARY_(TRAIT, Arg)                                                        \
+<span class="lineNum">     113 </span>            :       , TAG                                                                                         \
+<span class="lineNum">     114 </span>            :       , Arg &amp;                                                                                       \
+<span class="lineNum">     115 </span>            :     &gt;::type const                                                                                   \
+<span class="lineNum">     116 </span>            :     operator OP(Arg &amp;arg BOOST_PROTO_UNARY_OP_IS_POSTFIX_ ## POST)                                  \
+<span class="lineNum">     117 </span>            :     {                                                                                               \
+<span class="lineNum">     118 </span>            :         return boost::proto::detail::make_expr_&lt;TAG, DOMAIN, Arg &amp;&gt;()(arg);                         \
+<span class="lineNum">     119 </span>            :     }                                                                                               \
+<span class="lineNum">     120 </span>            :                                                                                                     \
+<span class="lineNum">     121 </span>            :     template&lt;typename Arg&gt;                                                                          \
+<span class="lineNum">     122 </span>            :     BOOST_PROTO_DISABLE_MSVC_C4714 BOOST_FORCEINLINE                                                \
+<span class="lineNum">     123 </span>            :     typename boost::proto::detail::enable_unary&lt;                                                    \
+<span class="lineNum">     124 </span>            :         DOMAIN                                                                                      \
+<span class="lineNum">     125 </span>            :       , DOMAIN::proto_grammar                                                                       \
+<span class="lineNum">     126 </span>            :       , BOOST_PROTO_APPLY_UNARY_(TRAIT, Arg)                                                        \
+<span class="lineNum">     127 </span>            :       , TAG                                                                                         \
+<span class="lineNum">     128 </span>            :       , Arg const &amp;                                                                                 \
+<span class="lineNum">     129 </span>            :     &gt;::type const                                                                                   \
+<span class="lineNum">     130 </span>            :     operator OP(Arg const &amp;arg BOOST_PROTO_UNARY_OP_IS_POSTFIX_ ## POST)                            \
+<span class="lineNum">     131 </span>            :     {                                                                                               \
+<span class="lineNum">     132 </span>            :         return boost::proto::detail::make_expr_&lt;TAG, DOMAIN, Arg const &amp;&gt;()(arg);                   \
+<span class="lineNum">     133 </span>            :     }                                                                                               \
+<span class="lineNum">     134 </span>            :     /**/
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span>            : #define BOOST_PROTO_DEFINE_BINARY_OPERATOR(OP, TAG, TRAIT, DOMAIN)                                  \
+<span class="lineNum">     137 </span>            :     template&lt;typename Left, typename Right&gt;                                                         \
+<span class="lineNum">     138 </span>            :     BOOST_PROTO_DISABLE_MSVC_C4714 BOOST_FORCEINLINE                                                \
+<span class="lineNum">     139 </span>            :     typename boost::proto::detail::enable_binary&lt;                                                   \
+<span class="lineNum">     140 </span>            :         DOMAIN                                                                                      \
+<span class="lineNum">     141 </span>            :       , DOMAIN::proto_grammar                                                                       \
+<span class="lineNum">     142 </span>            :       , BOOST_PROTO_APPLY_BINARY_(TRAIT, Left, Right)                                               \
+<span class="lineNum">     143 </span>            :       , TAG                                                                                         \
+<span class="lineNum">     144 </span>            :       , Left &amp;                                                                                      \
+<span class="lineNum">     145 </span>            :       , Right &amp;                                                                                     \
+<span class="lineNum">     146 </span>            :     &gt;::type const                                                                                   \
+<span class="lineNum">     147 </span>            :     operator OP(Left &amp;left, Right &amp;right)                                                           \
+<span class="lineNum">     148 </span>            :     {                                                                                               \
+<span class="lineNum">     149 </span>            :         return boost::proto::detail::make_expr_&lt;TAG, DOMAIN, Left &amp;, Right &amp;&gt;()(left, right);       \
+<span class="lineNum">     150 </span>            :     }                                                                                               \
+<span class="lineNum">     151 </span>            :                                                                                                     \
+<span class="lineNum">     152 </span>            :     template&lt;typename Left, typename Right&gt;                                                         \
+<span class="lineNum">     153 </span>            :     BOOST_PROTO_DISABLE_MSVC_C4714 BOOST_FORCEINLINE                                                \
+<span class="lineNum">     154 </span>            :     typename boost::proto::detail::enable_binary&lt;                                                   \
+<span class="lineNum">     155 </span>            :         DOMAIN                                                                                      \
+<span class="lineNum">     156 </span>            :       , DOMAIN::proto_grammar                                                                       \
+<span class="lineNum">     157 </span>            :       , BOOST_PROTO_APPLY_BINARY_(TRAIT, Left, Right)                                               \
+<span class="lineNum">     158 </span>            :       , TAG                                                                                         \
+<span class="lineNum">     159 </span>            :       , Left &amp;                                                                                      \
+<span class="lineNum">     160 </span>            :       , Right const &amp;                                                                               \
+<span class="lineNum">     161 </span>            :     &gt;::type const                                                                                   \
+<span class="lineNum">     162 </span>            :     operator OP(Left &amp;left, Right const &amp;right)                                                     \
+<span class="lineNum">     163 </span>            :     {                                                                                               \
+<span class="lineNum">     164 </span>            :         return boost::proto::detail::make_expr_&lt;TAG, DOMAIN, Left &amp;, Right const &amp;&gt;()(left, right); \
+<span class="lineNum">     165 </span>            :     }                                                                                               \
+<span class="lineNum">     166 </span>            :                                                                                                     \
+<span class="lineNum">     167 </span>            :     template&lt;typename Left, typename Right&gt;                                                         \
+<span class="lineNum">     168 </span>            :     BOOST_PROTO_DISABLE_MSVC_C4714 BOOST_FORCEINLINE                                                \
+<span class="lineNum">     169 </span>            :     typename boost::proto::detail::enable_binary&lt;                                                   \
+<span class="lineNum">     170 </span>            :         DOMAIN                                                                                      \
+<span class="lineNum">     171 </span>            :       , DOMAIN::proto_grammar                                                                       \
+<span class="lineNum">     172 </span>            :       , BOOST_PROTO_APPLY_BINARY_(TRAIT, Left, Right)                                               \
+<span class="lineNum">     173 </span>            :       , TAG                                                                                         \
+<span class="lineNum">     174 </span>            :       , Left const &amp;                                                                                \
+<span class="lineNum">     175 </span>            :       , Right &amp;                                                                                     \
+<span class="lineNum">     176 </span>            :     &gt;::type const                                                                                   \
+<span class="lineNum">     177 </span>            :     operator OP(Left const &amp;left, Right &amp;right)                                                     \
+<span class="lineNum">     178 </span>            :     {                                                                                               \
+<span class="lineNum">     179 </span>            :         return boost::proto::detail::make_expr_&lt;TAG, DOMAIN, Left const &amp;, Right &amp;&gt;()(left, right); \
+<span class="lineNum">     180 </span>            :     }                                                                                               \
+<span class="lineNum">     181 </span>            :                                                                                                     \
+<span class="lineNum">     182 </span>            :     template&lt;typename Left, typename Right&gt;                                                         \
+<span class="lineNum">     183 </span>            :     BOOST_PROTO_DISABLE_MSVC_C4714 BOOST_FORCEINLINE                                                \
+<span class="lineNum">     184 </span>            :     typename boost::proto::detail::enable_binary&lt;                                                   \
+<span class="lineNum">     185 </span>            :         DOMAIN                                                                                      \
+<span class="lineNum">     186 </span>            :       , DOMAIN::proto_grammar                                                                       \
+<span class="lineNum">     187 </span>            :       , BOOST_PROTO_APPLY_BINARY_(TRAIT, Left, Right)                                               \
+<span class="lineNum">     188 </span>            :       , TAG                                                                                         \
+<span class="lineNum">     189 </span>            :       , Left const &amp;                                                                                \
+<span class="lineNum">     190 </span>            :       , Right const &amp;                                                                               \
+<span class="lineNum">     191 </span>            :     &gt;::type const                                                                                   \
+<span class="lineNum">     192 </span>            :     operator OP(Left const &amp;left, Right const &amp;right)                                               \
+<span class="lineNum">     193 </span>            :     {                                                                                               \
+<span class="lineNum">     194 </span>            :         return boost::proto::detail::make_expr_&lt;TAG, DOMAIN, Left const &amp;, Right const &amp;&gt;()(left, right);\
+<span class="lineNum">     195 </span>            :     }                                                                                               \
+<span class="lineNum">     196 </span>            :     /**/
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span>            : #else
+<span class="lineNum">     199 </span>            : 
+<span class="lineNum">     200 </span>            : #define BOOST_PROTO_DEFINE_UNARY_OPERATOR(OP, TAG, TRAIT, DOMAIN, POST)                             \
+<span class="lineNum">     201 </span>            :     template&lt;typename Arg&gt;                                                                          \
+<span class="lineNum">     202 </span>            :     BOOST_PROTO_DISABLE_MSVC_C4714 BOOST_FORCEINLINE                                                \
+<span class="lineNum">     203 </span>            :     typename boost::proto::detail::enable_unary&lt;                                                    \
+<span class="lineNum">     204 </span>            :         DOMAIN                                                                                      \
+<span class="lineNum">     205 </span>            :       , DOMAIN::proto_grammar                                                                       \
+<span class="lineNum">     206 </span>            :       , BOOST_PROTO_APPLY_UNARY_(TRAIT, Arg)                                                        \
+<span class="lineNum">     207 </span>            :       , TAG                                                                                         \
+<span class="lineNum">     208 </span>            :       , Arg const &amp;                                                                                 \
+<span class="lineNum">     209 </span>            :     &gt;::type const                                                                                   \
+<span class="lineNum">     210 </span>            :     operator OP(Arg &amp;&amp;arg BOOST_PROTO_UNARY_OP_IS_POSTFIX_ ## POST)                                 \
+<span class="lineNum">     211 </span>            :     {                                                                                               \
+<span class="lineNum">     212 </span>            :         return boost::proto::detail::make_expr_&lt;TAG, DOMAIN, Arg const &amp;&gt;()(arg);                   \
+<span class="lineNum">     213 </span>            :     }                                                                                               \
+<span class="lineNum">     214 </span>            :     /**/
+<span class="lineNum">     215 </span>            : 
+<span class="lineNum">     216 </span>            : #define BOOST_PROTO_DEFINE_BINARY_OPERATOR(OP, TAG, TRAIT, DOMAIN)                                  \
+<span class="lineNum">     217 </span>            :     template&lt;typename Left, typename Right&gt;                                                         \
+<span class="lineNum">     218 </span>            :     BOOST_PROTO_DISABLE_MSVC_C4714 BOOST_FORCEINLINE                                                \
+<span class="lineNum">     219 </span>            :     typename boost::proto::detail::enable_binary&lt;                                                   \
+<span class="lineNum">     220 </span>            :         DOMAIN                                                                                      \
+<span class="lineNum">     221 </span>            :       , DOMAIN::proto_grammar                                                                       \
+<span class="lineNum">     222 </span>            :       , BOOST_PROTO_APPLY_BINARY_(TRAIT, Left, Right)                                               \
+<span class="lineNum">     223 </span>            :       , TAG                                                                                         \
+<span class="lineNum">     224 </span>            :       , Left const &amp;                                                                                \
+<span class="lineNum">     225 </span>            :       , Right const &amp;                                                                               \
+<span class="lineNum">     226 </span>            :     &gt;::type const                                                                                   \
+<span class="lineNum">     227 </span>            :     operator OP(Left &amp;&amp;left, Right &amp;&amp;right)                                                         \
+<span class="lineNum">     228 </span>            :     {                                                                                               \
+<span class="lineNum">     229 </span>            :         return boost::proto::detail::make_expr_&lt;TAG, DOMAIN, Left const &amp;, Right const &amp;&gt;()(left, right);\
+<span class="lineNum">     230 </span>            :     }                                                                                               \
+<span class="lineNum">     231 </span>            :     /**/
+<span class="lineNum">     232 </span>            : 
+<span class="lineNum">     233 </span>            : #endif
+<span class="lineNum">     234 </span>            : 
+<span class="lineNum">     235 </span>            : #define BOOST_PROTO_DEFINE_OPERATORS(TRAIT, DOMAIN)                                                 \
+<span class="lineNum">     236 </span>            :     BOOST_PROTO_DEFINE_UNARY_OPERATOR(+, boost::proto::tag::unary_plus, TRAIT, DOMAIN, 0)           \
+<span class="lineNum">     237 </span>            :     BOOST_PROTO_DEFINE_UNARY_OPERATOR(-, boost::proto::tag::negate, TRAIT, DOMAIN, 0)               \
+<span class="lineNum">     238 </span>            :     BOOST_PROTO_DEFINE_UNARY_OPERATOR(*, boost::proto::tag::dereference, TRAIT, DOMAIN, 0)          \
+<span class="lineNum">     239 </span>            :     BOOST_PROTO_DEFINE_UNARY_OPERATOR(~, boost::proto::tag::complement, TRAIT, DOMAIN, 0)           \
+<span class="lineNum">     240 </span>            :     BOOST_PROTO_DEFINE_UNARY_OPERATOR(&amp;, boost::proto::tag::address_of, TRAIT, DOMAIN, 0)           \
+<span class="lineNum">     241 </span>            :     BOOST_PROTO_DEFINE_UNARY_OPERATOR(!, boost::proto::tag::logical_not, TRAIT, DOMAIN, 0)          \
+<span class="lineNum">     242 </span>            :     BOOST_PROTO_DEFINE_UNARY_OPERATOR(++, boost::proto::tag::pre_inc, TRAIT, DOMAIN, 0)             \
+<span class="lineNum">     243 </span>            :     BOOST_PROTO_DEFINE_UNARY_OPERATOR(--, boost::proto::tag::pre_dec, TRAIT, DOMAIN, 0)             \
+<span class="lineNum">     244 </span>            :     BOOST_PROTO_DEFINE_UNARY_OPERATOR(++, boost::proto::tag::post_inc, TRAIT, DOMAIN, 1)            \
+<span class="lineNum">     245 </span>            :     BOOST_PROTO_DEFINE_UNARY_OPERATOR(--, boost::proto::tag::post_dec, TRAIT, DOMAIN, 1)            \
+<span class="lineNum">     246 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(&lt;&lt;, boost::proto::tag::shift_left, TRAIT, DOMAIN)            \
+<span class="lineNum">     247 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(&gt;&gt;, boost::proto::tag::shift_right, TRAIT, DOMAIN)           \
+<span class="lineNum">     248 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(*, boost::proto::tag::multiplies, TRAIT, DOMAIN)             \
+<span class="lineNum">     249 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(/, boost::proto::tag::divides, TRAIT, DOMAIN)                \
+<span class="lineNum">     250 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(%, boost::proto::tag::modulus, TRAIT, DOMAIN)                \
+<span class="lineNum">     251 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(+, boost::proto::tag::plus, TRAIT, DOMAIN)                   \
+<span class="lineNum">     252 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(-, boost::proto::tag::minus, TRAIT, DOMAIN)                  \
+<span class="lineNum">     253 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(&lt;, boost::proto::tag::less, TRAIT, DOMAIN)                   \
+<span class="lineNum">     254 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(&gt;, boost::proto::tag::greater, TRAIT, DOMAIN)                \
+<span class="lineNum">     255 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(&lt;=, boost::proto::tag::less_equal, TRAIT, DOMAIN)            \
+<span class="lineNum">     256 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(&gt;=, boost::proto::tag::greater_equal, TRAIT, DOMAIN)         \
+<span class="lineNum">     257 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(==, boost::proto::tag::equal_to, TRAIT, DOMAIN)              \
+<span class="lineNum">     258 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(!=, boost::proto::tag::not_equal_to, TRAIT, DOMAIN)          \
+<span class="lineNum">     259 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(||, boost::proto::tag::logical_or, TRAIT, DOMAIN)            \
+<span class="lineNum">     260 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(&amp;&amp;, boost::proto::tag::logical_and, TRAIT, DOMAIN)           \
+<span class="lineNum">     261 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(&amp;, boost::proto::tag::bitwise_and, TRAIT, DOMAIN)            \
+<span class="lineNum">     262 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(|, boost::proto::tag::bitwise_or, TRAIT, DOMAIN)             \
+<span class="lineNum">     263 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(^, boost::proto::tag::bitwise_xor, TRAIT, DOMAIN)            \
+<span class="lineNum">     264 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(BOOST_PP_COMMA(), boost::proto::tag::comma, TRAIT, DOMAIN)   \
+<span class="lineNum">     265 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(-&gt;*, boost::proto::tag::mem_ptr, TRAIT, DOMAIN)              \
+<span class="lineNum">     266 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(&lt;&lt;=, boost::proto::tag::shift_left_assign, TRAIT, DOMAIN)    \
+<span class="lineNum">     267 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(&gt;&gt;=, boost::proto::tag::shift_right_assign, TRAIT, DOMAIN)   \
+<span class="lineNum">     268 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(*=, boost::proto::tag::multiplies_assign, TRAIT, DOMAIN)     \
+<span class="lineNum">     269 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(/=, boost::proto::tag::divides_assign, TRAIT, DOMAIN)        \
+<span class="lineNum">     270 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(%=, boost::proto::tag::modulus_assign, TRAIT, DOMAIN)        \
+<span class="lineNum">     271 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(+=, boost::proto::tag::plus_assign, TRAIT, DOMAIN)           \
+<span class="lineNum">     272 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(-=, boost::proto::tag::minus_assign, TRAIT, DOMAIN)          \
+<span class="lineNum">     273 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(&amp;=, boost::proto::tag::bitwise_and_assign, TRAIT, DOMAIN)    \
+<span class="lineNum">     274 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(|=, boost::proto::tag::bitwise_or_assign, TRAIT, DOMAIN)     \
+<span class="lineNum">     275 </span>            :     BOOST_PROTO_DEFINE_BINARY_OPERATOR(^=, boost::proto::tag::bitwise_xor_assign, TRAIT, DOMAIN)    \
+<span class="lineNum">     276 </span>            :     /**/
+<span class="lineNum">     277 </span>            : 
+<span class="lineNum">     278 </span>            :     // Extensions are a superset of Proto expressions
+<span class="lineNum">     279 </span>            :     template&lt;typename T&gt;
+<span class="lineNum">     280 </span>            :     struct is_extension
+<span class="lineNum">     281 </span>            :       : is_expr&lt;T&gt;
+<span class="lineNum">     282 </span>            :     {};
+<span class="lineNum">     283 </span>            : 
+<span class="lineNum">     284 </span>            :     template&lt;typename T&gt;
+<span class="lineNum">     285 </span>            :     struct is_extension&lt;T &amp;&gt;
+<span class="lineNum">     286 </span>            :       : is_expr&lt;T&gt;
+<span class="lineNum">     287 </span>            :     {};
+<span class="lineNum">     288 </span>            : 
+<span class="lineNum">     289 </span>            :     #define BOOST_PROTO_APPLY_UNARY_(TRAIT, ARG) TRAIT&lt;ARG&gt;
+<span class="lineNum">     290 </span>            :     #define BOOST_PROTO_APPLY_BINARY_(TRAIT, LEFT, RIGHT) boost::mpl::or_&lt;TRAIT&lt;LEFT&gt;, TRAIT&lt;RIGHT&gt; &gt;
+<span class="lineNum">     291 </span>            : 
+<span class="lineNum">     292 </span>            :     namespace exprns_
+<span class="lineNum">     293 </span>            :     {
+<span class="lineNum">     294 </span>            :         // This defines all of Proto's built-in free operator overloads
+<span class="lineNum">     295 </span><span class="lineCov">          2 :         BOOST_PROTO_DEFINE_OPERATORS(is_extension, deduce_domain)</span>
+<span class="lineNum">     296 </span>            : 
+<span class="lineNum">     297 </span>            :         // if_else, for the non-overloadable ternary conditional operator ?:
+<span class="lineNum">     298 </span>            :         template&lt;typename A0, typename A1, typename A2&gt;
+<span class="lineNum">     299 </span>            :         BOOST_FORCEINLINE
+<span class="lineNum">     300 </span>            :         typename result_of::make_expr&lt;
+<span class="lineNum">     301 </span>            :             tag::if_else_
+<span class="lineNum">     302 </span>            :           , deduce_domain
+<span class="lineNum">     303 </span>            :           , A0 const &amp;
+<span class="lineNum">     304 </span>            :           , A1 const &amp;
+<span class="lineNum">     305 </span>            :           , A2 const &amp;
+<span class="lineNum">     306 </span>            :         &gt;::type const
+<span class="lineNum">     307 </span>            :         if_else(A0 const &amp;a0, A1 const &amp;a1, A2 const &amp;a2)
+<span class="lineNum">     308 </span>            :         {
+<span class="lineNum">     309 </span>            :             return proto::detail::make_expr_&lt;
+<span class="lineNum">     310 </span>            :                 tag::if_else_
+<span class="lineNum">     311 </span>            :               , deduce_domain
+<span class="lineNum">     312 </span>            :               , A0 const &amp;
+<span class="lineNum">     313 </span>            :               , A1 const &amp;
+<span class="lineNum">     314 </span>            :               , A2 const &amp;
+<span class="lineNum">     315 </span>            :             &gt;()(a0, a1, a2);
+<span class="lineNum">     316 </span>            :         }
+<span class="lineNum">     317 </span>            :     }
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span>            :     using exprns_::if_else;
+<span class="lineNum">     320 </span>            : 
+<span class="lineNum">     321 </span>            :     #undef BOOST_PROTO_APPLY_UNARY_
+<span class="lineNum">     322 </span>            :     #undef BOOST_PROTO_APPLY_BINARY_
+<span class="lineNum">     323 </span>            : 
+<span class="lineNum">     324 </span>            :     // Redefine BOOST_PROTO_APPLY_UNARY_ and BOOST_PROTO_APPLY_BINARY_ so that end users
+<span class="lineNum">     325 </span>            :     // can use BOOST_PROTO_DEFINE_OPERATORS to define Proto operator overloads that work
+<span class="lineNum">     326 </span>            :     // with their own terminal types.
+<span class="lineNum">     327 </span>            : 
+<span class="lineNum">     328 </span>            : #ifdef BOOST_NO_CXX11_RVALUE_REFERENCES
+<span class="lineNum">     329 </span>            : 
+<span class="lineNum">     330 </span>            :     #define BOOST_PROTO_APPLY_UNARY_(TRAIT, ARG)                                                    \
+<span class="lineNum">     331 </span>            :         boost::mpl::and_&lt;                                                                           \
+<span class="lineNum">     332 </span>            :             TRAIT&lt;ARG&gt;                                                                              \
+<span class="lineNum">     333 </span>            :           , boost::mpl::not_&lt;boost::proto::is_extension&lt;ARG&gt; &gt;                                      \
+<span class="lineNum">     334 </span>            :         &gt;                                                                                           \
+<span class="lineNum">     335 </span>            :         /**/
+<span class="lineNum">     336 </span>            : 
+<span class="lineNum">     337 </span>            :     #define BOOST_PROTO_APPLY_BINARY_(TRAIT, LEFT, RIGHT)                                           \
+<span class="lineNum">     338 </span>            :         boost::mpl::and_&lt;                                                                           \
+<span class="lineNum">     339 </span>            :             boost::mpl::or_&lt;TRAIT&lt;LEFT&gt;, TRAIT&lt;RIGHT&gt; &gt;                                             \
+<span class="lineNum">     340 </span>            :           , boost::mpl::not_&lt;                                                                       \
+<span class="lineNum">     341 </span>            :                 boost::mpl::or_&lt;                                                                    \
+<span class="lineNum">     342 </span>            :                     boost::proto::is_extension&lt;LEFT&gt;                                                \
+<span class="lineNum">     343 </span>            :                   , boost::proto::is_extension&lt;RIGHT&gt;                                               \
+<span class="lineNum">     344 </span>            :                 &gt;                                                                                   \
+<span class="lineNum">     345 </span>            :             &gt;                                                                                       \
+<span class="lineNum">     346 </span>            :         &gt;                                                                                           \
+<span class="lineNum">     347 </span>            :         /**/
+<span class="lineNum">     348 </span>            : 
+<span class="lineNum">     349 </span>            : #else
+<span class="lineNum">     350 </span>            : 
+<span class="lineNum">     351 </span>            :     #define BOOST_PROTO_APPLY_UNARY_(TRAIT, ARG)                                                    \
+<span class="lineNum">     352 </span>            :         boost::mpl::and_&lt;                                                                           \
+<span class="lineNum">     353 </span>            :             TRAIT&lt;BOOST_PROTO_UNCVREF(ARG) &gt;                                                        \
+<span class="lineNum">     354 </span>            :           , boost::mpl::not_&lt;boost::proto::is_extension&lt;ARG&gt; &gt;                                      \
+<span class="lineNum">     355 </span>            :         &gt;                                                                                           \
+<span class="lineNum">     356 </span>            :         /**/
+<span class="lineNum">     357 </span>            : 
+<span class="lineNum">     358 </span>            :     #define BOOST_PROTO_APPLY_BINARY_(TRAIT, LEFT, RIGHT)                                           \
+<span class="lineNum">     359 </span>            :         boost::mpl::and_&lt;                                                                           \
+<span class="lineNum">     360 </span>            :             boost::mpl::or_&lt;TRAIT&lt;BOOST_PROTO_UNCVREF(LEFT) &gt;, TRAIT&lt;BOOST_PROTO_UNCVREF(RIGHT) &gt; &gt; \
+<span class="lineNum">     361 </span>            :           , boost::mpl::not_&lt;                                                                       \
+<span class="lineNum">     362 </span>            :                 boost::mpl::or_&lt;                                                                    \
+<span class="lineNum">     363 </span>            :                     boost::proto::is_extension&lt;LEFT&gt;                                                \
+<span class="lineNum">     364 </span>            :                   , boost::proto::is_extension&lt;RIGHT&gt;                                               \
+<span class="lineNum">     365 </span>            :                 &gt;                                                                                   \
+<span class="lineNum">     366 </span>            :             &gt;                                                                                       \
+<span class="lineNum">     367 </span>            :         &gt;                                                                                           \
+<span class="lineNum">     368 </span>            :         /**/
+<span class="lineNum">     369 </span>            : 
+<span class="lineNum">     370 </span>            : #endif
+<span class="lineNum">     371 </span>            : 
+<span class="lineNum">     372 </span>            : }}
+<span class="lineNum">     373 </span>            : 
+<span class="lineNum">     374 </span>            : #if defined(_MSC_VER)
+<span class="lineNum">     375 </span>            : # pragma warning(pop)
+<span class="lineNum">     376 </span>            : #endif
+<span class="lineNum">     377 </span>            : 
+<span class="lineNum">     378 </span>            : #endif
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

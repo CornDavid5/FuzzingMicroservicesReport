@@ -1,0 +1,823 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - /usr/local/include/thrift/transport/TBufferTransports.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">usr/local/include/thrift/transport</a> - TBufferTransports.h<span style="font-size: 80%;"> (source / <a href="TBufferTransports.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">49</td>
+            <td class="headerCovTableEntry">57</td>
+            <td class="headerCovTableEntryMed">86.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 03:45:59</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntryMed">75.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * Licensed to the Apache Software Foundation (ASF) under one
+<span class="lineNum">       3 </span>            :  * or more contributor license agreements. See the NOTICE file
+<span class="lineNum">       4 </span>            :  * distributed with this work for additional information
+<span class="lineNum">       5 </span>            :  * regarding copyright ownership. The ASF licenses this file
+<span class="lineNum">       6 </span>            :  * to you under the Apache License, Version 2.0 (the
+<span class="lineNum">       7 </span>            :  * &quot;License&quot;); you may not use this file except in compliance
+<span class="lineNum">       8 </span>            :  * with the License. You may obtain a copy of the License at
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *   http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * Unless required by applicable law or agreed to in writing,
+<span class="lineNum">      13 </span>            :  * software distributed under the License is distributed on an
+<span class="lineNum">      14 </span>            :  * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+<span class="lineNum">      15 </span>            :  * KIND, either express or implied. See the License for the
+<span class="lineNum">      16 </span>            :  * specific language governing permissions and limitations
+<span class="lineNum">      17 </span>            :  * under the License.
+<span class="lineNum">      18 </span>            :  */
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #ifndef _THRIFT_TRANSPORT_TBUFFERTRANSPORTS_H_
+<span class="lineNum">      21 </span>            : #define _THRIFT_TRANSPORT_TBUFFERTRANSPORTS_H_ 1
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : #include &lt;cstdlib&gt;
+<span class="lineNum">      24 </span>            : #include &lt;cstring&gt;
+<span class="lineNum">      25 </span>            : #include &lt;limits&gt;
+<span class="lineNum">      26 </span>            : #include &lt;boost/scoped_array.hpp&gt;
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : #include &lt;thrift/transport/TTransport.h&gt;
+<span class="lineNum">      29 </span>            : #include &lt;thrift/transport/TVirtualTransport.h&gt;
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : #ifdef __GNUC__
+<span class="lineNum">      32 </span>            : #define TDB_LIKELY(val) (__builtin_expect((val), 1))
+<span class="lineNum">      33 </span>            : #define TDB_UNLIKELY(val) (__builtin_expect((val), 0))
+<span class="lineNum">      34 </span>            : #else
+<span class="lineNum">      35 </span>            : #define TDB_LIKELY(val) (val)
+<span class="lineNum">      36 </span>            : #define TDB_UNLIKELY(val) (val)
+<span class="lineNum">      37 </span>            : #endif
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : namespace apache {
+<span class="lineNum">      40 </span>            : namespace thrift {
+<span class="lineNum">      41 </span>            : namespace transport {
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : /**
+<span class="lineNum">      44 </span>            :  * Base class for all transports that use read/write buffers for performance.
+<span class="lineNum">      45 </span>            :  *
+<span class="lineNum">      46 </span>            :  * TBufferBase is designed to implement the fast-path &quot;memcpy&quot; style
+<span class="lineNum">      47 </span>            :  * operations that work in the common case.  It does so with small and
+<span class="lineNum">      48 </span>            :  * (eventually) nonvirtual, inlinable methods.  TBufferBase is an abstract
+<span class="lineNum">      49 </span>            :  * class.  Subclasses are expected to define the &quot;slow path&quot; operations
+<span class="lineNum">      50 </span>            :  * that have to be done when the buffers are full or empty.
+<span class="lineNum">      51 </span>            :  *
+<span class="lineNum">      52 </span>            :  */
+<span class="lineNum">      53 </span>            : class TBufferBase : public TVirtualTransport&lt;TBufferBase&gt; {
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            : public:
+<span class="lineNum">      56 </span>            :   /**
+<span class="lineNum">      57 </span>            :    * Fast-path read.
+<span class="lineNum">      58 </span>            :    *
+<span class="lineNum">      59 </span>            :    * When we have enough data buffered to fulfill the read, we can satisfy it
+<span class="lineNum">      60 </span>            :    * with a single memcpy, then adjust our internal pointers.  If the buffer
+<span class="lineNum">      61 </span>            :    * is empty, we call out to our slow path, implemented by a subclass.
+<a name="62"><span class="lineNum">      62 </span>            :    * This method is meant to eventually be nonvirtual and inlinable.</a>
+<span class="lineNum">      63 </span>            :    */
+<span class="lineNum">      64 </span><span class="lineCov">         22 :   uint32_t read(uint8_t* buf, uint32_t len) {</span>
+<span class="lineNum">      65 </span><span class="lineCov">         22 :     uint8_t* new_rBase = rBase_ + len;</span>
+<span class="lineNum">      66 </span><span class="lineCov">         22 :     if (TDB_LIKELY(new_rBase &lt;= rBound_)) {</span>
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :       std::memcpy(buf, rBase_, len);</span>
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 :       rBase_ = new_rBase;</span>
+<span class="lineNum">      69 </span><span class="lineNoCov">          0 :       return len;</span>
+<span class="lineNum">      70 </span>            :     }
+<span class="lineNum">      71 </span><span class="lineCov">         22 :     return readSlow(buf, len);</span>
+<span class="lineNum">      72 </span>            :   }
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span>            :   /**
+<a name="75"><span class="lineNum">      75 </span>            :    * Shortcutted version of readAll.</a>
+<span class="lineNum">      76 </span>            :    */
+<span class="lineNum">      77 </span><span class="lineCov">        198 :   uint32_t readAll(uint8_t* buf, uint32_t len) {</span>
+<span class="lineNum">      78 </span><span class="lineCov">        198 :     uint8_t* new_rBase = rBase_ + len;</span>
+<span class="lineNum">      79 </span><span class="lineCov">        198 :     if (TDB_LIKELY(new_rBase &lt;= rBound_)) {</span>
+<span class="lineNum">      80 </span><span class="lineCov">        176 :       std::memcpy(buf, rBase_, len);</span>
+<span class="lineNum">      81 </span><span class="lineCov">        176 :       rBase_ = new_rBase;</span>
+<span class="lineNum">      82 </span><span class="lineCov">        176 :       return len;</span>
+<span class="lineNum">      83 </span>            :     }
+<span class="lineNum">      84 </span><span class="lineCov">         22 :     return apache::thrift::transport::readAll(*this, buf, len);</span>
+<span class="lineNum">      85 </span>            :   }
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span>            :   /**
+<span class="lineNum">      88 </span>            :    * Fast-path write.
+<span class="lineNum">      89 </span>            :    *
+<span class="lineNum">      90 </span>            :    * When we have enough empty space in our buffer to accommodate the write, we
+<span class="lineNum">      91 </span>            :    * can satisfy it with a single memcpy, then adjust our internal pointers.
+<span class="lineNum">      92 </span>            :    * If the buffer is full, we call out to our slow path, implemented by a
+<span class="lineNum">      93 </span>            :    * subclass.  This method is meant to eventually be nonvirtual and
+<a name="94"><span class="lineNum">      94 </span>            :    * inlinable.</a>
+<span class="lineNum">      95 </span>            :    */
+<span class="lineNum">      96 </span><span class="lineCov">        116 :   void write(const uint8_t* buf, uint32_t len) {</span>
+<span class="lineNum">      97 </span><span class="lineCov">        116 :     uint8_t* new_wBase = wBase_ + len;</span>
+<span class="lineNum">      98 </span><span class="lineCov">        116 :     if (TDB_LIKELY(new_wBase &lt;= wBound_)) {</span>
+<span class="lineNum">      99 </span><span class="lineCov">        116 :       std::memcpy(wBase_, buf, len);</span>
+<span class="lineNum">     100 </span><span class="lineCov">        116 :       wBase_ = new_wBase;</span>
+<span class="lineNum">     101 </span><span class="lineCov">        116 :       return;</span>
+<span class="lineNum">     102 </span>            :     }
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :     writeSlow(buf, len);</span>
+<span class="lineNum">     104 </span>            :   }
+<span class="lineNum">     105 </span>            : 
+<span class="lineNum">     106 </span>            :   /**
+<a name="107"><span class="lineNum">     107 </span>            :    * Fast-path borrow.  A lot like the fast-path read.</a>
+<span class="lineNum">     108 </span>            :    */
+<span class="lineNum">     109 </span><span class="lineCov">         20 :   const uint8_t* borrow(uint8_t* buf, uint32_t* len) {</span>
+<span class="lineNum">     110 </span><span class="lineCov">         20 :     if (TDB_LIKELY(static_cast&lt;ptrdiff_t&gt;(*len) &lt;= rBound_ - rBase_)) {</span>
+<span class="lineNum">     111 </span>            :       // With strict aliasing, writing to len shouldn't force us to
+<span class="lineNum">     112 </span>            :       // refetch rBase_ from memory.  TODO(dreiss): Verify this.
+<span class="lineNum">     113 </span><span class="lineCov">         20 :       *len = static_cast&lt;uint32_t&gt;(rBound_ - rBase_);</span>
+<span class="lineNum">     114 </span><span class="lineCov">         20 :       return rBase_;</span>
+<span class="lineNum">     115 </span>            :     }
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :     return borrowSlow(buf, len);</span>
+<span class="lineNum">     117 </span>            :   }
+<span class="lineNum">     118 </span>            : 
+<span class="lineNum">     119 </span>            :   /**
+<a name="120"><span class="lineNum">     120 </span>            :    * Consume doesn't require a slow path.</a>
+<span class="lineNum">     121 </span>            :    */
+<span class="lineNum">     122 </span><span class="lineCov">         20 :   void consume(uint32_t len) {</span>
+<span class="lineNum">     123 </span><span class="lineCov">         20 :     if (TDB_LIKELY(static_cast&lt;ptrdiff_t&gt;(len) &lt;= rBound_ - rBase_)) {</span>
+<span class="lineNum">     124 </span><span class="lineCov">         20 :       rBase_ += len;</span>
+<span class="lineNum">     125 </span>            :     } else {
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :       throw TTransportException(TTransportException::BAD_ARGS, &quot;consume did not follow a borrow.&quot;);</span>
+<span class="lineNum">     127 </span>            :     }
+<span class="lineNum">     128 </span><span class="lineCov">         20 :   }</span>
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span>            : protected:
+<span class="lineNum">     131 </span>            :   /// Slow path read.
+<span class="lineNum">     132 </span>            :   virtual uint32_t readSlow(uint8_t* buf, uint32_t len) = 0;
+<span class="lineNum">     133 </span>            : 
+<span class="lineNum">     134 </span>            :   /// Slow path write.
+<span class="lineNum">     135 </span>            :   virtual void writeSlow(const uint8_t* buf, uint32_t len) = 0;
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span>            :   /**
+<span class="lineNum">     138 </span>            :    * Slow path borrow.
+<span class="lineNum">     139 </span>            :    *
+<span class="lineNum">     140 </span>            :    * POSTCONDITION: return == NULL || rBound_ - rBase_ &gt;= *len
+<span class="lineNum">     141 </span>            :    */
+<span class="lineNum">     142 </span>            :   virtual const uint8_t* borrowSlow(uint8_t* buf, uint32_t* len) = 0;
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span>            :   /**
+<span class="lineNum">     145 </span>            :    * Trivial constructor.
+<span class="lineNum">     146 </span>            :    *
+<span class="lineNum">     147 </span>            :    * Initialize pointers safely.  Constructing is not a very
+<span class="lineNum">     148 </span>            :    * performance-sensitive operation, so it is okay to just leave it to
+<a name="149"><span class="lineNum">     149 </span>            :    * the concrete class to set up pointers correctly.</a>
+<span class="lineNum">     150 </span>            :    */
+<span class="lineNum">     151 </span><span class="lineCov">         20 :   TBufferBase() : rBase_(NULL), rBound_(NULL), wBase_(NULL), wBound_(NULL) {}</span>
+<a name="152"><span class="lineNum">     152 </span>            : </a>
+<span class="lineNum">     153 </span>            :   /// Convenience mutator for setting the read buffer.
+<span class="lineNum">     154 </span><span class="lineCov">         20 :   void setReadBuffer(uint8_t* buf, uint32_t len) {</span>
+<span class="lineNum">     155 </span><span class="lineCov">         20 :     rBase_ = buf;</span>
+<span class="lineNum">     156 </span><span class="lineCov">         20 :     rBound_ = buf + len;</span>
+<span class="lineNum">     157 </span><span class="lineCov">         20 :   }</span>
+<a name="158"><span class="lineNum">     158 </span>            : </a>
+<span class="lineNum">     159 </span>            :   /// Convenience mutator for setting the write buffer.
+<span class="lineNum">     160 </span><span class="lineCov">         20 :   void setWriteBuffer(uint8_t* buf, uint32_t len) {</span>
+<span class="lineNum">     161 </span><span class="lineCov">         20 :     wBase_ = buf;</span>
+<span class="lineNum">     162 </span><span class="lineCov">         20 :     wBound_ = buf + len;</span>
+<a name="163"><span class="lineNum">     163 </span><span class="lineCov">         20 :   }</span></a>
+<span class="lineNum">     164 </span>            : 
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :   virtual ~TBufferBase() {}</span>
+<span class="lineNum">     166 </span>            : 
+<span class="lineNum">     167 </span>            :   /// Reads begin here.
+<span class="lineNum">     168 </span>            :   uint8_t* rBase_;
+<span class="lineNum">     169 </span>            :   /// Reads may extend to just before here.
+<span class="lineNum">     170 </span>            :   uint8_t* rBound_;
+<span class="lineNum">     171 </span>            : 
+<span class="lineNum">     172 </span>            :   /// Writes begin here.
+<span class="lineNum">     173 </span>            :   uint8_t* wBase_;
+<span class="lineNum">     174 </span>            :   /// Writes may extend to just before here.
+<span class="lineNum">     175 </span>            :   uint8_t* wBound_;
+<span class="lineNum">     176 </span>            : };
+<span class="lineNum">     177 </span>            : 
+<span class="lineNum">     178 </span>            : /**
+<span class="lineNum">     179 </span>            :  * Buffered transport. For reads it will read more data than is requested
+<span class="lineNum">     180 </span>            :  * and will serve future data out of a local buffer. For writes, data is
+<span class="lineNum">     181 </span>            :  * stored to an in memory buffer before being written out.
+<span class="lineNum">     182 </span>            :  *
+<span class="lineNum">     183 </span>            :  */
+<span class="lineNum">     184 </span>            : class TBufferedTransport : public TVirtualTransport&lt;TBufferedTransport, TBufferBase&gt; {
+<span class="lineNum">     185 </span>            : public:
+<span class="lineNum">     186 </span>            :   static const int DEFAULT_BUFFER_SIZE = 512;
+<span class="lineNum">     187 </span>            : 
+<span class="lineNum">     188 </span>            :   /// Use default buffer sizes.
+<span class="lineNum">     189 </span>            :   TBufferedTransport(stdcxx::shared_ptr&lt;TTransport&gt; transport)
+<span class="lineNum">     190 </span>            :     : transport_(transport),
+<span class="lineNum">     191 </span>            :       rBufSize_(DEFAULT_BUFFER_SIZE),
+<span class="lineNum">     192 </span>            :       wBufSize_(DEFAULT_BUFFER_SIZE),
+<span class="lineNum">     193 </span>            :       rBuf_(new uint8_t[rBufSize_]),
+<span class="lineNum">     194 </span>            :       wBuf_(new uint8_t[wBufSize_]) {
+<span class="lineNum">     195 </span>            :     initPointers();
+<span class="lineNum">     196 </span>            :   }
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span>            :   /// Use specified buffer sizes.
+<span class="lineNum">     199 </span>            :   TBufferedTransport(stdcxx::shared_ptr&lt;TTransport&gt; transport, uint32_t sz)
+<span class="lineNum">     200 </span>            :     : transport_(transport),
+<span class="lineNum">     201 </span>            :       rBufSize_(sz),
+<span class="lineNum">     202 </span>            :       wBufSize_(sz),
+<span class="lineNum">     203 </span>            :       rBuf_(new uint8_t[rBufSize_]),
+<span class="lineNum">     204 </span>            :       wBuf_(new uint8_t[wBufSize_]) {
+<span class="lineNum">     205 </span>            :     initPointers();
+<span class="lineNum">     206 </span>            :   }
+<span class="lineNum">     207 </span>            : 
+<span class="lineNum">     208 </span>            :   /// Use specified read and write buffer sizes.
+<span class="lineNum">     209 </span>            :   TBufferedTransport(stdcxx::shared_ptr&lt;TTransport&gt; transport, uint32_t rsz, uint32_t wsz)
+<span class="lineNum">     210 </span>            :     : transport_(transport),
+<span class="lineNum">     211 </span>            :       rBufSize_(rsz),
+<span class="lineNum">     212 </span>            :       wBufSize_(wsz),
+<span class="lineNum">     213 </span>            :       rBuf_(new uint8_t[rBufSize_]),
+<span class="lineNum">     214 </span>            :       wBuf_(new uint8_t[wBufSize_]) {
+<span class="lineNum">     215 </span>            :     initPointers();
+<span class="lineNum">     216 </span>            :   }
+<span class="lineNum">     217 </span>            : 
+<span class="lineNum">     218 </span>            :   void open() { transport_-&gt;open(); }
+<span class="lineNum">     219 </span>            : 
+<span class="lineNum">     220 </span>            :   bool isOpen() { return transport_-&gt;isOpen(); }
+<span class="lineNum">     221 </span>            : 
+<span class="lineNum">     222 </span>            :   bool peek() {
+<span class="lineNum">     223 </span>            :     if (rBase_ == rBound_) {
+<span class="lineNum">     224 </span>            :       setReadBuffer(rBuf_.get(), transport_-&gt;read(rBuf_.get(), rBufSize_));
+<span class="lineNum">     225 </span>            :     }
+<span class="lineNum">     226 </span>            :     return (rBound_ &gt; rBase_);
+<span class="lineNum">     227 </span>            :   }
+<span class="lineNum">     228 </span>            : 
+<span class="lineNum">     229 </span>            :   void close() {
+<span class="lineNum">     230 </span>            :     flush();
+<span class="lineNum">     231 </span>            :     transport_-&gt;close();
+<span class="lineNum">     232 </span>            :   }
+<span class="lineNum">     233 </span>            : 
+<span class="lineNum">     234 </span>            :   virtual uint32_t readSlow(uint8_t* buf, uint32_t len);
+<span class="lineNum">     235 </span>            : 
+<span class="lineNum">     236 </span>            :   virtual void writeSlow(const uint8_t* buf, uint32_t len);
+<span class="lineNum">     237 </span>            : 
+<span class="lineNum">     238 </span>            :   void flush();
+<span class="lineNum">     239 </span>            : 
+<span class="lineNum">     240 </span>            :   /**
+<span class="lineNum">     241 </span>            :    * Returns the origin of the underlying transport
+<span class="lineNum">     242 </span>            :    */
+<span class="lineNum">     243 </span>            :   virtual const std::string getOrigin() { return transport_-&gt;getOrigin(); }
+<span class="lineNum">     244 </span>            : 
+<span class="lineNum">     245 </span>            :   /**
+<span class="lineNum">     246 </span>            :    * The following behavior is currently implemented by TBufferedTransport,
+<span class="lineNum">     247 </span>            :    * but that may change in a future version:
+<span class="lineNum">     248 </span>            :    * 1/ If len is at most rBufSize_, borrow will never return NULL.
+<span class="lineNum">     249 </span>            :    *    Depending on the underlying transport, it could throw an exception
+<span class="lineNum">     250 </span>            :    *    or hang forever.
+<span class="lineNum">     251 </span>            :    * 2/ Some borrow requests may copy bytes internally.  However,
+<span class="lineNum">     252 </span>            :    *    if len is at most rBufSize_/2, none of the copied bytes
+<span class="lineNum">     253 </span>            :    *    will ever have to be copied again.  For optimial performance,
+<span class="lineNum">     254 </span>            :    *    stay under this limit.
+<span class="lineNum">     255 </span>            :    */
+<span class="lineNum">     256 </span>            :   virtual const uint8_t* borrowSlow(uint8_t* buf, uint32_t* len);
+<span class="lineNum">     257 </span>            : 
+<span class="lineNum">     258 </span>            :   stdcxx::shared_ptr&lt;TTransport&gt; getUnderlyingTransport() { return transport_; }
+<span class="lineNum">     259 </span>            : 
+<span class="lineNum">     260 </span>            :   /*
+<span class="lineNum">     261 </span>            :    * TVirtualTransport provides a default implementation of readAll().
+<span class="lineNum">     262 </span>            :    * We want to use the TBufferBase version instead.
+<span class="lineNum">     263 </span>            :    */
+<span class="lineNum">     264 </span>            :   uint32_t readAll(uint8_t* buf, uint32_t len) { return TBufferBase::readAll(buf, len); }
+<span class="lineNum">     265 </span>            : 
+<span class="lineNum">     266 </span>            : protected:
+<span class="lineNum">     267 </span>            :   void initPointers() {
+<span class="lineNum">     268 </span>            :     setReadBuffer(rBuf_.get(), 0);
+<span class="lineNum">     269 </span>            :     setWriteBuffer(wBuf_.get(), wBufSize_);
+<span class="lineNum">     270 </span>            :     // Write size never changes.
+<span class="lineNum">     271 </span>            :   }
+<span class="lineNum">     272 </span>            : 
+<span class="lineNum">     273 </span>            :   stdcxx::shared_ptr&lt;TTransport&gt; transport_;
+<span class="lineNum">     274 </span>            : 
+<span class="lineNum">     275 </span>            :   uint32_t rBufSize_;
+<span class="lineNum">     276 </span>            :   uint32_t wBufSize_;
+<span class="lineNum">     277 </span>            :   boost::scoped_array&lt;uint8_t&gt; rBuf_;
+<span class="lineNum">     278 </span>            :   boost::scoped_array&lt;uint8_t&gt; wBuf_;
+<span class="lineNum">     279 </span>            : };
+<span class="lineNum">     280 </span>            : 
+<span class="lineNum">     281 </span>            : /**
+<span class="lineNum">     282 </span>            :  * Wraps a transport into a buffered one.
+<span class="lineNum">     283 </span>            :  *
+<span class="lineNum">     284 </span>            :  */
+<span class="lineNum">     285 </span>            : class TBufferedTransportFactory : public TTransportFactory {
+<span class="lineNum">     286 </span>            : public:
+<span class="lineNum">     287 </span>            :   TBufferedTransportFactory() {}
+<span class="lineNum">     288 </span>            : 
+<span class="lineNum">     289 </span>            :   virtual ~TBufferedTransportFactory() {}
+<span class="lineNum">     290 </span>            : 
+<span class="lineNum">     291 </span>            :   /**
+<span class="lineNum">     292 </span>            :    * Wraps the transport into a buffered one.
+<span class="lineNum">     293 </span>            :    */
+<span class="lineNum">     294 </span>            :   virtual stdcxx::shared_ptr&lt;TTransport&gt; getTransport(stdcxx::shared_ptr&lt;TTransport&gt; trans) {
+<span class="lineNum">     295 </span>            :     return stdcxx::shared_ptr&lt;TTransport&gt;(new TBufferedTransport(trans));
+<span class="lineNum">     296 </span>            :   }
+<span class="lineNum">     297 </span>            : };
+<span class="lineNum">     298 </span>            : 
+<span class="lineNum">     299 </span>            : /**
+<span class="lineNum">     300 </span>            :  * Framed transport. All writes go into an in-memory buffer until flush is
+<span class="lineNum">     301 </span>            :  * called, at which point the transport writes the length of the entire
+<span class="lineNum">     302 </span>            :  * binary chunk followed by the data payload. This allows the receiver on the
+<span class="lineNum">     303 </span>            :  * other end to always do fixed-length reads.
+<span class="lineNum">     304 </span>            :  *
+<span class="lineNum">     305 </span>            :  */
+<span class="lineNum">     306 </span>            : class TFramedTransport : public TVirtualTransport&lt;TFramedTransport, TBufferBase&gt; {
+<span class="lineNum">     307 </span>            : public:
+<span class="lineNum">     308 </span>            :   static const int DEFAULT_BUFFER_SIZE = 512;
+<span class="lineNum">     309 </span>            :   static const int DEFAULT_MAX_FRAME_SIZE = 256 * 1024 * 1024;
+<span class="lineNum">     310 </span>            : 
+<span class="lineNum">     311 </span>            :   /// Use default buffer sizes.
+<span class="lineNum">     312 </span>            :   TFramedTransport()
+<span class="lineNum">     313 </span>            :     : transport_(),
+<span class="lineNum">     314 </span>            :       rBufSize_(0),
+<span class="lineNum">     315 </span>            :       wBufSize_(DEFAULT_BUFFER_SIZE),
+<span class="lineNum">     316 </span>            :       rBuf_(),
+<span class="lineNum">     317 </span>            :       wBuf_(new uint8_t[wBufSize_]),
+<span class="lineNum">     318 </span>            :       bufReclaimThresh_((std::numeric_limits&lt;uint32_t&gt;::max)()) {
+<span class="lineNum">     319 </span>            :     initPointers();
+<a name="320"><span class="lineNum">     320 </span>            :   }</a>
+<span class="lineNum">     321 </span>            : 
+<span class="lineNum">     322 </span><span class="lineCov">         20 :   TFramedTransport(stdcxx::shared_ptr&lt;TTransport&gt; transport)</span>
+<span class="lineNum">     323 </span>            :     : transport_(transport),
+<span class="lineNum">     324 </span>            :       rBufSize_(0),
+<span class="lineNum">     325 </span>            :       wBufSize_(DEFAULT_BUFFER_SIZE),
+<span class="lineNum">     326 </span>            :       rBuf_(),
+<span class="lineNum">     327 </span><span class="lineCov">         20 :       wBuf_(new uint8_t[wBufSize_]),</span>
+<span class="lineNum">     328 </span><span class="lineCov">         20 :       bufReclaimThresh_((std::numeric_limits&lt;uint32_t&gt;::max)()),</span>
+<span class="lineNum">     329 </span><span class="lineCov">         60 :       maxFrameSize_(DEFAULT_MAX_FRAME_SIZE) {</span>
+<span class="lineNum">     330 </span><span class="lineCov">         20 :     initPointers();</span>
+<span class="lineNum">     331 </span><span class="lineCov">         20 :   }</span>
+<span class="lineNum">     332 </span>            : 
+<span class="lineNum">     333 </span>            :   TFramedTransport(stdcxx::shared_ptr&lt;TTransport&gt; transport,
+<span class="lineNum">     334 </span>            :                    uint32_t sz,
+<span class="lineNum">     335 </span>            :                    uint32_t bufReclaimThresh = (std::numeric_limits&lt;uint32_t&gt;::max)())
+<span class="lineNum">     336 </span>            :     : transport_(transport),
+<span class="lineNum">     337 </span>            :       rBufSize_(0),
+<span class="lineNum">     338 </span>            :       wBufSize_(sz),
+<span class="lineNum">     339 </span>            :       rBuf_(),
+<span class="lineNum">     340 </span>            :       wBuf_(new uint8_t[wBufSize_]),
+<span class="lineNum">     341 </span>            :       bufReclaimThresh_(bufReclaimThresh),
+<span class="lineNum">     342 </span>            :       maxFrameSize_(DEFAULT_MAX_FRAME_SIZE) {
+<span class="lineNum">     343 </span>            :     initPointers();
+<span class="lineNum">     344 </span>            :   }
+<span class="lineNum">     345 </span>            : 
+<span class="lineNum">     346 </span>            :   void open() { transport_-&gt;open(); }
+<span class="lineNum">     347 </span>            : 
+<span class="lineNum">     348 </span>            :   bool isOpen() { return transport_-&gt;isOpen(); }
+<span class="lineNum">     349 </span>            : 
+<span class="lineNum">     350 </span>            :   bool peek() { return (rBase_ &lt; rBound_) || transport_-&gt;peek(); }
+<span class="lineNum">     351 </span>            : 
+<span class="lineNum">     352 </span>            :   void close() {
+<span class="lineNum">     353 </span>            :     flush();
+<span class="lineNum">     354 </span>            :     transport_-&gt;close();
+<span class="lineNum">     355 </span>            :   }
+<span class="lineNum">     356 </span>            : 
+<span class="lineNum">     357 </span>            :   virtual uint32_t readSlow(uint8_t* buf, uint32_t len);
+<span class="lineNum">     358 </span>            : 
+<span class="lineNum">     359 </span>            :   virtual void writeSlow(const uint8_t* buf, uint32_t len);
+<span class="lineNum">     360 </span>            : 
+<span class="lineNum">     361 </span>            :   virtual void flush();
+<span class="lineNum">     362 </span>            : 
+<span class="lineNum">     363 </span>            :   uint32_t readEnd();
+<span class="lineNum">     364 </span>            : 
+<span class="lineNum">     365 </span>            :   uint32_t writeEnd();
+<span class="lineNum">     366 </span>            : 
+<span class="lineNum">     367 </span>            :   const uint8_t* borrowSlow(uint8_t* buf, uint32_t* len);
+<span class="lineNum">     368 </span>            : 
+<span class="lineNum">     369 </span>            :   stdcxx::shared_ptr&lt;TTransport&gt; getUnderlyingTransport() { return transport_; }
+<span class="lineNum">     370 </span>            : 
+<span class="lineNum">     371 </span>            :   /*
+<span class="lineNum">     372 </span>            :    * TVirtualTransport provides a default implementation of readAll().
+<span class="lineNum">     373 </span>            :    * We want to use the TBufferBase version instead.
+<span class="lineNum">     374 </span>            :    */
+<span class="lineNum">     375 </span>            :   using TBufferBase::readAll;
+<span class="lineNum">     376 </span>            : 
+<span class="lineNum">     377 </span>            :   /**
+<span class="lineNum">     378 </span>            :    * Returns the origin of the underlying transport
+<span class="lineNum">     379 </span>            :    */
+<span class="lineNum">     380 </span>            :   virtual const std::string getOrigin() { return transport_-&gt;getOrigin(); }
+<span class="lineNum">     381 </span>            : 
+<span class="lineNum">     382 </span>            :   /**
+<span class="lineNum">     383 </span>            :    * Set the maximum size of the frame at read
+<span class="lineNum">     384 </span>            :    */
+<span class="lineNum">     385 </span>            :   void setMaxFrameSize(uint32_t maxFrameSize) { maxFrameSize_ = maxFrameSize; }
+<span class="lineNum">     386 </span>            : 
+<span class="lineNum">     387 </span>            :   /**
+<span class="lineNum">     388 </span>            :    * Get the maximum size of the frame at read
+<span class="lineNum">     389 </span>            :    */
+<span class="lineNum">     390 </span>            :   uint32_t getMaxFrameSize() { return maxFrameSize_; }
+<span class="lineNum">     391 </span>            : 
+<span class="lineNum">     392 </span>            : protected:
+<span class="lineNum">     393 </span>            :   /**
+<span class="lineNum">     394 </span>            :    * Reads a frame of input from the underlying stream.
+<span class="lineNum">     395 </span>            :    *
+<span class="lineNum">     396 </span>            :    * Returns true if a frame was read successfully, or false on EOF.
+<span class="lineNum">     397 </span>            :    * (Raises a TTransportException if EOF occurs after a partial frame.)
+<span class="lineNum">     398 </span>            :    */
+<a name="399"><span class="lineNum">     399 </span>            :   virtual bool readFrame();</a>
+<span class="lineNum">     400 </span>            : 
+<span class="lineNum">     401 </span><span class="lineCov">         20 :   void initPointers() {</span>
+<span class="lineNum">     402 </span><span class="lineCov">         20 :     setReadBuffer(NULL, 0);</span>
+<span class="lineNum">     403 </span><span class="lineCov">         20 :     setWriteBuffer(wBuf_.get(), wBufSize_);</span>
+<span class="lineNum">     404 </span>            : 
+<span class="lineNum">     405 </span>            :     // Pad the buffer so we can insert the size later.
+<span class="lineNum">     406 </span><span class="lineCov">         20 :     int32_t pad = 0;</span>
+<span class="lineNum">     407 </span><span class="lineCov">         20 :     this-&gt;write((uint8_t*)&amp;pad, sizeof(pad));</span>
+<span class="lineNum">     408 </span><span class="lineCov">         20 :   }</span>
+<span class="lineNum">     409 </span>            : 
+<span class="lineNum">     410 </span>            :   stdcxx::shared_ptr&lt;TTransport&gt; transport_;
+<span class="lineNum">     411 </span>            : 
+<span class="lineNum">     412 </span>            :   uint32_t rBufSize_;
+<span class="lineNum">     413 </span>            :   uint32_t wBufSize_;
+<span class="lineNum">     414 </span>            :   boost::scoped_array&lt;uint8_t&gt; rBuf_;
+<span class="lineNum">     415 </span>            :   boost::scoped_array&lt;uint8_t&gt; wBuf_;
+<span class="lineNum">     416 </span>            :   uint32_t bufReclaimThresh_;
+<span class="lineNum">     417 </span>            :   uint32_t maxFrameSize_;
+<span class="lineNum">     418 </span>            : };
+<span class="lineNum">     419 </span>            : 
+<span class="lineNum">     420 </span>            : /**
+<span class="lineNum">     421 </span>            :  * Wraps a transport into a framed one.
+<span class="lineNum">     422 </span>            :  *
+<span class="lineNum">     423 </span>            :  */
+<a name="424"><span class="lineNum">     424 </span>            : class TFramedTransportFactory : public TTransportFactory {</a>
+<span class="lineNum">     425 </span>            : public:
+<a name="426"><span class="lineNum">     426 </span><span class="lineCov">          2 :   TFramedTransportFactory() {}</span></a>
+<span class="lineNum">     427 </span>            : 
+<span class="lineNum">     428 </span><span class="lineNoCov">          0 :   virtual ~TFramedTransportFactory() {}</span>
+<span class="lineNum">     429 </span>            : 
+<span class="lineNum">     430 </span>            :   /**
+<a name="431"><span class="lineNum">     431 </span>            :    * Wraps the transport into a framed one.</a>
+<span class="lineNum">     432 </span>            :    */
+<span class="lineNum">     433 </span><span class="lineCov">         20 :   virtual stdcxx::shared_ptr&lt;TTransport&gt; getTransport(stdcxx::shared_ptr&lt;TTransport&gt; trans) {</span>
+<span class="lineNum">     434 </span><span class="lineCov">         20 :     return stdcxx::shared_ptr&lt;TTransport&gt;(new TFramedTransport(trans));</span>
+<span class="lineNum">     435 </span>            :   }
+<span class="lineNum">     436 </span>            : };
+<span class="lineNum">     437 </span>            : 
+<span class="lineNum">     438 </span>            : /**
+<span class="lineNum">     439 </span>            :  * A memory buffer is a tranpsort that simply reads from and writes to an
+<span class="lineNum">     440 </span>            :  * in memory buffer. Anytime you call write on it, the data is simply placed
+<span class="lineNum">     441 </span>            :  * into a buffer, and anytime you call read, data is read from that buffer.
+<span class="lineNum">     442 </span>            :  *
+<span class="lineNum">     443 </span>            :  * The buffers are allocated using C constructs malloc,realloc, and the size
+<span class="lineNum">     444 </span>            :  * doubles as necessary.  We've considered using scoped
+<span class="lineNum">     445 </span>            :  *
+<span class="lineNum">     446 </span>            :  */
+<span class="lineNum">     447 </span>            : class TMemoryBuffer : public TVirtualTransport&lt;TMemoryBuffer, TBufferBase&gt; {
+<span class="lineNum">     448 </span>            : private:
+<span class="lineNum">     449 </span>            :   // Common initialization done by all constructors.
+<span class="lineNum">     450 </span>            :   void initCommon(uint8_t* buf, uint32_t size, bool owner, uint32_t wPos) {
+<span class="lineNum">     451 </span>            : 
+<span class="lineNum">     452 </span>            :     maxBufferSize_ = (std::numeric_limits&lt;uint32_t&gt;::max)();
+<span class="lineNum">     453 </span>            : 
+<span class="lineNum">     454 </span>            :     if (buf == NULL &amp;&amp; size != 0) {
+<span class="lineNum">     455 </span>            :       assert(owner);
+<span class="lineNum">     456 </span>            :       buf = (uint8_t*)std::malloc(size);
+<span class="lineNum">     457 </span>            :       if (buf == NULL) {
+<span class="lineNum">     458 </span>            :         throw std::bad_alloc();
+<span class="lineNum">     459 </span>            :       }
+<span class="lineNum">     460 </span>            :     }
+<span class="lineNum">     461 </span>            : 
+<span class="lineNum">     462 </span>            :     buffer_ = buf;
+<span class="lineNum">     463 </span>            :     bufferSize_ = size;
+<span class="lineNum">     464 </span>            : 
+<span class="lineNum">     465 </span>            :     rBase_ = buffer_;
+<span class="lineNum">     466 </span>            :     rBound_ = buffer_ + wPos;
+<span class="lineNum">     467 </span>            :     // TODO(dreiss): Investigate NULL-ing this if !owner.
+<span class="lineNum">     468 </span>            :     wBase_ = buffer_ + wPos;
+<span class="lineNum">     469 </span>            :     wBound_ = buffer_ + bufferSize_;
+<span class="lineNum">     470 </span>            : 
+<span class="lineNum">     471 </span>            :     owner_ = owner;
+<span class="lineNum">     472 </span>            : 
+<span class="lineNum">     473 </span>            :     // rBound_ is really an artifact.  In principle, it should always be
+<span class="lineNum">     474 </span>            :     // equal to wBase_.  We update it in a few places (computeRead, etc.).
+<span class="lineNum">     475 </span>            :   }
+<span class="lineNum">     476 </span>            : 
+<span class="lineNum">     477 </span>            : public:
+<span class="lineNum">     478 </span>            :   static const uint32_t defaultSize = 1024;
+<span class="lineNum">     479 </span>            : 
+<span class="lineNum">     480 </span>            :   /**
+<span class="lineNum">     481 </span>            :    * This enum specifies how a TMemoryBuffer should treat
+<span class="lineNum">     482 </span>            :    * memory passed to it via constructors or resetBuffer.
+<span class="lineNum">     483 </span>            :    *
+<span class="lineNum">     484 </span>            :    * OBSERVE:
+<span class="lineNum">     485 </span>            :    *   TMemoryBuffer will simply store a pointer to the memory.
+<span class="lineNum">     486 </span>            :    *   It is the callers responsibility to ensure that the pointer
+<span class="lineNum">     487 </span>            :    *   remains valid for the lifetime of the TMemoryBuffer,
+<span class="lineNum">     488 </span>            :    *   and that it is properly cleaned up.
+<span class="lineNum">     489 </span>            :    *   Note that no data can be written to observed buffers.
+<span class="lineNum">     490 </span>            :    *
+<span class="lineNum">     491 </span>            :    * COPY:
+<span class="lineNum">     492 </span>            :    *   TMemoryBuffer will make an internal copy of the buffer.
+<span class="lineNum">     493 </span>            :    *   The caller has no responsibilities.
+<span class="lineNum">     494 </span>            :    *
+<span class="lineNum">     495 </span>            :    * TAKE_OWNERSHIP:
+<span class="lineNum">     496 </span>            :    *   TMemoryBuffer will become the &quot;owner&quot; of the buffer,
+<span class="lineNum">     497 </span>            :    *   and will be responsible for freeing it.
+<span class="lineNum">     498 </span>            :    *   The membory must have been allocated with malloc.
+<span class="lineNum">     499 </span>            :    */
+<span class="lineNum">     500 </span>            :   enum MemoryPolicy { OBSERVE = 1, COPY = 2, TAKE_OWNERSHIP = 3 };
+<span class="lineNum">     501 </span>            : 
+<span class="lineNum">     502 </span>            :   /**
+<span class="lineNum">     503 </span>            :    * Construct a TMemoryBuffer with a default-sized buffer,
+<span class="lineNum">     504 </span>            :    * owned by the TMemoryBuffer object.
+<span class="lineNum">     505 </span>            :    */
+<span class="lineNum">     506 </span>            :   TMemoryBuffer() { initCommon(NULL, defaultSize, true, 0); }
+<span class="lineNum">     507 </span>            : 
+<span class="lineNum">     508 </span>            :   /**
+<span class="lineNum">     509 </span>            :    * Construct a TMemoryBuffer with a buffer of a specified size,
+<span class="lineNum">     510 </span>            :    * owned by the TMemoryBuffer object.
+<span class="lineNum">     511 </span>            :    *
+<span class="lineNum">     512 </span>            :    * @param sz  The initial size of the buffer.
+<span class="lineNum">     513 </span>            :    */
+<span class="lineNum">     514 </span>            :   TMemoryBuffer(uint32_t sz) { initCommon(NULL, sz, true, 0); }
+<span class="lineNum">     515 </span>            : 
+<span class="lineNum">     516 </span>            :   /**
+<span class="lineNum">     517 </span>            :    * Construct a TMemoryBuffer with buf as its initial contents.
+<span class="lineNum">     518 </span>            :    *
+<span class="lineNum">     519 </span>            :    * @param buf    The initial contents of the buffer.
+<span class="lineNum">     520 </span>            :    *               Note that, while buf is a non-const pointer,
+<span class="lineNum">     521 </span>            :    *               TMemoryBuffer will not write to it if policy == OBSERVE,
+<span class="lineNum">     522 </span>            :    *               so it is safe to const_cast&lt;uint8_t*&gt;(whatever).
+<span class="lineNum">     523 </span>            :    * @param sz     The size of @c buf.
+<span class="lineNum">     524 </span>            :    * @param policy See @link MemoryPolicy @endlink .
+<span class="lineNum">     525 </span>            :    */
+<span class="lineNum">     526 </span>            :   TMemoryBuffer(uint8_t* buf, uint32_t sz, MemoryPolicy policy = OBSERVE) {
+<span class="lineNum">     527 </span>            :     if (buf == NULL &amp;&amp; sz != 0) {
+<span class="lineNum">     528 </span>            :       throw TTransportException(TTransportException::BAD_ARGS,
+<span class="lineNum">     529 </span>            :                                 &quot;TMemoryBuffer given null buffer with non-zero size.&quot;);
+<span class="lineNum">     530 </span>            :     }
+<span class="lineNum">     531 </span>            : 
+<span class="lineNum">     532 </span>            :     switch (policy) {
+<span class="lineNum">     533 </span>            :     case OBSERVE:
+<span class="lineNum">     534 </span>            :     case TAKE_OWNERSHIP:
+<span class="lineNum">     535 </span>            :       initCommon(buf, sz, policy == TAKE_OWNERSHIP, sz);
+<span class="lineNum">     536 </span>            :       break;
+<span class="lineNum">     537 </span>            :     case COPY:
+<span class="lineNum">     538 </span>            :       initCommon(NULL, sz, true, 0);
+<span class="lineNum">     539 </span>            :       this-&gt;write(buf, sz);
+<span class="lineNum">     540 </span>            :       break;
+<span class="lineNum">     541 </span>            :     default:
+<span class="lineNum">     542 </span>            :       throw TTransportException(TTransportException::BAD_ARGS,
+<span class="lineNum">     543 </span>            :                                 &quot;Invalid MemoryPolicy for TMemoryBuffer&quot;);
+<span class="lineNum">     544 </span>            :     }
+<span class="lineNum">     545 </span>            :   }
+<span class="lineNum">     546 </span>            : 
+<span class="lineNum">     547 </span>            :   ~TMemoryBuffer() {
+<span class="lineNum">     548 </span>            :     if (owner_) {
+<span class="lineNum">     549 </span>            :       std::free(buffer_);
+<span class="lineNum">     550 </span>            :     }
+<span class="lineNum">     551 </span>            :   }
+<span class="lineNum">     552 </span>            : 
+<span class="lineNum">     553 </span>            :   bool isOpen() { return true; }
+<span class="lineNum">     554 </span>            : 
+<span class="lineNum">     555 </span>            :   bool peek() { return (rBase_ &lt; wBase_); }
+<span class="lineNum">     556 </span>            : 
+<span class="lineNum">     557 </span>            :   void open() {}
+<span class="lineNum">     558 </span>            : 
+<span class="lineNum">     559 </span>            :   void close() {}
+<span class="lineNum">     560 </span>            : 
+<span class="lineNum">     561 </span>            :   // TODO(dreiss): Make bufPtr const.
+<span class="lineNum">     562 </span>            :   void getBuffer(uint8_t** bufPtr, uint32_t* sz) {
+<span class="lineNum">     563 </span>            :     *bufPtr = rBase_;
+<span class="lineNum">     564 </span>            :     *sz = static_cast&lt;uint32_t&gt;(wBase_ - rBase_);
+<span class="lineNum">     565 </span>            :   }
+<span class="lineNum">     566 </span>            : 
+<span class="lineNum">     567 </span>            :   std::string getBufferAsString() {
+<span class="lineNum">     568 </span>            :     if (buffer_ == NULL) {
+<span class="lineNum">     569 </span>            :       return &quot;&quot;;
+<span class="lineNum">     570 </span>            :     }
+<span class="lineNum">     571 </span>            :     uint8_t* buf;
+<span class="lineNum">     572 </span>            :     uint32_t sz;
+<span class="lineNum">     573 </span>            :     getBuffer(&amp;buf, &amp;sz);
+<span class="lineNum">     574 </span>            :     return std::string((char*)buf, (std::string::size_type)sz);
+<span class="lineNum">     575 </span>            :   }
+<span class="lineNum">     576 </span>            : 
+<span class="lineNum">     577 </span>            :   void appendBufferToString(std::string&amp; str) {
+<span class="lineNum">     578 </span>            :     if (buffer_ == NULL) {
+<span class="lineNum">     579 </span>            :       return;
+<span class="lineNum">     580 </span>            :     }
+<span class="lineNum">     581 </span>            :     uint8_t* buf;
+<span class="lineNum">     582 </span>            :     uint32_t sz;
+<span class="lineNum">     583 </span>            :     getBuffer(&amp;buf, &amp;sz);
+<span class="lineNum">     584 </span>            :     str.append((char*)buf, sz);
+<span class="lineNum">     585 </span>            :   }
+<span class="lineNum">     586 </span>            : 
+<span class="lineNum">     587 </span>            :   void resetBuffer() {
+<span class="lineNum">     588 </span>            :     rBase_ = buffer_;
+<span class="lineNum">     589 </span>            :     rBound_ = buffer_;
+<span class="lineNum">     590 </span>            :     wBase_ = buffer_;
+<span class="lineNum">     591 </span>            :     // It isn't safe to write into a buffer we don't own.
+<span class="lineNum">     592 </span>            :     if (!owner_) {
+<span class="lineNum">     593 </span>            :       wBound_ = wBase_;
+<span class="lineNum">     594 </span>            :       bufferSize_ = 0;
+<span class="lineNum">     595 </span>            :     }
+<span class="lineNum">     596 </span>            :   }
+<span class="lineNum">     597 </span>            : 
+<span class="lineNum">     598 </span>            :   /// See constructor documentation.
+<span class="lineNum">     599 </span>            :   void resetBuffer(uint8_t* buf, uint32_t sz, MemoryPolicy policy = OBSERVE) {
+<span class="lineNum">     600 </span>            :     // Use a variant of the copy-and-swap trick for assignment operators.
+<span class="lineNum">     601 </span>            :     // This is sub-optimal in terms of performance for two reasons:
+<span class="lineNum">     602 </span>            :     //   1/ The constructing and swapping of the (small) values
+<span class="lineNum">     603 </span>            :     //      in the temporary object takes some time, and is not necessary.
+<span class="lineNum">     604 </span>            :     //   2/ If policy == COPY, we allocate the new buffer before
+<span class="lineNum">     605 </span>            :     //      freeing the old one, precluding the possibility of
+<span class="lineNum">     606 </span>            :     //      reusing that memory.
+<span class="lineNum">     607 </span>            :     // I doubt that either of these problems could be optimized away,
+<span class="lineNum">     608 </span>            :     // but the second is probably no a common case, and the first is minor.
+<span class="lineNum">     609 </span>            :     // I don't expect resetBuffer to be a common operation, so I'm willing to
+<span class="lineNum">     610 </span>            :     // bite the performance bullet to make the method this simple.
+<span class="lineNum">     611 </span>            : 
+<span class="lineNum">     612 </span>            :     // Construct the new buffer.
+<span class="lineNum">     613 </span>            :     TMemoryBuffer new_buffer(buf, sz, policy);
+<span class="lineNum">     614 </span>            :     // Move it into ourself.
+<span class="lineNum">     615 </span>            :     this-&gt;swap(new_buffer);
+<span class="lineNum">     616 </span>            :     // Our old self gets destroyed.
+<span class="lineNum">     617 </span>            :   }
+<span class="lineNum">     618 </span>            : 
+<span class="lineNum">     619 </span>            :   /// See constructor documentation.
+<span class="lineNum">     620 </span>            :   void resetBuffer(uint32_t sz) {
+<span class="lineNum">     621 </span>            :     // Construct the new buffer.
+<span class="lineNum">     622 </span>            :     TMemoryBuffer new_buffer(sz);
+<span class="lineNum">     623 </span>            :     // Move it into ourself.
+<span class="lineNum">     624 </span>            :     this-&gt;swap(new_buffer);
+<span class="lineNum">     625 </span>            :     // Our old self gets destroyed.
+<span class="lineNum">     626 </span>            :   }
+<span class="lineNum">     627 </span>            : 
+<span class="lineNum">     628 </span>            :   std::string readAsString(uint32_t len) {
+<span class="lineNum">     629 </span>            :     std::string str;
+<span class="lineNum">     630 </span>            :     (void)readAppendToString(str, len);
+<span class="lineNum">     631 </span>            :     return str;
+<span class="lineNum">     632 </span>            :   }
+<span class="lineNum">     633 </span>            : 
+<span class="lineNum">     634 </span>            :   uint32_t readAppendToString(std::string&amp; str, uint32_t len);
+<span class="lineNum">     635 </span>            : 
+<span class="lineNum">     636 </span>            :   // return number of bytes read
+<span class="lineNum">     637 </span>            :   uint32_t readEnd() {
+<span class="lineNum">     638 </span>            :     // This cast should be safe, because buffer_'s size is a uint32_t
+<span class="lineNum">     639 </span>            :     uint32_t bytes = static_cast&lt;uint32_t&gt;(rBase_ - buffer_);
+<span class="lineNum">     640 </span>            :     if (rBase_ == wBase_) {
+<span class="lineNum">     641 </span>            :       resetBuffer();
+<span class="lineNum">     642 </span>            :     }
+<span class="lineNum">     643 </span>            :     return bytes;
+<span class="lineNum">     644 </span>            :   }
+<span class="lineNum">     645 </span>            : 
+<span class="lineNum">     646 </span>            :   // Return number of bytes written
+<span class="lineNum">     647 </span>            :   uint32_t writeEnd() {
+<span class="lineNum">     648 </span>            :     // This cast should be safe, because buffer_'s size is a uint32_t
+<span class="lineNum">     649 </span>            :     return static_cast&lt;uint32_t&gt;(wBase_ - buffer_);
+<span class="lineNum">     650 </span>            :   }
+<span class="lineNum">     651 </span>            : 
+<span class="lineNum">     652 </span>            :   uint32_t available_read() const {
+<span class="lineNum">     653 </span>            :     // Remember, wBase_ is the real rBound_.
+<span class="lineNum">     654 </span>            :     return static_cast&lt;uint32_t&gt;(wBase_ - rBase_);
+<span class="lineNum">     655 </span>            :   }
+<span class="lineNum">     656 </span>            : 
+<span class="lineNum">     657 </span>            :   uint32_t available_write() const { return static_cast&lt;uint32_t&gt;(wBound_ - wBase_); }
+<span class="lineNum">     658 </span>            : 
+<span class="lineNum">     659 </span>            :   // Returns a pointer to where the client can write data to append to
+<span class="lineNum">     660 </span>            :   // the TMemoryBuffer, and ensures the buffer is big enough to accommodate a
+<span class="lineNum">     661 </span>            :   // write of the provided length.  The returned pointer is very convenient for
+<span class="lineNum">     662 </span>            :   // passing to read(), recv(), or similar. You must call wroteBytes() as soon
+<span class="lineNum">     663 </span>            :   // as data is written or the buffer will not be aware that data has changed.
+<span class="lineNum">     664 </span>            :   uint8_t* getWritePtr(uint32_t len) {
+<span class="lineNum">     665 </span>            :     ensureCanWrite(len);
+<span class="lineNum">     666 </span>            :     return wBase_;
+<span class="lineNum">     667 </span>            :   }
+<span class="lineNum">     668 </span>            : 
+<span class="lineNum">     669 </span>            :   // Informs the buffer that the client has written 'len' bytes into storage
+<span class="lineNum">     670 </span>            :   // that had been provided by getWritePtr().
+<span class="lineNum">     671 </span>            :   void wroteBytes(uint32_t len);
+<span class="lineNum">     672 </span>            : 
+<span class="lineNum">     673 </span>            :   /*
+<span class="lineNum">     674 </span>            :    * TVirtualTransport provides a default implementation of readAll().
+<span class="lineNum">     675 </span>            :    * We want to use the TBufferBase version instead.
+<span class="lineNum">     676 </span>            :    */
+<span class="lineNum">     677 </span>            :   uint32_t readAll(uint8_t* buf, uint32_t len) { return TBufferBase::readAll(buf, len); }
+<span class="lineNum">     678 </span>            : 
+<span class="lineNum">     679 </span>            :   //! \brief Get the current buffer size
+<span class="lineNum">     680 </span>            :   //! \returns the current buffer size
+<span class="lineNum">     681 </span>            :   uint32_t getBufferSize() const {
+<span class="lineNum">     682 </span>            :     return bufferSize_;
+<span class="lineNum">     683 </span>            :   }
+<span class="lineNum">     684 </span>            : 
+<span class="lineNum">     685 </span>            :   //! \brief Get the current maximum buffer size
+<span class="lineNum">     686 </span>            :   //! \returns the current maximum buffer size
+<span class="lineNum">     687 </span>            :   uint32_t getMaxBufferSize() const {
+<span class="lineNum">     688 </span>            :     return maxBufferSize_;
+<span class="lineNum">     689 </span>            :   }
+<span class="lineNum">     690 </span>            : 
+<span class="lineNum">     691 </span>            :   //! \brief Change the maximum buffer size
+<span class="lineNum">     692 </span>            :   //! \param[in]  maxSize  the new maximum buffer size allowed to grow to
+<span class="lineNum">     693 </span>            :   //! \throws  TTransportException(BAD_ARGS) if maxSize is less than the current buffer size
+<span class="lineNum">     694 </span>            :   void setMaxBufferSize(uint32_t maxSize) {
+<span class="lineNum">     695 </span>            :     if (maxSize &lt; bufferSize_) {
+<span class="lineNum">     696 </span>            :       throw TTransportException(TTransportException::BAD_ARGS,
+<span class="lineNum">     697 </span>            :                                 &quot;Maximum buffer size would be less than current buffer size&quot;);
+<span class="lineNum">     698 </span>            :     }
+<span class="lineNum">     699 </span>            :     maxBufferSize_ = maxSize;
+<span class="lineNum">     700 </span>            :   }
+<span class="lineNum">     701 </span>            : 
+<span class="lineNum">     702 </span>            : protected:
+<span class="lineNum">     703 </span>            :   void swap(TMemoryBuffer&amp; that) {
+<span class="lineNum">     704 </span>            :     using std::swap;
+<span class="lineNum">     705 </span>            :     swap(buffer_, that.buffer_);
+<span class="lineNum">     706 </span>            :     swap(bufferSize_, that.bufferSize_);
+<span class="lineNum">     707 </span>            : 
+<span class="lineNum">     708 </span>            :     swap(rBase_, that.rBase_);
+<span class="lineNum">     709 </span>            :     swap(rBound_, that.rBound_);
+<span class="lineNum">     710 </span>            :     swap(wBase_, that.wBase_);
+<span class="lineNum">     711 </span>            :     swap(wBound_, that.wBound_);
+<span class="lineNum">     712 </span>            : 
+<span class="lineNum">     713 </span>            :     swap(owner_, that.owner_);
+<span class="lineNum">     714 </span>            :   }
+<span class="lineNum">     715 </span>            : 
+<span class="lineNum">     716 </span>            :   // Make sure there's at least 'len' bytes available for writing.
+<span class="lineNum">     717 </span>            :   void ensureCanWrite(uint32_t len);
+<span class="lineNum">     718 </span>            : 
+<span class="lineNum">     719 </span>            :   // Compute the position and available data for reading.
+<span class="lineNum">     720 </span>            :   void computeRead(uint32_t len, uint8_t** out_start, uint32_t* out_give);
+<span class="lineNum">     721 </span>            : 
+<span class="lineNum">     722 </span>            :   uint32_t readSlow(uint8_t* buf, uint32_t len);
+<span class="lineNum">     723 </span>            : 
+<span class="lineNum">     724 </span>            :   void writeSlow(const uint8_t* buf, uint32_t len);
+<span class="lineNum">     725 </span>            : 
+<span class="lineNum">     726 </span>            :   const uint8_t* borrowSlow(uint8_t* buf, uint32_t* len);
+<span class="lineNum">     727 </span>            : 
+<span class="lineNum">     728 </span>            :   // Data buffer
+<span class="lineNum">     729 </span>            :   uint8_t* buffer_;
+<span class="lineNum">     730 </span>            : 
+<span class="lineNum">     731 </span>            :   // Allocated buffer size
+<span class="lineNum">     732 </span>            :   uint32_t bufferSize_;
+<span class="lineNum">     733 </span>            : 
+<span class="lineNum">     734 </span>            :   // Maximum allowed size
+<span class="lineNum">     735 </span>            :   uint32_t maxBufferSize_;
+<span class="lineNum">     736 </span>            : 
+<span class="lineNum">     737 </span>            :   // Is this object the owner of the buffer?
+<span class="lineNum">     738 </span>            :   bool owner_;
+<span class="lineNum">     739 </span>            : 
+<span class="lineNum">     740 </span>            :   // Don't forget to update constrctors, initCommon, and swap if
+<span class="lineNum">     741 </span>            :   // you add new members.
+<span class="lineNum">     742 </span>            : };
+<span class="lineNum">     743 </span>            : }
+<span class="lineNum">     744 </span>            : }
+<span class="lineNum">     745 </span>            : } // apache::thrift::transport
+<span class="lineNum">     746 </span>            : 
+<span class="lineNum">     747 </span>            : #endif // #ifndef _THRIFT_TRANSPORT_TBUFFERTRANSPORTS_H_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

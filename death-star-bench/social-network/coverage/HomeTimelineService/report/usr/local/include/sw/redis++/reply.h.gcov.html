@@ -1,0 +1,511 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - /usr/local/include/sw/redis++/reply.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">usr/local/include/sw/redis++</a> - reply.h<span style="font-size: 80%;"> (source / <a href="reply.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">23</td>
+            <td class="headerCovTableEntry">27</td>
+            <td class="headerCovTableEntryMed">85.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 03:48:52</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /**************************************************************************</a>
+<span class="lineNum">       2 </span>            :    Copyright (c) 2017 sewenew
+<span class="lineNum">       3 </span>            : 
+<span class="lineNum">       4 </span>            :    Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       5 </span>            :    you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>            :    You may obtain a copy of the License at
+<span class="lineNum">       7 </span>            : 
+<span class="lineNum">       8 </span>            :        http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span>            :    Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>            :    distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>            :    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>            :    See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>            :    limitations under the License.
+<span class="lineNum">      15 </span>            :  *************************************************************************/
+<span class="lineNum">      16 </span>            : 
+<span class="lineNum">      17 </span>            : #ifndef SEWENEW_REDISPLUSPLUS_REPLY_H
+<span class="lineNum">      18 </span>            : #define SEWENEW_REDISPLUSPLUS_REPLY_H
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #include &lt;cassert&gt;
+<span class="lineNum">      21 </span>            : #include &lt;string&gt;
+<span class="lineNum">      22 </span>            : #include &lt;iterator&gt;
+<span class="lineNum">      23 </span>            : #include &lt;memory&gt;
+<span class="lineNum">      24 </span>            : #include &lt;functional&gt;
+<span class="lineNum">      25 </span>            : #include &lt;tuple&gt;
+<span class="lineNum">      26 </span>            : #include &lt;hiredis/hiredis.h&gt;
+<span class="lineNum">      27 </span>            : #include &quot;errors.h&quot;
+<span class="lineNum">      28 </span>            : #include &quot;utils.h&quot;
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : namespace sw {
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : namespace redis {
+<a name="33"><span class="lineNum">      33 </span>            : </a>
+<span class="lineNum">      34 </span>            : struct ReplyDeleter {
+<span class="lineNum">      35 </span><span class="lineCov">         24 :     void operator()(redisReply *reply) const {</span>
+<span class="lineNum">      36 </span><span class="lineCov">         24 :         if (reply != nullptr) {</span>
+<span class="lineNum">      37 </span><span class="lineCov">         24 :             freeReplyObject(reply);</span>
+<span class="lineNum">      38 </span>            :         }
+<span class="lineNum">      39 </span><span class="lineCov">         24 :     }</span>
+<span class="lineNum">      40 </span>            : };
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            : using ReplyUPtr = std::unique_ptr&lt;redisReply, ReplyDeleter&gt;;
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            : namespace reply {
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            : template &lt;typename T&gt;
+<span class="lineNum">      47 </span>            : struct ParseTag {};
+<a name="48"><span class="lineNum">      48 </span>            : </a>
+<span class="lineNum">      49 </span>            : template &lt;typename T&gt;
+<span class="lineNum">      50 </span><span class="lineCov">          4 : inline T parse(redisReply &amp;reply) {</span>
+<span class="lineNum">      51 </span><span class="lineCov">          4 :     return parse(ParseTag&lt;T&gt;(), reply);</span>
+<span class="lineNum">      52 </span>            : }
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span>            : template &lt;typename T&gt;
+<span class="lineNum">      55 </span>            : T parse_leniently(redisReply &amp;reply);
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span>            : void parse(ParseTag&lt;void&gt;, redisReply &amp;reply);
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span>            : std::string parse(ParseTag&lt;std::string&gt;, redisReply &amp;reply);
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span>            : long long parse(ParseTag&lt;long long&gt;, redisReply &amp;reply);
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span>            : double parse(ParseTag&lt;double&gt;, redisReply &amp;reply);
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span>            : bool parse(ParseTag&lt;bool&gt;, redisReply &amp;reply);
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span>            : template &lt;typename T&gt;
+<span class="lineNum">      68 </span>            : Optional&lt;T&gt; parse(ParseTag&lt;Optional&lt;T&gt;&gt;, redisReply &amp;reply);
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span>            : template &lt;typename T, typename U&gt;
+<span class="lineNum">      71 </span>            : std::pair&lt;T, U&gt; parse(ParseTag&lt;std::pair&lt;T, U&gt;&gt;, redisReply &amp;reply);
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span>            : template &lt;typename ...Args&gt;
+<span class="lineNum">      74 </span>            : std::tuple&lt;Args...&gt; parse(ParseTag&lt;std::tuple&lt;Args...&gt;&gt;, redisReply &amp;reply);
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span>            : #ifdef REDIS_PLUS_PLUS_HAS_VARIANT
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span>            : inline Monostate parse(ParseTag&lt;Monostate&gt;, redisReply &amp;) {
+<span class="lineNum">      79 </span>            :     // Just ignore the reply
+<span class="lineNum">      80 </span>            :     return {};
+<span class="lineNum">      81 </span>            : }
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span>            : template &lt;typename ...Args&gt;
+<span class="lineNum">      84 </span>            : Variant&lt;Args...&gt; parse(ParseTag&lt;Variant&lt;Args...&gt;&gt;, redisReply &amp;reply);
+<span class="lineNum">      85 </span>            : 
+<span class="lineNum">      86 </span>            : #endif
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span>            : template &lt;typename T, typename std::enable_if&lt;IsSequenceContainer&lt;T&gt;::value, int&gt;::type = 0&gt;
+<span class="lineNum">      89 </span>            : T parse(ParseTag&lt;T&gt;, redisReply &amp;reply);
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span>            : template &lt;typename T, typename std::enable_if&lt;IsAssociativeContainer&lt;T&gt;::value, int&gt;::type = 0&gt;
+<span class="lineNum">      92 </span>            : T parse(ParseTag&lt;T&gt;, redisReply &amp;reply);
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span>            : template &lt;typename Output&gt;
+<span class="lineNum">      95 </span>            : long long parse_scan_reply(redisReply &amp;reply, Output output);
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span>            : inline bool is_error(redisReply &amp;reply) {
+<span class="lineNum">      98 </span>            :     return reply.type == REDIS_REPLY_ERROR;
+<span class="lineNum">      99 </span>            : }
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span>            : inline bool is_nil(redisReply &amp;reply) {
+<span class="lineNum">     102 </span>            :     return reply.type == REDIS_REPLY_NIL;
+<span class="lineNum">     103 </span>            : }
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span>            : inline bool is_string(redisReply &amp;reply) {
+<span class="lineNum">     106 </span>            :     return reply.type == REDIS_REPLY_STRING;
+<span class="lineNum">     107 </span>            : }
+<span class="lineNum">     108 </span>            : 
+<span class="lineNum">     109 </span>            : inline bool is_status(redisReply &amp;reply) {
+<span class="lineNum">     110 </span>            :     return reply.type == REDIS_REPLY_STATUS;
+<span class="lineNum">     111 </span>            : }
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span>            : inline bool is_integer(redisReply &amp;reply) {
+<span class="lineNum">     114 </span>            :     return reply.type == REDIS_REPLY_INTEGER;
+<a name="115"><span class="lineNum">     115 </span>            : }</a>
+<span class="lineNum">     116 </span>            : 
+<span class="lineNum">     117 </span><span class="lineCov">          8 : inline bool is_array(redisReply &amp;reply) {</span>
+<span class="lineNum">     118 </span><span class="lineCov">          8 :     return reply.type == REDIS_REPLY_ARRAY;</span>
+<span class="lineNum">     119 </span>            : }
+<span class="lineNum">     120 </span>            : 
+<span class="lineNum">     121 </span>            : std::string to_status(redisReply &amp;reply);
+<span class="lineNum">     122 </span>            : 
+<span class="lineNum">     123 </span>            : template &lt;typename Output&gt;
+<span class="lineNum">     124 </span>            : void to_array(redisReply &amp;reply, Output output);
+<span class="lineNum">     125 </span>            : 
+<span class="lineNum">     126 </span>            : // Rewrite set reply to bool type
+<span class="lineNum">     127 </span>            : void rewrite_set_reply(redisReply &amp;reply);
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span>            : // Some command might return an empty array reply as a nil reply,
+<span class="lineNum">     130 </span>            : // e.g. georadius, zpopmin, zpopmax. In this case, we rewrite the
+<span class="lineNum">     131 </span>            : // reply to a nil reply.
+<span class="lineNum">     132 </span>            : void rewrite_empty_array_reply(redisReply &amp;reply);
+<span class="lineNum">     133 </span>            : 
+<span class="lineNum">     134 </span>            : template &lt;typename Output&gt;
+<span class="lineNum">     135 </span>            : auto parse_xpending_reply(redisReply &amp;reply, Output output)
+<span class="lineNum">     136 </span>            :     -&gt; std::tuple&lt;long long, OptionalString, OptionalString&gt;;
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span>            : }
+<span class="lineNum">     139 </span>            : 
+<span class="lineNum">     140 </span>            : // Inline implementations.
+<span class="lineNum">     141 </span>            : 
+<span class="lineNum">     142 </span>            : namespace reply {
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span>            : namespace detail {
+<a name="145"><span class="lineNum">     145 </span>            : </a>
+<span class="lineNum">     146 </span>            : template &lt;typename Output&gt;
+<span class="lineNum">     147 </span><span class="lineCov">          4 : void to_array(redisReply &amp;reply, Output output) {</span>
+<span class="lineNum">     148 </span><span class="lineCov">          4 :     if (!is_array(reply)) {</span>
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :         throw ProtoError(&quot;Expect ARRAY reply&quot;);</span>
+<span class="lineNum">     150 </span>            :     }
+<span class="lineNum">     151 </span>            : 
+<span class="lineNum">     152 </span><span class="lineCov">          4 :     if (reply.element == nullptr) {</span>
+<span class="lineNum">     153 </span>            :         // Empty array.
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :         return;</span>
+<span class="lineNum">     155 </span>            :     }
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span><span class="lineCov">          8 :     for (std::size_t idx = 0; idx != reply.elements; ++idx) {</span>
+<span class="lineNum">     158 </span><span class="lineCov">          4 :         auto *sub_reply = reply.element[idx];</span>
+<span class="lineNum">     159 </span><span class="lineCov">          4 :         if (sub_reply == nullptr) {</span>
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :             throw ProtoError(&quot;Null array element reply&quot;);</span>
+<span class="lineNum">     161 </span>            :         }
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span><span class="lineCov">          4 :         *output = parse&lt;typename IterType&lt;Output&gt;::type&gt;(*sub_reply);</span>
+<span class="lineNum">     164 </span>            : 
+<span class="lineNum">     165 </span><span class="lineCov">          4 :         ++output;</span>
+<span class="lineNum">     166 </span>            :     }
+<span class="lineNum">     167 </span>            : }
+<span class="lineNum">     168 </span>            : 
+<span class="lineNum">     169 </span>            : bool is_flat_array(redisReply &amp;reply);
+<span class="lineNum">     170 </span>            : 
+<span class="lineNum">     171 </span>            : template &lt;typename Output&gt;
+<span class="lineNum">     172 </span>            : void to_flat_array(redisReply &amp;reply, Output output) {
+<span class="lineNum">     173 </span>            :     if (reply.element == nullptr) {
+<span class="lineNum">     174 </span>            :         // Empty array.
+<span class="lineNum">     175 </span>            :         return;
+<span class="lineNum">     176 </span>            :     }
+<span class="lineNum">     177 </span>            : 
+<span class="lineNum">     178 </span>            :     if (reply.elements % 2 != 0) {
+<span class="lineNum">     179 </span>            :         throw ProtoError(&quot;Not string pair array reply&quot;);
+<span class="lineNum">     180 </span>            :     }
+<span class="lineNum">     181 </span>            : 
+<span class="lineNum">     182 </span>            :     for (std::size_t idx = 0; idx != reply.elements; idx += 2) {
+<span class="lineNum">     183 </span>            :         auto *key_reply = reply.element[idx];
+<span class="lineNum">     184 </span>            :         auto *val_reply = reply.element[idx + 1];
+<span class="lineNum">     185 </span>            :         if (key_reply == nullptr || val_reply == nullptr) {
+<span class="lineNum">     186 </span>            :             throw ProtoError(&quot;Null string array reply&quot;);
+<span class="lineNum">     187 </span>            :         }
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span>            :         using Pair = typename IterType&lt;Output&gt;::type;
+<span class="lineNum">     190 </span>            :         using FirstType = typename std::decay&lt;typename Pair::first_type&gt;::type;
+<span class="lineNum">     191 </span>            :         using SecondType = typename std::decay&lt;typename Pair::second_type&gt;::type;
+<span class="lineNum">     192 </span>            :         *output = std::make_pair(parse&lt;FirstType&gt;(*key_reply),
+<span class="lineNum">     193 </span>            :                                     parse&lt;SecondType&gt;(*val_reply));
+<span class="lineNum">     194 </span>            : 
+<span class="lineNum">     195 </span>            :         ++output;
+<span class="lineNum">     196 </span>            :     }
+<span class="lineNum">     197 </span>            : }
+<span class="lineNum">     198 </span>            : 
+<span class="lineNum">     199 </span>            : template &lt;typename Output&gt;
+<span class="lineNum">     200 </span>            : void to_array(std::true_type, redisReply &amp;reply, Output output) {
+<span class="lineNum">     201 </span>            :     if (is_flat_array(reply)) {
+<span class="lineNum">     202 </span>            :         to_flat_array(reply, output);
+<span class="lineNum">     203 </span>            :     } else {
+<span class="lineNum">     204 </span>            :         to_array(reply, output);
+<span class="lineNum">     205 </span>            :     }
+<span class="lineNum">     206 </span>            : }
+<a name="207"><span class="lineNum">     207 </span>            : </a>
+<span class="lineNum">     208 </span>            : template &lt;typename Output&gt;
+<span class="lineNum">     209 </span><span class="lineCov">          4 : void to_array(std::false_type, redisReply &amp;reply, Output output) {</span>
+<span class="lineNum">     210 </span><span class="lineCov">          4 :     to_array(reply, output);</span>
+<span class="lineNum">     211 </span><span class="lineCov">          4 : }</span>
+<span class="lineNum">     212 </span>            : 
+<span class="lineNum">     213 </span>            : template &lt;typename T&gt;
+<span class="lineNum">     214 </span>            : std::tuple&lt;T&gt; parse_tuple(redisReply **reply, std::size_t idx) {
+<span class="lineNum">     215 </span>            :     assert(reply != nullptr);
+<span class="lineNum">     216 </span>            : 
+<span class="lineNum">     217 </span>            :     auto *sub_reply = reply[idx];
+<span class="lineNum">     218 </span>            :     if (sub_reply == nullptr) {
+<span class="lineNum">     219 </span>            :         throw ProtoError(&quot;Null reply&quot;);
+<span class="lineNum">     220 </span>            :     }
+<span class="lineNum">     221 </span>            : 
+<span class="lineNum">     222 </span>            :     return std::make_tuple(parse&lt;T&gt;(*sub_reply));
+<span class="lineNum">     223 </span>            : }
+<span class="lineNum">     224 </span>            : 
+<span class="lineNum">     225 </span>            : template &lt;typename T, typename ...Args&gt;
+<span class="lineNum">     226 </span>            : auto parse_tuple(redisReply **reply, std::size_t idx) -&gt;
+<span class="lineNum">     227 </span>            :     typename std::enable_if&lt;sizeof...(Args) != 0, std::tuple&lt;T, Args...&gt;&gt;::type {
+<span class="lineNum">     228 </span>            :     assert(reply != nullptr);
+<span class="lineNum">     229 </span>            : 
+<span class="lineNum">     230 </span>            :     return std::tuple_cat(parse_tuple&lt;T&gt;(reply, idx),
+<span class="lineNum">     231 </span>            :                             parse_tuple&lt;Args...&gt;(reply, idx + 1));
+<span class="lineNum">     232 </span>            : }
+<span class="lineNum">     233 </span>            : 
+<span class="lineNum">     234 </span>            : #ifdef REDIS_PLUS_PLUS_HAS_VARIANT
+<span class="lineNum">     235 </span>            : 
+<span class="lineNum">     236 </span>            : template &lt;typename T&gt;
+<span class="lineNum">     237 </span>            : Variant&lt;T&gt; parse_variant(redisReply &amp;reply) {
+<span class="lineNum">     238 </span>            :     return parse&lt;T&gt;(reply);
+<span class="lineNum">     239 </span>            : }
+<span class="lineNum">     240 </span>            : 
+<span class="lineNum">     241 </span>            : template &lt;typename T, typename ...Args&gt;
+<span class="lineNum">     242 </span>            : auto parse_variant(redisReply &amp;reply) -&gt;
+<span class="lineNum">     243 </span>            :     typename std::enable_if&lt;sizeof...(Args) != 0, Variant&lt;T, Args...&gt;&gt;::type {
+<span class="lineNum">     244 </span>            :     auto return_var = [](auto &amp;&amp;arg) {
+<span class="lineNum">     245 </span>            :         return Variant&lt;T, Args...&gt;(std::move(arg));
+<span class="lineNum">     246 </span>            :     };
+<span class="lineNum">     247 </span>            : 
+<span class="lineNum">     248 </span>            :     try {
+<span class="lineNum">     249 </span>            :         return std::visit(return_var, parse_variant&lt;T&gt;(reply));
+<span class="lineNum">     250 </span>            :     } catch (const ProtoError &amp;) {
+<span class="lineNum">     251 </span>            :         return std::visit(return_var, parse_variant&lt;Args...&gt;(reply));
+<span class="lineNum">     252 </span>            :     }
+<span class="lineNum">     253 </span>            : }
+<span class="lineNum">     254 </span>            : 
+<span class="lineNum">     255 </span>            : #endif
+<span class="lineNum">     256 </span>            : 
+<span class="lineNum">     257 </span>            : }
+<span class="lineNum">     258 </span>            : 
+<span class="lineNum">     259 </span>            : template &lt;typename T&gt;
+<span class="lineNum">     260 </span>            : T parse_leniently(redisReply &amp;reply) {
+<span class="lineNum">     261 </span>            :     if (is_array(reply) &amp;&amp; reply.elements == 1) {
+<span class="lineNum">     262 </span>            :         if (reply.element == nullptr) {
+<span class="lineNum">     263 </span>            :             throw ProtoError(&quot;null array reply&quot;);
+<span class="lineNum">     264 </span>            :         }
+<span class="lineNum">     265 </span>            : 
+<span class="lineNum">     266 </span>            :         auto *ele = reply.element[0];
+<span class="lineNum">     267 </span>            :         if (ele != nullptr) {
+<span class="lineNum">     268 </span>            :             return parse&lt;T&gt;(*ele);
+<span class="lineNum">     269 </span>            :         } // else fall through
+<span class="lineNum">     270 </span>            :     }
+<span class="lineNum">     271 </span>            : 
+<span class="lineNum">     272 </span>            :     return parse&lt;T&gt;(reply);
+<span class="lineNum">     273 </span>            : }
+<span class="lineNum">     274 </span>            : 
+<span class="lineNum">     275 </span>            : template &lt;typename T&gt;
+<span class="lineNum">     276 </span>            : Optional&lt;T&gt; parse(ParseTag&lt;Optional&lt;T&gt;&gt;, redisReply &amp;reply) {
+<span class="lineNum">     277 </span>            :     if (reply::is_nil(reply)) {
+<span class="lineNum">     278 </span>            :         // Because of a GCC bug, we cannot return {} for -std=c++17
+<span class="lineNum">     279 </span>            :         // Refer to https://gcc.gnu.org/bugzilla/show_bug.cgi?id=86465
+<span class="lineNum">     280 </span>            : #if defined REDIS_PLUS_PLUS_HAS_OPTIONAL
+<span class="lineNum">     281 </span>            :         return std::nullopt;
+<span class="lineNum">     282 </span>            : #else
+<span class="lineNum">     283 </span>            :         return {};
+<span class="lineNum">     284 </span>            : #endif
+<span class="lineNum">     285 </span>            :     }
+<span class="lineNum">     286 </span>            : 
+<span class="lineNum">     287 </span>            :     return Optional&lt;T&gt;(parse&lt;T&gt;(reply));
+<span class="lineNum">     288 </span>            : }
+<span class="lineNum">     289 </span>            : 
+<span class="lineNum">     290 </span>            : template &lt;typename T, typename U&gt;
+<span class="lineNum">     291 </span>            : std::pair&lt;T, U&gt; parse(ParseTag&lt;std::pair&lt;T, U&gt;&gt;, redisReply &amp;reply) {
+<span class="lineNum">     292 </span>            :     if (!is_array(reply)) {
+<span class="lineNum">     293 </span>            :         throw ProtoError(&quot;Expect ARRAY reply&quot;);
+<span class="lineNum">     294 </span>            :     }
+<span class="lineNum">     295 </span>            : 
+<span class="lineNum">     296 </span>            :     if (reply.elements != 2) {
+<span class="lineNum">     297 </span>            :         throw ProtoError(&quot;NOT key-value PAIR reply&quot;);
+<span class="lineNum">     298 </span>            :     }
+<span class="lineNum">     299 </span>            : 
+<span class="lineNum">     300 </span>            :     if (reply.element == nullptr) {
+<span class="lineNum">     301 </span>            :         throw ProtoError(&quot;Null PAIR reply&quot;);
+<span class="lineNum">     302 </span>            :     }
+<span class="lineNum">     303 </span>            : 
+<span class="lineNum">     304 </span>            :     auto *first = reply.element[0];
+<span class="lineNum">     305 </span>            :     auto *second = reply.element[1];
+<span class="lineNum">     306 </span>            :     if (first == nullptr || second == nullptr) {
+<span class="lineNum">     307 </span>            :         throw ProtoError(&quot;Null pair reply&quot;);
+<span class="lineNum">     308 </span>            :     }
+<span class="lineNum">     309 </span>            : 
+<span class="lineNum">     310 </span>            :     return std::make_pair(parse&lt;typename std::decay&lt;T&gt;::type&gt;(*first),
+<span class="lineNum">     311 </span>            :                             parse&lt;typename std::decay&lt;U&gt;::type&gt;(*second));
+<span class="lineNum">     312 </span>            : }
+<span class="lineNum">     313 </span>            : 
+<span class="lineNum">     314 </span>            : template &lt;typename ...Args&gt;
+<span class="lineNum">     315 </span>            : std::tuple&lt;Args...&gt; parse(ParseTag&lt;std::tuple&lt;Args...&gt;&gt;, redisReply &amp;reply) {
+<span class="lineNum">     316 </span>            :     constexpr auto size = sizeof...(Args);
+<span class="lineNum">     317 </span>            : 
+<span class="lineNum">     318 </span>            :     static_assert(size &gt; 0, &quot;DO NOT support parsing tuple with 0 element&quot;);
+<span class="lineNum">     319 </span>            : 
+<span class="lineNum">     320 </span>            :     if (!is_array(reply)) {
+<span class="lineNum">     321 </span>            :         throw ProtoError(&quot;Expect ARRAY reply&quot;);
+<span class="lineNum">     322 </span>            :     }
+<span class="lineNum">     323 </span>            : 
+<span class="lineNum">     324 </span>            :     if (reply.elements != size) {
+<span class="lineNum">     325 </span>            :         throw ProtoError(&quot;Expect tuple reply with &quot; + std::to_string(size) + &quot;elements&quot;);
+<span class="lineNum">     326 </span>            :     }
+<span class="lineNum">     327 </span>            : 
+<span class="lineNum">     328 </span>            :     if (reply.element == nullptr) {
+<span class="lineNum">     329 </span>            :         throw ProtoError(&quot;Null TUPLE reply&quot;);
+<span class="lineNum">     330 </span>            :     }
+<span class="lineNum">     331 </span>            : 
+<span class="lineNum">     332 </span>            :     return detail::parse_tuple&lt;Args...&gt;(reply.element, 0);
+<span class="lineNum">     333 </span>            : }
+<span class="lineNum">     334 </span>            : 
+<span class="lineNum">     335 </span>            : #ifdef REDIS_PLUS_PLUS_HAS_VARIANT
+<span class="lineNum">     336 </span>            : 
+<span class="lineNum">     337 </span>            : template &lt;typename ...Args&gt;
+<span class="lineNum">     338 </span>            : Variant&lt;Args...&gt; parse(ParseTag&lt;Variant&lt;Args...&gt;&gt;, redisReply &amp;reply) {
+<span class="lineNum">     339 </span>            :     return detail::parse_variant&lt;Args...&gt;(reply);
+<span class="lineNum">     340 </span>            : }
+<span class="lineNum">     341 </span>            : 
+<span class="lineNum">     342 </span>            : #endif
+<span class="lineNum">     343 </span>            : 
+<span class="lineNum">     344 </span>            : template &lt;typename T, typename std::enable_if&lt;IsSequenceContainer&lt;T&gt;::value, int&gt;::type&gt;
+<span class="lineNum">     345 </span>            : T parse(ParseTag&lt;T&gt;, redisReply &amp;reply) {
+<span class="lineNum">     346 </span>            :     if (!is_array(reply)) {
+<span class="lineNum">     347 </span>            :         throw ProtoError(&quot;Expect ARRAY reply&quot;);
+<span class="lineNum">     348 </span>            :     }
+<span class="lineNum">     349 </span>            : 
+<span class="lineNum">     350 </span>            :     T container;
+<span class="lineNum">     351 </span>            : 
+<span class="lineNum">     352 </span>            :     to_array(reply, std::back_inserter(container));
+<span class="lineNum">     353 </span>            : 
+<span class="lineNum">     354 </span>            :     return container;
+<span class="lineNum">     355 </span>            : }
+<span class="lineNum">     356 </span>            : 
+<span class="lineNum">     357 </span>            : template &lt;typename T, typename std::enable_if&lt;IsAssociativeContainer&lt;T&gt;::value, int&gt;::type&gt;
+<span class="lineNum">     358 </span>            : T parse(ParseTag&lt;T&gt;, redisReply &amp;reply) {
+<span class="lineNum">     359 </span>            :     if (!is_array(reply)) {
+<span class="lineNum">     360 </span>            :         throw ProtoError(&quot;Expect ARRAY reply&quot;);
+<span class="lineNum">     361 </span>            :     }
+<span class="lineNum">     362 </span>            : 
+<span class="lineNum">     363 </span>            :     T container;
+<span class="lineNum">     364 </span>            : 
+<span class="lineNum">     365 </span>            :     to_array(reply, std::inserter(container, container.end()));
+<span class="lineNum">     366 </span>            : 
+<span class="lineNum">     367 </span>            :     return container;
+<span class="lineNum">     368 </span>            : }
+<span class="lineNum">     369 </span>            : 
+<span class="lineNum">     370 </span>            : template &lt;typename Output&gt;
+<span class="lineNum">     371 </span>            : long long parse_scan_reply(redisReply &amp;reply, Output output) {
+<span class="lineNum">     372 </span>            :     if (reply.elements != 2 || reply.element == nullptr) {
+<span class="lineNum">     373 </span>            :         throw ProtoError(&quot;Invalid scan reply&quot;);
+<span class="lineNum">     374 </span>            :     }
+<span class="lineNum">     375 </span>            : 
+<span class="lineNum">     376 </span>            :     auto *cursor_reply = reply.element[0];
+<span class="lineNum">     377 </span>            :     auto *data_reply = reply.element[1];
+<span class="lineNum">     378 </span>            :     if (cursor_reply == nullptr || data_reply == nullptr) {
+<span class="lineNum">     379 </span>            :         throw ProtoError(&quot;Invalid cursor reply or data reply&quot;);
+<span class="lineNum">     380 </span>            :     }
+<span class="lineNum">     381 </span>            : 
+<span class="lineNum">     382 </span>            :     auto cursor_str = reply::parse&lt;std::string&gt;(*cursor_reply);
+<span class="lineNum">     383 </span>            :     long long new_cursor = 0;
+<span class="lineNum">     384 </span>            :     try {
+<span class="lineNum">     385 </span>            :         new_cursor = std::stoll(cursor_str);
+<span class="lineNum">     386 </span>            :     } catch (const std::exception &amp;e) {
+<span class="lineNum">     387 </span>            :         throw ProtoError(&quot;Invalid cursor reply: &quot; + cursor_str);
+<span class="lineNum">     388 </span>            :     }
+<span class="lineNum">     389 </span>            : 
+<span class="lineNum">     390 </span>            :     reply::to_array(*data_reply, output);
+<span class="lineNum">     391 </span>            : 
+<span class="lineNum">     392 </span>            :     return new_cursor;
+<span class="lineNum">     393 </span>            : }
+<a name="394"><span class="lineNum">     394 </span>            : </a>
+<span class="lineNum">     395 </span>            : template &lt;typename Output&gt;
+<span class="lineNum">     396 </span><span class="lineCov">          4 : void to_array(redisReply &amp;reply, Output output) {</span>
+<span class="lineNum">     397 </span><span class="lineCov">          4 :     if (!is_array(reply)) {</span>
+<span class="lineNum">     398 </span><span class="lineNoCov">          0 :         throw ProtoError(&quot;Expect ARRAY reply&quot;);</span>
+<span class="lineNum">     399 </span>            :     }
+<span class="lineNum">     400 </span>            : 
+<span class="lineNum">     401 </span><span class="lineCov">          4 :     detail::to_array(typename IsKvPairIter&lt;Output&gt;::type(), reply, output);</span>
+<span class="lineNum">     402 </span><span class="lineCov">          4 : }</span>
+<span class="lineNum">     403 </span>            : 
+<span class="lineNum">     404 </span>            : template &lt;typename Output&gt;
+<span class="lineNum">     405 </span>            : auto parse_xpending_reply(redisReply &amp;reply, Output output)
+<span class="lineNum">     406 </span>            :     -&gt; std::tuple&lt;long long, OptionalString, OptionalString&gt; {
+<span class="lineNum">     407 </span>            :     if (!is_array(reply) || reply.elements != 4) {
+<span class="lineNum">     408 </span>            :         throw ProtoError(&quot;expect array reply with 4 elements&quot;);
+<span class="lineNum">     409 </span>            :     }
+<span class="lineNum">     410 </span>            : 
+<span class="lineNum">     411 </span>            :     for (std::size_t idx = 0; idx != reply.elements; ++idx) {
+<span class="lineNum">     412 </span>            :         if (reply.element[idx] == nullptr) {
+<span class="lineNum">     413 </span>            :             throw ProtoError(&quot;null array reply&quot;);
+<span class="lineNum">     414 </span>            :         }
+<span class="lineNum">     415 </span>            :     }
+<span class="lineNum">     416 </span>            : 
+<span class="lineNum">     417 </span>            :     auto num = parse&lt;long long&gt;(*(reply.element[0]));
+<span class="lineNum">     418 </span>            :     auto start = parse&lt;OptionalString&gt;(*(reply.element[1]));
+<span class="lineNum">     419 </span>            :     auto end = parse&lt;OptionalString&gt;(*(reply.element[2]));
+<span class="lineNum">     420 </span>            : 
+<span class="lineNum">     421 </span>            :     auto &amp;entry_reply = *(reply.element[3]);
+<span class="lineNum">     422 </span>            :     if (!is_nil(entry_reply)) {
+<span class="lineNum">     423 </span>            :         to_array(entry_reply, output);
+<span class="lineNum">     424 </span>            :     }
+<span class="lineNum">     425 </span>            : 
+<span class="lineNum">     426 </span>            :     return std::make_tuple(num, std::move(start), std::move(end));
+<span class="lineNum">     427 </span>            : }
+<span class="lineNum">     428 </span>            : 
+<span class="lineNum">     429 </span>            : }
+<span class="lineNum">     430 </span>            : 
+<span class="lineNum">     431 </span>            : }
+<span class="lineNum">     432 </span>            : 
+<span class="lineNum">     433 </span>            : }
+<span class="lineNum">     434 </span>            : 
+<span class="lineNum">     435 </span>            : #endif // end SEWENEW_REDISPLUSPLUS_REPLY_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

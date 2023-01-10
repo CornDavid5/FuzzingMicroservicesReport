@@ -1,0 +1,334 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/log/expressions/keyword.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">boost/log/expressions</a> - keyword.hpp<span style="font-size: 80%;"> (source / <a href="keyword.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 03:44:21</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *          Copyright Andrey Semashev 2007 - 2015.
+<span class="lineNum">       3 </span>            :  * Distributed under the Boost Software License, Version 1.0.
+<span class="lineNum">       4 </span>            :  *    (See accompanying file LICENSE_1_0.txt or copy at
+<span class="lineNum">       5 </span>            :  *          http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       6 </span>            :  */
+<span class="lineNum">       7 </span>            : /*!
+<span class="lineNum">       8 </span>            :  * \file   keyword.hpp
+<span class="lineNum">       9 </span>            :  * \author Andrey Semashev
+<span class="lineNum">      10 </span>            :  * \date   29.01.2012
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * The header contains attribute keyword declaration.
+<span class="lineNum">      13 </span>            :  */
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : #ifndef BOOST_LOG_EXPRESSIONS_KEYWORD_HPP_INCLUDED_
+<span class="lineNum">      16 </span>            : #define BOOST_LOG_EXPRESSIONS_KEYWORD_HPP_INCLUDED_
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #include &lt;boost/ref.hpp&gt;
+<span class="lineNum">      19 </span>            : #include &lt;boost/proto/extends.hpp&gt;
+<span class="lineNum">      20 </span>            : #include &lt;boost/proto/make_expr.hpp&gt;
+<span class="lineNum">      21 </span>            : #include &lt;boost/phoenix/core/actor.hpp&gt;
+<span class="lineNum">      22 </span>            : #include &lt;boost/phoenix/core/domain.hpp&gt;
+<span class="lineNum">      23 </span>            : #include &lt;boost/phoenix/core/environment.hpp&gt;
+<span class="lineNum">      24 </span>            : #include &lt;boost/fusion/sequence/intrinsic/at.hpp&gt;
+<span class="lineNum">      25 </span>            : #include &lt;boost/preprocessor/cat.hpp&gt;
+<span class="lineNum">      26 </span>            : #include &lt;boost/log/detail/config.hpp&gt;
+<span class="lineNum">      27 </span>            : #include &lt;boost/log/detail/custom_terminal_spec.hpp&gt;
+<span class="lineNum">      28 </span>            : #include &lt;boost/log/expressions/keyword_fwd.hpp&gt;
+<span class="lineNum">      29 </span>            : #include &lt;boost/log/expressions/is_keyword_descriptor.hpp&gt;
+<span class="lineNum">      30 </span>            : #include &lt;boost/log/expressions/attr.hpp&gt;
+<span class="lineNum">      31 </span>            : #include &lt;boost/log/attributes/attribute_name.hpp&gt;
+<span class="lineNum">      32 </span>            : #include &lt;boost/log/attributes/value_extraction.hpp&gt;
+<span class="lineNum">      33 </span>            : #include &lt;boost/log/attributes/fallback_policy.hpp&gt;
+<span class="lineNum">      34 </span>            : #include &lt;boost/log/detail/header.hpp&gt;
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            : #ifdef BOOST_HAS_PRAGMA_ONCE
+<span class="lineNum">      37 </span>            : #pragma once
+<span class="lineNum">      38 </span>            : #endif
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span>            : namespace boost {
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            : BOOST_LOG_OPEN_NAMESPACE
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            : namespace expressions {
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            : /*!
+<span class="lineNum">      47 </span>            :  * This class implements an expression template keyword. It is used to start template expressions involving attribute values.
+<span class="lineNum">      48 </span>            :  */
+<span class="lineNum">      49 </span>            : template&lt; typename DescriptorT, template&lt; typename &gt; class ActorT &gt;
+<span class="lineNum">      50 </span>            : struct attribute_keyword
+<span class="lineNum">      51 </span>            : {
+<span class="lineNum">      52 </span>            :     //! Self type
+<span class="lineNum">      53 </span>            :     typedef attribute_keyword this_type;
+<span class="lineNum">      54 </span>            :     //! Attribute descriptor type
+<span class="lineNum">      55 </span>            :     typedef DescriptorT descriptor_type;
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span>            :     BOOST_PROTO_BASIC_EXTENDS(typename proto::terminal&lt; descriptor_type &gt;::type, this_type, phoenix::phoenix_domain)
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span>            :     //! Attribute value type
+<span class="lineNum">      60 </span>            :     typedef typename descriptor_type::value_type value_type;
+<a name="61"><span class="lineNum">      61 </span>            : </a>
+<span class="lineNum">      62 </span>            :     //! Returns attribute name
+<span class="lineNum">      63 </span><span class="lineCov">          1 :     static attribute_name get_name() { return descriptor_type::get_name(); }</span>
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span>            :     //! Expression with cached attribute name
+<span class="lineNum">      66 </span>            :     typedef attribute_actor&lt;
+<span class="lineNum">      67 </span>            :         value_type,
+<span class="lineNum">      68 </span>            :         fallback_to_none,
+<span class="lineNum">      69 </span>            :         descriptor_type,
+<span class="lineNum">      70 </span>            :         ActorT
+<span class="lineNum">      71 </span>            :     &gt; or_none_result_type;
+<a name="72"><span class="lineNum">      72 </span>            : </a>
+<span class="lineNum">      73 </span>            :     //! Generates an expression that extracts the attribute value or a default value
+<span class="lineNum">      74 </span><span class="lineCov">          1 :     static or_none_result_type or_none()</span>
+<span class="lineNum">      75 </span>            :     {
+<span class="lineNum">      76 </span>            :         typedef typename or_none_result_type::terminal_type result_terminal;
+<span class="lineNum">      77 </span><span class="lineCov">          1 :         typename or_none_result_type::base_type act = {{ result_terminal(get_name()) }};</span>
+<span class="lineNum">      78 </span><span class="lineCov">          1 :         return or_none_result_type(act);</span>
+<span class="lineNum">      79 </span>            :     }
+<span class="lineNum">      80 </span>            : 
+<span class="lineNum">      81 </span>            :     //! Expression with cached attribute name
+<span class="lineNum">      82 </span>            :     typedef attribute_actor&lt;
+<span class="lineNum">      83 </span>            :         value_type,
+<span class="lineNum">      84 </span>            :         fallback_to_throw,
+<span class="lineNum">      85 </span>            :         descriptor_type,
+<span class="lineNum">      86 </span>            :         ActorT
+<span class="lineNum">      87 </span>            :     &gt; or_throw_result_type;
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span>            :     //! Generates an expression that extracts the attribute value or throws an exception
+<span class="lineNum">      90 </span>            :     static or_throw_result_type or_throw()
+<span class="lineNum">      91 </span>            :     {
+<span class="lineNum">      92 </span>            :         typedef typename or_throw_result_type::terminal_type result_terminal;
+<span class="lineNum">      93 </span>            :         typename or_throw_result_type::base_type act = {{ result_terminal(get_name()) }};
+<span class="lineNum">      94 </span>            :         return or_throw_result_type(act);
+<span class="lineNum">      95 </span>            :     }
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span>            :     //! Generates an expression that extracts the attribute value or a default value
+<span class="lineNum">      98 </span>            :     template&lt; typename DefaultT &gt;
+<span class="lineNum">      99 </span>            :     static attribute_actor&lt;
+<span class="lineNum">     100 </span>            :         value_type,
+<span class="lineNum">     101 </span>            :         fallback_to_default&lt; DefaultT &gt;,
+<span class="lineNum">     102 </span>            :         descriptor_type,
+<span class="lineNum">     103 </span>            :         ActorT
+<span class="lineNum">     104 </span>            :     &gt; or_default(DefaultT const&amp; def_val)
+<span class="lineNum">     105 </span>            :     {
+<span class="lineNum">     106 </span>            :         typedef attribute_actor&lt;
+<span class="lineNum">     107 </span>            :             value_type,
+<span class="lineNum">     108 </span>            :             fallback_to_default&lt; DefaultT &gt;,
+<span class="lineNum">     109 </span>            :             descriptor_type,
+<span class="lineNum">     110 </span>            :             ActorT
+<span class="lineNum">     111 </span>            :         &gt; or_default_result_type;
+<span class="lineNum">     112 </span>            :         typedef typename or_default_result_type::terminal_type result_terminal;
+<span class="lineNum">     113 </span>            :         typename or_default_result_type::base_type act = {{ result_terminal(get_name(), def_val) }};
+<span class="lineNum">     114 </span>            :         return or_default_result_type(act);
+<span class="lineNum">     115 </span>            :     }
+<span class="lineNum">     116 </span>            : };
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span>            : } // namespace expressions
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span>            : BOOST_LOG_CLOSE_NAMESPACE // namespace log
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span>            : #ifndef BOOST_LOG_DOXYGEN_PASS
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span>            : namespace proto {
+<span class="lineNum">     125 </span>            : 
+<span class="lineNum">     126 </span>            : namespace detail {
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span>            : // This hack is needed in order to cache attribute name into the expression terminal when the template
+<span class="lineNum">     129 </span>            : // expression is constructed. The standard way through a custom domain doesn't work because phoenix::actor
+<span class="lineNum">     130 </span>            : // is bound to phoenix_domain.
+<span class="lineNum">     131 </span>            : template&lt; typename DescriptorT, template&lt; typename &gt; class ActorT, typename DomainT &gt;
+<span class="lineNum">     132 </span>            : struct protoify&lt; boost::log::expressions::attribute_keyword&lt; DescriptorT, ActorT &gt;, DomainT &gt;
+<span class="lineNum">     133 </span>            : {
+<span class="lineNum">     134 </span>            :     typedef boost::log::expressions::attribute_keyword&lt; DescriptorT, ActorT &gt; keyword_type;
+<a name="135"><span class="lineNum">     135 </span>            :     typedef typename keyword_type::or_none_result_type result_type;</a>
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span><span class="lineCov">          1 :     result_type operator() (keyword_type const&amp; keyword) const</span>
+<span class="lineNum">     138 </span>            :     {
+<span class="lineNum">     139 </span><span class="lineCov">          1 :         return keyword.or_none();</span>
+<span class="lineNum">     140 </span>            :     }
+<span class="lineNum">     141 </span>            : };
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span>            : template&lt; typename DescriptorT, template&lt; typename &gt; class ActorT, typename DomainT &gt;
+<span class="lineNum">     144 </span>            : struct protoify&lt; boost::log::expressions::attribute_keyword&lt; DescriptorT, ActorT &gt;&amp;, DomainT &gt; :
+<span class="lineNum">     145 </span>            :     public protoify&lt; boost::log::expressions::attribute_keyword&lt; DescriptorT, ActorT &gt;, DomainT &gt;
+<span class="lineNum">     146 </span>            : {
+<span class="lineNum">     147 </span>            : };
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span>            : template&lt; typename DescriptorT, template&lt; typename &gt; class ActorT, typename DomainT &gt;
+<span class="lineNum">     150 </span>            : struct protoify&lt; boost::log::expressions::attribute_keyword&lt; DescriptorT, ActorT &gt; const&amp;, DomainT &gt; :
+<span class="lineNum">     151 </span>            :     public protoify&lt; boost::log::expressions::attribute_keyword&lt; DescriptorT, ActorT &gt;, DomainT &gt;
+<span class="lineNum">     152 </span>            : {
+<span class="lineNum">     153 </span>            : };
+<span class="lineNum">     154 </span>            : 
+<span class="lineNum">     155 </span>            : template&lt; typename DescriptorT, template&lt; typename &gt; class ActorT, typename DomainT &gt;
+<span class="lineNum">     156 </span>            : struct protoify&lt; boost::reference_wrapper&lt; boost::log::expressions::attribute_keyword&lt; DescriptorT, ActorT &gt; &gt;, DomainT &gt; :
+<span class="lineNum">     157 </span>            :     public protoify&lt; boost::log::expressions::attribute_keyword&lt; DescriptorT, ActorT &gt;, DomainT &gt;
+<span class="lineNum">     158 </span>            : {
+<span class="lineNum">     159 </span>            : };
+<span class="lineNum">     160 </span>            : 
+<span class="lineNum">     161 </span>            : template&lt; typename DescriptorT, template&lt; typename &gt; class ActorT, typename DomainT &gt;
+<span class="lineNum">     162 </span>            : struct protoify&lt; boost::reference_wrapper&lt; boost::log::expressions::attribute_keyword&lt; DescriptorT, ActorT &gt; &gt; const, DomainT &gt; :
+<span class="lineNum">     163 </span>            :     public protoify&lt; boost::log::expressions::attribute_keyword&lt; DescriptorT, ActorT &gt;, DomainT &gt;
+<span class="lineNum">     164 </span>            : {
+<span class="lineNum">     165 </span>            : };
+<span class="lineNum">     166 </span>            : 
+<span class="lineNum">     167 </span>            : template&lt; typename DescriptorT, template&lt; typename &gt; class ActorT, typename DomainT &gt;
+<span class="lineNum">     168 </span>            : struct protoify&lt; boost::reference_wrapper&lt; const boost::log::expressions::attribute_keyword&lt; DescriptorT, ActorT &gt; &gt;, DomainT &gt; :
+<span class="lineNum">     169 </span>            :     public protoify&lt; boost::log::expressions::attribute_keyword&lt; DescriptorT, ActorT &gt;, DomainT &gt;
+<span class="lineNum">     170 </span>            : {
+<span class="lineNum">     171 </span>            : };
+<span class="lineNum">     172 </span>            : 
+<span class="lineNum">     173 </span>            : template&lt; typename DescriptorT, template&lt; typename &gt; class ActorT, typename DomainT &gt;
+<span class="lineNum">     174 </span>            : struct protoify&lt; boost::reference_wrapper&lt; const boost::log::expressions::attribute_keyword&lt; DescriptorT, ActorT &gt; &gt; const, DomainT &gt; :
+<span class="lineNum">     175 </span>            :     public protoify&lt; boost::log::expressions::attribute_keyword&lt; DescriptorT, ActorT &gt;, DomainT &gt;
+<span class="lineNum">     176 </span>            : {
+<span class="lineNum">     177 </span>            : };
+<span class="lineNum">     178 </span>            : 
+<span class="lineNum">     179 </span>            : } // namespace detail
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span>            : } // namespace proto
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span>            : #endif // !defined(BOOST_LOG_DOXYGEN_PASS)
+<span class="lineNum">     184 </span>            : 
+<span class="lineNum">     185 </span>            : } // namespace boost
+<span class="lineNum">     186 </span>            : 
+<span class="lineNum">     187 </span>            : #ifndef BOOST_LOG_DOXYGEN_PASS
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span>            : #define BOOST_LOG_ATTRIBUTE_KEYWORD_TYPE_IMPL(keyword_, name_, value_type_, tag_ns_)\
+<span class="lineNum">     190 </span>            :     namespace tag_ns_\
+<span class="lineNum">     191 </span>            :     {\
+<span class="lineNum">     192 </span>            :         struct keyword_ :\
+<span class="lineNum">     193 </span>            :             public ::boost::log::expressions::keyword_descriptor\
+<span class="lineNum">     194 </span>            :         {\
+<span class="lineNum">     195 </span>            :             typedef value_type_ value_type;\
+<span class="lineNum">     196 </span>            :             static ::boost::log::attribute_name get_name() { return ::boost::log::attribute_name(name_); }\
+<span class="lineNum">     197 </span>            :         };\
+<span class="lineNum">     198 </span>            :     }\
+<span class="lineNum">     199 </span>            :     typedef ::boost::log::expressions::attribute_keyword&lt; tag_ns_::keyword_ &gt; BOOST_PP_CAT(keyword_, _type);
+<span class="lineNum">     200 </span>            : 
+<span class="lineNum">     201 </span>            : #define BOOST_LOG_ATTRIBUTE_KEYWORD_IMPL(keyword_, name_, value_type_, tag_ns_)\
+<span class="lineNum">     202 </span>            :     BOOST_LOG_ATTRIBUTE_KEYWORD_TYPE_IMPL(keyword_, name_, value_type_, tag_ns_)\
+<span class="lineNum">     203 </span>            :     const BOOST_PP_CAT(keyword_, _type) keyword_ = {};
+<span class="lineNum">     204 </span>            : 
+<span class="lineNum">     205 </span>            : #endif // BOOST_LOG_DOXYGEN_PASS
+<span class="lineNum">     206 </span>            : 
+<span class="lineNum">     207 </span>            : /*!
+<span class="lineNum">     208 </span>            :  * \brief The macro declares an attribute keyword type
+<span class="lineNum">     209 </span>            :  *
+<span class="lineNum">     210 </span>            :  * The macro should be used at a namespace scope. It expands into an attribute keyword type definition, including the
+<span class="lineNum">     211 </span>            :  * \c tag namespace and the keyword tag type within which has the following layout:
+<span class="lineNum">     212 </span>            :  *
+<span class="lineNum">     213 </span>            :  * \code
+<span class="lineNum">     214 </span>            :  * namespace tag
+<span class="lineNum">     215 </span>            :  * {
+<span class="lineNum">     216 </span>            :  *   struct keyword_ :
+<span class="lineNum">     217 </span>            :  *     public boost::log::expressions::keyword_descriptor
+<span class="lineNum">     218 </span>            :  *   {
+<span class="lineNum">     219 </span>            :  *     typedef value_type_ value_type;
+<span class="lineNum">     220 </span>            :  *     static boost::log::attribute_name get_name();
+<span class="lineNum">     221 </span>            :  *   };
+<span class="lineNum">     222 </span>            :  * }
+<span class="lineNum">     223 </span>            :  *
+<span class="lineNum">     224 </span>            :  * typedef boost::log::expressions::attribute_keyword&lt; tag::keyword_ &gt; keyword_type;
+<span class="lineNum">     225 </span>            :  * \endcode
+<span class="lineNum">     226 </span>            :  *
+<span class="lineNum">     227 </span>            :  * The \c get_name method returns the attribute name.
+<span class="lineNum">     228 </span>            :  *
+<span class="lineNum">     229 </span>            :  * \note This macro only defines the type of the keyword. To also define the keyword object, use
+<span class="lineNum">     230 </span>            :  *       the \c BOOST_LOG_ATTRIBUTE_KEYWORD macro instead.
+<span class="lineNum">     231 </span>            :  *
+<span class="lineNum">     232 </span>            :  * \param keyword_ Keyword name
+<span class="lineNum">     233 </span>            :  * \param name_ Attribute name string
+<span class="lineNum">     234 </span>            :  * \param value_type_ Attribute value type
+<span class="lineNum">     235 </span>            :  */
+<span class="lineNum">     236 </span>            : #define BOOST_LOG_ATTRIBUTE_KEYWORD_TYPE(keyword_, name_, value_type_)\
+<span class="lineNum">     237 </span>            :     BOOST_LOG_ATTRIBUTE_KEYWORD_TYPE_IMPL(keyword_, name_, value_type_, tag)
+<span class="lineNum">     238 </span>            : 
+<span class="lineNum">     239 </span>            : /*!
+<span class="lineNum">     240 </span>            :  * \brief The macro declares an attribute keyword
+<span class="lineNum">     241 </span>            :  *
+<span class="lineNum">     242 </span>            :  * The macro provides definitions similar to \c BOOST_LOG_ATTRIBUTE_KEYWORD_TYPE and additionally
+<span class="lineNum">     243 </span>            :  * defines the keyword object.
+<span class="lineNum">     244 </span>            :  *
+<span class="lineNum">     245 </span>            :  * \param keyword_ Keyword name
+<span class="lineNum">     246 </span>            :  * \param name_ Attribute name string
+<span class="lineNum">     247 </span>            :  * \param value_type_ Attribute value type
+<span class="lineNum">     248 </span>            :  */
+<span class="lineNum">     249 </span>            : #define BOOST_LOG_ATTRIBUTE_KEYWORD(keyword_, name_, value_type_)\
+<span class="lineNum">     250 </span>            :     BOOST_LOG_ATTRIBUTE_KEYWORD_IMPL(keyword_, name_, value_type_, tag)
+<span class="lineNum">     251 </span>            : 
+<span class="lineNum">     252 </span>            : #include &lt;boost/log/detail/footer.hpp&gt;
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span>            : #if defined(BOOST_LOG_TRIVIAL_HPP_INCLUDED_)
+<span class="lineNum">     255 </span>            : #include &lt;boost/log/detail/trivial_keyword.hpp&gt;
+<span class="lineNum">     256 </span>            : #endif
+<span class="lineNum">     257 </span>            : 
+<span class="lineNum">     258 </span>            : #endif // BOOST_LOG_EXPRESSIONS_KEYWORD_HPP_INCLUDED_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
