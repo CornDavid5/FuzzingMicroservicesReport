@@ -1,0 +1,480 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/thread/pthread/recursive_mutex.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">boost/thread/pthread</a> - recursive_mutex.hpp<span style="font-size: 80%;"> (source / <a href="recursive_mutex.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">28</td>
+            <td class="headerCovTableEntryLo">32.1 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 01:10:20</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryLo">20.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #ifndef BOOST_THREAD_PTHREAD_RECURSIVE_MUTEX_HPP</a>
+<span class="lineNum">       2 </span>            : #define BOOST_THREAD_PTHREAD_RECURSIVE_MUTEX_HPP
+<span class="lineNum">       3 </span>            : // (C) Copyright 2007-8 Anthony Williams
+<span class="lineNum">       4 </span>            : // (C) Copyright 2011-2012 Vicente J. Botet Escriba
+<span class="lineNum">       5 </span>            : // Distributed under the Boost Software License, Version 1.0. (See
+<span class="lineNum">       6 </span>            : // accompanying file LICENSE_1_0.txt or copy at
+<span class="lineNum">       7 </span>            : // http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       8 </span>            : 
+<span class="lineNum">       9 </span>            : #include &lt;pthread.h&gt;
+<span class="lineNum">      10 </span>            : #include &lt;boost/throw_exception.hpp&gt;
+<span class="lineNum">      11 </span>            : #include &lt;boost/thread/exceptions.hpp&gt;
+<span class="lineNum">      12 </span>            : #if defined BOOST_THREAD_PROVIDES_NESTED_LOCKS
+<span class="lineNum">      13 </span>            : #include &lt;boost/thread/lock_types.hpp&gt;
+<span class="lineNum">      14 </span>            : #endif
+<span class="lineNum">      15 </span>            : #include &lt;boost/thread/thread_time.hpp&gt;
+<span class="lineNum">      16 </span>            : #include &lt;boost/assert.hpp&gt;
+<span class="lineNum">      17 </span>            : #ifndef _WIN32
+<span class="lineNum">      18 </span>            : #include &lt;unistd.h&gt;
+<span class="lineNum">      19 </span>            : #endif
+<span class="lineNum">      20 </span>            : #include &lt;boost/date_time/posix_time/conversion.hpp&gt;
+<span class="lineNum">      21 </span>            : #include &lt;errno.h&gt;
+<span class="lineNum">      22 </span>            : #include &lt;boost/thread/pthread/timespec.hpp&gt;
+<span class="lineNum">      23 </span>            : #include &lt;boost/thread/pthread/pthread_mutex_scoped_lock.hpp&gt;
+<span class="lineNum">      24 </span>            : #ifdef BOOST_THREAD_USES_CHRONO
+<span class="lineNum">      25 </span>            : #include &lt;boost/chrono/system_clocks.hpp&gt;
+<span class="lineNum">      26 </span>            : #include &lt;boost/chrono/ceil.hpp&gt;
+<span class="lineNum">      27 </span>            : #endif
+<span class="lineNum">      28 </span>            : #include &lt;boost/thread/detail/delete.hpp&gt;
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : #if (defined _POSIX_TIMEOUTS &amp;&amp; (_POSIX_TIMEOUTS-0)&gt;=200112L) \
+<span class="lineNum">      31 </span>            :  || (defined __ANDROID__ &amp;&amp; defined __ANDROID_API__ &amp;&amp; __ANDROID_API__ &gt;= 21)
+<span class="lineNum">      32 </span>            : #ifndef BOOST_PTHREAD_HAS_TIMEDLOCK
+<span class="lineNum">      33 </span>            : #define BOOST_PTHREAD_HAS_TIMEDLOCK
+<span class="lineNum">      34 </span>            : #endif
+<span class="lineNum">      35 </span>            : #endif
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            : #if  defined BOOST_HAS_PTHREAD_MUTEXATTR_SETTYPE \
+<span class="lineNum">      38 </span>            :  ||  defined __ANDROID__
+<span class="lineNum">      39 </span>            : #define BOOST_THREAD_HAS_PTHREAD_MUTEXATTR_SETTYPE
+<span class="lineNum">      40 </span>            : #endif
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            : #if defined BOOST_THREAD_HAS_PTHREAD_MUTEXATTR_SETTYPE &amp;&amp; defined BOOST_PTHREAD_HAS_TIMEDLOCK
+<span class="lineNum">      43 </span>            : #define BOOST_USE_PTHREAD_RECURSIVE_TIMEDLOCK
+<span class="lineNum">      44 </span>            : #endif
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            : #include &lt;boost/config/abi_prefix.hpp&gt;
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span>            : namespace boost
+<span class="lineNum">      49 </span>            : {
+<span class="lineNum">      50 </span>            :     class recursive_mutex
+<span class="lineNum">      51 </span>            :     {
+<span class="lineNum">      52 </span>            :     private:
+<span class="lineNum">      53 </span>            :         pthread_mutex_t m;
+<span class="lineNum">      54 </span>            : #ifndef BOOST_THREAD_HAS_PTHREAD_MUTEXATTR_SETTYPE
+<span class="lineNum">      55 </span>            :         pthread_cond_t cond;
+<span class="lineNum">      56 </span>            :         bool is_locked;
+<span class="lineNum">      57 </span>            :         pthread_t owner;
+<span class="lineNum">      58 </span>            :         unsigned count;
+<span class="lineNum">      59 </span>            : #endif
+<a name="60"><span class="lineNum">      60 </span>            :     public:</a>
+<span class="lineNum">      61 </span>            :         BOOST_THREAD_NO_COPYABLE(recursive_mutex)
+<span class="lineNum">      62 </span><span class="lineCov">          2 :         recursive_mutex()</span>
+<span class="lineNum">      63 </span>            :         {
+<span class="lineNum">      64 </span>            : #ifdef BOOST_THREAD_HAS_PTHREAD_MUTEXATTR_SETTYPE
+<span class="lineNum">      65 </span>            :             pthread_mutexattr_t attr;
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span><span class="lineCov">          2 :             int const init_attr_res=pthread_mutexattr_init(&amp;attr);</span>
+<span class="lineNum">      68 </span><span class="lineCov">          2 :             if(init_attr_res)</span>
+<span class="lineNum">      69 </span>            :             {
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 :                 boost::throw_exception(thread_resource_error(init_attr_res, &quot;boost:: recursive_mutex constructor failed in pthread_mutexattr_init&quot;));</span>
+<span class="lineNum">      71 </span>            :             }
+<span class="lineNum">      72 </span><span class="lineCov">          2 :             int const set_attr_res=pthread_mutexattr_settype(&amp;attr,PTHREAD_MUTEX_RECURSIVE);</span>
+<span class="lineNum">      73 </span><span class="lineCov">          2 :             if(set_attr_res)</span>
+<span class="lineNum">      74 </span>            :             {
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :                 BOOST_VERIFY(!pthread_mutexattr_destroy(&amp;attr));</span>
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :                 boost::throw_exception(thread_resource_error(set_attr_res, &quot;boost:: recursive_mutex constructor failed in pthread_mutexattr_settype&quot;));</span>
+<span class="lineNum">      77 </span>            :             }
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span><span class="lineCov">          2 :             int const res=pthread_mutex_init(&amp;m,&amp;attr);</span>
+<span class="lineNum">      80 </span><span class="lineCov">          2 :             if(res)</span>
+<span class="lineNum">      81 </span>            :             {
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :                 BOOST_VERIFY(!pthread_mutexattr_destroy(&amp;attr));</span>
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :                 boost::throw_exception(thread_resource_error(res, &quot;boost:: recursive_mutex constructor failed in pthread_mutex_init&quot;));</span>
+<span class="lineNum">      84 </span>            :             }
+<span class="lineNum">      85 </span><span class="lineCov">          2 :             BOOST_VERIFY(!pthread_mutexattr_destroy(&amp;attr));</span>
+<span class="lineNum">      86 </span>            : #else
+<span class="lineNum">      87 </span>            :             int const res=pthread_mutex_init(&amp;m,NULL);
+<span class="lineNum">      88 </span>            :             if(res)
+<span class="lineNum">      89 </span>            :             {
+<span class="lineNum">      90 </span>            :                 boost::throw_exception(thread_resource_error(res, &quot;boost:: recursive_mutex constructor failed in pthread_mutex_init&quot;));
+<span class="lineNum">      91 </span>            :             }
+<span class="lineNum">      92 </span>            :             int const res2=pthread_cond_init(&amp;cond,NULL);
+<span class="lineNum">      93 </span>            :             if(res2)
+<span class="lineNum">      94 </span>            :             {
+<span class="lineNum">      95 </span>            :                 BOOST_VERIFY(!pthread_mutex_destroy(&amp;m));
+<span class="lineNum">      96 </span>            :                 boost::throw_exception(thread_resource_error(res2, &quot;boost:: recursive_mutex constructor failed in pthread_cond_init&quot;));
+<span class="lineNum">      97 </span>            :             }
+<span class="lineNum">      98 </span>            :             is_locked=false;
+<span class="lineNum">      99 </span>            :             count=0;
+<a name="100"><span class="lineNum">     100 </span>            : #endif</a>
+<span class="lineNum">     101 </span><span class="lineCov">          2 :         }</span>
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :         ~recursive_mutex()</span>
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :         {</span>
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :             BOOST_VERIFY(!pthread_mutex_destroy(&amp;m));</span>
+<span class="lineNum">     105 </span>            : #ifndef BOOST_THREAD_HAS_PTHREAD_MUTEXATTR_SETTYPE
+<span class="lineNum">     106 </span>            :             BOOST_VERIFY(!pthread_cond_destroy(&amp;cond));
+<span class="lineNum">     107 </span>            : #endif
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :         }</span>
+<a name="109"><span class="lineNum">     109 </span>            : </a>
+<span class="lineNum">     110 </span>            : #ifdef BOOST_THREAD_HAS_PTHREAD_MUTEXATTR_SETTYPE
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 :         void lock()</span>
+<span class="lineNum">     112 </span>            :         {
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :             BOOST_VERIFY(!pthread_mutex_lock(&amp;m));</span>
+<a name="114"><span class="lineNum">     114 </span><span class="lineNoCov">          0 :         }</span></a>
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :         void unlock()</span>
+<span class="lineNum">     117 </span>            :         {
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :             BOOST_VERIFY(!pthread_mutex_unlock(&amp;m));</span>
+<a name="119"><span class="lineNum">     119 </span><span class="lineNoCov">          0 :         }</span></a>
+<span class="lineNum">     120 </span>            : 
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :         bool try_lock() BOOST_NOEXCEPT</span>
+<span class="lineNum">     122 </span>            :         {
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :             int const res=pthread_mutex_trylock(&amp;m);</span>
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :             BOOST_ASSERT(!res || res==EBUSY);</span>
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :             return !res;</span>
+<span class="lineNum">     126 </span>            :         }
+<span class="lineNum">     127 </span>            : #define BOOST_THREAD_DEFINES_RECURSIVE_MUTEX_NATIVE_HANDLE
+<span class="lineNum">     128 </span>            :         typedef pthread_mutex_t* native_handle_type;
+<span class="lineNum">     129 </span>            :         native_handle_type native_handle()
+<span class="lineNum">     130 </span>            :         {
+<span class="lineNum">     131 </span>            :             return &amp;m;
+<span class="lineNum">     132 </span>            :         }
+<span class="lineNum">     133 </span>            : 
+<span class="lineNum">     134 </span>            : #else
+<span class="lineNum">     135 </span>            :         void lock()
+<span class="lineNum">     136 </span>            :         {
+<span class="lineNum">     137 </span>            :             boost::pthread::pthread_mutex_scoped_lock const local_lock(&amp;m);
+<span class="lineNum">     138 </span>            :             if(is_locked &amp;&amp; pthread_equal(owner,pthread_self()))
+<span class="lineNum">     139 </span>            :             {
+<span class="lineNum">     140 </span>            :                 ++count;
+<span class="lineNum">     141 </span>            :                 return;
+<span class="lineNum">     142 </span>            :             }
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span>            :             while(is_locked)
+<span class="lineNum">     145 </span>            :             {
+<span class="lineNum">     146 </span>            :                 BOOST_VERIFY(!pthread_cond_wait(&amp;cond,&amp;m));
+<span class="lineNum">     147 </span>            :             }
+<span class="lineNum">     148 </span>            :             is_locked=true;
+<span class="lineNum">     149 </span>            :             ++count;
+<span class="lineNum">     150 </span>            :             owner=pthread_self();
+<span class="lineNum">     151 </span>            :         }
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span>            :         void unlock()
+<span class="lineNum">     154 </span>            :         {
+<span class="lineNum">     155 </span>            :             boost::pthread::pthread_mutex_scoped_lock const local_lock(&amp;m);
+<span class="lineNum">     156 </span>            :             if(!--count)
+<span class="lineNum">     157 </span>            :             {
+<span class="lineNum">     158 </span>            :                 is_locked=false;
+<span class="lineNum">     159 </span>            :             }
+<span class="lineNum">     160 </span>            :             BOOST_VERIFY(!pthread_cond_signal(&amp;cond));
+<span class="lineNum">     161 </span>            :         }
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span>            :         bool try_lock()
+<span class="lineNum">     164 </span>            :         {
+<span class="lineNum">     165 </span>            :             boost::pthread::pthread_mutex_scoped_lock const local_lock(&amp;m);
+<span class="lineNum">     166 </span>            :             if(is_locked &amp;&amp; !pthread_equal(owner,pthread_self()))
+<span class="lineNum">     167 </span>            :             {
+<span class="lineNum">     168 </span>            :                 return false;
+<span class="lineNum">     169 </span>            :             }
+<span class="lineNum">     170 </span>            :             is_locked=true;
+<span class="lineNum">     171 </span>            :             ++count;
+<span class="lineNum">     172 </span>            :             owner=pthread_self();
+<span class="lineNum">     173 </span>            :             return true;
+<span class="lineNum">     174 </span>            :         }
+<span class="lineNum">     175 </span>            : 
+<span class="lineNum">     176 </span>            : #endif
+<span class="lineNum">     177 </span>            : 
+<span class="lineNum">     178 </span>            : #if defined BOOST_THREAD_PROVIDES_NESTED_LOCKS
+<span class="lineNum">     179 </span>            :         typedef unique_lock&lt;recursive_mutex&gt; scoped_lock;
+<span class="lineNum">     180 </span>            :         typedef detail::try_lock_wrapper&lt;recursive_mutex&gt; scoped_try_lock;
+<span class="lineNum">     181 </span>            : #endif
+<span class="lineNum">     182 </span>            :     };
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span>            :     typedef recursive_mutex recursive_try_mutex;
+<span class="lineNum">     185 </span>            : 
+<span class="lineNum">     186 </span>            :     class recursive_timed_mutex
+<span class="lineNum">     187 </span>            :     {
+<span class="lineNum">     188 </span>            :     private:
+<span class="lineNum">     189 </span>            :         pthread_mutex_t m;
+<span class="lineNum">     190 </span>            : #ifndef BOOST_USE_PTHREAD_RECURSIVE_TIMEDLOCK
+<span class="lineNum">     191 </span>            :         pthread_cond_t cond;
+<span class="lineNum">     192 </span>            :         bool is_locked;
+<span class="lineNum">     193 </span>            :         pthread_t owner;
+<span class="lineNum">     194 </span>            :         unsigned count;
+<span class="lineNum">     195 </span>            : #endif
+<span class="lineNum">     196 </span>            :     public:
+<span class="lineNum">     197 </span>            :         BOOST_THREAD_NO_COPYABLE(recursive_timed_mutex)
+<span class="lineNum">     198 </span>            :         recursive_timed_mutex()
+<span class="lineNum">     199 </span>            :         {
+<span class="lineNum">     200 </span>            : #ifdef BOOST_USE_PTHREAD_RECURSIVE_TIMEDLOCK
+<span class="lineNum">     201 </span>            :             pthread_mutexattr_t attr;
+<span class="lineNum">     202 </span>            : 
+<span class="lineNum">     203 </span>            :             int const init_attr_res=pthread_mutexattr_init(&amp;attr);
+<span class="lineNum">     204 </span>            :             if(init_attr_res)
+<span class="lineNum">     205 </span>            :             {
+<span class="lineNum">     206 </span>            :                 boost::throw_exception(thread_resource_error(init_attr_res, &quot;boost:: recursive_timed_mutex constructor failed in pthread_mutexattr_init&quot;));
+<span class="lineNum">     207 </span>            :             }
+<span class="lineNum">     208 </span>            :             int const set_attr_res=pthread_mutexattr_settype(&amp;attr,PTHREAD_MUTEX_RECURSIVE);
+<span class="lineNum">     209 </span>            :             if(set_attr_res)
+<span class="lineNum">     210 </span>            :             {
+<span class="lineNum">     211 </span>            :                 boost::throw_exception(thread_resource_error(set_attr_res, &quot;boost:: recursive_timed_mutex constructor failed in pthread_mutexattr_settype&quot;));
+<span class="lineNum">     212 </span>            :             }
+<span class="lineNum">     213 </span>            : 
+<span class="lineNum">     214 </span>            :             int const res=pthread_mutex_init(&amp;m,&amp;attr);
+<span class="lineNum">     215 </span>            :             if(res)
+<span class="lineNum">     216 </span>            :             {
+<span class="lineNum">     217 </span>            :                 BOOST_VERIFY(!pthread_mutexattr_destroy(&amp;attr));
+<span class="lineNum">     218 </span>            :                 boost::throw_exception(thread_resource_error(res, &quot;boost:: recursive_timed_mutex constructor failed in pthread_mutex_init&quot;));
+<span class="lineNum">     219 </span>            :             }
+<span class="lineNum">     220 </span>            :             BOOST_VERIFY(!pthread_mutexattr_destroy(&amp;attr));
+<span class="lineNum">     221 </span>            : #else
+<span class="lineNum">     222 </span>            :             int const res=pthread_mutex_init(&amp;m,NULL);
+<span class="lineNum">     223 </span>            :             if(res)
+<span class="lineNum">     224 </span>            :             {
+<span class="lineNum">     225 </span>            :                 boost::throw_exception(thread_resource_error(res, &quot;boost:: recursive_timed_mutex constructor failed in pthread_mutex_init&quot;));
+<span class="lineNum">     226 </span>            :             }
+<span class="lineNum">     227 </span>            :             int const res2=pthread_cond_init(&amp;cond,NULL);
+<span class="lineNum">     228 </span>            :             if(res2)
+<span class="lineNum">     229 </span>            :             {
+<span class="lineNum">     230 </span>            :                 BOOST_VERIFY(!pthread_mutex_destroy(&amp;m));
+<span class="lineNum">     231 </span>            :                 boost::throw_exception(thread_resource_error(res2, &quot;boost:: recursive_timed_mutex constructor failed in pthread_cond_init&quot;));
+<span class="lineNum">     232 </span>            :             }
+<span class="lineNum">     233 </span>            :             is_locked=false;
+<span class="lineNum">     234 </span>            :             count=0;
+<span class="lineNum">     235 </span>            : #endif
+<span class="lineNum">     236 </span>            :         }
+<span class="lineNum">     237 </span>            :         ~recursive_timed_mutex()
+<span class="lineNum">     238 </span>            :         {
+<span class="lineNum">     239 </span>            :             BOOST_VERIFY(!pthread_mutex_destroy(&amp;m));
+<span class="lineNum">     240 </span>            : #ifndef BOOST_USE_PTHREAD_RECURSIVE_TIMEDLOCK
+<span class="lineNum">     241 </span>            :             BOOST_VERIFY(!pthread_cond_destroy(&amp;cond));
+<span class="lineNum">     242 </span>            : #endif
+<span class="lineNum">     243 </span>            :         }
+<span class="lineNum">     244 </span>            : 
+<span class="lineNum">     245 </span>            : #if defined BOOST_THREAD_USES_DATETIME
+<span class="lineNum">     246 </span>            :         template&lt;typename TimeDuration&gt;
+<span class="lineNum">     247 </span>            :         bool timed_lock(TimeDuration const &amp; relative_time)
+<span class="lineNum">     248 </span>            :         {
+<span class="lineNum">     249 </span>            :             return timed_lock(get_system_time()+relative_time);
+<span class="lineNum">     250 </span>            :         }
+<span class="lineNum">     251 </span>            : #endif
+<span class="lineNum">     252 </span>            : 
+<span class="lineNum">     253 </span>            : #ifdef BOOST_USE_PTHREAD_RECURSIVE_TIMEDLOCK
+<span class="lineNum">     254 </span>            :         void lock()
+<span class="lineNum">     255 </span>            :         {
+<span class="lineNum">     256 </span>            :             BOOST_VERIFY(!pthread_mutex_lock(&amp;m));
+<span class="lineNum">     257 </span>            :         }
+<span class="lineNum">     258 </span>            : 
+<span class="lineNum">     259 </span>            :         void unlock()
+<span class="lineNum">     260 </span>            :         {
+<span class="lineNum">     261 </span>            :             BOOST_VERIFY(!pthread_mutex_unlock(&amp;m));
+<span class="lineNum">     262 </span>            :         }
+<span class="lineNum">     263 </span>            : 
+<span class="lineNum">     264 </span>            :         bool try_lock()
+<span class="lineNum">     265 </span>            :         {
+<span class="lineNum">     266 </span>            :             int const res=pthread_mutex_trylock(&amp;m);
+<span class="lineNum">     267 </span>            :             BOOST_ASSERT(!res || res==EBUSY);
+<span class="lineNum">     268 </span>            :             return !res;
+<span class="lineNum">     269 </span>            :         }
+<span class="lineNum">     270 </span>            :     private:
+<span class="lineNum">     271 </span>            :         bool do_try_lock_until(struct timespec const &amp;timeout)
+<span class="lineNum">     272 </span>            :         {
+<span class="lineNum">     273 </span>            :             int const res=pthread_mutex_timedlock(&amp;m,&amp;timeout);
+<span class="lineNum">     274 </span>            :             BOOST_ASSERT(!res || res==ETIMEDOUT);
+<span class="lineNum">     275 </span>            :             return !res;
+<span class="lineNum">     276 </span>            :         }
+<span class="lineNum">     277 </span>            : 
+<span class="lineNum">     278 </span>            :     public:
+<span class="lineNum">     279 </span>            : 
+<span class="lineNum">     280 </span>            : #else
+<span class="lineNum">     281 </span>            :         void lock()
+<span class="lineNum">     282 </span>            :         {
+<span class="lineNum">     283 </span>            :             boost::pthread::pthread_mutex_scoped_lock const local_lock(&amp;m);
+<span class="lineNum">     284 </span>            :             if(is_locked &amp;&amp; pthread_equal(owner,pthread_self()))
+<span class="lineNum">     285 </span>            :             {
+<span class="lineNum">     286 </span>            :                 ++count;
+<span class="lineNum">     287 </span>            :                 return;
+<span class="lineNum">     288 </span>            :             }
+<span class="lineNum">     289 </span>            : 
+<span class="lineNum">     290 </span>            :             while(is_locked)
+<span class="lineNum">     291 </span>            :             {
+<span class="lineNum">     292 </span>            :                 BOOST_VERIFY(!pthread_cond_wait(&amp;cond,&amp;m));
+<span class="lineNum">     293 </span>            :             }
+<span class="lineNum">     294 </span>            :             is_locked=true;
+<span class="lineNum">     295 </span>            :             ++count;
+<span class="lineNum">     296 </span>            :             owner=pthread_self();
+<span class="lineNum">     297 </span>            :         }
+<span class="lineNum">     298 </span>            : 
+<span class="lineNum">     299 </span>            :         void unlock()
+<span class="lineNum">     300 </span>            :         {
+<span class="lineNum">     301 </span>            :             boost::pthread::pthread_mutex_scoped_lock const local_lock(&amp;m);
+<span class="lineNum">     302 </span>            :             if(!--count)
+<span class="lineNum">     303 </span>            :             {
+<span class="lineNum">     304 </span>            :                 is_locked=false;
+<span class="lineNum">     305 </span>            :             }
+<span class="lineNum">     306 </span>            :             BOOST_VERIFY(!pthread_cond_signal(&amp;cond));
+<span class="lineNum">     307 </span>            :         }
+<span class="lineNum">     308 </span>            : 
+<span class="lineNum">     309 </span>            :         bool try_lock() BOOST_NOEXCEPT
+<span class="lineNum">     310 </span>            :         {
+<span class="lineNum">     311 </span>            :             boost::pthread::pthread_mutex_scoped_lock const local_lock(&amp;m);
+<span class="lineNum">     312 </span>            :             if(is_locked &amp;&amp; !pthread_equal(owner,pthread_self()))
+<span class="lineNum">     313 </span>            :             {
+<span class="lineNum">     314 </span>            :                 return false;
+<span class="lineNum">     315 </span>            :             }
+<span class="lineNum">     316 </span>            :             is_locked=true;
+<span class="lineNum">     317 </span>            :             ++count;
+<span class="lineNum">     318 </span>            :             owner=pthread_self();
+<span class="lineNum">     319 </span>            :             return true;
+<span class="lineNum">     320 </span>            :         }
+<span class="lineNum">     321 </span>            : 
+<span class="lineNum">     322 </span>            :     private:
+<span class="lineNum">     323 </span>            :         bool do_try_lock_until(struct timespec const &amp;timeout)
+<span class="lineNum">     324 </span>            :         {
+<span class="lineNum">     325 </span>            :             boost::pthread::pthread_mutex_scoped_lock const local_lock(&amp;m);
+<span class="lineNum">     326 </span>            :             if(is_locked &amp;&amp; pthread_equal(owner,pthread_self()))
+<span class="lineNum">     327 </span>            :             {
+<span class="lineNum">     328 </span>            :                 ++count;
+<span class="lineNum">     329 </span>            :                 return true;
+<span class="lineNum">     330 </span>            :             }
+<span class="lineNum">     331 </span>            :             while(is_locked)
+<span class="lineNum">     332 </span>            :             {
+<span class="lineNum">     333 </span>            :                 int const cond_res=pthread_cond_timedwait(&amp;cond,&amp;m,&amp;timeout);
+<span class="lineNum">     334 </span>            :                 if(cond_res==ETIMEDOUT)
+<span class="lineNum">     335 </span>            :                 {
+<span class="lineNum">     336 </span>            :                     return false;
+<span class="lineNum">     337 </span>            :                 }
+<span class="lineNum">     338 </span>            :                 BOOST_ASSERT(!cond_res);
+<span class="lineNum">     339 </span>            :             }
+<span class="lineNum">     340 </span>            :             is_locked=true;
+<span class="lineNum">     341 </span>            :             ++count;
+<span class="lineNum">     342 </span>            :             owner=pthread_self();
+<span class="lineNum">     343 </span>            :             return true;
+<span class="lineNum">     344 </span>            :         }
+<span class="lineNum">     345 </span>            :     public:
+<span class="lineNum">     346 </span>            : 
+<span class="lineNum">     347 </span>            : #endif
+<span class="lineNum">     348 </span>            : 
+<span class="lineNum">     349 </span>            : #if defined BOOST_THREAD_USES_DATETIME
+<span class="lineNum">     350 </span>            :         bool timed_lock(system_time const &amp; abs_time)
+<span class="lineNum">     351 </span>            :         {
+<span class="lineNum">     352 </span>            :             struct timespec const ts=detail::to_timespec(abs_time);
+<span class="lineNum">     353 </span>            :             return do_try_lock_until(ts);
+<span class="lineNum">     354 </span>            :         }
+<span class="lineNum">     355 </span>            : #endif
+<span class="lineNum">     356 </span>            : #ifdef BOOST_THREAD_USES_CHRONO
+<span class="lineNum">     357 </span>            :         template &lt;class Rep, class Period&gt;
+<span class="lineNum">     358 </span>            :         bool try_lock_for(const chrono::duration&lt;Rep, Period&gt;&amp; rel_time)
+<span class="lineNum">     359 </span>            :         {
+<span class="lineNum">     360 </span>            :           return try_lock_until(chrono::steady_clock::now() + rel_time);
+<span class="lineNum">     361 </span>            :         }
+<span class="lineNum">     362 </span>            :         template &lt;class Clock, class Duration&gt;
+<span class="lineNum">     363 </span>            :         bool try_lock_until(const chrono::time_point&lt;Clock, Duration&gt;&amp; t)
+<span class="lineNum">     364 </span>            :         {
+<span class="lineNum">     365 </span>            :           using namespace chrono;
+<span class="lineNum">     366 </span>            :           system_clock::time_point     s_now = system_clock::now();
+<span class="lineNum">     367 </span>            :           typename Clock::time_point  c_now = Clock::now();
+<span class="lineNum">     368 </span>            :           return try_lock_until(s_now + ceil&lt;nanoseconds&gt;(t - c_now));
+<span class="lineNum">     369 </span>            :         }
+<span class="lineNum">     370 </span>            :         template &lt;class Duration&gt;
+<span class="lineNum">     371 </span>            :         bool try_lock_until(const chrono::time_point&lt;chrono::system_clock, Duration&gt;&amp; t)
+<span class="lineNum">     372 </span>            :         {
+<span class="lineNum">     373 </span>            :           using namespace chrono;
+<span class="lineNum">     374 </span>            :           typedef time_point&lt;system_clock, nanoseconds&gt; nano_sys_tmpt;
+<span class="lineNum">     375 </span>            :           return try_lock_until(nano_sys_tmpt(ceil&lt;nanoseconds&gt;(t.time_since_epoch())));
+<span class="lineNum">     376 </span>            :         }
+<span class="lineNum">     377 </span>            :         bool try_lock_until(const chrono::time_point&lt;chrono::system_clock, chrono::nanoseconds&gt;&amp; tp)
+<span class="lineNum">     378 </span>            :         {
+<span class="lineNum">     379 </span>            :           //using namespace chrono;
+<span class="lineNum">     380 </span>            :           chrono::nanoseconds d = tp.time_since_epoch();
+<span class="lineNum">     381 </span>            :           timespec ts = boost::detail::to_timespec(d);
+<span class="lineNum">     382 </span>            :           return do_try_lock_until(ts);
+<span class="lineNum">     383 </span>            :         }
+<span class="lineNum">     384 </span>            : #endif
+<span class="lineNum">     385 </span>            : 
+<span class="lineNum">     386 </span>            : #define BOOST_THREAD_DEFINES_RECURSIVE_TIMED_MUTEX_NATIVE_HANDLE
+<span class="lineNum">     387 </span>            :         typedef pthread_mutex_t* native_handle_type;
+<span class="lineNum">     388 </span>            :         native_handle_type native_handle()
+<span class="lineNum">     389 </span>            :         {
+<span class="lineNum">     390 </span>            :             return &amp;m;
+<span class="lineNum">     391 </span>            :         }
+<span class="lineNum">     392 </span>            : 
+<span class="lineNum">     393 </span>            : #if defined BOOST_THREAD_PROVIDES_NESTED_LOCKS
+<span class="lineNum">     394 </span>            :         typedef unique_lock&lt;recursive_timed_mutex&gt; scoped_timed_lock;
+<span class="lineNum">     395 </span>            :         typedef detail::try_lock_wrapper&lt;recursive_timed_mutex&gt; scoped_try_lock;
+<span class="lineNum">     396 </span>            :         typedef scoped_timed_lock scoped_lock;
+<span class="lineNum">     397 </span>            : #endif
+<span class="lineNum">     398 </span>            :     };
+<span class="lineNum">     399 </span>            : 
+<span class="lineNum">     400 </span>            : }
+<span class="lineNum">     401 </span>            : 
+<span class="lineNum">     402 </span>            : #include &lt;boost/config/abi_suffix.hpp&gt;
+<span class="lineNum">     403 </span>            : 
+<span class="lineNum">     404 </span>            : #endif
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

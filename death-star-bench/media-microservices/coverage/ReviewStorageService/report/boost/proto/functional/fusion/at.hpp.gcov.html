@@ -1,0 +1,132 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/proto/functional/fusion/at.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">boost/proto/functional/fusion</a> - at.hpp<span style="font-size: 80%;"> (source / <a href="at.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 01:12:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : ///////////////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">       2 </span>            : /// \file at.hpp
+<span class="lineNum">       3 </span>            : /// Proto callables Fusion at
+<span class="lineNum">       4 </span>            : //
+<span class="lineNum">       5 </span>            : //  Copyright 2010 Eric Niebler. Distributed under the Boost
+<span class="lineNum">       6 </span>            : //  Software License, Version 1.0. (See accompanying file
+<span class="lineNum">       7 </span>            : //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       8 </span>            : 
+<span class="lineNum">       9 </span>            : #ifndef BOOST_PROTO_FUNCTIONAL_FUSION_AT_HPP_EAN_11_27_2010
+<span class="lineNum">      10 </span>            : #define BOOST_PROTO_FUNCTIONAL_FUSION_AT_HPP_EAN_11_27_2010
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span>            : #include &lt;boost/type_traits/add_const.hpp&gt;
+<span class="lineNum">      13 </span>            : #include &lt;boost/type_traits/remove_const.hpp&gt;
+<span class="lineNum">      14 </span>            : #include &lt;boost/type_traits/remove_reference.hpp&gt;
+<span class="lineNum">      15 </span>            : #include &lt;boost/fusion/include/at.hpp&gt;
+<span class="lineNum">      16 </span>            : #include &lt;boost/proto/proto_fwd.hpp&gt;
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : namespace boost { namespace proto { namespace functional
+<span class="lineNum">      19 </span>            : {
+<span class="lineNum">      20 </span>            :     /// \brief A PolymorphicFunctionObject type that invokes the
+<span class="lineNum">      21 </span>            :     /// \c fusion::at() accessor on its argument.
+<span class="lineNum">      22 </span>            :     ///
+<span class="lineNum">      23 </span>            :     /// A PolymorphicFunctionObject type that invokes the
+<span class="lineNum">      24 </span>            :     /// \c fusion::at() accessor on its argument.
+<span class="lineNum">      25 </span>            :     struct at
+<span class="lineNum">      26 </span>            :     {
+<span class="lineNum">      27 </span>            :         BOOST_PROTO_CALLABLE()
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            :         template&lt;typename Sig&gt;
+<span class="lineNum">      30 </span>            :         struct result;
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            :         template&lt;typename This, typename Seq, typename N&gt;
+<span class="lineNum">      33 </span>            :         struct result&lt;This(Seq, N)&gt;
+<span class="lineNum">      34 </span>            :           : fusion::result_of::at&lt;
+<span class="lineNum">      35 </span>            :                 typename boost::remove_reference&lt;Seq&gt;::type
+<span class="lineNum">      36 </span>            :               , typename boost::remove_const&lt;typename boost::remove_reference&lt;N&gt;::type&gt;::type
+<span class="lineNum">      37 </span>            :             &gt;
+<span class="lineNum">      38 </span>            :         {};
+<span class="lineNum">      39 </span>            : 
+<a name="40"><span class="lineNum">      40 </span>            :         template&lt;typename Seq, typename N&gt;</a>
+<span class="lineNum">      41 </span>            :         typename fusion::result_of::at&lt;Seq, N&gt;::type
+<span class="lineNum">      42 </span><span class="lineCov">        524 :         operator ()(Seq &amp;seq, N const &amp; BOOST_PROTO_DISABLE_IF_IS_CONST(Seq)) const</span>
+<span class="lineNum">      43 </span>            :         {
+<span class="lineNum">      44 </span><span class="lineCov">        524 :             return fusion::at&lt;N&gt;(seq);</span>
+<span class="lineNum">      45 </span>            :         }
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span>            :         template&lt;typename Seq, typename N&gt;
+<span class="lineNum">      48 </span>            :         typename fusion::result_of::at&lt;Seq const, N&gt;::type
+<span class="lineNum">      49 </span>            :         operator ()(Seq const &amp;seq, N const &amp;) const
+<span class="lineNum">      50 </span>            :         {
+<span class="lineNum">      51 </span>            :             return fusion::at&lt;N&gt;(seq);
+<span class="lineNum">      52 </span>            :         }
+<span class="lineNum">      53 </span>            :     };
+<span class="lineNum">      54 </span>            : }}}
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            : #endif
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

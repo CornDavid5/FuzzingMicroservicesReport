@@ -1,0 +1,448 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/log/attributes/value_visitation.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">boost/log/attributes</a> - value_visitation.hpp<span style="font-size: 80%;"> (source / <a href="value_visitation.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">27</td>
+            <td class="headerCovTableEntryLo">11.1 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 01:14:10</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryLo">20.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *          Copyright Andrey Semashev 2007 - 2015.
+<span class="lineNum">       3 </span>            :  * Distributed under the Boost Software License, Version 1.0.
+<span class="lineNum">       4 </span>            :  *    (See accompanying file LICENSE_1_0.txt or copy at
+<span class="lineNum">       5 </span>            :  *          http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       6 </span>            :  */
+<span class="lineNum">       7 </span>            : /*!
+<span class="lineNum">       8 </span>            :  * \file   value_visitation.hpp
+<span class="lineNum">       9 </span>            :  * \author Andrey Semashev
+<span class="lineNum">      10 </span>            :  * \date   01.03.2008
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * The header contains implementation of convenience tools to apply visitors to an attribute value
+<span class="lineNum">      13 </span>            :  * in the view.
+<span class="lineNum">      14 </span>            :  */
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : #ifndef BOOST_LOG_ATTRIBUTES_VALUE_VISITATION_HPP_INCLUDED_
+<span class="lineNum">      17 </span>            : #define BOOST_LOG_ATTRIBUTES_VALUE_VISITATION_HPP_INCLUDED_
+<span class="lineNum">      18 </span>            : 
+<span class="lineNum">      19 </span>            : #include &lt;boost/log/detail/config.hpp&gt;
+<span class="lineNum">      20 </span>            : #include &lt;boost/log/exceptions.hpp&gt;
+<span class="lineNum">      21 </span>            : #include &lt;boost/log/core/record.hpp&gt;
+<span class="lineNum">      22 </span>            : #include &lt;boost/log/attributes/attribute_name.hpp&gt;
+<span class="lineNum">      23 </span>            : #include &lt;boost/log/attributes/attribute_value.hpp&gt;
+<span class="lineNum">      24 </span>            : #include &lt;boost/log/attributes/attribute.hpp&gt;
+<span class="lineNum">      25 </span>            : #include &lt;boost/log/attributes/attribute_value_set.hpp&gt;
+<span class="lineNum">      26 </span>            : #include &lt;boost/log/attributes/value_visitation_fwd.hpp&gt;
+<span class="lineNum">      27 </span>            : #include &lt;boost/log/attributes/fallback_policy.hpp&gt;
+<span class="lineNum">      28 </span>            : #include &lt;boost/log/expressions/keyword_fwd.hpp&gt;
+<span class="lineNum">      29 </span>            : #include &lt;boost/utility/explicit_operator_bool.hpp&gt;
+<span class="lineNum">      30 </span>            : #include &lt;boost/log/utility/type_dispatch/static_type_dispatcher.hpp&gt;
+<span class="lineNum">      31 </span>            : #include &lt;boost/log/detail/header.hpp&gt;
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : #ifdef BOOST_HAS_PRAGMA_ONCE
+<span class="lineNum">      34 </span>            : #pragma once
+<span class="lineNum">      35 </span>            : #endif
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            : namespace boost {
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : BOOST_LOG_OPEN_NAMESPACE
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            : /*!
+<span class="lineNum">      42 </span>            :  * \brief The class represents attribute value visitation result
+<span class="lineNum">      43 </span>            :  *
+<span class="lineNum">      44 </span>            :  * The main purpose of this class is to provide a convenient interface for checking
+<span class="lineNum">      45 </span>            :  * whether the attribute value visitation succeeded or not. It also allows to discover
+<span class="lineNum">      46 </span>            :  * the actual cause of failure, should the operation fail.
+<span class="lineNum">      47 </span>            :  */
+<span class="lineNum">      48 </span>            : class visitation_result
+<span class="lineNum">      49 </span>            : {
+<span class="lineNum">      50 </span>            : public:
+<span class="lineNum">      51 </span>            :     //! Error codes for attribute value visitation
+<span class="lineNum">      52 </span>            :     enum error_code
+<span class="lineNum">      53 </span>            :     {
+<span class="lineNum">      54 </span>            :         ok,                     //!&lt; The attribute value has been visited successfully
+<span class="lineNum">      55 </span>            :         value_not_found,        //!&lt; The attribute value is not present in the view
+<span class="lineNum">      56 </span>            :         value_has_invalid_type  //!&lt; The attribute value is present in the view, but has an unexpected type
+<span class="lineNum">      57 </span>            :     };
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span>            : private:
+<span class="lineNum">      60 </span>            :     error_code m_code;
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span>            : public:
+<span class="lineNum">      63 </span>            :     /*!
+<span class="lineNum">      64 </span>            :      * Initializing constructor. Creates the result that is equivalent to the
+<a name="65"><span class="lineNum">      65 </span>            :      * specified error code.</a>
+<span class="lineNum">      66 </span>            :      */
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :     BOOST_CONSTEXPR visitation_result(error_code code = ok) BOOST_NOEXCEPT : m_code(code) {}</span>
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span>            :     /*!
+<span class="lineNum">      70 </span>            :      * Checks if the visitation was successful.
+<span class="lineNum">      71 </span>            :      *
+<span class="lineNum">      72 </span>            :      * \return \c true if the value was visited successfully, \c false otherwise.
+<span class="lineNum">      73 </span>            :      */
+<span class="lineNum">      74 </span>            :     BOOST_EXPLICIT_OPERATOR_BOOL_NOEXCEPT()
+<span class="lineNum">      75 </span>            :     /*!
+<span class="lineNum">      76 </span>            :      * Checks if the visitation was unsuccessful.
+<span class="lineNum">      77 </span>            :      *
+<span class="lineNum">      78 </span>            :      * \return \c false if the value was visited successfully, \c true otherwise.
+<span class="lineNum">      79 </span>            :      */
+<span class="lineNum">      80 </span>            :     bool operator! () const BOOST_NOEXCEPT { return (m_code != ok); }
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span>            :     /*!
+<span class="lineNum">      83 </span>            :      * \return The actual result code of value visitation
+<span class="lineNum">      84 </span>            :      */
+<span class="lineNum">      85 </span>            :     error_code code() const BOOST_NOEXCEPT { return m_code; }
+<span class="lineNum">      86 </span>            : };
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span>            : /*!
+<span class="lineNum">      89 </span>            :  * \brief Generic attribute value visitor invoker
+<span class="lineNum">      90 </span>            :  *
+<span class="lineNum">      91 </span>            :  * Attribute value invoker is a functional object that attempts to find and extract the stored
+<span class="lineNum">      92 </span>            :  * attribute value from the attribute value view or a log record. The extracted value is passed to
+<span class="lineNum">      93 </span>            :  * a unary function object (the visitor) provided by user.
+<span class="lineNum">      94 </span>            :  *
+<span class="lineNum">      95 </span>            :  * The invoker can be specialized on one or several attribute value types that should be
+<span class="lineNum">      96 </span>            :  * specified in the second template argument.
+<span class="lineNum">      97 </span>            :  */
+<span class="lineNum">      98 </span>            : template&lt; typename T, typename FallbackPolicyT &gt;
+<span class="lineNum">      99 </span>            : class value_visitor_invoker :
+<span class="lineNum">     100 </span>            :     private FallbackPolicyT
+<span class="lineNum">     101 </span>            : {
+<span class="lineNum">     102 </span>            :     typedef value_visitor_invoker&lt; T, FallbackPolicyT &gt; this_type;
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span>            : public:
+<span class="lineNum">     105 </span>            :     //! Attribute value types
+<span class="lineNum">     106 </span>            :     typedef T value_type;
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span>            :     //! Fallback policy
+<span class="lineNum">     109 </span>            :     typedef FallbackPolicyT fallback_policy;
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span>            :     //! Function object result type
+<span class="lineNum">     112 </span>            :     typedef visitation_result result_type;
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span>            : public:
+<span class="lineNum">     115 </span>            :     /*!
+<span class="lineNum">     116 </span>            :      * Default constructor
+<span class="lineNum">     117 </span>            :      */
+<span class="lineNum">     118 </span>            :     BOOST_DEFAULTED_FUNCTION(value_visitor_invoker(), {})
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span>            :     /*!
+<a name="121"><span class="lineNum">     121 </span>            :      * Copy constructor</a>
+<span class="lineNum">     122 </span>            :      */
+<span class="lineNum">     123 </span><span class="lineCov">         12 :     value_visitor_invoker(value_visitor_invoker const&amp; that) : fallback_policy(static_cast&lt; fallback_policy const&amp; &gt;(that))</span>
+<span class="lineNum">     124 </span>            :     {
+<span class="lineNum">     125 </span><span class="lineCov">         12 :     }</span>
+<span class="lineNum">     126 </span>            : 
+<span class="lineNum">     127 </span>            :     /*!
+<span class="lineNum">     128 </span>            :      * Initializing constructor
+<span class="lineNum">     129 </span>            :      *
+<span class="lineNum">     130 </span>            :      * \param arg Fallback policy argument
+<a name="131"><span class="lineNum">     131 </span>            :      */</a>
+<span class="lineNum">     132 </span>            :     template&lt; typename U &gt;
+<span class="lineNum">     133 </span><span class="lineCov">          2 :     explicit value_visitor_invoker(U const&amp; arg) : fallback_policy(arg) {}</span>
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span>            :     /*!
+<span class="lineNum">     136 </span>            :      * Visitation operator. Attempts to acquire the stored value of one of the supported types. If acquisition succeeds,
+<span class="lineNum">     137 </span>            :      * the value is passed to \a visitor.
+<span class="lineNum">     138 </span>            :      *
+<span class="lineNum">     139 </span>            :      * \param attr An attribute value to apply the visitor to.
+<span class="lineNum">     140 </span>            :      * \param visitor A receiving function object to pass the attribute value to.
+<span class="lineNum">     141 </span>            :      * \return The result of visitation.
+<a name="142"><span class="lineNum">     142 </span>            :      */</a>
+<span class="lineNum">     143 </span>            :     template&lt; typename VisitorT &gt;
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :     result_type operator() (attribute_value const&amp; attr, VisitorT visitor) const</span>
+<span class="lineNum">     145 </span>            :     {
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 :         if (!!attr)</span>
+<span class="lineNum">     147 </span>            :         {
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :             static_type_dispatcher&lt; value_type &gt; disp(visitor);</span>
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :             if (attr.dispatch(disp) || fallback_policy::apply_default(visitor))</span>
+<span class="lineNum">     150 </span>            :             {
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :                 return visitation_result::ok;</span>
+<span class="lineNum">     152 </span>            :             }
+<span class="lineNum">     153 </span>            :             else
+<span class="lineNum">     154 </span>            :             {
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :                 fallback_policy::on_invalid_type(attr.get_type());</span>
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :                 return visitation_result::value_has_invalid_type;</span>
+<span class="lineNum">     157 </span>            :             }
+<span class="lineNum">     158 </span>            :         }
+<span class="lineNum">     159 </span>            : 
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :         if (fallback_policy::apply_default(visitor))</span>
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :             return visitation_result::ok;</span>
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 :         fallback_policy::on_missing_value();</span>
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :         return visitation_result::value_not_found;</span>
+<span class="lineNum">     165 </span>            :     }
+<span class="lineNum">     166 </span>            : 
+<span class="lineNum">     167 </span>            :     /*!
+<span class="lineNum">     168 </span>            :      * Visitation operator. Looks for an attribute value with the specified name
+<span class="lineNum">     169 </span>            :      * and tries to acquire the stored value of one of the supported types. If acquisition succeeds,
+<span class="lineNum">     170 </span>            :      * the value is passed to \a visitor.
+<span class="lineNum">     171 </span>            :      *
+<span class="lineNum">     172 </span>            :      * \param name Attribute value name.
+<span class="lineNum">     173 </span>            :      * \param attrs A set of attribute values in which to look for the specified attribute value.
+<span class="lineNum">     174 </span>            :      * \param visitor A receiving function object to pass the attribute value to.
+<span class="lineNum">     175 </span>            :      * \return The result of visitation.
+<a name="176"><span class="lineNum">     176 </span>            :      */</a>
+<span class="lineNum">     177 </span>            :     template&lt; typename VisitorT &gt;
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :     result_type operator() (attribute_name const&amp; name, attribute_value_set const&amp; attrs, VisitorT visitor) const</span>
+<span class="lineNum">     179 </span>            :     {
+<span class="lineNum">     180 </span>            :         try
+<span class="lineNum">     181 </span>            :         {
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 :             attribute_value_set::const_iterator it = attrs.find(name);</span>
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :             if (it != attrs.end())</span>
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :                 return operator() (it-&gt;second, visitor);</span>
+<span class="lineNum">     185 </span>            :             else
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :                 return operator() (attribute_value(), visitor);</span>
+<span class="lineNum">     187 </span>            :         }
+<span class="lineNum">     188 </span><span class="lineNoCov">          0 :         catch (exception&amp; e)</span>
+<span class="lineNum">     189 </span>            :         {
+<span class="lineNum">     190 </span>            :             // Attach the attribute name to the exception
+<span class="lineNum">     191 </span><span class="lineNoCov">          0 :             boost::log::aux::attach_attribute_name_info(e, name);</span>
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :             throw;</span>
+<span class="lineNum">     193 </span>            :         }
+<span class="lineNum">     194 </span>            :     }
+<span class="lineNum">     195 </span>            : 
+<span class="lineNum">     196 </span>            :     /*!
+<span class="lineNum">     197 </span>            :      * Visitation operator. Looks for an attribute value with the specified name
+<span class="lineNum">     198 </span>            :      * and tries to acquire the stored value of one of the supported types. If acquisition succeeds,
+<span class="lineNum">     199 </span>            :      * the value is passed to \a visitor.
+<span class="lineNum">     200 </span>            :      *
+<span class="lineNum">     201 </span>            :      * \param name Attribute value name.
+<span class="lineNum">     202 </span>            :      * \param rec A log record. The attribute value will be sought among those associated with the record.
+<span class="lineNum">     203 </span>            :      * \param visitor A receiving function object to pass the attribute value to.
+<span class="lineNum">     204 </span>            :      * \return The result of visitation.
+<span class="lineNum">     205 </span>            :      */
+<span class="lineNum">     206 </span>            :     template&lt; typename VisitorT &gt;
+<span class="lineNum">     207 </span>            :     result_type operator() (attribute_name const&amp; name, record const&amp; rec, VisitorT visitor) const
+<span class="lineNum">     208 </span>            :     {
+<span class="lineNum">     209 </span>            :         return operator() (name, rec.attribute_values(), visitor);
+<span class="lineNum">     210 </span>            :     }
+<span class="lineNum">     211 </span>            : 
+<span class="lineNum">     212 </span>            :     /*!
+<span class="lineNum">     213 </span>            :      * Visitation operator. Looks for an attribute value with the specified name
+<span class="lineNum">     214 </span>            :      * and tries to acquire the stored value of one of the supported types. If acquisition succeeds,
+<span class="lineNum">     215 </span>            :      * the value is passed to \a visitor.
+<span class="lineNum">     216 </span>            :      *
+<span class="lineNum">     217 </span>            :      * \param name Attribute value name.
+<span class="lineNum">     218 </span>            :      * \param rec A log record view. The attribute value will be sought among those associated with the record.
+<span class="lineNum">     219 </span>            :      * \param visitor A receiving function object to pass the attribute value to.
+<span class="lineNum">     220 </span>            :      * \return The result of visitation.
+<a name="221"><span class="lineNum">     221 </span>            :      */</a>
+<span class="lineNum">     222 </span>            :     template&lt; typename VisitorT &gt;
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :     result_type operator() (attribute_name const&amp; name, record_view const&amp; rec, VisitorT visitor) const</span>
+<span class="lineNum">     224 </span>            :     {
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :         return operator() (name, rec.attribute_values(), visitor);</span>
+<span class="lineNum">     226 </span>            :     }
+<span class="lineNum">     227 </span>            : 
+<span class="lineNum">     228 </span>            :     /*!
+<span class="lineNum">     229 </span>            :      * \returns Fallback policy
+<span class="lineNum">     230 </span>            :      */
+<span class="lineNum">     231 </span>            :     fallback_policy const&amp; get_fallback_policy() const
+<span class="lineNum">     232 </span>            :     {
+<span class="lineNum">     233 </span>            :         return *static_cast&lt; fallback_policy const* &gt;(this);
+<span class="lineNum">     234 </span>            :     }
+<span class="lineNum">     235 </span>            : };
+<span class="lineNum">     236 </span>            : 
+<span class="lineNum">     237 </span>            : /*!
+<span class="lineNum">     238 </span>            :  * The function applies a visitor to an attribute value from the view. The user has to explicitly specify the
+<span class="lineNum">     239 </span>            :  * type or set of possible types of the attribute value to be visited.
+<span class="lineNum">     240 </span>            :  *
+<span class="lineNum">     241 </span>            :  * \param name The name of the attribute value to visit.
+<span class="lineNum">     242 </span>            :  * \param attrs A set of attribute values in which to look for the specified attribute value.
+<span class="lineNum">     243 </span>            :  * \param visitor A receiving function object to pass the attribute value to.
+<span class="lineNum">     244 </span>            :  * \return The result of visitation.
+<span class="lineNum">     245 </span>            :  */
+<span class="lineNum">     246 </span>            : template&lt; typename T, typename VisitorT &gt;
+<span class="lineNum">     247 </span>            : inline visitation_result
+<span class="lineNum">     248 </span>            : visit(attribute_name const&amp; name, attribute_value_set const&amp; attrs, VisitorT visitor)
+<span class="lineNum">     249 </span>            : {
+<span class="lineNum">     250 </span>            :     value_visitor_invoker&lt; T &gt; invoker;
+<span class="lineNum">     251 </span>            :     return invoker(name, attrs, visitor);
+<span class="lineNum">     252 </span>            : }
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span>            : /*!
+<span class="lineNum">     255 </span>            :  * The function applies a visitor to an attribute value from the view. The user has to explicitly specify the
+<span class="lineNum">     256 </span>            :  * type or set of possible types of the attribute value to be visited.
+<span class="lineNum">     257 </span>            :  *
+<span class="lineNum">     258 </span>            :  * \param name The name of the attribute value to visit.
+<span class="lineNum">     259 </span>            :  * \param rec A log record. The attribute value will be sought among those associated with the record.
+<span class="lineNum">     260 </span>            :  * \param visitor A receiving function object to pass the attribute value to.
+<span class="lineNum">     261 </span>            :  * \return The result of visitation.
+<span class="lineNum">     262 </span>            :  */
+<span class="lineNum">     263 </span>            : template&lt; typename T, typename VisitorT &gt;
+<span class="lineNum">     264 </span>            : inline visitation_result
+<span class="lineNum">     265 </span>            : visit(attribute_name const&amp; name, record const&amp; rec, VisitorT visitor)
+<span class="lineNum">     266 </span>            : {
+<span class="lineNum">     267 </span>            :     value_visitor_invoker&lt; T &gt; invoker;
+<span class="lineNum">     268 </span>            :     return invoker(name, rec, visitor);
+<span class="lineNum">     269 </span>            : }
+<span class="lineNum">     270 </span>            : 
+<span class="lineNum">     271 </span>            : /*!
+<span class="lineNum">     272 </span>            :  * The function applies a visitor to an attribute value from the view. The user has to explicitly specify the
+<span class="lineNum">     273 </span>            :  * type or set of possible types of the attribute value to be visited.
+<span class="lineNum">     274 </span>            :  *
+<span class="lineNum">     275 </span>            :  * \param name The name of the attribute value to visit.
+<span class="lineNum">     276 </span>            :  * \param rec A log record view. The attribute value will be sought among those associated with the record.
+<span class="lineNum">     277 </span>            :  * \param visitor A receiving function object to pass the attribute value to.
+<span class="lineNum">     278 </span>            :  * \return The result of visitation.
+<span class="lineNum">     279 </span>            :  */
+<a name="280"><span class="lineNum">     280 </span>            : template&lt; typename T, typename VisitorT &gt;</a>
+<span class="lineNum">     281 </span>            : inline visitation_result
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 : visit(attribute_name const&amp; name, record_view const&amp; rec, VisitorT visitor)</span>
+<span class="lineNum">     283 </span>            : {
+<span class="lineNum">     284 </span>            :     value_visitor_invoker&lt; T &gt; invoker;
+<span class="lineNum">     285 </span><span class="lineNoCov">          0 :     return invoker(name, rec, visitor);</span>
+<span class="lineNum">     286 </span>            : }
+<span class="lineNum">     287 </span>            : 
+<span class="lineNum">     288 </span>            : /*!
+<span class="lineNum">     289 </span>            :  * The function applies a visitor to an attribute value. The user has to explicitly specify the
+<span class="lineNum">     290 </span>            :  * type or set of possible types of the attribute value to be visited.
+<span class="lineNum">     291 </span>            :  *
+<span class="lineNum">     292 </span>            :  * \param value The attribute value to visit.
+<span class="lineNum">     293 </span>            :  * \param visitor A receiving function object to pass the attribute value to.
+<span class="lineNum">     294 </span>            :  * \return The result of visitation.
+<span class="lineNum">     295 </span>            :  */
+<span class="lineNum">     296 </span>            : template&lt; typename T, typename VisitorT &gt;
+<span class="lineNum">     297 </span>            : inline visitation_result
+<span class="lineNum">     298 </span>            : visit(attribute_value const&amp; value, VisitorT visitor)
+<span class="lineNum">     299 </span>            : {
+<span class="lineNum">     300 </span>            :     value_visitor_invoker&lt; T &gt; invoker;
+<span class="lineNum">     301 </span>            :     return invoker(value, visitor);
+<span class="lineNum">     302 </span>            : }
+<span class="lineNum">     303 </span>            : 
+<span class="lineNum">     304 </span>            : /*!
+<span class="lineNum">     305 </span>            :  * The function applies a visitor to an attribute value from the view. The user has to explicitly specify the
+<span class="lineNum">     306 </span>            :  * type or set of possible types of the attribute value to be visited.
+<span class="lineNum">     307 </span>            :  *
+<span class="lineNum">     308 </span>            :  * \param keyword The keyword of the attribute value to visit.
+<span class="lineNum">     309 </span>            :  * \param attrs A set of attribute values in which to look for the specified attribute value.
+<span class="lineNum">     310 </span>            :  * \param visitor A receiving function object to pass the attribute value to.
+<span class="lineNum">     311 </span>            :  * \return The result of visitation.
+<span class="lineNum">     312 </span>            :  */
+<span class="lineNum">     313 </span>            : template&lt; typename DescriptorT, template&lt; typename &gt; class ActorT, typename VisitorT &gt;
+<span class="lineNum">     314 </span>            : inline visitation_result
+<span class="lineNum">     315 </span>            : visit(expressions::attribute_keyword&lt; DescriptorT, ActorT &gt; const&amp; keyword, attribute_value_set const&amp; attrs, VisitorT visitor)
+<span class="lineNum">     316 </span>            : {
+<span class="lineNum">     317 </span>            :     value_visitor_invoker&lt; typename DescriptorT::value_type &gt; invoker;
+<span class="lineNum">     318 </span>            :     return invoker(keyword.get_name(), attrs, visitor);
+<span class="lineNum">     319 </span>            : }
+<span class="lineNum">     320 </span>            : 
+<span class="lineNum">     321 </span>            : /*!
+<span class="lineNum">     322 </span>            :  * The function applies a visitor to an attribute value from the view. The user has to explicitly specify the
+<span class="lineNum">     323 </span>            :  * type or set of possible types of the attribute value to be visited.
+<span class="lineNum">     324 </span>            :  *
+<span class="lineNum">     325 </span>            :  * \param keyword The keyword of the attribute value to visit.
+<span class="lineNum">     326 </span>            :  * \param rec A log record. The attribute value will be sought among those associated with the record.
+<span class="lineNum">     327 </span>            :  * \param visitor A receiving function object to pass the attribute value to.
+<span class="lineNum">     328 </span>            :  * \return The result of visitation.
+<span class="lineNum">     329 </span>            :  */
+<span class="lineNum">     330 </span>            : template&lt; typename DescriptorT, template&lt; typename &gt; class ActorT, typename VisitorT &gt;
+<span class="lineNum">     331 </span>            : inline visitation_result
+<span class="lineNum">     332 </span>            : visit(expressions::attribute_keyword&lt; DescriptorT, ActorT &gt; const&amp; keyword, record const&amp; rec, VisitorT visitor)
+<span class="lineNum">     333 </span>            : {
+<span class="lineNum">     334 </span>            :     value_visitor_invoker&lt; typename DescriptorT::value_type &gt; invoker;
+<span class="lineNum">     335 </span>            :     return invoker(keyword.get_name(), rec, visitor);
+<span class="lineNum">     336 </span>            : }
+<span class="lineNum">     337 </span>            : 
+<span class="lineNum">     338 </span>            : /*!
+<span class="lineNum">     339 </span>            :  * The function applies a visitor to an attribute value from the view. The user has to explicitly specify the
+<span class="lineNum">     340 </span>            :  * type or set of possible types of the attribute value to be visited.
+<span class="lineNum">     341 </span>            :  *
+<span class="lineNum">     342 </span>            :  * \param keyword The keyword of the attribute value to visit.
+<span class="lineNum">     343 </span>            :  * \param rec A log record view. The attribute value will be sought among those associated with the record.
+<span class="lineNum">     344 </span>            :  * \param visitor A receiving function object to pass the attribute value to.
+<span class="lineNum">     345 </span>            :  * \return The result of visitation.
+<span class="lineNum">     346 </span>            :  */
+<span class="lineNum">     347 </span>            : template&lt; typename DescriptorT, template&lt; typename &gt; class ActorT, typename VisitorT &gt;
+<span class="lineNum">     348 </span>            : inline visitation_result
+<span class="lineNum">     349 </span>            : visit(expressions::attribute_keyword&lt; DescriptorT, ActorT &gt; const&amp; keyword, record_view const&amp; rec, VisitorT visitor)
+<span class="lineNum">     350 </span>            : {
+<span class="lineNum">     351 </span>            :     value_visitor_invoker&lt; typename DescriptorT::value_type &gt; invoker;
+<span class="lineNum">     352 </span>            :     return invoker(keyword.get_name(), rec, visitor);
+<span class="lineNum">     353 </span>            : }
+<span class="lineNum">     354 </span>            : 
+<span class="lineNum">     355 </span>            : 
+<span class="lineNum">     356 </span>            : #if !defined(BOOST_LOG_DOXYGEN_PASS)
+<span class="lineNum">     357 </span>            : 
+<span class="lineNum">     358 </span>            : template&lt; typename T, typename VisitorT &gt;
+<span class="lineNum">     359 </span>            : inline visitation_result attribute_value::visit(VisitorT visitor) const
+<span class="lineNum">     360 </span>            : {
+<span class="lineNum">     361 </span>            :     return boost::log::visit&lt; T &gt;(*this, visitor);
+<span class="lineNum">     362 </span>            : }
+<span class="lineNum">     363 </span>            : 
+<span class="lineNum">     364 </span>            : #endif // !defined(BOOST_LOG_DOXYGEN_PASS)
+<span class="lineNum">     365 </span>            : 
+<span class="lineNum">     366 </span>            : BOOST_LOG_CLOSE_NAMESPACE // namespace log
+<span class="lineNum">     367 </span>            : 
+<span class="lineNum">     368 </span>            : } // namespace boost
+<span class="lineNum">     369 </span>            : 
+<span class="lineNum">     370 </span>            : #include &lt;boost/log/detail/footer.hpp&gt;
+<span class="lineNum">     371 </span>            : 
+<span class="lineNum">     372 </span>            : #endif // BOOST_LOG_ATTRIBUTES_VALUE_VISITATION_HPP_INCLUDED_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

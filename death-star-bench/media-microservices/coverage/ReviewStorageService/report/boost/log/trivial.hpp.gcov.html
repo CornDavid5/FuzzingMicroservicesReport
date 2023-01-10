@@ -1,0 +1,203 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/log/trivial.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">boost/log</a> - trivial.hpp<span style="font-size: 80%;"> (source / <a href="trivial.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryMed">83.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 01:12:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *          Copyright Andrey Semashev 2007 - 2015.
+<span class="lineNum">       3 </span>            :  * Distributed under the Boost Software License, Version 1.0.
+<span class="lineNum">       4 </span>            :  *    (See accompanying file LICENSE_1_0.txt or copy at
+<span class="lineNum">       5 </span>            :  *          http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       6 </span>            :  */
+<span class="lineNum">       7 </span>            : /*!
+<span class="lineNum">       8 </span>            :  * \file   log/trivial.hpp
+<span class="lineNum">       9 </span>            :  * \author Andrey Semashev
+<span class="lineNum">      10 </span>            :  * \date   07.11.2009
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * This header defines tools for trivial logging support
+<span class="lineNum">      13 </span>            :  */
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : #ifndef BOOST_LOG_TRIVIAL_HPP_INCLUDED_
+<span class="lineNum">      16 </span>            : #define BOOST_LOG_TRIVIAL_HPP_INCLUDED_
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #include &lt;iosfwd&gt;
+<span class="lineNum">      19 </span>            : #include &lt;ostream&gt;
+<span class="lineNum">      20 </span>            : #include &lt;boost/log/detail/config.hpp&gt;
+<span class="lineNum">      21 </span>            : #include &lt;boost/log/keywords/severity.hpp&gt;
+<span class="lineNum">      22 </span>            : #include &lt;boost/log/sources/severity_logger.hpp&gt;
+<span class="lineNum">      23 </span>            : #include &lt;boost/log/sources/record_ostream.hpp&gt;
+<span class="lineNum">      24 </span>            : #include &lt;boost/log/detail/header.hpp&gt;
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #ifdef BOOST_HAS_PRAGMA_ONCE
+<span class="lineNum">      27 </span>            : #pragma once
+<span class="lineNum">      28 </span>            : #endif
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : #if !defined(BOOST_LOG_USE_CHAR)
+<span class="lineNum">      31 </span>            : #error Boost.Log: Trivial logging is available for narrow-character builds only. Use advanced initialization routines to setup wide-character logging.
+<span class="lineNum">      32 </span>            : #endif
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            : namespace boost {
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            : BOOST_LOG_OPEN_NAMESPACE
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            : namespace trivial {
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span>            : //! Trivial severity levels
+<span class="lineNum">      41 </span>            : enum severity_level
+<span class="lineNum">      42 </span>            : {
+<span class="lineNum">      43 </span>            :     trace,
+<span class="lineNum">      44 </span>            :     debug,
+<span class="lineNum">      45 </span>            :     info,
+<span class="lineNum">      46 </span>            :     warning,
+<span class="lineNum">      47 </span>            :     error,
+<span class="lineNum">      48 </span>            :     fatal
+<span class="lineNum">      49 </span>            : };
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span>            : //! Returns stringized enumeration value or \c NULL, if the value is not valid
+<span class="lineNum">      52 </span>            : BOOST_LOG_API const char* to_string(severity_level lvl);
+<span class="lineNum">      53 </span>            : 
+<a name="54"><span class="lineNum">      54 </span>            : //! Outputs stringized representation of the severity level to the stream</a>
+<span class="lineNum">      55 </span>            : template&lt; typename CharT, typename TraitsT &gt;
+<span class="lineNum">      56 </span><span class="lineCov">       1048 : inline std::basic_ostream&lt; CharT, TraitsT &gt;&amp; operator&lt;&lt; (</span>
+<span class="lineNum">      57 </span>            :     std::basic_ostream&lt; CharT, TraitsT &gt;&amp; strm, severity_level lvl)
+<span class="lineNum">      58 </span>            : {
+<span class="lineNum">      59 </span><span class="lineCov">       1048 :     const char* str = boost::log::trivial::to_string(lvl);</span>
+<span class="lineNum">      60 </span><span class="lineCov">       1048 :     if (str)</span>
+<span class="lineNum">      61 </span><span class="lineCov">       1048 :         strm &lt;&lt; str;</span>
+<span class="lineNum">      62 </span>            :     else
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :         strm &lt;&lt; static_cast&lt; int &gt;(lvl);</span>
+<span class="lineNum">      64 </span><span class="lineCov">       1048 :     return strm;</span>
+<span class="lineNum">      65 </span>            : }
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span>            : //! Reads stringized representation of the severity level from the stream
+<span class="lineNum">      68 </span>            : template&lt; typename CharT, typename TraitsT &gt;
+<span class="lineNum">      69 </span>            : BOOST_LOG_API std::basic_istream&lt; CharT, TraitsT &gt;&amp; operator&gt;&gt; (
+<span class="lineNum">      70 </span>            :     std::basic_istream&lt; CharT, TraitsT &gt;&amp; strm, severity_level&amp; lvl);
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span>            : //! Trivial logger type
+<span class="lineNum">      73 </span>            : #if !defined(BOOST_LOG_NO_THREADS)
+<span class="lineNum">      74 </span>            : typedef sources::severity_logger_mt&lt; severity_level &gt; logger_type;
+<span class="lineNum">      75 </span>            : #else
+<span class="lineNum">      76 </span>            : typedef sources::severity_logger&lt; severity_level &gt; logger_type;
+<span class="lineNum">      77 </span>            : #endif
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span>            : /*!
+<span class="lineNum">      80 </span>            :  * \brief Trivial logger tag
+<span class="lineNum">      81 </span>            :  *
+<span class="lineNum">      82 </span>            :  * This tag can be used to acquire the logger that is used with lrivial logging macros.
+<span class="lineNum">      83 </span>            :  * This may be useful when the logger is used with other macros which require a logger.
+<span class="lineNum">      84 </span>            :  */
+<span class="lineNum">      85 </span>            : struct logger
+<span class="lineNum">      86 </span>            : {
+<span class="lineNum">      87 </span>            :     //! Logger type
+<span class="lineNum">      88 </span>            :     typedef trivial::logger_type logger_type;
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span>            :     /*!
+<span class="lineNum">      91 </span>            :      * Returns a reference to the trivial logger instance
+<span class="lineNum">      92 </span>            :      */
+<span class="lineNum">      93 </span>            :     static BOOST_LOG_API logger_type&amp; get();
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span>            :     // Implementation details - never use these
+<span class="lineNum">      96 </span>            : #if !defined(BOOST_LOG_DOXYGEN_PASS)
+<span class="lineNum">      97 </span>            :     enum registration_line_t { registration_line = __LINE__ };
+<span class="lineNum">      98 </span>            :     static const char* registration_file() { return __FILE__; }
+<span class="lineNum">      99 </span>            :     static BOOST_LOG_API logger_type construct_logger();
+<span class="lineNum">     100 </span>            : #endif
+<span class="lineNum">     101 </span>            : };
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span>            : /*!
+<span class="lineNum">     104 </span>            :  * The macro is used to initiate logging. The \c lvl argument of the macro specifies one of the following
+<span class="lineNum">     105 </span>            :  * severity levels: \c trace, \c debug, \c info, \c warning, \c error or \c fatal (see \c severity_level enum).
+<span class="lineNum">     106 </span>            :  * Following the macro, there may be a streaming expression that composes the record message string. For example:
+<span class="lineNum">     107 </span>            :  *
+<span class="lineNum">     108 </span>            :  * \code
+<span class="lineNum">     109 </span>            :  * BOOST_LOG_TRIVIAL(info) &lt;&lt; &quot;Hello, world!&quot;;
+<span class="lineNum">     110 </span>            :  * \endcode
+<span class="lineNum">     111 </span>            :  */
+<span class="lineNum">     112 </span>            : #define BOOST_LOG_TRIVIAL(lvl)\
+<span class="lineNum">     113 </span>            :     BOOST_LOG_STREAM_WITH_PARAMS(::boost::log::trivial::logger::get(),\
+<span class="lineNum">     114 </span>            :         (::boost::log::keywords::severity = ::boost::log::trivial::lvl))
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span>            : } // namespace trivial
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span>            : BOOST_LOG_CLOSE_NAMESPACE // namespace log
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span>            : } // namespace boost
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span>            : #include &lt;boost/log/detail/footer.hpp&gt;
+<span class="lineNum">     123 </span>            : #if defined(BOOST_LOG_EXPRESSIONS_KEYWORD_HPP_INCLUDED_)
+<span class="lineNum">     124 </span>            : #include &lt;boost/log/detail/trivial_keyword.hpp&gt;
+<span class="lineNum">     125 </span>            : #endif
+<span class="lineNum">     126 </span>            : 
+<span class="lineNum">     127 </span>            : #endif // BOOST_LOG_TRIVIAL_HPP_INCLUDED_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

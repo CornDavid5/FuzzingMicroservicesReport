@@ -1,0 +1,435 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/proto/transform/arg.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">boost/proto/transform</a> - arg.hpp<span style="font-size: 80%;"> (source / <a href="arg.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 01:14:10</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : ///////////////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">       2 </span>            : /// \file arg.hpp
+<span class="lineNum">       3 </span>            : /// Contains definition of the argN transforms.
+<span class="lineNum">       4 </span>            : //
+<span class="lineNum">       5 </span>            : //  Copyright 2008 Eric Niebler. Distributed under the Boost
+<span class="lineNum">       6 </span>            : //  Software License, Version 1.0. (See accompanying file
+<span class="lineNum">       7 </span>            : //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       8 </span>            : 
+<span class="lineNum">       9 </span>            : #ifndef BOOST_PROTO_TRANSFORM_ARG_HPP_EAN_11_01_2007
+<span class="lineNum">      10 </span>            : #define BOOST_PROTO_TRANSFORM_ARG_HPP_EAN_11_01_2007
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span>            : #include &lt;boost/mpl/if.hpp&gt;
+<span class="lineNum">      13 </span>            : #include &lt;boost/proto/proto_fwd.hpp&gt;
+<span class="lineNum">      14 </span>            : #include &lt;boost/proto/traits.hpp&gt;
+<span class="lineNum">      15 </span>            : #include &lt;boost/proto/transform/impl.hpp&gt;
+<span class="lineNum">      16 </span>            : #include &lt;boost/type_traits/is_array.hpp&gt;
+<span class="lineNum">      17 </span>            : #include &lt;boost/proto/transform/env.hpp&gt;
+<span class="lineNum">      18 </span>            : 
+<span class="lineNum">      19 </span>            : namespace boost { namespace proto
+<span class="lineNum">      20 </span>            : {
+<span class="lineNum">      21 </span>            : 
+<span class="lineNum">      22 </span>            :     /// \brief A PrimitiveTransform that returns the current expression
+<span class="lineNum">      23 </span>            :     /// unmodified
+<span class="lineNum">      24 </span>            :     ///
+<span class="lineNum">      25 </span>            :     /// Example:
+<span class="lineNum">      26 </span>            :     ///
+<span class="lineNum">      27 </span>            :     /// \code
+<span class="lineNum">      28 </span>            :     /// proto::terminal&lt;int&gt;::type i = {42};
+<span class="lineNum">      29 </span>            :     /// proto::terminal&lt;int&gt;::type &amp; j = proto::_expr()(i);
+<span class="lineNum">      30 </span>            :     /// assert( boost::addressof(i) == boost::addressof(j) );
+<span class="lineNum">      31 </span>            :     /// \endcode
+<span class="lineNum">      32 </span>            :     struct _expr : transform&lt;_expr&gt;
+<span class="lineNum">      33 </span>            :     {
+<span class="lineNum">      34 </span>            :         template&lt;typename Expr, typename State, typename Data&gt;
+<span class="lineNum">      35 </span>            :         struct impl : transform_impl&lt;Expr, State, Data&gt;
+<span class="lineNum">      36 </span>            :         {
+<span class="lineNum">      37 </span>            :             typedef Expr result_type;
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            :             /// Returns the current expression.
+<span class="lineNum">      40 </span>            :             /// \param e The current expression.
+<span class="lineNum">      41 </span>            :             /// \return \c e
+<span class="lineNum">      42 </span>            :             /// \throw nothrow
+<span class="lineNum">      43 </span>            :             BOOST_PROTO_RETURN_TYPE_STRICT_LOOSE(result_type, typename impl::expr_param)
+<span class="lineNum">      44 </span>            :             operator()(
+<span class="lineNum">      45 </span>            :                 typename impl::expr_param e
+<span class="lineNum">      46 </span>            :               , typename impl::state_param
+<span class="lineNum">      47 </span>            :               , typename impl::data_param
+<span class="lineNum">      48 </span>            :             ) const
+<span class="lineNum">      49 </span>            :             {
+<span class="lineNum">      50 </span>            :                 return e;
+<span class="lineNum">      51 </span>            :             }
+<span class="lineNum">      52 </span>            :         };
+<span class="lineNum">      53 </span>            :     };
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            :     /// \brief A PrimitiveTransform that returns the current state
+<span class="lineNum">      56 </span>            :     /// unmodified
+<span class="lineNum">      57 </span>            :     ///
+<span class="lineNum">      58 </span>            :     /// Example:
+<span class="lineNum">      59 </span>            :     ///
+<span class="lineNum">      60 </span>            :     /// \code
+<span class="lineNum">      61 </span>            :     /// proto::terminal&lt;int&gt;::type i = {42};
+<span class="lineNum">      62 </span>            :     /// char ch = proto::_state()(i, 'a');
+<span class="lineNum">      63 </span>            :     /// assert( ch == 'a' );
+<span class="lineNum">      64 </span>            :     /// \endcode
+<span class="lineNum">      65 </span>            :     struct _state : transform&lt;_state&gt;
+<span class="lineNum">      66 </span>            :     {
+<span class="lineNum">      67 </span>            :         template&lt;typename Expr, typename State, typename Data&gt;
+<span class="lineNum">      68 </span>            :         struct impl : transform_impl&lt;Expr, State, Data&gt;
+<span class="lineNum">      69 </span>            :         {
+<span class="lineNum">      70 </span>            :             typedef State result_type;
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span>            :             /// Returns the current state.
+<span class="lineNum">      73 </span>            :             /// \param s The current state.
+<span class="lineNum">      74 </span>            :             /// \return \c s
+<span class="lineNum">      75 </span>            :             /// \throw nothrow
+<span class="lineNum">      76 </span>            :             BOOST_PROTO_RETURN_TYPE_STRICT_LOOSE(result_type, typename impl::state_param)
+<span class="lineNum">      77 </span>            :             operator ()(
+<span class="lineNum">      78 </span>            :                 typename impl::expr_param
+<span class="lineNum">      79 </span>            :               , typename impl::state_param s
+<span class="lineNum">      80 </span>            :               , typename impl::data_param
+<span class="lineNum">      81 </span>            :             ) const
+<span class="lineNum">      82 </span>            :             {
+<span class="lineNum">      83 </span>            :                 return s;
+<span class="lineNum">      84 </span>            :             }
+<span class="lineNum">      85 </span>            :         };
+<span class="lineNum">      86 </span>            :     };
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span>            :     /// \brief A PrimitiveTransform that returns the current data
+<span class="lineNum">      89 </span>            :     /// unmodified
+<span class="lineNum">      90 </span>            :     ///
+<span class="lineNum">      91 </span>            :     /// Example:
+<span class="lineNum">      92 </span>            :     ///
+<span class="lineNum">      93 </span>            :     /// \code
+<span class="lineNum">      94 </span>            :     /// proto::terminal&lt;int&gt;::type i = {42};
+<span class="lineNum">      95 </span>            :     /// std::string str(&quot;hello&quot;);
+<span class="lineNum">      96 </span>            :     /// std::string &amp; data = proto::_data()(i, 'a', str);
+<span class="lineNum">      97 </span>            :     /// assert( &amp;str == &amp;data );
+<span class="lineNum">      98 </span>            :     /// \endcode
+<span class="lineNum">      99 </span>            :     struct _data : transform&lt;_data&gt;
+<span class="lineNum">     100 </span>            :     {
+<span class="lineNum">     101 </span>            :         template&lt;typename Expr, typename State, typename Data&gt;
+<span class="lineNum">     102 </span>            :         struct impl
+<span class="lineNum">     103 </span>            :           : mpl::if_c&lt;
+<span class="lineNum">     104 </span>            :                 is_env&lt;Data&gt;::value
+<span class="lineNum">     105 </span>            :               , _env_var&lt;data_type&gt;
+<span class="lineNum">     106 </span>            :               , _env
+<span class="lineNum">     107 </span>            :             &gt;::type::template impl&lt;Expr, State, Data&gt;
+<span class="lineNum">     108 </span>            :         {};
+<span class="lineNum">     109 </span>            :     };
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span>            :     /// \brief A PrimitiveTransform that returns N-th child of the current
+<span class="lineNum">     112 </span>            :     /// expression.
+<span class="lineNum">     113 </span>            :     ///
+<span class="lineNum">     114 </span>            :     /// Example:
+<span class="lineNum">     115 </span>            :     ///
+<span class="lineNum">     116 </span>            :     /// \code
+<span class="lineNum">     117 </span>            :     /// proto::terminal&lt;int&gt;::type i = {42};
+<span class="lineNum">     118 </span>            :     /// proto::terminal&lt;int&gt;::type &amp; j = proto::_child_c&lt;0&gt;()(-i);
+<span class="lineNum">     119 </span>            :     /// assert( boost::addressof(i) == boost::addressof(j) );
+<span class="lineNum">     120 </span>            :     /// \endcode
+<span class="lineNum">     121 </span>            :     template&lt;int N&gt;
+<span class="lineNum">     122 </span>            :     struct _child_c : transform&lt;_child_c&lt;N&gt; &gt;
+<span class="lineNum">     123 </span>            :     {
+<span class="lineNum">     124 </span>            :         template&lt;typename Expr, typename State, typename Data&gt;
+<span class="lineNum">     125 </span>            :         struct impl : transform_impl&lt;Expr, State, Data&gt;
+<span class="lineNum">     126 </span>            :         {
+<span class="lineNum">     127 </span>            :             typedef
+<span class="lineNum">     128 </span>            :                 typename result_of::child_c&lt;Expr, N&gt;::type
+<span class="lineNum">     129 </span>            :             result_type;
+<span class="lineNum">     130 </span>            : 
+<span class="lineNum">     131 </span>            :             /// Returns the N-th child of \c e
+<span class="lineNum">     132 </span>            :             /// \pre &lt;tt&gt;arity_of\&lt;Expr\&gt;::value \&gt; N&lt;/tt&gt; 
+<span class="lineNum">     133 </span>            :             /// \param e The current expression.
+<span class="lineNum">     134 </span>            :             /// \return &lt;tt&gt;proto::child_c\&lt;N\&gt;(e)&lt;/tt&gt;
+<span class="lineNum">     135 </span>            :             /// \throw nothrow
+<span class="lineNum">     136 </span>            :             #ifdef BOOST_PROTO_STRICT_RESULT_OF
+<span class="lineNum">     137 </span>            :             result_type
+<span class="lineNum">     138 </span>            :             #else
+<span class="lineNum">     139 </span>            :             typename result_of::child_c&lt;typename impl::expr_param, N&gt;::type
+<span class="lineNum">     140 </span>            :             #endif
+<span class="lineNum">     141 </span>            :             operator ()(
+<span class="lineNum">     142 </span>            :                 typename impl::expr_param e
+<span class="lineNum">     143 </span>            :               , typename impl::state_param
+<span class="lineNum">     144 </span>            :               , typename impl::data_param
+<span class="lineNum">     145 </span>            :             ) const
+<span class="lineNum">     146 </span>            :             {
+<span class="lineNum">     147 </span>            :                 return proto::child_c&lt;N&gt;(e);
+<span class="lineNum">     148 </span>            :             }
+<span class="lineNum">     149 </span>            :         };
+<span class="lineNum">     150 </span>            :     };
+<span class="lineNum">     151 </span>            : 
+<span class="lineNum">     152 </span>            :     /// \brief A PrimitiveTransform that returns the value of the
+<span class="lineNum">     153 </span>            :     /// current terminal expression.
+<span class="lineNum">     154 </span>            :     ///
+<span class="lineNum">     155 </span>            :     /// Example:
+<span class="lineNum">     156 </span>            :     ///
+<span class="lineNum">     157 </span>            :     /// \code
+<span class="lineNum">     158 </span>            :     /// proto::terminal&lt;int&gt;::type i = {42};
+<span class="lineNum">     159 </span>            :     /// int j = proto::_value()(i);
+<span class="lineNum">     160 </span>            :     /// assert( 42 == j );
+<span class="lineNum">     161 </span>            :     /// \endcode
+<span class="lineNum">     162 </span>            :     struct _value : transform&lt;_value&gt;
+<span class="lineNum">     163 </span>            :     {
+<span class="lineNum">     164 </span>            :         template&lt;typename Expr, typename State, typename Data&gt;
+<span class="lineNum">     165 </span>            :         struct impl : transform_impl&lt;Expr, State, Data&gt;
+<span class="lineNum">     166 </span>            :         {
+<span class="lineNum">     167 </span>            :             typedef
+<span class="lineNum">     168 </span>            :                 typename result_of::value&lt;Expr&gt;::type
+<span class="lineNum">     169 </span>            :             result_type;
+<span class="lineNum">     170 </span>            : 
+<span class="lineNum">     171 </span>            :             /// Returns the value of the specified terminal expression.
+<span class="lineNum">     172 </span>            :             /// \pre &lt;tt&gt;arity_of\&lt;Expr\&gt;::value == 0&lt;/tt&gt;.
+<span class="lineNum">     173 </span>            :             /// \param e The current expression.
+<span class="lineNum">     174 </span>            :             /// \return &lt;tt&gt;proto::value(e)&lt;/tt&gt;
+<span class="lineNum">     175 </span>            :             /// \throw nothrow
+<span class="lineNum">     176 </span>            :             #ifdef BOOST_PROTO_STRICT_RESULT_OF
+<span class="lineNum">     177 </span>            :             typename mpl::if_c&lt;is_array&lt;result_type&gt;::value, result_type &amp;, result_type&gt;::type
+<span class="lineNum">     178 </span>            :             #else
+<a name="179"><span class="lineNum">     179 </span>            :             typename result_of::value&lt;typename impl::expr_param&gt;::type</a>
+<span class="lineNum">     180 </span>            :             #endif
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :             operator ()(</span>
+<span class="lineNum">     182 </span>            :                 typename impl::expr_param e
+<span class="lineNum">     183 </span>            :               , typename impl::state_param
+<span class="lineNum">     184 </span>            :               , typename impl::data_param
+<span class="lineNum">     185 </span>            :             ) const
+<span class="lineNum">     186 </span>            :             {
+<span class="lineNum">     187 </span><span class="lineNoCov">          0 :                 return proto::value(e);</span>
+<span class="lineNum">     188 </span>            :             }
+<span class="lineNum">     189 </span>            :         };
+<span class="lineNum">     190 </span>            :     };
+<span class="lineNum">     191 </span>            : 
+<span class="lineNum">     192 </span>            :     /// \brief A PrimitiveTransform that does nothing
+<span class="lineNum">     193 </span>            :     /// and returns void.
+<span class="lineNum">     194 </span>            :     struct _void : transform&lt;_void&gt;
+<span class="lineNum">     195 </span>            :     {
+<span class="lineNum">     196 </span>            :         template&lt;typename Expr, typename State, typename Data&gt;
+<span class="lineNum">     197 </span>            :         struct impl : transform_impl&lt;Expr, State, Data&gt;
+<span class="lineNum">     198 </span>            :         {
+<span class="lineNum">     199 </span>            :             typedef void result_type;
+<span class="lineNum">     200 </span>            : 
+<span class="lineNum">     201 </span>            :             /// Does nothing and returns void
+<span class="lineNum">     202 </span>            :             void operator ()(
+<span class="lineNum">     203 </span>            :                 typename impl::expr_param
+<span class="lineNum">     204 </span>            :               , typename impl::state_param
+<span class="lineNum">     205 </span>            :               , typename impl::data_param
+<span class="lineNum">     206 </span>            :             ) const
+<span class="lineNum">     207 </span>            :             {}
+<span class="lineNum">     208 </span>            :         };
+<span class="lineNum">     209 </span>            :     };
+<span class="lineNum">     210 </span>            : 
+<span class="lineNum">     211 </span>            :     /// \brief A unary CallableTransform that wraps its argument
+<span class="lineNum">     212 </span>            :     /// in a \c boost::reference_wrapper\&lt;\&gt;.
+<span class="lineNum">     213 </span>            :     ///
+<span class="lineNum">     214 </span>            :     /// Example:
+<span class="lineNum">     215 </span>            :     ///
+<span class="lineNum">     216 </span>            :     /// \code
+<span class="lineNum">     217 </span>            :     /// proto::terminal&lt;int&gt;::type i = {42};
+<span class="lineNum">     218 </span>            :     /// boost::reference_wrapper&lt;proto::terminal&lt;int&gt;::type&gt; j
+<span class="lineNum">     219 </span>            :     ///     = proto::when&lt;_, proto::_byref(_)&gt;()(i);
+<span class="lineNum">     220 </span>            :     /// assert( boost::addressof(i) == boost::addressof(j.get()) );
+<span class="lineNum">     221 </span>            :     /// \endcode
+<span class="lineNum">     222 </span>            :     struct _byref : callable
+<span class="lineNum">     223 </span>            :     {
+<span class="lineNum">     224 </span>            :         template&lt;typename Sig&gt;
+<span class="lineNum">     225 </span>            :         struct result;
+<span class="lineNum">     226 </span>            : 
+<span class="lineNum">     227 </span>            :         template&lt;typename This, typename T&gt;
+<span class="lineNum">     228 </span>            :         struct result&lt;This(T)&gt;
+<span class="lineNum">     229 </span>            :         {
+<span class="lineNum">     230 </span>            :             typedef boost::reference_wrapper&lt;T const&gt; const type;
+<span class="lineNum">     231 </span>            :         };
+<span class="lineNum">     232 </span>            : 
+<span class="lineNum">     233 </span>            :         template&lt;typename This, typename T&gt;
+<span class="lineNum">     234 </span>            :         struct result&lt;This(T &amp;)&gt;
+<span class="lineNum">     235 </span>            :         {
+<span class="lineNum">     236 </span>            :             typedef boost::reference_wrapper&lt;T&gt; const type;
+<span class="lineNum">     237 </span>            :         };
+<span class="lineNum">     238 </span>            : 
+<span class="lineNum">     239 </span>            :         /// Wrap the parameter \c t in a \c boost::reference_wrapper\&lt;\&gt;
+<span class="lineNum">     240 </span>            :         /// \param t The object to wrap
+<span class="lineNum">     241 </span>            :         /// \return &lt;tt&gt;boost::ref(t)&lt;/tt&gt;
+<span class="lineNum">     242 </span>            :         /// \throw nothrow
+<span class="lineNum">     243 </span>            :         template&lt;typename T&gt;
+<span class="lineNum">     244 </span>            :         boost::reference_wrapper&lt;T&gt; const operator ()(T &amp;t) const
+<span class="lineNum">     245 </span>            :         {
+<span class="lineNum">     246 </span>            :             return boost::reference_wrapper&lt;T&gt;(t);
+<span class="lineNum">     247 </span>            :         }
+<span class="lineNum">     248 </span>            : 
+<span class="lineNum">     249 </span>            :         /// \overload
+<span class="lineNum">     250 </span>            :         ///
+<span class="lineNum">     251 </span>            :         template&lt;typename T&gt;
+<span class="lineNum">     252 </span>            :         boost::reference_wrapper&lt;T const&gt; const operator ()(T const &amp;t) const
+<span class="lineNum">     253 </span>            :         {
+<span class="lineNum">     254 </span>            :             return boost::reference_wrapper&lt;T const&gt;(t);
+<span class="lineNum">     255 </span>            :         }
+<span class="lineNum">     256 </span>            :     };
+<span class="lineNum">     257 </span>            : 
+<span class="lineNum">     258 </span>            :     /// \brief A unary CallableTransform that strips references
+<span class="lineNum">     259 </span>            :     /// and \c boost::reference_wrapper\&lt;\&gt; from its argument.
+<span class="lineNum">     260 </span>            :     ///
+<span class="lineNum">     261 </span>            :     /// Example:
+<span class="lineNum">     262 </span>            :     ///
+<span class="lineNum">     263 </span>            :     /// \code
+<span class="lineNum">     264 </span>            :     /// proto::terminal&lt;int&gt;::type i = {42};
+<span class="lineNum">     265 </span>            :     /// int j = 67;
+<span class="lineNum">     266 </span>            :     /// int k = proto::when&lt;_, proto::_byval(proto::_state)&gt;()(i, boost::ref(j));
+<span class="lineNum">     267 </span>            :     /// assert( 67 == k );
+<span class="lineNum">     268 </span>            :     /// \endcode
+<span class="lineNum">     269 </span>            :     struct _byval : callable
+<span class="lineNum">     270 </span>            :     {
+<span class="lineNum">     271 </span>            :         template&lt;typename Sig&gt;
+<span class="lineNum">     272 </span>            :         struct result;
+<span class="lineNum">     273 </span>            : 
+<span class="lineNum">     274 </span>            :         template&lt;typename This, typename T&gt;
+<span class="lineNum">     275 </span>            :         struct result&lt;This(T)&gt;
+<span class="lineNum">     276 </span>            :         {
+<span class="lineNum">     277 </span>            :             typedef T type;
+<span class="lineNum">     278 </span>            :         };
+<span class="lineNum">     279 </span>            : 
+<span class="lineNum">     280 </span>            :         template&lt;typename This, typename T&gt;
+<span class="lineNum">     281 </span>            :         struct result&lt;This(T &amp;)&gt;
+<span class="lineNum">     282 </span>            :           : result&lt;This(T)&gt;
+<span class="lineNum">     283 </span>            :         {};
+<span class="lineNum">     284 </span>            : 
+<span class="lineNum">     285 </span>            :         template&lt;typename This, typename T&gt;
+<span class="lineNum">     286 </span>            :         struct result&lt;This(boost::reference_wrapper&lt;T&gt;)&gt;
+<span class="lineNum">     287 </span>            :           : result&lt;This(T)&gt;
+<span class="lineNum">     288 </span>            :         {};
+<span class="lineNum">     289 </span>            : 
+<span class="lineNum">     290 </span>            :         /// \param t The object to unref
+<span class="lineNum">     291 </span>            :         /// \return &lt;tt&gt;t&lt;/tt&gt;
+<span class="lineNum">     292 </span>            :         /// \throw nothrow
+<span class="lineNum">     293 </span>            :         template&lt;typename T&gt;
+<span class="lineNum">     294 </span>            :         T operator ()(T const &amp;t) const
+<span class="lineNum">     295 </span>            :         {
+<span class="lineNum">     296 </span>            :             return t;
+<span class="lineNum">     297 </span>            :         }
+<span class="lineNum">     298 </span>            : 
+<span class="lineNum">     299 </span>            :         /// \overload
+<span class="lineNum">     300 </span>            :         ///
+<span class="lineNum">     301 </span>            :         template&lt;typename T&gt;
+<span class="lineNum">     302 </span>            :         T operator ()(boost::reference_wrapper&lt;T&gt; const &amp;t) const
+<span class="lineNum">     303 </span>            :         {
+<span class="lineNum">     304 </span>            :             return t;
+<span class="lineNum">     305 </span>            :         }
+<span class="lineNum">     306 </span>            :     };
+<span class="lineNum">     307 </span>            : 
+<span class="lineNum">     308 </span>            :     /// INTERNAL ONLY
+<span class="lineNum">     309 </span>            :     ///
+<span class="lineNum">     310 </span>            :     template&lt;&gt;
+<span class="lineNum">     311 </span>            :     struct is_callable&lt;_expr&gt;
+<span class="lineNum">     312 </span>            :       : mpl::true_
+<span class="lineNum">     313 </span>            :     {};
+<span class="lineNum">     314 </span>            : 
+<span class="lineNum">     315 </span>            :     /// INTERNAL ONLY
+<span class="lineNum">     316 </span>            :     ///
+<span class="lineNum">     317 </span>            :     template&lt;&gt;
+<span class="lineNum">     318 </span>            :     struct is_callable&lt;_state&gt;
+<span class="lineNum">     319 </span>            :       : mpl::true_
+<span class="lineNum">     320 </span>            :     {};
+<span class="lineNum">     321 </span>            : 
+<span class="lineNum">     322 </span>            :     /// INTERNAL ONLY
+<span class="lineNum">     323 </span>            :     ///
+<span class="lineNum">     324 </span>            :     template&lt;&gt;
+<span class="lineNum">     325 </span>            :     struct is_callable&lt;_data&gt;
+<span class="lineNum">     326 </span>            :       : mpl::true_
+<span class="lineNum">     327 </span>            :     {};
+<span class="lineNum">     328 </span>            : 
+<span class="lineNum">     329 </span>            :     /// INTERNAL ONLY
+<span class="lineNum">     330 </span>            :     ///
+<span class="lineNum">     331 </span>            :     template&lt;int N&gt;
+<span class="lineNum">     332 </span>            :     struct is_callable&lt;_child_c&lt;N&gt; &gt;
+<span class="lineNum">     333 </span>            :       : mpl::true_
+<span class="lineNum">     334 </span>            :     {};
+<span class="lineNum">     335 </span>            : 
+<span class="lineNum">     336 </span>            :     /// INTERNAL ONLY
+<span class="lineNum">     337 </span>            :     ///
+<span class="lineNum">     338 </span>            :     template&lt;&gt;
+<span class="lineNum">     339 </span>            :     struct is_callable&lt;_value&gt;
+<span class="lineNum">     340 </span>            :       : mpl::true_
+<span class="lineNum">     341 </span>            :     {};
+<span class="lineNum">     342 </span>            : 
+<span class="lineNum">     343 </span>            :     /// INTERNAL ONLY
+<span class="lineNum">     344 </span>            :     ///
+<span class="lineNum">     345 </span>            :     template&lt;&gt;
+<span class="lineNum">     346 </span>            :     struct is_callable&lt;_byref&gt;
+<span class="lineNum">     347 </span>            :       : mpl::true_
+<span class="lineNum">     348 </span>            :     {};
+<span class="lineNum">     349 </span>            : 
+<span class="lineNum">     350 </span>            :     /// INTERNAL ONLY
+<span class="lineNum">     351 </span>            :     ///
+<span class="lineNum">     352 </span>            :     template&lt;&gt;
+<span class="lineNum">     353 </span>            :     struct is_callable&lt;_byval&gt;
+<span class="lineNum">     354 </span>            :       : mpl::true_
+<span class="lineNum">     355 </span>            :     {};
+<span class="lineNum">     356 </span>            : 
+<span class="lineNum">     357 </span>            : }}
+<span class="lineNum">     358 </span>            : 
+<span class="lineNum">     359 </span>            : #endif
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

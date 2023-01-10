@@ -1,0 +1,407 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/proto/detail/preprocessed/make_expr_.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">boost/proto/detail/preprocessed</a> - make_expr_.hpp<span style="font-size: 80%;"> (source / <a href="make_expr_.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 01:13:04</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            :     ///////////////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">       2 </span>            :     /// \file make_expr_.hpp
+<span class="lineNum">       3 </span>            :     /// Contains definition of make_expr_\&lt;\&gt; class template.
+<span class="lineNum">       4 </span>            :     //
+<span class="lineNum">       5 </span>            :     //  Copyright 2008 Eric Niebler. Distributed under the Boost
+<span class="lineNum">       6 </span>            :     //  Software License, Version 1.0. (See accompanying file
+<span class="lineNum">       7 </span>            :     //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       8 </span>            :     template&lt;
+<span class="lineNum">       9 </span>            :         typename Tag
+<span class="lineNum">      10 </span>            :       , typename Domain
+<span class="lineNum">      11 </span>            :         , typename A0 = void , typename A1 = void , typename A2 = void , typename A3 = void , typename A4 = void , typename A5 = void , typename A6 = void , typename A7 = void , typename A8 = void , typename A9 = void
+<span class="lineNum">      12 </span>            :       , typename _ = void
+<span class="lineNum">      13 </span>            :     &gt;
+<span class="lineNum">      14 </span>            :     struct make_expr_
+<span class="lineNum">      15 </span>            :     {};
+<span class="lineNum">      16 </span>            :     template&lt;typename Domain, typename A&gt;
+<span class="lineNum">      17 </span>            :     struct make_expr_&lt;tag::terminal, Domain, A
+<span class="lineNum">      18 </span>            :         , void , void , void , void , void , void , void , void , void , void&gt;
+<span class="lineNum">      19 </span>            :     {
+<span class="lineNum">      20 </span>            :         typedef typename proto::detail::protoify&lt;A, Domain&gt;::result_type result_type;
+<span class="lineNum">      21 </span>            :         BOOST_FORCEINLINE
+<span class="lineNum">      22 </span>            :         result_type operator()(typename add_reference&lt;A&gt;::type a) const
+<span class="lineNum">      23 </span>            :         {
+<span class="lineNum">      24 </span>            :             return proto::detail::protoify&lt;A, Domain&gt;()(a);
+<span class="lineNum">      25 </span>            :         }
+<span class="lineNum">      26 </span>            :     };
+<span class="lineNum">      27 </span>            :     template&lt;typename A&gt;
+<span class="lineNum">      28 </span>            :     struct make_expr_&lt;tag::terminal, deduce_domain, A
+<span class="lineNum">      29 </span>            :         , void , void , void , void , void , void , void , void , void , void&gt;
+<span class="lineNum">      30 </span>            :       : make_expr_&lt;tag::terminal, default_domain, A&gt;
+<span class="lineNum">      31 </span>            :     {};
+<span class="lineNum">      32 </span>            :     template&lt;typename Tag, typename Domain , typename A0&gt;
+<span class="lineNum">      33 </span>            :     struct make_expr_&lt;Tag, Domain , A0
+<span class="lineNum">      34 </span>            :         , void , void , void , void , void , void , void , void , void, void&gt;
+<span class="lineNum">      35 </span>            :     {
+<span class="lineNum">      36 </span>            :         typedef
+<span class="lineNum">      37 </span>            :             list1&lt;
+<span class="lineNum">      38 </span>            :                 typename boost::proto::detail::protoify&lt; A0 , Domain &gt;::result_type
+<span class="lineNum">      39 </span>            :             &gt;
+<span class="lineNum">      40 </span>            :         proto_args;
+<span class="lineNum">      41 </span>            :         typedef typename base_expr&lt;Domain, Tag, proto_args&gt;::type expr_type;
+<span class="lineNum">      42 </span>            :         typedef typename Domain::proto_generator proto_generator;
+<span class="lineNum">      43 </span>            :         typedef typename proto_generator::template result&lt;proto_generator(expr_type)&gt;::type result_type;
+<span class="lineNum">      44 </span>            :         BOOST_FORCEINLINE
+<span class="lineNum">      45 </span>            :         result_type operator()(typename add_reference&lt;A0 &gt;::type a0) const
+<span class="lineNum">      46 </span>            :         {
+<span class="lineNum">      47 </span>            :             expr_type const that = {
+<span class="lineNum">      48 </span>            :                 boost::proto::detail::protoify&lt; A0 , Domain &gt;()(a0)
+<span class="lineNum">      49 </span>            :             };
+<span class="lineNum">      50 </span>            :             return proto_generator()(that);
+<span class="lineNum">      51 </span>            :         }
+<span class="lineNum">      52 </span>            :     };
+<span class="lineNum">      53 </span>            :     template&lt;typename Tag , typename A0&gt;
+<span class="lineNum">      54 </span>            :     struct make_expr_&lt;Tag, deduce_domain , A0
+<span class="lineNum">      55 </span>            :         , void , void , void , void , void , void , void , void , void, void&gt;
+<span class="lineNum">      56 </span>            :       : make_expr_&lt;
+<span class="lineNum">      57 </span>            :             Tag
+<span class="lineNum">      58 </span>            :           , typename deduce_domain1&lt;A0&gt;::type
+<span class="lineNum">      59 </span>            :             , A0
+<span class="lineNum">      60 </span>            :         &gt;
+<span class="lineNum">      61 </span>            :     {};
+<span class="lineNum">      62 </span>            :     template&lt;typename Tag, typename Domain , typename A0 , typename A1&gt;
+<span class="lineNum">      63 </span>            :     struct make_expr_&lt;Tag, Domain , A0 , A1
+<span class="lineNum">      64 </span>            :         , void , void , void , void , void , void , void , void, void&gt;
+<span class="lineNum">      65 </span>            :     {
+<span class="lineNum">      66 </span>            :         typedef
+<span class="lineNum">      67 </span>            :             list2&lt;
+<span class="lineNum">      68 </span>            :                 typename boost::proto::detail::protoify&lt; A0 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A1 , Domain &gt;::result_type
+<span class="lineNum">      69 </span>            :             &gt;
+<span class="lineNum">      70 </span>            :         proto_args;
+<span class="lineNum">      71 </span>            :         typedef typename base_expr&lt;Domain, Tag, proto_args&gt;::type expr_type;
+<span class="lineNum">      72 </span>            :         typedef typename Domain::proto_generator proto_generator;
+<span class="lineNum">      73 </span>            :         typedef typename proto_generator::template result&lt;proto_generator(expr_type)&gt;::type result_type;
+<span class="lineNum">      74 </span>            :         BOOST_FORCEINLINE
+<span class="lineNum">      75 </span>            :         result_type operator()(typename add_reference&lt;A0 &gt;::type a0 , typename add_reference&lt;A1 &gt;::type a1) const
+<span class="lineNum">      76 </span>            :         {
+<span class="lineNum">      77 </span>            :             expr_type const that = {
+<span class="lineNum">      78 </span><span class="lineCov">          2 :                 boost::proto::detail::protoify&lt; A0 , Domain &gt;()(a0) , boost::proto::detail::protoify&lt; A1 , Domain &gt;()(a1)</span>
+<span class="lineNum">      79 </span><span class="lineCov">          4 :             };</span>
+<span class="lineNum">      80 </span><span class="lineCov">          2 :             return proto_generator()(that);</span>
+<span class="lineNum">      81 </span>            :         }
+<span class="lineNum">      82 </span>            :     };
+<span class="lineNum">      83 </span>            :     template&lt;typename Tag , typename A0 , typename A1&gt;
+<span class="lineNum">      84 </span>            :     struct make_expr_&lt;Tag, deduce_domain , A0 , A1
+<span class="lineNum">      85 </span>            :         , void , void , void , void , void , void , void , void, void&gt;
+<span class="lineNum">      86 </span>            :       : make_expr_&lt;
+<span class="lineNum">      87 </span>            :             Tag
+<span class="lineNum">      88 </span>            :           , typename deduce_domain2&lt;A0 , A1&gt;::type
+<span class="lineNum">      89 </span>            :             , A0 , A1
+<span class="lineNum">      90 </span>            :         &gt;
+<span class="lineNum">      91 </span>            :     {};
+<span class="lineNum">      92 </span>            :     template&lt;typename Tag, typename Domain , typename A0 , typename A1 , typename A2&gt;
+<span class="lineNum">      93 </span>            :     struct make_expr_&lt;Tag, Domain , A0 , A1 , A2
+<span class="lineNum">      94 </span>            :         , void , void , void , void , void , void , void, void&gt;
+<span class="lineNum">      95 </span>            :     {
+<span class="lineNum">      96 </span>            :         typedef
+<span class="lineNum">      97 </span>            :             list3&lt;
+<span class="lineNum">      98 </span>            :                 typename boost::proto::detail::protoify&lt; A0 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A1 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A2 , Domain &gt;::result_type
+<span class="lineNum">      99 </span>            :             &gt;
+<span class="lineNum">     100 </span>            :         proto_args;
+<span class="lineNum">     101 </span>            :         typedef typename base_expr&lt;Domain, Tag, proto_args&gt;::type expr_type;
+<span class="lineNum">     102 </span>            :         typedef typename Domain::proto_generator proto_generator;
+<span class="lineNum">     103 </span>            :         typedef typename proto_generator::template result&lt;proto_generator(expr_type)&gt;::type result_type;
+<span class="lineNum">     104 </span>            :         BOOST_FORCEINLINE
+<span class="lineNum">     105 </span>            :         result_type operator()(typename add_reference&lt;A0 &gt;::type a0 , typename add_reference&lt;A1 &gt;::type a1 , typename add_reference&lt;A2 &gt;::type a2) const
+<span class="lineNum">     106 </span>            :         {
+<span class="lineNum">     107 </span>            :             expr_type const that = {
+<span class="lineNum">     108 </span>            :                 boost::proto::detail::protoify&lt; A0 , Domain &gt;()(a0) , boost::proto::detail::protoify&lt; A1 , Domain &gt;()(a1) , boost::proto::detail::protoify&lt; A2 , Domain &gt;()(a2)
+<span class="lineNum">     109 </span>            :             };
+<span class="lineNum">     110 </span>            :             return proto_generator()(that);
+<span class="lineNum">     111 </span>            :         }
+<span class="lineNum">     112 </span>            :     };
+<span class="lineNum">     113 </span>            :     template&lt;typename Tag , typename A0 , typename A1 , typename A2&gt;
+<span class="lineNum">     114 </span>            :     struct make_expr_&lt;Tag, deduce_domain , A0 , A1 , A2
+<span class="lineNum">     115 </span>            :         , void , void , void , void , void , void , void, void&gt;
+<span class="lineNum">     116 </span>            :       : make_expr_&lt;
+<span class="lineNum">     117 </span>            :             Tag
+<span class="lineNum">     118 </span>            :           , typename deduce_domain3&lt;A0 , A1 , A2&gt;::type
+<span class="lineNum">     119 </span>            :             , A0 , A1 , A2
+<span class="lineNum">     120 </span>            :         &gt;
+<span class="lineNum">     121 </span>            :     {};
+<span class="lineNum">     122 </span>            :     template&lt;typename Tag, typename Domain , typename A0 , typename A1 , typename A2 , typename A3&gt;
+<span class="lineNum">     123 </span>            :     struct make_expr_&lt;Tag, Domain , A0 , A1 , A2 , A3
+<span class="lineNum">     124 </span>            :         , void , void , void , void , void , void, void&gt;
+<span class="lineNum">     125 </span>            :     {
+<span class="lineNum">     126 </span>            :         typedef
+<span class="lineNum">     127 </span>            :             list4&lt;
+<span class="lineNum">     128 </span>            :                 typename boost::proto::detail::protoify&lt; A0 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A1 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A2 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A3 , Domain &gt;::result_type
+<span class="lineNum">     129 </span>            :             &gt;
+<span class="lineNum">     130 </span>            :         proto_args;
+<span class="lineNum">     131 </span>            :         typedef typename base_expr&lt;Domain, Tag, proto_args&gt;::type expr_type;
+<span class="lineNum">     132 </span>            :         typedef typename Domain::proto_generator proto_generator;
+<span class="lineNum">     133 </span>            :         typedef typename proto_generator::template result&lt;proto_generator(expr_type)&gt;::type result_type;
+<span class="lineNum">     134 </span>            :         BOOST_FORCEINLINE
+<span class="lineNum">     135 </span>            :         result_type operator()(typename add_reference&lt;A0 &gt;::type a0 , typename add_reference&lt;A1 &gt;::type a1 , typename add_reference&lt;A2 &gt;::type a2 , typename add_reference&lt;A3 &gt;::type a3) const
+<span class="lineNum">     136 </span>            :         {
+<span class="lineNum">     137 </span>            :             expr_type const that = {
+<span class="lineNum">     138 </span>            :                 boost::proto::detail::protoify&lt; A0 , Domain &gt;()(a0) , boost::proto::detail::protoify&lt; A1 , Domain &gt;()(a1) , boost::proto::detail::protoify&lt; A2 , Domain &gt;()(a2) , boost::proto::detail::protoify&lt; A3 , Domain &gt;()(a3)
+<span class="lineNum">     139 </span>            :             };
+<span class="lineNum">     140 </span>            :             return proto_generator()(that);
+<span class="lineNum">     141 </span>            :         }
+<span class="lineNum">     142 </span>            :     };
+<span class="lineNum">     143 </span>            :     template&lt;typename Tag , typename A0 , typename A1 , typename A2 , typename A3&gt;
+<span class="lineNum">     144 </span>            :     struct make_expr_&lt;Tag, deduce_domain , A0 , A1 , A2 , A3
+<span class="lineNum">     145 </span>            :         , void , void , void , void , void , void, void&gt;
+<span class="lineNum">     146 </span>            :       : make_expr_&lt;
+<span class="lineNum">     147 </span>            :             Tag
+<span class="lineNum">     148 </span>            :           , typename deduce_domain4&lt;A0 , A1 , A2 , A3&gt;::type
+<span class="lineNum">     149 </span>            :             , A0 , A1 , A2 , A3
+<span class="lineNum">     150 </span>            :         &gt;
+<span class="lineNum">     151 </span>            :     {};
+<span class="lineNum">     152 </span>            :     template&lt;typename Tag, typename Domain , typename A0 , typename A1 , typename A2 , typename A3 , typename A4&gt;
+<span class="lineNum">     153 </span>            :     struct make_expr_&lt;Tag, Domain , A0 , A1 , A2 , A3 , A4
+<span class="lineNum">     154 </span>            :         , void , void , void , void , void, void&gt;
+<span class="lineNum">     155 </span>            :     {
+<span class="lineNum">     156 </span>            :         typedef
+<span class="lineNum">     157 </span>            :             list5&lt;
+<span class="lineNum">     158 </span>            :                 typename boost::proto::detail::protoify&lt; A0 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A1 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A2 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A3 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A4 , Domain &gt;::result_type
+<span class="lineNum">     159 </span>            :             &gt;
+<span class="lineNum">     160 </span>            :         proto_args;
+<span class="lineNum">     161 </span>            :         typedef typename base_expr&lt;Domain, Tag, proto_args&gt;::type expr_type;
+<span class="lineNum">     162 </span>            :         typedef typename Domain::proto_generator proto_generator;
+<span class="lineNum">     163 </span>            :         typedef typename proto_generator::template result&lt;proto_generator(expr_type)&gt;::type result_type;
+<span class="lineNum">     164 </span>            :         BOOST_FORCEINLINE
+<span class="lineNum">     165 </span>            :         result_type operator()(typename add_reference&lt;A0 &gt;::type a0 , typename add_reference&lt;A1 &gt;::type a1 , typename add_reference&lt;A2 &gt;::type a2 , typename add_reference&lt;A3 &gt;::type a3 , typename add_reference&lt;A4 &gt;::type a4) const
+<span class="lineNum">     166 </span>            :         {
+<span class="lineNum">     167 </span>            :             expr_type const that = {
+<span class="lineNum">     168 </span>            :                 boost::proto::detail::protoify&lt; A0 , Domain &gt;()(a0) , boost::proto::detail::protoify&lt; A1 , Domain &gt;()(a1) , boost::proto::detail::protoify&lt; A2 , Domain &gt;()(a2) , boost::proto::detail::protoify&lt; A3 , Domain &gt;()(a3) , boost::proto::detail::protoify&lt; A4 , Domain &gt;()(a4)
+<span class="lineNum">     169 </span>            :             };
+<span class="lineNum">     170 </span>            :             return proto_generator()(that);
+<span class="lineNum">     171 </span>            :         }
+<span class="lineNum">     172 </span>            :     };
+<span class="lineNum">     173 </span>            :     template&lt;typename Tag , typename A0 , typename A1 , typename A2 , typename A3 , typename A4&gt;
+<span class="lineNum">     174 </span>            :     struct make_expr_&lt;Tag, deduce_domain , A0 , A1 , A2 , A3 , A4
+<span class="lineNum">     175 </span>            :         , void , void , void , void , void, void&gt;
+<span class="lineNum">     176 </span>            :       : make_expr_&lt;
+<span class="lineNum">     177 </span>            :             Tag
+<span class="lineNum">     178 </span>            :           , typename deduce_domain5&lt;A0 , A1 , A2 , A3 , A4&gt;::type
+<span class="lineNum">     179 </span>            :             , A0 , A1 , A2 , A3 , A4
+<span class="lineNum">     180 </span>            :         &gt;
+<span class="lineNum">     181 </span>            :     {};
+<span class="lineNum">     182 </span>            :     template&lt;typename Tag, typename Domain , typename A0 , typename A1 , typename A2 , typename A3 , typename A4 , typename A5&gt;
+<span class="lineNum">     183 </span>            :     struct make_expr_&lt;Tag, Domain , A0 , A1 , A2 , A3 , A4 , A5
+<span class="lineNum">     184 </span>            :         , void , void , void , void, void&gt;
+<span class="lineNum">     185 </span>            :     {
+<span class="lineNum">     186 </span>            :         typedef
+<span class="lineNum">     187 </span>            :             list6&lt;
+<span class="lineNum">     188 </span>            :                 typename boost::proto::detail::protoify&lt; A0 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A1 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A2 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A3 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A4 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A5 , Domain &gt;::result_type
+<span class="lineNum">     189 </span>            :             &gt;
+<span class="lineNum">     190 </span>            :         proto_args;
+<span class="lineNum">     191 </span>            :         typedef typename base_expr&lt;Domain, Tag, proto_args&gt;::type expr_type;
+<span class="lineNum">     192 </span>            :         typedef typename Domain::proto_generator proto_generator;
+<span class="lineNum">     193 </span>            :         typedef typename proto_generator::template result&lt;proto_generator(expr_type)&gt;::type result_type;
+<span class="lineNum">     194 </span>            :         BOOST_FORCEINLINE
+<span class="lineNum">     195 </span>            :         result_type operator()(typename add_reference&lt;A0 &gt;::type a0 , typename add_reference&lt;A1 &gt;::type a1 , typename add_reference&lt;A2 &gt;::type a2 , typename add_reference&lt;A3 &gt;::type a3 , typename add_reference&lt;A4 &gt;::type a4 , typename add_reference&lt;A5 &gt;::type a5) const
+<span class="lineNum">     196 </span>            :         {
+<span class="lineNum">     197 </span>            :             expr_type const that = {
+<span class="lineNum">     198 </span>            :                 boost::proto::detail::protoify&lt; A0 , Domain &gt;()(a0) , boost::proto::detail::protoify&lt; A1 , Domain &gt;()(a1) , boost::proto::detail::protoify&lt; A2 , Domain &gt;()(a2) , boost::proto::detail::protoify&lt; A3 , Domain &gt;()(a3) , boost::proto::detail::protoify&lt; A4 , Domain &gt;()(a4) , boost::proto::detail::protoify&lt; A5 , Domain &gt;()(a5)
+<span class="lineNum">     199 </span>            :             };
+<span class="lineNum">     200 </span>            :             return proto_generator()(that);
+<span class="lineNum">     201 </span>            :         }
+<span class="lineNum">     202 </span>            :     };
+<span class="lineNum">     203 </span>            :     template&lt;typename Tag , typename A0 , typename A1 , typename A2 , typename A3 , typename A4 , typename A5&gt;
+<span class="lineNum">     204 </span>            :     struct make_expr_&lt;Tag, deduce_domain , A0 , A1 , A2 , A3 , A4 , A5
+<span class="lineNum">     205 </span>            :         , void , void , void , void, void&gt;
+<span class="lineNum">     206 </span>            :       : make_expr_&lt;
+<span class="lineNum">     207 </span>            :             Tag
+<span class="lineNum">     208 </span>            :           , typename deduce_domain6&lt;A0 , A1 , A2 , A3 , A4 , A5&gt;::type
+<span class="lineNum">     209 </span>            :             , A0 , A1 , A2 , A3 , A4 , A5
+<span class="lineNum">     210 </span>            :         &gt;
+<span class="lineNum">     211 </span>            :     {};
+<span class="lineNum">     212 </span>            :     template&lt;typename Tag, typename Domain , typename A0 , typename A1 , typename A2 , typename A3 , typename A4 , typename A5 , typename A6&gt;
+<span class="lineNum">     213 </span>            :     struct make_expr_&lt;Tag, Domain , A0 , A1 , A2 , A3 , A4 , A5 , A6
+<span class="lineNum">     214 </span>            :         , void , void , void, void&gt;
+<span class="lineNum">     215 </span>            :     {
+<span class="lineNum">     216 </span>            :         typedef
+<span class="lineNum">     217 </span>            :             list7&lt;
+<span class="lineNum">     218 </span>            :                 typename boost::proto::detail::protoify&lt; A0 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A1 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A2 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A3 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A4 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A5 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A6 , Domain &gt;::result_type
+<span class="lineNum">     219 </span>            :             &gt;
+<span class="lineNum">     220 </span>            :         proto_args;
+<span class="lineNum">     221 </span>            :         typedef typename base_expr&lt;Domain, Tag, proto_args&gt;::type expr_type;
+<span class="lineNum">     222 </span>            :         typedef typename Domain::proto_generator proto_generator;
+<span class="lineNum">     223 </span>            :         typedef typename proto_generator::template result&lt;proto_generator(expr_type)&gt;::type result_type;
+<span class="lineNum">     224 </span>            :         BOOST_FORCEINLINE
+<span class="lineNum">     225 </span>            :         result_type operator()(typename add_reference&lt;A0 &gt;::type a0 , typename add_reference&lt;A1 &gt;::type a1 , typename add_reference&lt;A2 &gt;::type a2 , typename add_reference&lt;A3 &gt;::type a3 , typename add_reference&lt;A4 &gt;::type a4 , typename add_reference&lt;A5 &gt;::type a5 , typename add_reference&lt;A6 &gt;::type a6) const
+<span class="lineNum">     226 </span>            :         {
+<span class="lineNum">     227 </span>            :             expr_type const that = {
+<span class="lineNum">     228 </span>            :                 boost::proto::detail::protoify&lt; A0 , Domain &gt;()(a0) , boost::proto::detail::protoify&lt; A1 , Domain &gt;()(a1) , boost::proto::detail::protoify&lt; A2 , Domain &gt;()(a2) , boost::proto::detail::protoify&lt; A3 , Domain &gt;()(a3) , boost::proto::detail::protoify&lt; A4 , Domain &gt;()(a4) , boost::proto::detail::protoify&lt; A5 , Domain &gt;()(a5) , boost::proto::detail::protoify&lt; A6 , Domain &gt;()(a6)
+<span class="lineNum">     229 </span>            :             };
+<span class="lineNum">     230 </span>            :             return proto_generator()(that);
+<span class="lineNum">     231 </span>            :         }
+<span class="lineNum">     232 </span>            :     };
+<span class="lineNum">     233 </span>            :     template&lt;typename Tag , typename A0 , typename A1 , typename A2 , typename A3 , typename A4 , typename A5 , typename A6&gt;
+<span class="lineNum">     234 </span>            :     struct make_expr_&lt;Tag, deduce_domain , A0 , A1 , A2 , A3 , A4 , A5 , A6
+<span class="lineNum">     235 </span>            :         , void , void , void, void&gt;
+<span class="lineNum">     236 </span>            :       : make_expr_&lt;
+<span class="lineNum">     237 </span>            :             Tag
+<span class="lineNum">     238 </span>            :           , typename deduce_domain7&lt;A0 , A1 , A2 , A3 , A4 , A5 , A6&gt;::type
+<span class="lineNum">     239 </span>            :             , A0 , A1 , A2 , A3 , A4 , A5 , A6
+<span class="lineNum">     240 </span>            :         &gt;
+<span class="lineNum">     241 </span>            :     {};
+<span class="lineNum">     242 </span>            :     template&lt;typename Tag, typename Domain , typename A0 , typename A1 , typename A2 , typename A3 , typename A4 , typename A5 , typename A6 , typename A7&gt;
+<span class="lineNum">     243 </span>            :     struct make_expr_&lt;Tag, Domain , A0 , A1 , A2 , A3 , A4 , A5 , A6 , A7
+<span class="lineNum">     244 </span>            :         , void , void, void&gt;
+<span class="lineNum">     245 </span>            :     {
+<span class="lineNum">     246 </span>            :         typedef
+<span class="lineNum">     247 </span>            :             list8&lt;
+<span class="lineNum">     248 </span>            :                 typename boost::proto::detail::protoify&lt; A0 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A1 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A2 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A3 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A4 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A5 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A6 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A7 , Domain &gt;::result_type
+<span class="lineNum">     249 </span>            :             &gt;
+<span class="lineNum">     250 </span>            :         proto_args;
+<span class="lineNum">     251 </span>            :         typedef typename base_expr&lt;Domain, Tag, proto_args&gt;::type expr_type;
+<span class="lineNum">     252 </span>            :         typedef typename Domain::proto_generator proto_generator;
+<span class="lineNum">     253 </span>            :         typedef typename proto_generator::template result&lt;proto_generator(expr_type)&gt;::type result_type;
+<span class="lineNum">     254 </span>            :         BOOST_FORCEINLINE
+<span class="lineNum">     255 </span>            :         result_type operator()(typename add_reference&lt;A0 &gt;::type a0 , typename add_reference&lt;A1 &gt;::type a1 , typename add_reference&lt;A2 &gt;::type a2 , typename add_reference&lt;A3 &gt;::type a3 , typename add_reference&lt;A4 &gt;::type a4 , typename add_reference&lt;A5 &gt;::type a5 , typename add_reference&lt;A6 &gt;::type a6 , typename add_reference&lt;A7 &gt;::type a7) const
+<span class="lineNum">     256 </span>            :         {
+<span class="lineNum">     257 </span>            :             expr_type const that = {
+<span class="lineNum">     258 </span>            :                 boost::proto::detail::protoify&lt; A0 , Domain &gt;()(a0) , boost::proto::detail::protoify&lt; A1 , Domain &gt;()(a1) , boost::proto::detail::protoify&lt; A2 , Domain &gt;()(a2) , boost::proto::detail::protoify&lt; A3 , Domain &gt;()(a3) , boost::proto::detail::protoify&lt; A4 , Domain &gt;()(a4) , boost::proto::detail::protoify&lt; A5 , Domain &gt;()(a5) , boost::proto::detail::protoify&lt; A6 , Domain &gt;()(a6) , boost::proto::detail::protoify&lt; A7 , Domain &gt;()(a7)
+<span class="lineNum">     259 </span>            :             };
+<span class="lineNum">     260 </span>            :             return proto_generator()(that);
+<span class="lineNum">     261 </span>            :         }
+<span class="lineNum">     262 </span>            :     };
+<span class="lineNum">     263 </span>            :     template&lt;typename Tag , typename A0 , typename A1 , typename A2 , typename A3 , typename A4 , typename A5 , typename A6 , typename A7&gt;
+<span class="lineNum">     264 </span>            :     struct make_expr_&lt;Tag, deduce_domain , A0 , A1 , A2 , A3 , A4 , A5 , A6 , A7
+<span class="lineNum">     265 </span>            :         , void , void, void&gt;
+<span class="lineNum">     266 </span>            :       : make_expr_&lt;
+<span class="lineNum">     267 </span>            :             Tag
+<span class="lineNum">     268 </span>            :           , typename deduce_domain8&lt;A0 , A1 , A2 , A3 , A4 , A5 , A6 , A7&gt;::type
+<span class="lineNum">     269 </span>            :             , A0 , A1 , A2 , A3 , A4 , A5 , A6 , A7
+<span class="lineNum">     270 </span>            :         &gt;
+<span class="lineNum">     271 </span>            :     {};
+<span class="lineNum">     272 </span>            :     template&lt;typename Tag, typename Domain , typename A0 , typename A1 , typename A2 , typename A3 , typename A4 , typename A5 , typename A6 , typename A7 , typename A8&gt;
+<span class="lineNum">     273 </span>            :     struct make_expr_&lt;Tag, Domain , A0 , A1 , A2 , A3 , A4 , A5 , A6 , A7 , A8
+<span class="lineNum">     274 </span>            :         , void, void&gt;
+<span class="lineNum">     275 </span>            :     {
+<span class="lineNum">     276 </span>            :         typedef
+<span class="lineNum">     277 </span>            :             list9&lt;
+<span class="lineNum">     278 </span>            :                 typename boost::proto::detail::protoify&lt; A0 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A1 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A2 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A3 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A4 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A5 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A6 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A7 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A8 , Domain &gt;::result_type
+<span class="lineNum">     279 </span>            :             &gt;
+<span class="lineNum">     280 </span>            :         proto_args;
+<span class="lineNum">     281 </span>            :         typedef typename base_expr&lt;Domain, Tag, proto_args&gt;::type expr_type;
+<span class="lineNum">     282 </span>            :         typedef typename Domain::proto_generator proto_generator;
+<span class="lineNum">     283 </span>            :         typedef typename proto_generator::template result&lt;proto_generator(expr_type)&gt;::type result_type;
+<span class="lineNum">     284 </span>            :         BOOST_FORCEINLINE
+<span class="lineNum">     285 </span>            :         result_type operator()(typename add_reference&lt;A0 &gt;::type a0 , typename add_reference&lt;A1 &gt;::type a1 , typename add_reference&lt;A2 &gt;::type a2 , typename add_reference&lt;A3 &gt;::type a3 , typename add_reference&lt;A4 &gt;::type a4 , typename add_reference&lt;A5 &gt;::type a5 , typename add_reference&lt;A6 &gt;::type a6 , typename add_reference&lt;A7 &gt;::type a7 , typename add_reference&lt;A8 &gt;::type a8) const
+<span class="lineNum">     286 </span>            :         {
+<span class="lineNum">     287 </span>            :             expr_type const that = {
+<span class="lineNum">     288 </span>            :                 boost::proto::detail::protoify&lt; A0 , Domain &gt;()(a0) , boost::proto::detail::protoify&lt; A1 , Domain &gt;()(a1) , boost::proto::detail::protoify&lt; A2 , Domain &gt;()(a2) , boost::proto::detail::protoify&lt; A3 , Domain &gt;()(a3) , boost::proto::detail::protoify&lt; A4 , Domain &gt;()(a4) , boost::proto::detail::protoify&lt; A5 , Domain &gt;()(a5) , boost::proto::detail::protoify&lt; A6 , Domain &gt;()(a6) , boost::proto::detail::protoify&lt; A7 , Domain &gt;()(a7) , boost::proto::detail::protoify&lt; A8 , Domain &gt;()(a8)
+<span class="lineNum">     289 </span>            :             };
+<span class="lineNum">     290 </span>            :             return proto_generator()(that);
+<span class="lineNum">     291 </span>            :         }
+<span class="lineNum">     292 </span>            :     };
+<span class="lineNum">     293 </span>            :     template&lt;typename Tag , typename A0 , typename A1 , typename A2 , typename A3 , typename A4 , typename A5 , typename A6 , typename A7 , typename A8&gt;
+<span class="lineNum">     294 </span>            :     struct make_expr_&lt;Tag, deduce_domain , A0 , A1 , A2 , A3 , A4 , A5 , A6 , A7 , A8
+<span class="lineNum">     295 </span>            :         , void, void&gt;
+<span class="lineNum">     296 </span>            :       : make_expr_&lt;
+<span class="lineNum">     297 </span>            :             Tag
+<span class="lineNum">     298 </span>            :           , typename deduce_domain9&lt;A0 , A1 , A2 , A3 , A4 , A5 , A6 , A7 , A8&gt;::type
+<span class="lineNum">     299 </span>            :             , A0 , A1 , A2 , A3 , A4 , A5 , A6 , A7 , A8
+<span class="lineNum">     300 </span>            :         &gt;
+<span class="lineNum">     301 </span>            :     {};
+<span class="lineNum">     302 </span>            :     template&lt;typename Tag, typename Domain , typename A0 , typename A1 , typename A2 , typename A3 , typename A4 , typename A5 , typename A6 , typename A7 , typename A8 , typename A9&gt;
+<span class="lineNum">     303 </span>            :     struct make_expr_&lt;Tag, Domain , A0 , A1 , A2 , A3 , A4 , A5 , A6 , A7 , A8 , A9
+<span class="lineNum">     304 </span>            :         , void&gt;
+<span class="lineNum">     305 </span>            :     {
+<span class="lineNum">     306 </span>            :         typedef
+<span class="lineNum">     307 </span>            :             list10&lt;
+<span class="lineNum">     308 </span>            :                 typename boost::proto::detail::protoify&lt; A0 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A1 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A2 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A3 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A4 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A5 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A6 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A7 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A8 , Domain &gt;::result_type , typename boost::proto::detail::protoify&lt; A9 , Domain &gt;::result_type
+<span class="lineNum">     309 </span>            :             &gt;
+<span class="lineNum">     310 </span>            :         proto_args;
+<span class="lineNum">     311 </span>            :         typedef typename base_expr&lt;Domain, Tag, proto_args&gt;::type expr_type;
+<span class="lineNum">     312 </span>            :         typedef typename Domain::proto_generator proto_generator;
+<span class="lineNum">     313 </span>            :         typedef typename proto_generator::template result&lt;proto_generator(expr_type)&gt;::type result_type;
+<span class="lineNum">     314 </span>            :         BOOST_FORCEINLINE
+<span class="lineNum">     315 </span>            :         result_type operator()(typename add_reference&lt;A0 &gt;::type a0 , typename add_reference&lt;A1 &gt;::type a1 , typename add_reference&lt;A2 &gt;::type a2 , typename add_reference&lt;A3 &gt;::type a3 , typename add_reference&lt;A4 &gt;::type a4 , typename add_reference&lt;A5 &gt;::type a5 , typename add_reference&lt;A6 &gt;::type a6 , typename add_reference&lt;A7 &gt;::type a7 , typename add_reference&lt;A8 &gt;::type a8 , typename add_reference&lt;A9 &gt;::type a9) const
+<span class="lineNum">     316 </span>            :         {
+<span class="lineNum">     317 </span>            :             expr_type const that = {
+<span class="lineNum">     318 </span>            :                 boost::proto::detail::protoify&lt; A0 , Domain &gt;()(a0) , boost::proto::detail::protoify&lt; A1 , Domain &gt;()(a1) , boost::proto::detail::protoify&lt; A2 , Domain &gt;()(a2) , boost::proto::detail::protoify&lt; A3 , Domain &gt;()(a3) , boost::proto::detail::protoify&lt; A4 , Domain &gt;()(a4) , boost::proto::detail::protoify&lt; A5 , Domain &gt;()(a5) , boost::proto::detail::protoify&lt; A6 , Domain &gt;()(a6) , boost::proto::detail::protoify&lt; A7 , Domain &gt;()(a7) , boost::proto::detail::protoify&lt; A8 , Domain &gt;()(a8) , boost::proto::detail::protoify&lt; A9 , Domain &gt;()(a9)
+<span class="lineNum">     319 </span>            :             };
+<span class="lineNum">     320 </span>            :             return proto_generator()(that);
+<span class="lineNum">     321 </span>            :         }
+<span class="lineNum">     322 </span>            :     };
+<span class="lineNum">     323 </span>            :     template&lt;typename Tag , typename A0 , typename A1 , typename A2 , typename A3 , typename A4 , typename A5 , typename A6 , typename A7 , typename A8 , typename A9&gt;
+<span class="lineNum">     324 </span>            :     struct make_expr_&lt;Tag, deduce_domain , A0 , A1 , A2 , A3 , A4 , A5 , A6 , A7 , A8 , A9
+<span class="lineNum">     325 </span>            :         , void&gt;
+<span class="lineNum">     326 </span>            :       : make_expr_&lt;
+<span class="lineNum">     327 </span>            :             Tag
+<span class="lineNum">     328 </span>            :           , typename deduce_domain10&lt;A0 , A1 , A2 , A3 , A4 , A5 , A6 , A7 , A8 , A9&gt;::type
+<span class="lineNum">     329 </span>            :             , A0 , A1 , A2 , A3 , A4 , A5 , A6 , A7 , A8 , A9
+<span class="lineNum">     330 </span>            :         &gt;
+<span class="lineNum">     331 </span>            :     {};
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

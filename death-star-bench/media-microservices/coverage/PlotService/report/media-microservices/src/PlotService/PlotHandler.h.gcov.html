@@ -1,0 +1,332 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - /media-microservices/src/PlotService/PlotHandler.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">media-microservices/src/PlotService</a> - PlotHandler.h<span style="font-size: 80%;"> (source / <a href="PlotHandler.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">88</td>
+            <td class="headerCovTableEntry">149</td>
+            <td class="headerCovTableEntryLo">59.1 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 01:02:56</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryLo">60.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #ifndef MEDIA_MICROSERVICES_PLOTHANDLER_H</a>
+<span class="lineNum">       2 </span>            : #define MEDIA_MICROSERVICES_PLOTHANDLER_H
+<span class="lineNum">       3 </span>            : 
+<span class="lineNum">       4 </span>            : #include &lt;iostream&gt;
+<span class="lineNum">       5 </span>            : #include &lt;string&gt;
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #include &lt;libmemcached/memcached.h&gt;
+<span class="lineNum">       8 </span>            : #include &lt;libmemcached/util.h&gt;
+<span class="lineNum">       9 </span>            : #include &lt;mongoc.h&gt;
+<span class="lineNum">      10 </span>            : #include &lt;bson/bson.h&gt;
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span>            : #include &quot;../../gen-cpp/PlotService.h&quot;
+<span class="lineNum">      13 </span>            : #include &quot;../logger.h&quot;
+<span class="lineNum">      14 </span>            : #include &quot;../tracing.h&quot;
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : namespace media_service {
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : class PlotHandler : public PlotServiceIf {
+<span class="lineNum">      19 </span>            :  public:
+<span class="lineNum">      20 </span>            :   PlotHandler(
+<a name="21"><span class="lineNum">      21 </span>            :       memcached_pool_st *,</a>
+<span class="lineNum">      22 </span>            :       mongoc_client_pool_t *);
+<span class="lineNum">      23 </span><span class="lineNoCov">          0 :   ~PlotHandler() override = default;</span>
+<span class="lineNum">      24 </span>            : 
+<span class="lineNum">      25 </span>            :   void WritePlot(int64_t req_id, int64_t plot_id, const std::string&amp; plot,
+<span class="lineNum">      26 </span>            :       const std::map&lt;std::string, std::string&gt; &amp; carrier) override;
+<span class="lineNum">      27 </span>            :   void ReadPlot(std::string&amp; _return, int64_t req_id, int64_t plot_id,
+<span class="lineNum">      28 </span>            :       const std::map&lt;std::string, std::string&gt; &amp; carrier) override;
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            :  private:
+<span class="lineNum">      31 </span>            :   memcached_pool_st *_memcached_client_pool;
+<span class="lineNum">      32 </span>            :   mongoc_client_pool_t *_mongodb_client_pool;
+<a name="33"><span class="lineNum">      33 </span>            : };</a>
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span><span class="lineCov">          2 : PlotHandler::PlotHandler(</span>
+<span class="lineNum">      36 </span>            :     memcached_pool_st *memcached_client_pool,
+<span class="lineNum">      37 </span><span class="lineCov">          2 :     mongoc_client_pool_t *mongodb_client_pool) {</span>
+<span class="lineNum">      38 </span><span class="lineCov">          2 :   _memcached_client_pool = memcached_client_pool;</span>
+<span class="lineNum">      39 </span><span class="lineCov">          2 :   _mongodb_client_pool = mongodb_client_pool;</span>
+<a name="40"><span class="lineNum">      40 </span><span class="lineCov">          2 : }</span></a>
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span><span class="lineCov">         20 : void PlotHandler::ReadPlot(</span>
+<span class="lineNum">      43 </span>            :     std::string &amp;_return,
+<span class="lineNum">      44 </span>            :     int64_t req_id,
+<span class="lineNum">      45 </span>            :     int64_t plot_id,
+<span class="lineNum">      46 </span>            :     const std::map&lt;std::string, std::string&gt; &amp; carrier) {
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span>            :   // Initialize a span
+<span class="lineNum">      49 </span><span class="lineCov">         40 :   TextMapReader reader(carrier);</span>
+<span class="lineNum">      50 </span><span class="lineCov">         40 :   std::map&lt;std::string, std::string&gt; writer_text_map;</span>
+<span class="lineNum">      51 </span><span class="lineCov">         40 :   TextMapWriter writer(writer_text_map);</span>
+<span class="lineNum">      52 </span><span class="lineCov">         40 :   auto parent_span = opentracing::Tracer::Global()-&gt;Extract(reader);</span>
+<span class="lineNum">      53 </span><span class="lineCov">         40 :   auto span = opentracing::Tracer::Global()-&gt;StartSpan(</span>
+<span class="lineNum">      54 </span>            :       &quot;ReadPlot&quot;,
+<span class="lineNum">      55 </span><span class="lineCov">         80 :       { opentracing::ChildOf(parent_span-&gt;get()) });</span>
+<span class="lineNum">      56 </span><span class="lineCov">         20 :   opentracing::Tracer::Global()-&gt;Inject(span-&gt;context(), writer);</span>
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span>            :   memcached_return_t memcached_rc;
+<span class="lineNum">      59 </span><span class="lineCov">         20 :   memcached_st *memcached_client = memcached_pool_pop(</span>
+<span class="lineNum">      60 </span><span class="lineCov">         20 :       _memcached_client_pool, true, &amp;memcached_rc);</span>
+<span class="lineNum">      61 </span><span class="lineCov">         20 :   if (!memcached_client) {</span>
+<span class="lineNum">      62 </span><span class="lineNoCov">          0 :     ServiceException se;</span>
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :     se.errorCode = ErrorCode::SE_MEMCACHED_ERROR;</span>
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :     se.message = &quot;Failed to pop a client from memcached pool&quot;;</span>
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :     throw se;</span>
+<span class="lineNum">      66 </span>            :   }
+<span class="lineNum">      67 </span>            : 
+<span class="lineNum">      68 </span>            :   size_t plot_size;
+<span class="lineNum">      69 </span>            :   uint32_t memcached_flags;
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            :   // Look for the movie id from memcached
+<span class="lineNum">      72 </span><span class="lineCov">         40 :   auto get_span = opentracing::Tracer::Global()-&gt;StartSpan(</span>
+<span class="lineNum">      73 </span><span class="lineCov">         80 :       &quot;MmcGetPlot&quot;, { opentracing::ChildOf(&amp;span-&gt;context()) });</span>
+<span class="lineNum">      74 </span><span class="lineCov">         40 :   auto plot_id_str = std::to_string(plot_id);</span>
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span><span class="lineCov">         20 :   char* plot_mmc = memcached_get(</span>
+<span class="lineNum">      77 </span>            :       memcached_client,
+<span class="lineNum">      78 </span>            :       plot_id_str.c_str(),
+<span class="lineNum">      79 </span>            :       plot_id_str.length(),
+<span class="lineNum">      80 </span>            :       &amp;plot_size,
+<span class="lineNum">      81 </span>            :       &amp;memcached_flags,
+<span class="lineNum">      82 </span><span class="lineCov">         20 :       &amp;memcached_rc);</span>
+<span class="lineNum">      83 </span><span class="lineCov">         20 :   if (!plot_mmc &amp;&amp; memcached_rc != MEMCACHED_NOTFOUND) {</span>
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 :     ServiceException se;</span>
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :     se.errorCode = ErrorCode::SE_MEMCACHED_ERROR;</span>
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :     se.message = memcached_strerror(memcached_client, memcached_rc);</span>
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :     memcached_pool_push(_memcached_client_pool, memcached_client);</span>
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :     throw se;</span>
+<span class="lineNum">      89 </span>            :   }
+<span class="lineNum">      90 </span><span class="lineCov">         20 :   get_span-&gt;Finish();</span>
+<span class="lineNum">      91 </span><span class="lineCov">         20 :   memcached_pool_push(_memcached_client_pool, memcached_client);</span>
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span>            :   // If cached in memcached
+<span class="lineNum">      94 </span><span class="lineCov">         20 :   if (plot_mmc) {</span>
+<span class="lineNum">      95 </span><span class="lineCov">          6 :     LOG(debug) &lt;&lt; &quot;Get plot &quot; &lt;&lt; plot_mmc</span>
+<span class="lineNum">      96 </span><span class="lineCov">          2 :         &lt;&lt; &quot; cache hit from Memcached&quot;;</span>
+<span class="lineNum">      97 </span><span class="lineCov">          2 :     _return = std::string(plot_mmc);</span>
+<span class="lineNum">      98 </span><span class="lineCov">          2 :     free(plot_mmc);</span>
+<span class="lineNum">      99 </span>            :   } else {
+<span class="lineNum">     100 </span>            :     // If not cached in memcached
+<span class="lineNum">     101 </span><span class="lineCov">         18 :     mongoc_client_t *mongodb_client = mongoc_client_pool_pop(</span>
+<span class="lineNum">     102 </span><span class="lineCov">         18 :         _mongodb_client_pool);</span>
+<span class="lineNum">     103 </span><span class="lineCov">         18 :     if (!mongodb_client) {</span>
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :       ServiceException se;</span>
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :       se.errorCode = ErrorCode::SE_MONGODB_ERROR;</span>
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :       se.message = &quot;Failed to pop a client from MongoDB pool&quot;;</span>
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :       free(plot_mmc);</span>
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :       throw se;</span>
+<span class="lineNum">     109 </span>            :     }
+<span class="lineNum">     110 </span>            :     auto collection = mongoc_client_get_collection(
+<span class="lineNum">     111 </span><span class="lineCov">         18 :         mongodb_client, &quot;plot&quot;, &quot;plot&quot;);</span>
+<span class="lineNum">     112 </span><span class="lineCov">         18 :     if (!collection) {</span>
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :       ServiceException se;</span>
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :       se.errorCode = ErrorCode::SE_MONGODB_ERROR;</span>
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :       se.message = &quot;Failed to create collection plot from DB plot&quot;;</span>
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :       free(plot_mmc);</span>
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :       mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);</span>
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :       throw se;</span>
+<span class="lineNum">     119 </span>            :     }
+<span class="lineNum">     120 </span>            : 
+<span class="lineNum">     121 </span><span class="lineCov">         18 :     bson_t *query = bson_new();</span>
+<span class="lineNum">     122 </span><span class="lineCov">         18 :     BSON_APPEND_INT64(query, &quot;plot_id&quot;, plot_id);</span>
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span><span class="lineCov">         36 :     auto find_span = opentracing::Tracer::Global()-&gt;StartSpan(</span>
+<span class="lineNum">     125 </span><span class="lineCov">         72 :         &quot;MongoFindPlot&quot;, { opentracing::ChildOf(&amp;span-&gt;context()) });</span>
+<span class="lineNum">     126 </span>            :     mongoc_cursor_t *cursor = mongoc_collection_find_with_opts(
+<span class="lineNum">     127 </span><span class="lineCov">         18 :         collection, query, nullptr, nullptr);</span>
+<span class="lineNum">     128 </span>            :     const bson_t *doc;
+<span class="lineNum">     129 </span><span class="lineCov">         18 :     bool found = mongoc_cursor_next(cursor, &amp;doc);</span>
+<span class="lineNum">     130 </span><span class="lineCov">         18 :     find_span-&gt;Finish();</span>
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span><span class="lineCov">         18 :     if (found) {</span>
+<span class="lineNum">     133 </span>            :       bson_iter_t iter;
+<span class="lineNum">     134 </span><span class="lineCov">         18 :       if (bson_iter_init_find(&amp;iter, doc, &quot;plot&quot;)) {</span>
+<span class="lineNum">     135 </span><span class="lineCov">         18 :         char *plot_mongo_char = bson_iter_value(&amp;iter)-&gt;value.v_utf8.str;</span>
+<span class="lineNum">     136 </span><span class="lineCov">         18 :         size_t plot_mongo_len = bson_iter_value(&amp;iter)-&gt;value.v_utf8.len;</span>
+<span class="lineNum">     137 </span><span class="lineCov">         36 :         LOG(debug) &lt;&lt; &quot;Find plot &quot; &lt;&lt; plot_id &lt;&lt; &quot; cache miss&quot;;</span>
+<span class="lineNum">     138 </span><span class="lineCov">         18 :         _return = std::string(plot_mongo_char, plot_mongo_char + plot_mongo_len);</span>
+<span class="lineNum">     139 </span><span class="lineCov">         18 :         bson_destroy(query);</span>
+<span class="lineNum">     140 </span><span class="lineCov">         18 :         mongoc_cursor_destroy(cursor);</span>
+<span class="lineNum">     141 </span><span class="lineCov">         18 :         mongoc_collection_destroy(collection);</span>
+<span class="lineNum">     142 </span><span class="lineCov">         18 :         mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);</span>
+<span class="lineNum">     143 </span><span class="lineCov">         18 :         memcached_client = memcached_pool_pop(</span>
+<span class="lineNum">     144 </span><span class="lineCov">         18 :             _memcached_client_pool, true, &amp;memcached_rc);</span>
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span>            :         // Upload the plot to memcached
+<span class="lineNum">     147 </span><span class="lineCov">         36 :         auto set_span = opentracing::Tracer::Global()-&gt;StartSpan(</span>
+<span class="lineNum">     148 </span><span class="lineCov">         72 :             &quot;MmcSetPlot&quot;, { opentracing::ChildOf(&amp;span-&gt;context()) });</span>
+<span class="lineNum">     149 </span><span class="lineCov">         18 :         memcached_rc = memcached_set(</span>
+<span class="lineNum">     150 </span>            :             memcached_client,
+<span class="lineNum">     151 </span>            :             plot_id_str.c_str(),
+<span class="lineNum">     152 </span>            :             plot_id_str.length(),
+<span class="lineNum">     153 </span>            :             _return.c_str(),
+<span class="lineNum">     154 </span>            :             _return.length(),
+<span class="lineNum">     155 </span>            :             static_cast&lt;time_t&gt;(0),
+<span class="lineNum">     156 </span>            :             static_cast&lt;uint32_t&gt;(0)
+<span class="lineNum">     157 </span><span class="lineCov">         18 :         );</span>
+<span class="lineNum">     158 </span><span class="lineCov">         18 :         set_span-&gt;Finish();</span>
+<span class="lineNum">     159 </span>            : 
+<span class="lineNum">     160 </span><span class="lineCov">         18 :         if (memcached_rc != MEMCACHED_SUCCESS) {</span>
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :           LOG(warning) &lt;&lt; &quot;Failed to set plot to Memcached: &quot;</span>
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :               &lt;&lt; memcached_strerror(memcached_client, memcached_rc);</span>
+<span class="lineNum">     163 </span>            :         }
+<span class="lineNum">     164 </span><span class="lineCov">         18 :         memcached_pool_push(_memcached_client_pool, memcached_client);</span>
+<span class="lineNum">     165 </span>            :       } else {
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 :         LOG(error) &lt;&lt; &quot;Attribute plot is not find in MongoDB&quot;;</span>
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :         bson_destroy(query);</span>
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :         mongoc_cursor_destroy(cursor);</span>
+<span class="lineNum">     169 </span><span class="lineNoCov">          0 :         mongoc_collection_destroy(collection);</span>
+<span class="lineNum">     170 </span><span class="lineNoCov">          0 :         mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);</span>
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :         ServiceException se;</span>
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :         se.errorCode = ErrorCode::SE_THRIFT_HANDLER_ERROR;</span>
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 :         se.message = &quot;Attribute plot is not find in MongoDB&quot;;</span>
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :         free(plot_mmc);</span>
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :         throw se;</span>
+<span class="lineNum">     176 </span>            :       }
+<span class="lineNum">     177 </span>            :     } else {
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :       LOG(error) &lt;&lt; &quot;Plot_id &quot; &lt;&lt; plot_id &lt;&lt; &quot; is not found in MongoDB&quot;;</span>
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 :       bson_destroy(query);</span>
+<span class="lineNum">     180 </span><span class="lineNoCov">          0 :       mongoc_cursor_destroy(cursor);</span>
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :       mongoc_collection_destroy(collection);</span>
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 :       mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);</span>
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :       ServiceException se;</span>
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :       se.errorCode = ErrorCode::SE_THRIFT_HANDLER_ERROR;</span>
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :       se.message = &quot;Plot_id &quot; + plot_id_str + &quot; is not found in MongoDB&quot;;</span>
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :       free(plot_mmc);</span>
+<span class="lineNum">     187 </span><span class="lineNoCov">          0 :       throw se;</span>
+<span class="lineNum">     188 </span>            :     }
+<span class="lineNum">     189 </span>            :   }
+<span class="lineNum">     190 </span><span class="lineCov">         20 :   span-&gt;Finish();</span>
+<a name="191"><span class="lineNum">     191 </span><span class="lineCov">         20 : }</span></a>
+<span class="lineNum">     192 </span>            : 
+<span class="lineNum">     193 </span><span class="lineCov">        198 : void PlotHandler::WritePlot(</span>
+<span class="lineNum">     194 </span>            :     int64_t req_id,
+<span class="lineNum">     195 </span>            :     int64_t plot_id,
+<span class="lineNum">     196 </span>            :     const std::string &amp;plot,
+<span class="lineNum">     197 </span>            :     const std::map&lt;std::string, std::string&gt; &amp;carrier) {
+<span class="lineNum">     198 </span>            :   // Initialize a span
+<span class="lineNum">     199 </span><span class="lineCov">        396 :   TextMapReader reader(carrier);</span>
+<span class="lineNum">     200 </span><span class="lineCov">        396 :   std::map&lt;std::string, std::string&gt; writer_text_map;</span>
+<span class="lineNum">     201 </span><span class="lineCov">        396 :   TextMapWriter writer(writer_text_map);</span>
+<span class="lineNum">     202 </span><span class="lineCov">        396 :   auto parent_span = opentracing::Tracer::Global()-&gt;Extract(reader);</span>
+<span class="lineNum">     203 </span><span class="lineCov">        396 :   auto span = opentracing::Tracer::Global()-&gt;StartSpan(</span>
+<span class="lineNum">     204 </span>            :       &quot;WritePlot&quot;,
+<span class="lineNum">     205 </span><span class="lineCov">        792 :       { opentracing::ChildOf(parent_span-&gt;get()) });</span>
+<span class="lineNum">     206 </span><span class="lineCov">        198 :   opentracing::Tracer::Global()-&gt;Inject(span-&gt;context(), writer);</span>
+<span class="lineNum">     207 </span>            : 
+<span class="lineNum">     208 </span><span class="lineCov">        198 :   bson_t *new_doc = bson_new();</span>
+<span class="lineNum">     209 </span><span class="lineCov">        198 :   BSON_APPEND_INT64(new_doc, &quot;plot_id&quot;, plot_id);</span>
+<span class="lineNum">     210 </span><span class="lineCov">        198 :   BSON_APPEND_UTF8(new_doc, &quot;plot&quot;, plot.c_str());</span>
+<span class="lineNum">     211 </span>            : 
+<span class="lineNum">     212 </span><span class="lineCov">        198 :   mongoc_client_t *mongodb_client = mongoc_client_pool_pop(</span>
+<span class="lineNum">     213 </span><span class="lineCov">        198 :       _mongodb_client_pool);</span>
+<span class="lineNum">     214 </span><span class="lineCov">        198 :   if (!mongodb_client) {</span>
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :     ServiceException se;</span>
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :     se.errorCode = ErrorCode::SE_MONGODB_ERROR;</span>
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :     se.message = &quot;Failed to pop a client from MongoDB pool&quot;;</span>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :     throw se;</span>
+<span class="lineNum">     219 </span>            :   }
+<span class="lineNum">     220 </span>            :   auto collection = mongoc_client_get_collection(
+<span class="lineNum">     221 </span><span class="lineCov">        198 :       mongodb_client, &quot;plot&quot;, &quot;plot&quot;);</span>
+<span class="lineNum">     222 </span><span class="lineCov">        198 :   if (!collection) {</span>
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :     ServiceException se;</span>
+<span class="lineNum">     224 </span><span class="lineNoCov">          0 :     se.errorCode = ErrorCode::SE_MONGODB_ERROR;</span>
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :     se.message = &quot;Failed to create collection plot from DB plot&quot;;</span>
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :     mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);</span>
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :     throw se;</span>
+<span class="lineNum">     228 </span>            :   }
+<span class="lineNum">     229 </span>            :   bson_error_t error;
+<span class="lineNum">     230 </span><span class="lineCov">        396 :   auto insert_span = opentracing::Tracer::Global()-&gt;StartSpan(</span>
+<span class="lineNum">     231 </span><span class="lineCov">        792 :       &quot;MongoInsertPlot&quot;, { opentracing::ChildOf(&amp;span-&gt;context()) });</span>
+<span class="lineNum">     232 </span>            :   bool plotinsert = mongoc_collection_insert_one (
+<span class="lineNum">     233 </span><span class="lineCov">        198 :       collection, new_doc, nullptr, nullptr, &amp;error);</span>
+<span class="lineNum">     234 </span><span class="lineCov">        198 :   insert_span-&gt;Finish();</span>
+<span class="lineNum">     235 </span><span class="lineCov">        198 :   if (!plotinsert) {</span>
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :     LOG(error) &lt;&lt; &quot;Error: Failed to insert plot to MongoDB: &quot;</span>
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :                &lt;&lt; error.message;</span>
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :     ServiceException se;</span>
+<span class="lineNum">     239 </span><span class="lineNoCov">          0 :     se.errorCode = ErrorCode::SE_MONGODB_ERROR;</span>
+<span class="lineNum">     240 </span><span class="lineNoCov">          0 :     se.message = error.message;</span>
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :     bson_destroy(new_doc);</span>
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :     mongoc_collection_destroy(collection);</span>
+<span class="lineNum">     243 </span><span class="lineNoCov">          0 :     mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);</span>
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :     throw se;</span>
+<span class="lineNum">     245 </span>            :   }
+<span class="lineNum">     246 </span>            : 
+<span class="lineNum">     247 </span><span class="lineCov">        198 :   bson_destroy(new_doc);</span>
+<span class="lineNum">     248 </span><span class="lineCov">        198 :   mongoc_collection_destroy(collection);</span>
+<span class="lineNum">     249 </span><span class="lineCov">        198 :   mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);</span>
+<span class="lineNum">     250 </span>            : 
+<span class="lineNum">     251 </span><span class="lineCov">        198 :   span-&gt;Finish();</span>
+<span class="lineNum">     252 </span><span class="lineCov">        198 : }</span>
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span>            : } // namespace media_service
+<span class="lineNum">     255 </span>            : 
+<span class="lineNum">     256 </span>            : #endif //MEDIA_MICROSERVICES_PLOTHANDLER_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

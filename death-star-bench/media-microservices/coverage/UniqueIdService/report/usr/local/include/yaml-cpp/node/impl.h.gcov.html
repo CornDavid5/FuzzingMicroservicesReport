@@ -1,0 +1,524 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - /usr/local/include/yaml-cpp/node/impl.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">usr/local/include/yaml-cpp/node</a> - impl.h<span style="font-size: 80%;"> (source / <a href="impl.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">41</td>
+            <td class="headerCovTableEntry">56</td>
+            <td class="headerCovTableEntryLo">73.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 01:13:04</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">60</td>
+            <td class="headerCovTableEntry">80</td>
+            <td class="headerCovTableEntryMed">75.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #ifndef NODE_IMPL_H_62B23520_7C8E_11DE_8A39_0800200C9A66</a>
+<span class="lineNum">       2 </span>            : #define NODE_IMPL_H_62B23520_7C8E_11DE_8A39_0800200C9A66
+<span class="lineNum">       3 </span>            : 
+<span class="lineNum">       4 </span>            : #if defined(_MSC_VER) ||                                            \
+<span class="lineNum">       5 </span>            :     (defined(__GNUC__) &amp;&amp; (__GNUC__ == 3 &amp;&amp; __GNUC_MINOR__ &gt;= 4) || \
+<span class="lineNum">       6 </span>            :      (__GNUC__ &gt;= 4))  // GCC supports &quot;pragma once&quot; correctly since 3.4
+<span class="lineNum">       7 </span>            : #pragma once
+<span class="lineNum">       8 </span>            : #endif
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span>            : #include &quot;yaml-cpp/node/node.h&quot;
+<span class="lineNum">      11 </span>            : #include &quot;yaml-cpp/node/iterator.h&quot;
+<span class="lineNum">      12 </span>            : #include &quot;yaml-cpp/node/detail/memory.h&quot;
+<span class="lineNum">      13 </span>            : #include &quot;yaml-cpp/node/detail/node.h&quot;
+<span class="lineNum">      14 </span>            : #include &quot;yaml-cpp/exceptions.h&quot;
+<span class="lineNum">      15 </span>            : #include &lt;string&gt;
+<span class="lineNum">      16 </span>            : 
+<span class="lineNum">      17 </span>            : namespace YAML {
+<span class="lineNum">      18 </span>            : inline Node::Node() : m_isValid(true), m_pNode(NULL) {}
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : inline Node::Node(NodeType::value type)
+<span class="lineNum">      21 </span>            :     : m_isValid(true),
+<span class="lineNum">      22 </span>            :       m_pMemory(new detail::memory_holder),
+<span class="lineNum">      23 </span>            :       m_pNode(&amp;m_pMemory-&gt;create_node()) {
+<span class="lineNum">      24 </span>            :   m_pNode-&gt;set_type(type);
+<span class="lineNum">      25 </span>            : }
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : template &lt;typename T&gt;
+<span class="lineNum">      28 </span>            : inline Node::Node(const T&amp; rhs)
+<span class="lineNum">      29 </span>            :     : m_isValid(true),
+<span class="lineNum">      30 </span>            :       m_pMemory(new detail::memory_holder),
+<span class="lineNum">      31 </span>            :       m_pNode(&amp;m_pMemory-&gt;create_node()) {
+<span class="lineNum">      32 </span>            :   Assign(rhs);
+<span class="lineNum">      33 </span>            : }
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : inline Node::Node(const detail::iterator_value&amp; rhs)
+<span class="lineNum">      36 </span>            :     : m_isValid(rhs.m_isValid),
+<span class="lineNum">      37 </span>            :       m_pMemory(rhs.m_pMemory),
+<span class="lineNum">      38 </span>            :       m_pNode(rhs.m_pNode) {}
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span>            : inline Node::Node(const Node&amp; rhs)
+<span class="lineNum">      41 </span>            :     : m_isValid(rhs.m_isValid),
+<span class="lineNum">      42 </span>            :       m_pMemory(rhs.m_pMemory),
+<a name="43"><span class="lineNum">      43 </span>            :       m_pNode(rhs.m_pNode) {}</a>
+<span class="lineNum">      44 </span>            : 
+<a name="45"><span class="lineNum">      45 </span><span class="lineCov">         14 : inline Node::Node(Zombie) : m_isValid(false), m_pNode(NULL) {}</span></a>
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span><span class="lineCov">         70 : inline Node::Node(detail::node&amp; node, detail::shared_memory_holder pMemory)</span>
+<a name="48"><span class="lineNum">      48 </span><span class="lineCov">         70 :     : m_isValid(true), m_pMemory(pMemory), m_pNode(&amp;node) {}</span></a>
+<span class="lineNum">      49 </span>            : 
+<a name="50"><span class="lineNum">      50 </span><span class="lineCov">         86 : inline Node::~Node() {}</span></a>
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span><span class="lineCov">         28 : inline void Node::EnsureNodeExists() const {</span>
+<span class="lineNum">      53 </span><span class="lineCov">         28 :   if (!m_isValid)</span>
+<span class="lineNum">      54 </span><span class="lineNoCov">          0 :     throw InvalidNode();</span>
+<span class="lineNum">      55 </span><span class="lineCov">         28 :   if (!m_pNode) {</span>
+<span class="lineNum">      56 </span><span class="lineNoCov">          0 :     m_pMemory.reset(new detail::memory_holder);</span>
+<span class="lineNum">      57 </span><span class="lineNoCov">          0 :     m_pNode = &amp;m_pMemory-&gt;create_node();</span>
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 :     m_pNode-&gt;set_null();</span>
+<span class="lineNum">      59 </span>            :   }
+<a name="60"><span class="lineNum">      60 </span><span class="lineCov">         28 : }</span></a>
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span><span class="lineCov">         30 : inline bool Node::IsDefined() const {</span>
+<span class="lineNum">      63 </span><span class="lineCov">         30 :   if (!m_isValid) {</span>
+<span class="lineNum">      64 </span><span class="lineCov">         14 :     return false;</span>
+<span class="lineNum">      65 </span>            :   }
+<span class="lineNum">      66 </span><span class="lineCov">         16 :   return m_pNode ? m_pNode-&gt;is_defined() : true;</span>
+<a name="67"><span class="lineNum">      67 </span>            : }</a>
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span><span class="lineNoCov">          0 : inline Mark Node::Mark() const {</span>
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 :   if (!m_isValid) {</span>
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :     throw InvalidNode();</span>
+<span class="lineNum">      72 </span>            :   }
+<span class="lineNum">      73 </span><span class="lineNoCov">          0 :   return m_pNode ? m_pNode-&gt;mark() : Mark::null_mark();</span>
+<a name="74"><span class="lineNum">      74 </span>            : }</a>
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span><span class="lineCov">         68 : inline NodeType::value Node::Type() const {</span>
+<span class="lineNum">      77 </span><span class="lineCov">         68 :   if (!m_isValid)</span>
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 :     throw InvalidNode();</span>
+<span class="lineNum">      79 </span><span class="lineCov">         68 :   return m_pNode ? m_pNode-&gt;type() : NodeType::Null;</span>
+<span class="lineNum">      80 </span>            : }
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span>            : // access
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span>            : // template helpers
+<span class="lineNum">      85 </span>            : template &lt;typename T, typename S&gt;
+<span class="lineNum">      86 </span>            : struct as_if {
+<span class="lineNum">      87 </span>            :   explicit as_if(const Node&amp; node_) : node(node_) {}
+<span class="lineNum">      88 </span>            :   const Node&amp; node;
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span>            :   T operator()(const S&amp; fallback) const {
+<span class="lineNum">      91 </span>            :     if (!node.m_pNode)
+<span class="lineNum">      92 </span>            :       return fallback;
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span>            :     T t;
+<span class="lineNum">      95 </span>            :     if (convert&lt;T&gt;::decode(node, t))
+<span class="lineNum">      96 </span>            :       return t;
+<span class="lineNum">      97 </span>            :     return fallback;
+<span class="lineNum">      98 </span>            :   }
+<span class="lineNum">      99 </span>            : };
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span>            : template &lt;typename S&gt;
+<span class="lineNum">     102 </span>            : struct as_if&lt;std::string, S&gt; {
+<span class="lineNum">     103 </span>            :   explicit as_if(const Node&amp; node_) : node(node_) {}
+<span class="lineNum">     104 </span>            :   const Node&amp; node;
+<span class="lineNum">     105 </span>            : 
+<span class="lineNum">     106 </span>            :   std::string operator()(const S&amp; fallback) const {
+<span class="lineNum">     107 </span>            :     if (node.Type() != NodeType::Scalar)
+<span class="lineNum">     108 </span>            :       return fallback;
+<span class="lineNum">     109 </span>            :     return node.Scalar();
+<span class="lineNum">     110 </span>            :   }
+<span class="lineNum">     111 </span>            : };
+<span class="lineNum">     112 </span>            : 
+<a name="113"><span class="lineNum">     113 </span>            : template &lt;typename T&gt;</a>
+<span class="lineNum">     114 </span>            : struct as_if&lt;T, void&gt; {
+<span class="lineNum">     115 </span><span class="lineCov">          6 :   explicit as_if(const Node&amp; node_) : node(node_) {}</span>
+<a name="116"><span class="lineNum">     116 </span>            :   const Node&amp; node;</a>
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span><span class="lineCov">          6 :   T operator()() const {</span>
+<span class="lineNum">     119 </span><span class="lineCov">          6 :     if (!node.m_pNode)</span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :       throw TypedBadConversion&lt;T&gt;(node.Mark());</span>
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span>            :     T t;
+<span class="lineNum">     123 </span><span class="lineCov">          6 :     if (convert&lt;T&gt;::decode(node, t))</span>
+<span class="lineNum">     124 </span><span class="lineCov">         12 :       return t;</span>
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :     throw TypedBadConversion&lt;T&gt;(node.Mark());</span>
+<span class="lineNum">     126 </span>            :   }
+<span class="lineNum">     127 </span>            : };
+<span class="lineNum">     128 </span>            : 
+<a name="129"><span class="lineNum">     129 </span>            : template &lt;&gt;</a>
+<span class="lineNum">     130 </span>            : struct as_if&lt;std::string, void&gt; {
+<span class="lineNum">     131 </span><span class="lineCov">          4 :   explicit as_if(const Node&amp; node_) : node(node_) {}</span>
+<a name="132"><span class="lineNum">     132 </span>            :   const Node&amp; node;</a>
+<span class="lineNum">     133 </span>            : 
+<span class="lineNum">     134 </span><span class="lineCov">          4 :   std::string operator()() const {</span>
+<span class="lineNum">     135 </span><span class="lineCov">          4 :     if (node.Type() != NodeType::Scalar)</span>
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :       throw TypedBadConversion&lt;std::string&gt;(node.Mark());</span>
+<span class="lineNum">     137 </span><span class="lineCov">          4 :     return node.Scalar();</span>
+<span class="lineNum">     138 </span>            :   }
+<span class="lineNum">     139 </span>            : };
+<span class="lineNum">     140 </span>            : 
+<a name="141"><span class="lineNum">     141 </span>            : // access functions</a>
+<span class="lineNum">     142 </span>            : template &lt;typename T&gt;
+<span class="lineNum">     143 </span><span class="lineCov">         10 : inline T Node::as() const {</span>
+<span class="lineNum">     144 </span><span class="lineCov">         10 :   if (!m_isValid)</span>
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :     throw InvalidNode();</span>
+<span class="lineNum">     146 </span><span class="lineCov">         10 :   return as_if&lt;T, void&gt;(*this)();</span>
+<span class="lineNum">     147 </span>            : }
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span>            : template &lt;typename T, typename S&gt;
+<span class="lineNum">     150 </span>            : inline T Node::as(const S&amp; fallback) const {
+<span class="lineNum">     151 </span>            :   if (!m_isValid)
+<span class="lineNum">     152 </span>            :     return fallback;
+<span class="lineNum">     153 </span>            :   return as_if&lt;T, S&gt;(*this)(fallback);
+<a name="154"><span class="lineNum">     154 </span>            : }</a>
+<span class="lineNum">     155 </span>            : 
+<span class="lineNum">     156 </span><span class="lineCov">         62 : inline const std::string&amp; Node::Scalar() const {</span>
+<span class="lineNum">     157 </span><span class="lineCov">         62 :   if (!m_isValid)</span>
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 :     throw InvalidNode();</span>
+<span class="lineNum">     159 </span><span class="lineCov">         62 :   return m_pNode ? m_pNode-&gt;scalar() : detail::node_data::empty_scalar;</span>
+<span class="lineNum">     160 </span>            : }
+<span class="lineNum">     161 </span>            : 
+<span class="lineNum">     162 </span>            : inline const std::string&amp; Node::Tag() const {
+<span class="lineNum">     163 </span>            :   if (!m_isValid)
+<span class="lineNum">     164 </span>            :     throw InvalidNode();
+<span class="lineNum">     165 </span>            :   return m_pNode ? m_pNode-&gt;tag() : detail::node_data::empty_scalar;
+<span class="lineNum">     166 </span>            : }
+<span class="lineNum">     167 </span>            : 
+<span class="lineNum">     168 </span>            : inline void Node::SetTag(const std::string&amp; tag) {
+<span class="lineNum">     169 </span>            :   if (!m_isValid)
+<span class="lineNum">     170 </span>            :     throw InvalidNode();
+<span class="lineNum">     171 </span>            :   EnsureNodeExists();
+<span class="lineNum">     172 </span>            :   m_pNode-&gt;set_tag(tag);
+<span class="lineNum">     173 </span>            : }
+<span class="lineNum">     174 </span>            : 
+<span class="lineNum">     175 </span>            : inline EmitterStyle::value Node::Style() const {
+<span class="lineNum">     176 </span>            :   if (!m_isValid)
+<span class="lineNum">     177 </span>            :     throw InvalidNode();
+<span class="lineNum">     178 </span>            :   return m_pNode ? m_pNode-&gt;style() : EmitterStyle::Default;
+<span class="lineNum">     179 </span>            : }
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span>            : inline void Node::SetStyle(EmitterStyle::value style) {
+<span class="lineNum">     182 </span>            :   if (!m_isValid)
+<span class="lineNum">     183 </span>            :     throw InvalidNode();
+<span class="lineNum">     184 </span>            :   EnsureNodeExists();
+<span class="lineNum">     185 </span>            :   m_pNode-&gt;set_style(style);
+<span class="lineNum">     186 </span>            : }
+<span class="lineNum">     187 </span>            : 
+<span class="lineNum">     188 </span>            : // assignment
+<span class="lineNum">     189 </span>            : inline bool Node::is(const Node&amp; rhs) const {
+<span class="lineNum">     190 </span>            :   if (!m_isValid || !rhs.m_isValid)
+<span class="lineNum">     191 </span>            :     throw InvalidNode();
+<span class="lineNum">     192 </span>            :   if (!m_pNode || !rhs.m_pNode)
+<span class="lineNum">     193 </span>            :     return false;
+<span class="lineNum">     194 </span>            :   return m_pNode-&gt;is(*rhs.m_pNode);
+<span class="lineNum">     195 </span>            : }
+<span class="lineNum">     196 </span>            : 
+<span class="lineNum">     197 </span>            : template &lt;typename T&gt;
+<span class="lineNum">     198 </span>            : inline Node&amp; Node::operator=(const T&amp; rhs) {
+<span class="lineNum">     199 </span>            :   if (!m_isValid)
+<span class="lineNum">     200 </span>            :     throw InvalidNode();
+<span class="lineNum">     201 </span>            :   Assign(rhs);
+<span class="lineNum">     202 </span>            :   return *this;
+<span class="lineNum">     203 </span>            : }
+<span class="lineNum">     204 </span>            : 
+<span class="lineNum">     205 </span>            : inline void Node::reset(const YAML::Node&amp; rhs) {
+<span class="lineNum">     206 </span>            :   if (!m_isValid || !rhs.m_isValid)
+<span class="lineNum">     207 </span>            :     throw InvalidNode();
+<span class="lineNum">     208 </span>            :   m_pMemory = rhs.m_pMemory;
+<span class="lineNum">     209 </span>            :   m_pNode = rhs.m_pNode;
+<span class="lineNum">     210 </span>            : }
+<span class="lineNum">     211 </span>            : 
+<span class="lineNum">     212 </span>            : template &lt;typename T&gt;
+<span class="lineNum">     213 </span>            : inline void Node::Assign(const T&amp; rhs) {
+<span class="lineNum">     214 </span>            :   if (!m_isValid)
+<span class="lineNum">     215 </span>            :     throw InvalidNode();
+<span class="lineNum">     216 </span>            :   AssignData(convert&lt;T&gt;::encode(rhs));
+<span class="lineNum">     217 </span>            : }
+<span class="lineNum">     218 </span>            : 
+<span class="lineNum">     219 </span>            : template &lt;&gt;
+<span class="lineNum">     220 </span>            : inline void Node::Assign(const std::string&amp; rhs) {
+<span class="lineNum">     221 </span>            :   if (!m_isValid)
+<span class="lineNum">     222 </span>            :     throw InvalidNode();
+<span class="lineNum">     223 </span>            :   EnsureNodeExists();
+<span class="lineNum">     224 </span>            :   m_pNode-&gt;set_scalar(rhs);
+<span class="lineNum">     225 </span>            : }
+<span class="lineNum">     226 </span>            : 
+<span class="lineNum">     227 </span>            : inline void Node::Assign(const char* rhs) {
+<span class="lineNum">     228 </span>            :   if (!m_isValid)
+<span class="lineNum">     229 </span>            :     throw InvalidNode();
+<span class="lineNum">     230 </span>            :   EnsureNodeExists();
+<span class="lineNum">     231 </span>            :   m_pNode-&gt;set_scalar(rhs);
+<span class="lineNum">     232 </span>            : }
+<span class="lineNum">     233 </span>            : 
+<span class="lineNum">     234 </span>            : inline void Node::Assign(char* rhs) {
+<span class="lineNum">     235 </span>            :   if (!m_isValid)
+<span class="lineNum">     236 </span>            :     throw InvalidNode();
+<span class="lineNum">     237 </span>            :   EnsureNodeExists();
+<span class="lineNum">     238 </span>            :   m_pNode-&gt;set_scalar(rhs);
+<span class="lineNum">     239 </span>            : }
+<span class="lineNum">     240 </span>            : 
+<span class="lineNum">     241 </span>            : inline Node&amp; Node::operator=(const Node&amp; rhs) {
+<span class="lineNum">     242 </span>            :   if (!m_isValid || !rhs.m_isValid)
+<span class="lineNum">     243 </span>            :     throw InvalidNode();
+<span class="lineNum">     244 </span>            :   if (is(rhs))
+<span class="lineNum">     245 </span>            :     return *this;
+<span class="lineNum">     246 </span>            :   AssignNode(rhs);
+<span class="lineNum">     247 </span>            :   return *this;
+<span class="lineNum">     248 </span>            : }
+<span class="lineNum">     249 </span>            : 
+<span class="lineNum">     250 </span>            : inline void Node::AssignData(const Node&amp; rhs) {
+<span class="lineNum">     251 </span>            :   if (!m_isValid || !rhs.m_isValid)
+<span class="lineNum">     252 </span>            :     throw InvalidNode();
+<span class="lineNum">     253 </span>            :   EnsureNodeExists();
+<span class="lineNum">     254 </span>            :   rhs.EnsureNodeExists();
+<span class="lineNum">     255 </span>            : 
+<span class="lineNum">     256 </span>            :   m_pNode-&gt;set_data(*rhs.m_pNode);
+<span class="lineNum">     257 </span>            :   m_pMemory-&gt;merge(*rhs.m_pMemory);
+<span class="lineNum">     258 </span>            : }
+<span class="lineNum">     259 </span>            : 
+<span class="lineNum">     260 </span>            : inline void Node::AssignNode(const Node&amp; rhs) {
+<span class="lineNum">     261 </span>            :   if (!m_isValid || !rhs.m_isValid)
+<span class="lineNum">     262 </span>            :     throw InvalidNode();
+<span class="lineNum">     263 </span>            :   rhs.EnsureNodeExists();
+<span class="lineNum">     264 </span>            : 
+<span class="lineNum">     265 </span>            :   if (!m_pNode) {
+<span class="lineNum">     266 </span>            :     m_pNode = rhs.m_pNode;
+<span class="lineNum">     267 </span>            :     m_pMemory = rhs.m_pMemory;
+<span class="lineNum">     268 </span>            :     return;
+<span class="lineNum">     269 </span>            :   }
+<span class="lineNum">     270 </span>            : 
+<span class="lineNum">     271 </span>            :   m_pNode-&gt;set_ref(*rhs.m_pNode);
+<span class="lineNum">     272 </span>            :   m_pMemory-&gt;merge(*rhs.m_pMemory);
+<span class="lineNum">     273 </span>            :   m_pNode = rhs.m_pNode;
+<span class="lineNum">     274 </span>            : }
+<span class="lineNum">     275 </span>            : 
+<span class="lineNum">     276 </span>            : // size/iterator
+<span class="lineNum">     277 </span>            : inline std::size_t Node::size() const {
+<span class="lineNum">     278 </span>            :   if (!m_isValid)
+<span class="lineNum">     279 </span>            :     throw InvalidNode();
+<span class="lineNum">     280 </span>            :   return m_pNode ? m_pNode-&gt;size() : 0;
+<span class="lineNum">     281 </span>            : }
+<span class="lineNum">     282 </span>            : 
+<span class="lineNum">     283 </span>            : inline const_iterator Node::begin() const {
+<span class="lineNum">     284 </span>            :   if (!m_isValid)
+<span class="lineNum">     285 </span>            :     return const_iterator();
+<span class="lineNum">     286 </span>            :   return m_pNode ? const_iterator(m_pNode-&gt;begin(), m_pMemory)
+<span class="lineNum">     287 </span>            :                  : const_iterator();
+<span class="lineNum">     288 </span>            : }
+<span class="lineNum">     289 </span>            : 
+<span class="lineNum">     290 </span>            : inline iterator Node::begin() {
+<span class="lineNum">     291 </span>            :   if (!m_isValid)
+<span class="lineNum">     292 </span>            :     return iterator();
+<span class="lineNum">     293 </span>            :   return m_pNode ? iterator(m_pNode-&gt;begin(), m_pMemory) : iterator();
+<span class="lineNum">     294 </span>            : }
+<span class="lineNum">     295 </span>            : 
+<span class="lineNum">     296 </span>            : inline const_iterator Node::end() const {
+<span class="lineNum">     297 </span>            :   if (!m_isValid)
+<span class="lineNum">     298 </span>            :     return const_iterator();
+<span class="lineNum">     299 </span>            :   return m_pNode ? const_iterator(m_pNode-&gt;end(), m_pMemory) : const_iterator();
+<span class="lineNum">     300 </span>            : }
+<span class="lineNum">     301 </span>            : 
+<span class="lineNum">     302 </span>            : inline iterator Node::end() {
+<span class="lineNum">     303 </span>            :   if (!m_isValid)
+<span class="lineNum">     304 </span>            :     return iterator();
+<span class="lineNum">     305 </span>            :   return m_pNode ? iterator(m_pNode-&gt;end(), m_pMemory) : iterator();
+<span class="lineNum">     306 </span>            : }
+<span class="lineNum">     307 </span>            : 
+<span class="lineNum">     308 </span>            : // sequence
+<span class="lineNum">     309 </span>            : template &lt;typename T&gt;
+<span class="lineNum">     310 </span>            : inline void Node::push_back(const T&amp; rhs) {
+<span class="lineNum">     311 </span>            :   if (!m_isValid)
+<span class="lineNum">     312 </span>            :     throw InvalidNode();
+<span class="lineNum">     313 </span>            :   push_back(Node(rhs));
+<span class="lineNum">     314 </span>            : }
+<span class="lineNum">     315 </span>            : 
+<span class="lineNum">     316 </span>            : inline void Node::push_back(const Node&amp; rhs) {
+<span class="lineNum">     317 </span>            :   if (!m_isValid || !rhs.m_isValid)
+<span class="lineNum">     318 </span>            :     throw InvalidNode();
+<span class="lineNum">     319 </span>            :   EnsureNodeExists();
+<span class="lineNum">     320 </span>            :   rhs.EnsureNodeExists();
+<span class="lineNum">     321 </span>            : 
+<span class="lineNum">     322 </span>            :   m_pNode-&gt;push_back(*rhs.m_pNode, m_pMemory);
+<span class="lineNum">     323 </span>            :   m_pMemory-&gt;merge(*rhs.m_pMemory);
+<span class="lineNum">     324 </span>            : }
+<span class="lineNum">     325 </span>            : 
+<span class="lineNum">     326 </span>            : // helpers for indexing
+<span class="lineNum">     327 </span>            : namespace detail {
+<span class="lineNum">     328 </span>            : template &lt;typename T&gt;
+<span class="lineNum">     329 </span>            : struct to_value_t {
+<span class="lineNum">     330 </span>            :   explicit to_value_t(const T&amp; t_) : t(t_) {}
+<span class="lineNum">     331 </span>            :   const T&amp; t;
+<span class="lineNum">     332 </span>            :   typedef const T&amp; return_type;
+<span class="lineNum">     333 </span>            : 
+<span class="lineNum">     334 </span>            :   const T&amp; operator()() const { return t; }
+<span class="lineNum">     335 </span>            : };
+<span class="lineNum">     336 </span>            : 
+<span class="lineNum">     337 </span>            : template &lt;&gt;
+<span class="lineNum">     338 </span>            : struct to_value_t&lt;const char*&gt; {
+<span class="lineNum">     339 </span>            :   explicit to_value_t(const char* t_) : t(t_) {}
+<span class="lineNum">     340 </span>            :   const char* t;
+<span class="lineNum">     341 </span>            :   typedef std::string return_type;
+<span class="lineNum">     342 </span>            : 
+<span class="lineNum">     343 </span>            :   const std::string operator()() const { return t; }
+<span class="lineNum">     344 </span>            : };
+<span class="lineNum">     345 </span>            : 
+<span class="lineNum">     346 </span>            : template &lt;&gt;
+<span class="lineNum">     347 </span>            : struct to_value_t&lt;char*&gt; {
+<span class="lineNum">     348 </span>            :   explicit to_value_t(char* t_) : t(t_) {}
+<span class="lineNum">     349 </span>            :   const char* t;
+<span class="lineNum">     350 </span>            :   typedef std::string return_type;
+<span class="lineNum">     351 </span>            : 
+<span class="lineNum">     352 </span>            :   const std::string operator()() const { return t; }
+<span class="lineNum">     353 </span>            : };
+<span class="lineNum">     354 </span>            : 
+<a name="355"><span class="lineNum">     355 </span>            : template &lt;std::size_t N&gt;</a>
+<span class="lineNum">     356 </span>            : struct to_value_t&lt;char[N]&gt; {
+<span class="lineNum">     357 </span><span class="lineCov">         28 :   explicit to_value_t(const char* t_) : t(t_) {}</span>
+<span class="lineNum">     358 </span>            :   const char* t;
+<a name="359"><span class="lineNum">     359 </span>            :   typedef std::string return_type;</a>
+<span class="lineNum">     360 </span>            : 
+<span class="lineNum">     361 </span><span class="lineCov">         28 :   const std::string operator()() const { return t; }</span>
+<span class="lineNum">     362 </span>            : };
+<span class="lineNum">     363 </span>            : 
+<a name="364"><span class="lineNum">     364 </span>            : // converts C-strings to std::strings so they can be copied</a>
+<span class="lineNum">     365 </span>            : template &lt;typename T&gt;
+<span class="lineNum">     366 </span><span class="lineCov">         28 : inline typename to_value_t&lt;T&gt;::return_type to_value(const T&amp; t) {</span>
+<span class="lineNum">     367 </span><span class="lineCov">         28 :   return to_value_t&lt;T&gt;(t)();</span>
+<span class="lineNum">     368 </span>            : }
+<span class="lineNum">     369 </span>            : }
+<span class="lineNum">     370 </span>            : 
+<a name="371"><span class="lineNum">     371 </span>            : // indexing</a>
+<span class="lineNum">     372 </span>            : template &lt;typename Key&gt;
+<span class="lineNum">     373 </span><span class="lineCov">         28 : inline const Node Node::operator[](const Key&amp; key) const {</span>
+<span class="lineNum">     374 </span><span class="lineCov">         28 :   if (!m_isValid)</span>
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 :     throw InvalidNode();</span>
+<span class="lineNum">     376 </span><span class="lineCov">         28 :   EnsureNodeExists();</span>
+<span class="lineNum">     377 </span>            :   detail::node* value = static_cast&lt;const detail::node&amp;&gt;(*m_pNode)
+<span class="lineNum">     378 </span><span class="lineCov">         28 :                             .get(detail::to_value(key), m_pMemory);</span>
+<span class="lineNum">     379 </span><span class="lineCov">         28 :   if (!value) {</span>
+<span class="lineNum">     380 </span><span class="lineCov">         14 :     return Node(ZombieNode);</span>
+<span class="lineNum">     381 </span>            :   }
+<span class="lineNum">     382 </span><span class="lineCov">         14 :   return Node(*value, m_pMemory);</span>
+<span class="lineNum">     383 </span>            : }
+<span class="lineNum">     384 </span>            : 
+<span class="lineNum">     385 </span>            : template &lt;typename Key&gt;
+<span class="lineNum">     386 </span>            : inline Node Node::operator[](const Key&amp; key) {
+<span class="lineNum">     387 </span>            :   if (!m_isValid)
+<span class="lineNum">     388 </span>            :     throw InvalidNode();
+<span class="lineNum">     389 </span>            :   EnsureNodeExists();
+<span class="lineNum">     390 </span>            :   detail::node&amp; value = m_pNode-&gt;get(detail::to_value(key), m_pMemory);
+<span class="lineNum">     391 </span>            :   return Node(value, m_pMemory);
+<span class="lineNum">     392 </span>            : }
+<span class="lineNum">     393 </span>            : 
+<span class="lineNum">     394 </span>            : template &lt;typename Key&gt;
+<span class="lineNum">     395 </span>            : inline bool Node::remove(const Key&amp; key) {
+<span class="lineNum">     396 </span>            :   if (!m_isValid)
+<span class="lineNum">     397 </span>            :     throw InvalidNode();
+<span class="lineNum">     398 </span>            :   EnsureNodeExists();
+<span class="lineNum">     399 </span>            :   return m_pNode-&gt;remove(detail::to_value(key), m_pMemory);
+<span class="lineNum">     400 </span>            : }
+<span class="lineNum">     401 </span>            : 
+<span class="lineNum">     402 </span>            : inline const Node Node::operator[](const Node&amp; key) const {
+<span class="lineNum">     403 </span>            :   if (!m_isValid || !key.m_isValid)
+<span class="lineNum">     404 </span>            :     throw InvalidNode();
+<span class="lineNum">     405 </span>            :   EnsureNodeExists();
+<span class="lineNum">     406 </span>            :   key.EnsureNodeExists();
+<span class="lineNum">     407 </span>            :   m_pMemory-&gt;merge(*key.m_pMemory);
+<span class="lineNum">     408 </span>            :   detail::node* value =
+<span class="lineNum">     409 </span>            :       static_cast&lt;const detail::node&amp;&gt;(*m_pNode).get(*key.m_pNode, m_pMemory);
+<span class="lineNum">     410 </span>            :   if (!value) {
+<span class="lineNum">     411 </span>            :     return Node(ZombieNode);
+<span class="lineNum">     412 </span>            :   }
+<span class="lineNum">     413 </span>            :   return Node(*value, m_pMemory);
+<span class="lineNum">     414 </span>            : }
+<span class="lineNum">     415 </span>            : 
+<span class="lineNum">     416 </span>            : inline Node Node::operator[](const Node&amp; key) {
+<span class="lineNum">     417 </span>            :   if (!m_isValid || !key.m_isValid)
+<span class="lineNum">     418 </span>            :     throw InvalidNode();
+<span class="lineNum">     419 </span>            :   EnsureNodeExists();
+<span class="lineNum">     420 </span>            :   key.EnsureNodeExists();
+<span class="lineNum">     421 </span>            :   m_pMemory-&gt;merge(*key.m_pMemory);
+<span class="lineNum">     422 </span>            :   detail::node&amp; value = m_pNode-&gt;get(*key.m_pNode, m_pMemory);
+<span class="lineNum">     423 </span>            :   return Node(value, m_pMemory);
+<span class="lineNum">     424 </span>            : }
+<span class="lineNum">     425 </span>            : 
+<span class="lineNum">     426 </span>            : inline bool Node::remove(const Node&amp; key) {
+<span class="lineNum">     427 </span>            :   if (!m_isValid || !key.m_isValid)
+<span class="lineNum">     428 </span>            :     throw InvalidNode();
+<span class="lineNum">     429 </span>            :   EnsureNodeExists();
+<span class="lineNum">     430 </span>            :   key.EnsureNodeExists();
+<span class="lineNum">     431 </span>            :   return m_pNode-&gt;remove(*key.m_pNode, m_pMemory);
+<span class="lineNum">     432 </span>            : }
+<span class="lineNum">     433 </span>            : 
+<span class="lineNum">     434 </span>            : // map
+<span class="lineNum">     435 </span>            : template &lt;typename Key, typename Value&gt;
+<span class="lineNum">     436 </span>            : inline void Node::force_insert(const Key&amp; key, const Value&amp; value) {
+<span class="lineNum">     437 </span>            :   if (!m_isValid)
+<span class="lineNum">     438 </span>            :     throw InvalidNode();
+<span class="lineNum">     439 </span>            :   EnsureNodeExists();
+<span class="lineNum">     440 </span>            :   m_pNode-&gt;force_insert(detail::to_value(key), detail::to_value(value),
+<span class="lineNum">     441 </span>            :                         m_pMemory);
+<span class="lineNum">     442 </span>            : }
+<span class="lineNum">     443 </span>            : 
+<span class="lineNum">     444 </span>            : // free functions
+<span class="lineNum">     445 </span>            : inline bool operator==(const Node&amp; lhs, const Node&amp; rhs) { return lhs.is(rhs); }
+<span class="lineNum">     446 </span>            : }
+<span class="lineNum">     447 </span>            : 
+<span class="lineNum">     448 </span>            : #endif  // NODE_IMPL_H_62B23520_7C8E_11DE_8A39_0800200C9A66
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

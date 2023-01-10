@@ -1,0 +1,192 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - /media-microservices/src/ThriftClient.h</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">media-microservices/src</a> - ThriftClient.h<span style="font-size: 80%;"> (source / <a href="ThriftClient.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">19</td>
+            <td class="headerCovTableEntry">33</td>
+            <td class="headerCovTableEntryLo">57.6 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 01:07:43</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntry">27</td>
+            <td class="headerCovTableEntryLo">55.6 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #ifndef SOCIAL_NETWORK_MICROSERVICES_THRIFTCLIENT_H</a>
+<span class="lineNum">       2 </span>            : #define SOCIAL_NETWORK_MICROSERVICES_THRIFTCLIENT_H
+<span class="lineNum">       3 </span>            : 
+<span class="lineNum">       4 </span>            : #include &lt;string&gt;
+<span class="lineNum">       5 </span>            : #include &lt;thread&gt;
+<span class="lineNum">       6 </span>            : #include &lt;iostream&gt;
+<span class="lineNum">       7 </span>            : #include &lt;boost/log/trivial.hpp&gt;
+<span class="lineNum">       8 </span>            : 
+<span class="lineNum">       9 </span>            : #include &lt;thrift/protocol/TBinaryProtocol.h&gt;
+<span class="lineNum">      10 </span>            : #include &lt;thrift/transport/TSocket.h&gt;
+<span class="lineNum">      11 </span>            : #include &lt;thrift/transport/TTransportUtils.h&gt;
+<span class="lineNum">      12 </span>            : #include &lt;thrift/stdcxx.h&gt;
+<span class="lineNum">      13 </span>            : #include &quot;logger.h&quot;
+<span class="lineNum">      14 </span>            : #include &quot;GenericClient.h&quot;
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : namespace media_service {
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : using apache::thrift::protocol::TProtocol;
+<span class="lineNum">      19 </span>            : using apache::thrift::protocol::TBinaryProtocol;
+<span class="lineNum">      20 </span>            : using apache::thrift::transport::TFramedTransport;
+<span class="lineNum">      21 </span>            : using apache::thrift::transport::TSocket;
+<span class="lineNum">      22 </span>            : using apache::thrift::transport::TTransport;
+<span class="lineNum">      23 </span>            : using apache::thrift::TException;
+<span class="lineNum">      24 </span>            : 
+<span class="lineNum">      25 </span>            : template&lt;class TThriftClient&gt;
+<span class="lineNum">      26 </span>            : class ThriftClient : public GenericClient {
+<span class="lineNum">      27 </span>            :  public:
+<span class="lineNum">      28 </span>            :   ThriftClient(const std::string &amp;addr, int port);
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            :   ThriftClient(const ThriftClient &amp;) = delete;
+<span class="lineNum">      31 </span>            :   ThriftClient &amp;operator=(const ThriftClient &amp;) = delete;
+<span class="lineNum">      32 </span>            :   ThriftClient(ThriftClient&lt;TThriftClient&gt; &amp;&amp;) = default;
+<span class="lineNum">      33 </span>            :   ThriftClient &amp;operator=(ThriftClient &amp;&amp;) = default;
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            :   ~ThriftClient() override;
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            :   TThriftClient *GetClient() const;
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            :   void Connect() override;
+<span class="lineNum">      40 </span>            :   void Disconnect() override;
+<span class="lineNum">      41 </span>            :   void KeepAlive() override;
+<span class="lineNum">      42 </span>            :   void KeepAlive(int timeout_ms) override;
+<span class="lineNum">      43 </span>            :   bool IsConnected() override;
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            :  private:
+<span class="lineNum">      46 </span>            :   TThriftClient *_client;
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span>            :   std::shared_ptr&lt;TTransport&gt; _socket;
+<span class="lineNum">      49 </span>            :   std::shared_ptr&lt;TTransport&gt; _transport;
+<span class="lineNum">      50 </span>            :   std::shared_ptr&lt;TProtocol&gt; _protocol;
+<span class="lineNum">      51 </span>            : };
+<a name="52"><span class="lineNum">      52 </span>            : </a>
+<span class="lineNum">      53 </span>            : template&lt;class TThriftClient&gt;
+<span class="lineNum">      54 </span><span class="lineCov">          6 : ThriftClient&lt;TThriftClient&gt;::ThriftClient(</span>
+<span class="lineNum">      55 </span><span class="lineCov">          6 :     const std::string &amp;addr, int port) {</span>
+<span class="lineNum">      56 </span><span class="lineCov">          6 :   _addr = addr;</span>
+<span class="lineNum">      57 </span><span class="lineCov">          6 :   _port = port;</span>
+<span class="lineNum">      58 </span><span class="lineCov">          6 :   _socket = std::shared_ptr&lt;TTransport&gt;(new TSocket(addr, port));</span>
+<span class="lineNum">      59 </span><span class="lineCov">          6 :   _transport = std::shared_ptr&lt;TTransport&gt;(new TFramedTransport(_socket));</span>
+<span class="lineNum">      60 </span><span class="lineCov">          6 :   _protocol = std::shared_ptr&lt;TProtocol&gt;(new TBinaryProtocol(_transport));</span>
+<span class="lineNum">      61 </span><span class="lineCov">          6 :   _client = new TThriftClient(_protocol);</span>
+<span class="lineNum">      62 </span><span class="lineCov">          6 : }</span>
+<a name="63"><span class="lineNum">      63 </span>            : </a>
+<span class="lineNum">      64 </span>            : template&lt;class TThriftClient&gt;
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 : ThriftClient&lt;TThriftClient&gt;::~ThriftClient() {</span>
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :   Disconnect();</span>
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :   delete _client;</span>
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 : }</span>
+<a name="69"><span class="lineNum">      69 </span>            : </a>
+<span class="lineNum">      70 </span>            : template&lt;class TThriftClient&gt;
+<span class="lineNum">      71 </span><span class="lineCov">        630 : TThriftClient *ThriftClient&lt;TThriftClient&gt;::GetClient() const {</span>
+<span class="lineNum">      72 </span><span class="lineCov">        630 :   return _client;</span>
+<span class="lineNum">      73 </span>            : }
+<a name="74"><span class="lineNum">      74 </span>            : </a>
+<span class="lineNum">      75 </span>            : template&lt;class TThriftClient&gt;
+<span class="lineNum">      76 </span><span class="lineCov">        630 : bool ThriftClient&lt;TThriftClient&gt;::IsConnected() {</span>
+<span class="lineNum">      77 </span><span class="lineCov">        630 :   return _transport-&gt;isOpen();</span>
+<span class="lineNum">      78 </span>            : }
+<a name="79"><span class="lineNum">      79 </span>            : </a>
+<span class="lineNum">      80 </span>            : template&lt;class TThriftClient&gt;
+<span class="lineNum">      81 </span><span class="lineCov">        630 : void ThriftClient&lt;TThriftClient&gt;::Connect() {</span>
+<span class="lineNum">      82 </span><span class="lineCov">        630 :   if (!IsConnected()) {</span>
+<span class="lineNum">      83 </span>            :     try {
+<span class="lineNum">      84 </span><span class="lineCov">          6 :       _transport-&gt;open();</span>
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :     } catch (TException &amp;tx) {</span>
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :       throw tx;</span>
+<span class="lineNum">      87 </span>            :     }
+<span class="lineNum">      88 </span>            :   }
+<span class="lineNum">      89 </span><span class="lineCov">        630 : }</span>
+<a name="90"><span class="lineNum">      90 </span>            : </a>
+<span class="lineNum">      91 </span>            : template&lt;class TThriftClient&gt;
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 : void ThriftClient&lt;TThriftClient&gt;::Disconnect() {</span>
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :   if (IsConnected()) {</span>
+<span class="lineNum">      94 </span>            :     try {
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :       _transport-&gt;close();</span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :     } catch (TException &amp;tx) {</span>
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :       throw tx;</span>
+<span class="lineNum">      98 </span>            :     }
+<span class="lineNum">      99 </span>            :   }
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 : }</span>
+<a name="101"><span class="lineNum">     101 </span>            : </a>
+<span class="lineNum">     102 </span>            : template&lt;class TThriftClient&gt;
+<span class="lineNum">     103 </span><span class="lineCov">        630 : void ThriftClient&lt;TThriftClient&gt;::KeepAlive() {</span>
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span><span class="lineCov">        630 : }</span>
+<span class="lineNum">     106 </span>            : 
+<a name="107"><span class="lineNum">     107 </span>            : // TODO: Implement KeepAlive Timeout</a>
+<span class="lineNum">     108 </span>            : template&lt;class TThriftClient&gt;
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 : void ThriftClient&lt;TThriftClient&gt;::KeepAlive(int timeout_ms) {</span>
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span>            : } // namespace media_service
+<span class="lineNum">     114 </span>            : 
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span>            : #endif //SOCIAL_NETWORK_MICROSERVICES_THRIFTCLIENT_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

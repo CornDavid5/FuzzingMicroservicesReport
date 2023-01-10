@@ -1,0 +1,407 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - /usr/local/include/yaml-cpp/node/convert.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">usr/local/include/yaml-cpp/node</a> - convert.h<span style="font-size: 80%;"> (source / <a href="convert.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntryLo">35.7 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 01:14:10</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryLo">33.3 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #ifndef NODE_CONVERT_H_62B23520_7C8E_11DE_8A39_0800200C9A66</a>
+<span class="lineNum">       2 </span>            : #define NODE_CONVERT_H_62B23520_7C8E_11DE_8A39_0800200C9A66
+<span class="lineNum">       3 </span>            : 
+<span class="lineNum">       4 </span>            : #if defined(_MSC_VER) ||                                            \
+<span class="lineNum">       5 </span>            :     (defined(__GNUC__) &amp;&amp; (__GNUC__ == 3 &amp;&amp; __GNUC_MINOR__ &gt;= 4) || \
+<span class="lineNum">       6 </span>            :      (__GNUC__ &gt;= 4))  // GCC supports &quot;pragma once&quot; correctly since 3.4
+<span class="lineNum">       7 </span>            : #pragma once
+<span class="lineNum">       8 </span>            : #endif
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span>            : #include &lt;array&gt;
+<span class="lineNum">      11 </span>            : #include &lt;limits&gt;
+<span class="lineNum">      12 </span>            : #include &lt;list&gt;
+<span class="lineNum">      13 </span>            : #include &lt;map&gt;
+<span class="lineNum">      14 </span>            : #include &lt;sstream&gt;
+<span class="lineNum">      15 </span>            : #include &lt;vector&gt;
+<span class="lineNum">      16 </span>            : 
+<span class="lineNum">      17 </span>            : #include &quot;yaml-cpp/binary.h&quot;
+<span class="lineNum">      18 </span>            : #include &quot;yaml-cpp/node/impl.h&quot;
+<span class="lineNum">      19 </span>            : #include &quot;yaml-cpp/node/iterator.h&quot;
+<span class="lineNum">      20 </span>            : #include &quot;yaml-cpp/node/node.h&quot;
+<span class="lineNum">      21 </span>            : #include &quot;yaml-cpp/node/type.h&quot;
+<span class="lineNum">      22 </span>            : #include &quot;yaml-cpp/null.h&quot;
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : namespace YAML {
+<span class="lineNum">      25 </span>            : class Binary;
+<span class="lineNum">      26 </span>            : struct _Null;
+<span class="lineNum">      27 </span>            : template &lt;typename T&gt;
+<span class="lineNum">      28 </span>            : struct convert;
+<span class="lineNum">      29 </span>            : }  // namespace YAML
+<span class="lineNum">      30 </span>            : 
+<a name="31"><span class="lineNum">      31 </span>            : namespace YAML {</a>
+<span class="lineNum">      32 </span>            : namespace conversion {
+<span class="lineNum">      33 </span><span class="lineNoCov">          0 : inline bool IsInfinity(const std::string&amp; input) {</span>
+<span class="lineNum">      34 </span><span class="lineNoCov">          0 :   return input == &quot;.inf&quot; || input == &quot;.Inf&quot; || input == &quot;.INF&quot; ||</span>
+<span class="lineNum">      35 </span><span class="lineNoCov">          0 :          input == &quot;+.inf&quot; || input == &quot;+.Inf&quot; || input == &quot;+.INF&quot;;</span>
+<a name="36"><span class="lineNum">      36 </span>            : }</a>
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span><span class="lineNoCov">          0 : inline bool IsNegativeInfinity(const std::string&amp; input) {</span>
+<span class="lineNum">      39 </span><span class="lineNoCov">          0 :   return input == &quot;-.inf&quot; || input == &quot;-.Inf&quot; || input == &quot;-.INF&quot;;</span>
+<a name="40"><span class="lineNum">      40 </span>            : }</a>
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span><span class="lineNoCov">          0 : inline bool IsNaN(const std::string&amp; input) {</span>
+<span class="lineNum">      43 </span><span class="lineNoCov">          0 :   return input == &quot;.nan&quot; || input == &quot;.NaN&quot; || input == &quot;.NAN&quot;;</span>
+<span class="lineNum">      44 </span>            : }
+<span class="lineNum">      45 </span>            : }
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span>            : // Node
+<span class="lineNum">      48 </span>            : template &lt;&gt;
+<span class="lineNum">      49 </span>            : struct convert&lt;Node&gt; {
+<span class="lineNum">      50 </span>            :   static Node encode(const Node&amp; rhs) { return rhs; }
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            :   static bool decode(const Node&amp; node, Node&amp; rhs) {
+<span class="lineNum">      53 </span>            :     rhs.reset(node);
+<span class="lineNum">      54 </span>            :     return true;
+<span class="lineNum">      55 </span>            :   }
+<span class="lineNum">      56 </span>            : };
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span>            : // std::string
+<span class="lineNum">      59 </span>            : template &lt;&gt;
+<span class="lineNum">      60 </span>            : struct convert&lt;std::string&gt; {
+<a name="61"><span class="lineNum">      61 </span>            :   static Node encode(const std::string&amp; rhs) { return Node(rhs); }</a>
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span><span class="lineCov">         56 :   static bool decode(const Node&amp; node, std::string&amp; rhs) {</span>
+<span class="lineNum">      64 </span><span class="lineCov">         56 :     if (!node.IsScalar())</span>
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :       return false;</span>
+<span class="lineNum">      66 </span><span class="lineCov">         56 :     rhs = node.Scalar();</span>
+<span class="lineNum">      67 </span><span class="lineCov">         56 :     return true;</span>
+<span class="lineNum">      68 </span>            :   }
+<span class="lineNum">      69 </span>            : };
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            : // C-strings can only be encoded
+<span class="lineNum">      72 </span>            : template &lt;&gt;
+<span class="lineNum">      73 </span>            : struct convert&lt;const char*&gt; {
+<span class="lineNum">      74 </span>            :   static Node encode(const char*&amp; rhs) { return Node(rhs); }
+<span class="lineNum">      75 </span>            : };
+<span class="lineNum">      76 </span>            : 
+<span class="lineNum">      77 </span>            : template &lt;std::size_t N&gt;
+<span class="lineNum">      78 </span>            : struct convert&lt;const char[N]&gt; {
+<span class="lineNum">      79 </span>            :   static Node encode(const char(&amp;rhs)[N]) { return Node(rhs); }
+<span class="lineNum">      80 </span>            : };
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span>            : template &lt;&gt;
+<span class="lineNum">      83 </span>            : struct convert&lt;_Null&gt; {
+<span class="lineNum">      84 </span>            :   static Node encode(const _Null&amp; /* rhs */) { return Node(); }
+<span class="lineNum">      85 </span>            : 
+<span class="lineNum">      86 </span>            :   static bool decode(const Node&amp; node, _Null&amp; /* rhs */) {
+<span class="lineNum">      87 </span>            :     return node.IsNull();
+<span class="lineNum">      88 </span>            :   }
+<span class="lineNum">      89 </span>            : };
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span>            : #define YAML_DEFINE_CONVERT_STREAMABLE(type, negative_op)                \
+<span class="lineNum">      92 </span>            :   template &lt;&gt;                                                            \
+<span class="lineNum">      93 </span>            :   struct convert&lt;type&gt; {                                                 \
+<span class="lineNum">      94 </span>            :     static Node encode(const type&amp; rhs) {                                \
+<span class="lineNum">      95 </span>            :       std::stringstream stream;                                          \
+<span class="lineNum">      96 </span>            :       stream.precision(std::numeric_limits&lt;type&gt;::digits10 + 1);         \
+<span class="lineNum">      97 </span>            :       stream &lt;&lt; rhs;                                                     \
+<span class="lineNum">      98 </span>            :       return Node(stream.str());                                         \
+<span class="lineNum">      99 </span>            :     }                                                                    \
+<span class="lineNum">     100 </span>            :                                                                          \
+<span class="lineNum">     101 </span>            :     static bool decode(const Node&amp; node, type&amp; rhs) {                    \
+<span class="lineNum">     102 </span>            :       if (node.Type() != NodeType::Scalar)                               \
+<span class="lineNum">     103 </span>            :         return false;                                                    \
+<span class="lineNum">     104 </span>            :       const std::string&amp; input = node.Scalar();                          \
+<span class="lineNum">     105 </span>            :       std::stringstream stream(input);                                   \
+<span class="lineNum">     106 </span>            :       stream.unsetf(std::ios::dec);                                      \
+<span class="lineNum">     107 </span>            :       if ((stream &gt;&gt; std::noskipws &gt;&gt; rhs) &amp;&amp; (stream &gt;&gt; std::ws).eof()) \
+<span class="lineNum">     108 </span>            :         return true;                                                     \
+<span class="lineNum">     109 </span>            :       if (std::numeric_limits&lt;type&gt;::has_infinity) {                     \
+<span class="lineNum">     110 </span>            :         if (conversion::IsInfinity(input)) {                             \
+<span class="lineNum">     111 </span>            :           rhs = std::numeric_limits&lt;type&gt;::infinity();                   \
+<span class="lineNum">     112 </span>            :           return true;                                                   \
+<span class="lineNum">     113 </span>            :         } else if (conversion::IsNegativeInfinity(input)) {              \
+<span class="lineNum">     114 </span>            :           rhs = negative_op std::numeric_limits&lt;type&gt;::infinity();       \
+<span class="lineNum">     115 </span>            :           return true;                                                   \
+<span class="lineNum">     116 </span>            :         }                                                                \
+<span class="lineNum">     117 </span>            :       }                                                                  \
+<span class="lineNum">     118 </span>            :                                                                          \
+<span class="lineNum">     119 </span>            :       if (std::numeric_limits&lt;type&gt;::has_quiet_NaN &amp;&amp;                    \
+<span class="lineNum">     120 </span>            :           conversion::IsNaN(input)) {                                    \
+<span class="lineNum">     121 </span>            :         rhs = std::numeric_limits&lt;type&gt;::quiet_NaN();                    \
+<span class="lineNum">     122 </span>            :         return true;                                                     \
+<span class="lineNum">     123 </span>            :       }                                                                  \
+<span class="lineNum">     124 </span>            :                                                                          \
+<span class="lineNum">     125 </span>            :       return false;                                                      \
+<span class="lineNum">     126 </span>            :     }                                                                    \
+<span class="lineNum">     127 </span>            :   }
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span>            : #define YAML_DEFINE_CONVERT_STREAMABLE_SIGNED(type) \
+<span class="lineNum">     130 </span>            :   YAML_DEFINE_CONVERT_STREAMABLE(type, -)
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span>            : #define YAML_DEFINE_CONVERT_STREAMABLE_UNSIGNED(type) \
+<a name="133"><span class="lineNum">     133 </span>            :   YAML_DEFINE_CONVERT_STREAMABLE(type, +)</a>
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 : YAML_DEFINE_CONVERT_STREAMABLE_SIGNED(int);</span>
+<span class="lineNum">     136 </span>            : YAML_DEFINE_CONVERT_STREAMABLE_SIGNED(short);
+<span class="lineNum">     137 </span>            : YAML_DEFINE_CONVERT_STREAMABLE_SIGNED(long);
+<span class="lineNum">     138 </span>            : YAML_DEFINE_CONVERT_STREAMABLE_SIGNED(long long);
+<span class="lineNum">     139 </span>            : YAML_DEFINE_CONVERT_STREAMABLE_UNSIGNED(unsigned);
+<span class="lineNum">     140 </span>            : YAML_DEFINE_CONVERT_STREAMABLE_UNSIGNED(unsigned short);
+<span class="lineNum">     141 </span>            : YAML_DEFINE_CONVERT_STREAMABLE_UNSIGNED(unsigned long);
+<span class="lineNum">     142 </span>            : YAML_DEFINE_CONVERT_STREAMABLE_UNSIGNED(unsigned long long);
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span>            : YAML_DEFINE_CONVERT_STREAMABLE_SIGNED(char);
+<span class="lineNum">     145 </span>            : YAML_DEFINE_CONVERT_STREAMABLE_SIGNED(signed char);
+<span class="lineNum">     146 </span>            : YAML_DEFINE_CONVERT_STREAMABLE_UNSIGNED(unsigned char);
+<a name="147"><span class="lineNum">     147 </span>            : </a>
+<span class="lineNum">     148 </span>            : YAML_DEFINE_CONVERT_STREAMABLE_SIGNED(float);
+<span class="lineNum">     149 </span><span class="lineCov">          2 : YAML_DEFINE_CONVERT_STREAMABLE_SIGNED(double);</span>
+<span class="lineNum">     150 </span>            : YAML_DEFINE_CONVERT_STREAMABLE_SIGNED(long double);
+<span class="lineNum">     151 </span>            : 
+<span class="lineNum">     152 </span>            : #undef YAML_DEFINE_CONVERT_STREAMABLE_SIGNED
+<span class="lineNum">     153 </span>            : #undef YAML_DEFINE_CONVERT_STREAMABLE_UNSIGNED
+<span class="lineNum">     154 </span>            : #undef YAML_DEFINE_CONVERT_STREAMABLE
+<span class="lineNum">     155 </span>            : 
+<span class="lineNum">     156 </span>            : // bool
+<span class="lineNum">     157 </span>            : template &lt;&gt;
+<span class="lineNum">     158 </span>            : struct convert&lt;bool&gt; {
+<span class="lineNum">     159 </span>            :   static Node encode(bool rhs) { return rhs ? Node(&quot;true&quot;) : Node(&quot;false&quot;); }
+<span class="lineNum">     160 </span>            : 
+<span class="lineNum">     161 </span>            :   YAML_CPP_API static bool decode(const Node&amp; node, bool&amp; rhs);
+<span class="lineNum">     162 </span>            : };
+<span class="lineNum">     163 </span>            : 
+<span class="lineNum">     164 </span>            : // std::map
+<span class="lineNum">     165 </span>            : template &lt;typename K, typename V&gt;
+<span class="lineNum">     166 </span>            : struct convert&lt;std::map&lt;K, V&gt;&gt; {
+<span class="lineNum">     167 </span>            :   static Node encode(const std::map&lt;K, V&gt;&amp; rhs) {
+<span class="lineNum">     168 </span>            :     Node node(NodeType::Map);
+<span class="lineNum">     169 </span>            :     for (typename std::map&lt;K, V&gt;::const_iterator it = rhs.begin();
+<span class="lineNum">     170 </span>            :          it != rhs.end(); ++it)
+<span class="lineNum">     171 </span>            :       node.force_insert(it-&gt;first, it-&gt;second);
+<span class="lineNum">     172 </span>            :     return node;
+<span class="lineNum">     173 </span>            :   }
+<span class="lineNum">     174 </span>            : 
+<span class="lineNum">     175 </span>            :   static bool decode(const Node&amp; node, std::map&lt;K, V&gt;&amp; rhs) {
+<span class="lineNum">     176 </span>            :     if (!node.IsMap())
+<span class="lineNum">     177 </span>            :       return false;
+<span class="lineNum">     178 </span>            : 
+<span class="lineNum">     179 </span>            :     rhs.clear();
+<span class="lineNum">     180 </span>            :     for (const_iterator it = node.begin(); it != node.end(); ++it)
+<span class="lineNum">     181 </span>            : #if defined(__GNUC__) &amp;&amp; __GNUC__ &lt; 4
+<span class="lineNum">     182 </span>            :       // workaround for GCC 3:
+<span class="lineNum">     183 </span>            :       rhs[it-&gt;first.template as&lt;K&gt;()] = it-&gt;second.template as&lt;V&gt;();
+<span class="lineNum">     184 </span>            : #else
+<span class="lineNum">     185 </span>            :       rhs[it-&gt;first.as&lt;K&gt;()] = it-&gt;second.as&lt;V&gt;();
+<span class="lineNum">     186 </span>            : #endif
+<span class="lineNum">     187 </span>            :     return true;
+<span class="lineNum">     188 </span>            :   }
+<span class="lineNum">     189 </span>            : };
+<span class="lineNum">     190 </span>            : 
+<span class="lineNum">     191 </span>            : // std::vector
+<span class="lineNum">     192 </span>            : template &lt;typename T&gt;
+<span class="lineNum">     193 </span>            : struct convert&lt;std::vector&lt;T&gt;&gt; {
+<span class="lineNum">     194 </span>            :   static Node encode(const std::vector&lt;T&gt;&amp; rhs) {
+<span class="lineNum">     195 </span>            :     Node node(NodeType::Sequence);
+<span class="lineNum">     196 </span>            :     for (typename std::vector&lt;T&gt;::const_iterator it = rhs.begin();
+<span class="lineNum">     197 </span>            :          it != rhs.end(); ++it)
+<span class="lineNum">     198 </span>            :       node.push_back(*it);
+<span class="lineNum">     199 </span>            :     return node;
+<span class="lineNum">     200 </span>            :   }
+<span class="lineNum">     201 </span>            : 
+<span class="lineNum">     202 </span>            :   static bool decode(const Node&amp; node, std::vector&lt;T&gt;&amp; rhs) {
+<span class="lineNum">     203 </span>            :     if (!node.IsSequence())
+<span class="lineNum">     204 </span>            :       return false;
+<span class="lineNum">     205 </span>            : 
+<span class="lineNum">     206 </span>            :     rhs.clear();
+<span class="lineNum">     207 </span>            :     for (const_iterator it = node.begin(); it != node.end(); ++it)
+<span class="lineNum">     208 </span>            : #if defined(__GNUC__) &amp;&amp; __GNUC__ &lt; 4
+<span class="lineNum">     209 </span>            :       // workaround for GCC 3:
+<span class="lineNum">     210 </span>            :       rhs.push_back(it-&gt;template as&lt;T&gt;());
+<span class="lineNum">     211 </span>            : #else
+<span class="lineNum">     212 </span>            :       rhs.push_back(it-&gt;as&lt;T&gt;());
+<span class="lineNum">     213 </span>            : #endif
+<span class="lineNum">     214 </span>            :     return true;
+<span class="lineNum">     215 </span>            :   }
+<span class="lineNum">     216 </span>            : };
+<span class="lineNum">     217 </span>            : 
+<span class="lineNum">     218 </span>            : // std::list
+<span class="lineNum">     219 </span>            : template &lt;typename T&gt;
+<span class="lineNum">     220 </span>            : struct convert&lt;std::list&lt;T&gt;&gt; {
+<span class="lineNum">     221 </span>            :   static Node encode(const std::list&lt;T&gt;&amp; rhs) {
+<span class="lineNum">     222 </span>            :     Node node(NodeType::Sequence);
+<span class="lineNum">     223 </span>            :     for (typename std::list&lt;T&gt;::const_iterator it = rhs.begin();
+<span class="lineNum">     224 </span>            :          it != rhs.end(); ++it)
+<span class="lineNum">     225 </span>            :       node.push_back(*it);
+<span class="lineNum">     226 </span>            :     return node;
+<span class="lineNum">     227 </span>            :   }
+<span class="lineNum">     228 </span>            : 
+<span class="lineNum">     229 </span>            :   static bool decode(const Node&amp; node, std::list&lt;T&gt;&amp; rhs) {
+<span class="lineNum">     230 </span>            :     if (!node.IsSequence())
+<span class="lineNum">     231 </span>            :       return false;
+<span class="lineNum">     232 </span>            : 
+<span class="lineNum">     233 </span>            :     rhs.clear();
+<span class="lineNum">     234 </span>            :     for (const_iterator it = node.begin(); it != node.end(); ++it)
+<span class="lineNum">     235 </span>            : #if defined(__GNUC__) &amp;&amp; __GNUC__ &lt; 4
+<span class="lineNum">     236 </span>            :       // workaround for GCC 3:
+<span class="lineNum">     237 </span>            :       rhs.push_back(it-&gt;template as&lt;T&gt;());
+<span class="lineNum">     238 </span>            : #else
+<span class="lineNum">     239 </span>            :       rhs.push_back(it-&gt;as&lt;T&gt;());
+<span class="lineNum">     240 </span>            : #endif
+<span class="lineNum">     241 </span>            :     return true;
+<span class="lineNum">     242 </span>            :   }
+<span class="lineNum">     243 </span>            : };
+<span class="lineNum">     244 </span>            : 
+<span class="lineNum">     245 </span>            : // std::array
+<span class="lineNum">     246 </span>            : template &lt;typename T, std::size_t N&gt;
+<span class="lineNum">     247 </span>            : struct convert&lt;std::array&lt;T, N&gt;&gt; {
+<span class="lineNum">     248 </span>            :   static Node encode(const std::array&lt;T, N&gt;&amp; rhs) {
+<span class="lineNum">     249 </span>            :     Node node(NodeType::Sequence);
+<span class="lineNum">     250 </span>            :     for (const auto&amp; element : rhs) {
+<span class="lineNum">     251 </span>            :       node.push_back(element);
+<span class="lineNum">     252 </span>            :     }
+<span class="lineNum">     253 </span>            :     return node;
+<span class="lineNum">     254 </span>            :   }
+<span class="lineNum">     255 </span>            : 
+<span class="lineNum">     256 </span>            :   static bool decode(const Node&amp; node, std::array&lt;T, N&gt;&amp; rhs) {
+<span class="lineNum">     257 </span>            :     if (!isNodeValid(node)) {
+<span class="lineNum">     258 </span>            :       return false;
+<span class="lineNum">     259 </span>            :     }
+<span class="lineNum">     260 </span>            : 
+<span class="lineNum">     261 </span>            :     for (auto i = 0u; i &lt; node.size(); ++i) {
+<span class="lineNum">     262 </span>            : #if defined(__GNUC__) &amp;&amp; __GNUC__ &lt; 4
+<span class="lineNum">     263 </span>            :       // workaround for GCC 3:
+<span class="lineNum">     264 </span>            :       rhs[i] = node[i].template as&lt;T&gt;();
+<span class="lineNum">     265 </span>            : #else
+<span class="lineNum">     266 </span>            :       rhs[i] = node[i].as&lt;T&gt;();
+<span class="lineNum">     267 </span>            : #endif
+<span class="lineNum">     268 </span>            :     }
+<span class="lineNum">     269 </span>            :     return true;
+<span class="lineNum">     270 </span>            :   }
+<span class="lineNum">     271 </span>            : 
+<span class="lineNum">     272 </span>            :  private:
+<span class="lineNum">     273 </span>            :   static bool isNodeValid(const Node&amp; node) {
+<span class="lineNum">     274 </span>            :     return node.IsSequence() &amp;&amp; node.size() == N;
+<span class="lineNum">     275 </span>            :   }
+<span class="lineNum">     276 </span>            : };
+<span class="lineNum">     277 </span>            : 
+<span class="lineNum">     278 </span>            : // std::pair
+<span class="lineNum">     279 </span>            : template &lt;typename T, typename U&gt;
+<span class="lineNum">     280 </span>            : struct convert&lt;std::pair&lt;T, U&gt;&gt; {
+<span class="lineNum">     281 </span>            :   static Node encode(const std::pair&lt;T, U&gt;&amp; rhs) {
+<span class="lineNum">     282 </span>            :     Node node(NodeType::Sequence);
+<span class="lineNum">     283 </span>            :     node.push_back(rhs.first);
+<span class="lineNum">     284 </span>            :     node.push_back(rhs.second);
+<span class="lineNum">     285 </span>            :     return node;
+<span class="lineNum">     286 </span>            :   }
+<span class="lineNum">     287 </span>            : 
+<span class="lineNum">     288 </span>            :   static bool decode(const Node&amp; node, std::pair&lt;T, U&gt;&amp; rhs) {
+<span class="lineNum">     289 </span>            :     if (!node.IsSequence())
+<span class="lineNum">     290 </span>            :       return false;
+<span class="lineNum">     291 </span>            :     if (node.size() != 2)
+<span class="lineNum">     292 </span>            :       return false;
+<span class="lineNum">     293 </span>            : 
+<span class="lineNum">     294 </span>            : #if defined(__GNUC__) &amp;&amp; __GNUC__ &lt; 4
+<span class="lineNum">     295 </span>            :     // workaround for GCC 3:
+<span class="lineNum">     296 </span>            :     rhs.first = node[0].template as&lt;T&gt;();
+<span class="lineNum">     297 </span>            : #else
+<span class="lineNum">     298 </span>            :     rhs.first = node[0].as&lt;T&gt;();
+<span class="lineNum">     299 </span>            : #endif
+<span class="lineNum">     300 </span>            : #if defined(__GNUC__) &amp;&amp; __GNUC__ &lt; 4
+<span class="lineNum">     301 </span>            :     // workaround for GCC 3:
+<span class="lineNum">     302 </span>            :     rhs.second = node[1].template as&lt;U&gt;();
+<span class="lineNum">     303 </span>            : #else
+<span class="lineNum">     304 </span>            :     rhs.second = node[1].as&lt;U&gt;();
+<span class="lineNum">     305 </span>            : #endif
+<span class="lineNum">     306 </span>            :     return true;
+<span class="lineNum">     307 </span>            :   }
+<span class="lineNum">     308 </span>            : };
+<span class="lineNum">     309 </span>            : 
+<span class="lineNum">     310 </span>            : // binary
+<span class="lineNum">     311 </span>            : template &lt;&gt;
+<span class="lineNum">     312 </span>            : struct convert&lt;Binary&gt; {
+<span class="lineNum">     313 </span>            :   static Node encode(const Binary&amp; rhs) {
+<span class="lineNum">     314 </span>            :     return Node(EncodeBase64(rhs.data(), rhs.size()));
+<span class="lineNum">     315 </span>            :   }
+<span class="lineNum">     316 </span>            : 
+<span class="lineNum">     317 </span>            :   static bool decode(const Node&amp; node, Binary&amp; rhs) {
+<span class="lineNum">     318 </span>            :     if (!node.IsScalar())
+<span class="lineNum">     319 </span>            :       return false;
+<span class="lineNum">     320 </span>            : 
+<span class="lineNum">     321 </span>            :     std::vector&lt;unsigned char&gt; data = DecodeBase64(node.Scalar());
+<span class="lineNum">     322 </span>            :     if (data.empty() &amp;&amp; !node.Scalar().empty())
+<span class="lineNum">     323 </span>            :       return false;
+<span class="lineNum">     324 </span>            : 
+<span class="lineNum">     325 </span>            :     rhs.swap(data);
+<span class="lineNum">     326 </span>            :     return true;
+<span class="lineNum">     327 </span>            :   }
+<span class="lineNum">     328 </span>            : };
+<span class="lineNum">     329 </span>            : }
+<span class="lineNum">     330 </span>            : 
+<span class="lineNum">     331 </span>            : #endif  // NODE_CONVERT_H_62B23520_7C8E_11DE_8A39_0800200C9A66
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

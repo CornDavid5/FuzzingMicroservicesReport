@@ -1,0 +1,152 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/log/utility/setup/common_attributes.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">boost/log/utility/setup</a> - common_attributes.hpp<span style="font-size: 80%;"> (source / <a href="common_attributes.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 01:09:21</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *          Copyright Andrey Semashev 2007 - 2015.
+<span class="lineNum">       3 </span>            :  * Distributed under the Boost Software License, Version 1.0.
+<span class="lineNum">       4 </span>            :  *    (See accompanying file LICENSE_1_0.txt or copy at
+<span class="lineNum">       5 </span>            :  *          http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       6 </span>            :  */
+<span class="lineNum">       7 </span>            : /*!
+<span class="lineNum">       8 </span>            :  * \file   common_attributes.hpp
+<span class="lineNum">       9 </span>            :  * \author Andrey Semashev
+<span class="lineNum">      10 </span>            :  * \date   16.05.2008
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * The header contains implementation of convenience functions for registering commonly used attributes.
+<span class="lineNum">      13 </span>            :  */
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : #ifndef BOOST_LOG_UTILITY_SETUP_COMMON_ATTRIBUTES_HPP_INCLUDED_
+<span class="lineNum">      16 </span>            : #define BOOST_LOG_UTILITY_SETUP_COMMON_ATTRIBUTES_HPP_INCLUDED_
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #include &lt;iostream&gt;
+<span class="lineNum">      19 </span>            : #include &lt;boost/log/detail/config.hpp&gt;
+<span class="lineNum">      20 </span>            : #include &lt;boost/log/core/core.hpp&gt;
+<span class="lineNum">      21 </span>            : #include &lt;boost/log/attributes/clock.hpp&gt;
+<span class="lineNum">      22 </span>            : #include &lt;boost/log/attributes/counter.hpp&gt;
+<span class="lineNum">      23 </span>            : #include &lt;boost/log/attributes/current_process_id.hpp&gt;
+<span class="lineNum">      24 </span>            : #if !defined(BOOST_LOG_NO_THREADS)
+<span class="lineNum">      25 </span>            : #include &lt;boost/log/attributes/current_thread_id.hpp&gt;
+<span class="lineNum">      26 </span>            : #endif
+<span class="lineNum">      27 </span>            : #include &lt;boost/log/detail/default_attribute_names.hpp&gt;
+<span class="lineNum">      28 </span>            : #include &lt;boost/log/detail/header.hpp&gt;
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : #ifdef BOOST_HAS_PRAGMA_ONCE
+<span class="lineNum">      31 </span>            : #pragma once
+<span class="lineNum">      32 </span>            : #endif
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            : namespace boost {
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            : BOOST_LOG_OPEN_NAMESPACE
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            : /*!
+<span class="lineNum">      39 </span>            :  * \brief Simple attribute initialization routine
+<span class="lineNum">      40 </span>            :  *
+<span class="lineNum">      41 </span>            :  * The function adds commonly used attributes to the logging system. Specifically, the following
+<span class="lineNum">      42 </span>            :  * attributes are registered globally:
+<span class="lineNum">      43 </span>            :  *
+<span class="lineNum">      44 </span>            :  * \li LineID - logging records counter with value type &lt;tt&gt;unsigned int&lt;/tt&gt;
+<span class="lineNum">      45 </span>            :  * \li TimeStamp - local time generator with value type &lt;tt&gt;boost::posix_time::ptime&lt;/tt&gt;
+<span class="lineNum">      46 </span>            :  * \li ProcessID - current process identifier with value type
+<span class="lineNum">      47 </span>            :  *     &lt;tt&gt;attributes::current_process_id::value_type&lt;/tt&gt;
+<span class="lineNum">      48 </span>            :  * \li ThreadID - in multithreaded builds, current thread identifier with
+<a name="49"><span class="lineNum">      49 </span>            :  *     value type &lt;tt&gt;attributes::current_thread_id::value_type&lt;/tt&gt;</a>
+<span class="lineNum">      50 </span>            :  */
+<span class="lineNum">      51 </span><span class="lineCov">          2 : inline void add_common_attributes()</span>
+<span class="lineNum">      52 </span>            : {
+<span class="lineNum">      53 </span><span class="lineCov">          4 :     shared_ptr&lt; core &gt; pCore = core::get();</span>
+<span class="lineNum">      54 </span>            :     pCore-&gt;add_global_attribute(
+<span class="lineNum">      55 </span><span class="lineCov">          4 :         aux::default_attribute_names::line_id(),</span>
+<span class="lineNum">      56 </span><span class="lineCov">          6 :         attributes::counter&lt; unsigned int &gt;(1));</span>
+<span class="lineNum">      57 </span>            :     pCore-&gt;add_global_attribute(
+<span class="lineNum">      58 </span><span class="lineCov">          4 :         aux::default_attribute_names::timestamp(),</span>
+<span class="lineNum">      59 </span><span class="lineCov">          6 :         attributes::local_clock());</span>
+<span class="lineNum">      60 </span>            :     pCore-&gt;add_global_attribute(
+<span class="lineNum">      61 </span><span class="lineCov">          4 :         aux::default_attribute_names::process_id(),</span>
+<span class="lineNum">      62 </span><span class="lineCov">          6 :         attributes::current_process_id());</span>
+<span class="lineNum">      63 </span>            : #if !defined(BOOST_LOG_NO_THREADS)
+<span class="lineNum">      64 </span>            :     pCore-&gt;add_global_attribute(
+<span class="lineNum">      65 </span><span class="lineCov">          4 :         aux::default_attribute_names::thread_id(),</span>
+<span class="lineNum">      66 </span><span class="lineCov">          6 :         attributes::current_thread_id());</span>
+<span class="lineNum">      67 </span>            : #endif
+<span class="lineNum">      68 </span><span class="lineCov">          2 : }</span>
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span>            : BOOST_LOG_CLOSE_NAMESPACE // namespace log
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span>            : } // namespace boost
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span>            : #include &lt;boost/log/detail/footer.hpp&gt;
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span>            : #endif // BOOST_LOG_UTILITY_SETUP_COMMON_ATTRIBUTES_HPP_INCLUDED_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

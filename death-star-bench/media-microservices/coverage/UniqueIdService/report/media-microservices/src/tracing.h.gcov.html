@@ -1,0 +1,142 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - /media-microservices/src/tracing.h</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">media-microservices/src</a> - tracing.h<span style="font-size: 80%;"> (source / <a href="tracing.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntryHi">90.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 01:13:04</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntryMed">77.8 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #include &lt;utility&gt;</a>
+<span class="lineNum">       2 </span>            : 
+<span class="lineNum">       3 </span>            : #ifndef MEDIA_MICROSERVICES_TRACING_H
+<span class="lineNum">       4 </span>            : #define MEDIA_MICROSERVICES_TRACING_H
+<span class="lineNum">       5 </span>            : 
+<span class="lineNum">       6 </span>            : #include &lt;string&gt;
+<span class="lineNum">       7 </span>            : #include &lt;yaml-cpp/yaml.h&gt;
+<span class="lineNum">       8 </span>            : #include &lt;jaegertracing/Tracer.h&gt;
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span>            : #include &lt;opentracing/propagation.h&gt;
+<span class="lineNum">      11 </span>            : #include &lt;string&gt;
+<span class="lineNum">      12 </span>            : #include &lt;map&gt;
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : namespace media_service {
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : using opentracing::expected;
+<a name="17"><span class="lineNum">      17 </span>            : using opentracing::string_view;</a>
+<span class="lineNum">      18 </span>            : 
+<a name="19"><span class="lineNum">      19 </span><span class="lineCov">        208 : class TextMapReader : public opentracing::TextMapReader {</span></a>
+<span class="lineNum">      20 </span>            :  public:
+<span class="lineNum">      21 </span><span class="lineCov">        208 :   explicit TextMapReader(const std::map&lt;std::string, std::string&gt; &amp;text_map)</span>
+<a name="22"><span class="lineNum">      22 </span><span class="lineCov">        208 :       : _text_map(text_map) {}</span></a>
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span><span class="lineCov">        208 :   expected&lt;void&gt; ForeachKey(</span>
+<span class="lineNum">      25 </span>            :       std::function&lt;expected&lt;void&gt;(string_view key, string_view value)&gt; f)
+<span class="lineNum">      26 </span>            :   const override {
+<span class="lineNum">      27 </span><span class="lineCov">        208 :     for (const auto&amp; key_value : _text_map) {</span>
+<span class="lineNum">      28 </span><span class="lineNoCov">          0 :       auto result = f(key_value.first, key_value.second);</span>
+<span class="lineNum">      29 </span><span class="lineNoCov">          0 :       if (!result) return result;</span>
+<span class="lineNum">      30 </span>            :     }
+<span class="lineNum">      31 </span><span class="lineCov">        208 :     return {};</span>
+<span class="lineNum">      32 </span>            :   }
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            :  private:
+<span class="lineNum">      35 </span>            :   const std::map&lt;std::string, std::string&gt;&amp; _text_map;
+<a name="36"><span class="lineNum">      36 </span>            : };</a>
+<span class="lineNum">      37 </span>            : 
+<a name="38"><span class="lineNum">      38 </span><span class="lineCov">        208 : class TextMapWriter : public opentracing::TextMapWriter {</span></a>
+<span class="lineNum">      39 </span>            :  public:
+<span class="lineNum">      40 </span><span class="lineCov">        208 :   explicit TextMapWriter(std::map&lt;std::string, std::string&gt; &amp;text_map)</span>
+<a name="41"><span class="lineNum">      41 </span><span class="lineCov">        208 :     : _text_map(text_map) {}</span></a>
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span><span class="lineCov">        208 :   expected&lt;void&gt; Set(string_view key, string_view value) const override {</span>
+<span class="lineNum">      44 </span><span class="lineCov">        208 :     _text_map[key] = value;</span>
+<span class="lineNum">      45 </span><span class="lineCov">        208 :     return {};</span>
+<span class="lineNum">      46 </span>            :   }
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span>            :  private:
+<span class="lineNum">      49 </span>            :   std::map&lt;std::string, std::string&gt;&amp; _text_map;
+<a name="50"><span class="lineNum">      50 </span>            : };</a>
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span><span class="lineCov">          2 : void SetUpTracer(</span>
+<span class="lineNum">      53 </span>            :     const std::string &amp;config_file_path,
+<span class="lineNum">      54 </span>            :     const std::string &amp;service) {
+<span class="lineNum">      55 </span><span class="lineCov">          4 :   auto configYAML = YAML::LoadFile(config_file_path);</span>
+<span class="lineNum">      56 </span><span class="lineCov">          4 :   auto config = jaegertracing::Config::parse(configYAML);</span>
+<span class="lineNum">      57 </span>            :   auto tracer = jaegertracing::Tracer::make(
+<span class="lineNum">      58 </span><span class="lineCov">          4 :       service, config, jaegertracing::logging::consoleLogger());</span>
+<span class="lineNum">      59 </span>            :   opentracing::Tracer::InitGlobal(
+<span class="lineNum">      60 </span><span class="lineCov">          2 :       std::static_pointer_cast&lt;opentracing::Tracer&gt;(tracer));</span>
+<span class="lineNum">      61 </span><span class="lineCov">          2 : }</span>
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span>            : } //namespace media_service
+<span class="lineNum">      65 </span>            : 
+<span class="lineNum">      66 </span>            : #endif //MEDIA_MICROSERVICES_TRACING_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

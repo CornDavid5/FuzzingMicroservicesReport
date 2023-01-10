@@ -1,0 +1,456 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/log/attributes/attribute_value.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">boost/log/attributes</a> - attribute_value.hpp<span style="font-size: 80%;"> (source / <a href="attribute_value.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntryLo">5.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 01:15:29</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntryLo">8.3 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *          Copyright Andrey Semashev 2007 - 2015.
+<span class="lineNum">       3 </span>            :  * Distributed under the Boost Software License, Version 1.0.
+<span class="lineNum">       4 </span>            :  *    (See accompanying file LICENSE_1_0.txt or copy at
+<span class="lineNum">       5 </span>            :  *          http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       6 </span>            :  */
+<span class="lineNum">       7 </span>            : /*!
+<span class="lineNum">       8 </span>            :  * \file   attribute_value.hpp
+<span class="lineNum">       9 </span>            :  * \author Andrey Semashev
+<span class="lineNum">      10 </span>            :  * \date   21.05.2010
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * The header contains \c attribute_value class definition.
+<span class="lineNum">      13 </span>            :  */
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : #ifndef BOOST_LOG_ATTRIBUTE_VALUE_HPP_INCLUDED_
+<span class="lineNum">      16 </span>            : #define BOOST_LOG_ATTRIBUTE_VALUE_HPP_INCLUDED_
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #include &lt;boost/move/core.hpp&gt;
+<span class="lineNum">      19 </span>            : #include &lt;boost/smart_ptr/intrusive_ptr.hpp&gt;
+<span class="lineNum">      20 </span>            : #include &lt;boost/log/detail/config.hpp&gt;
+<span class="lineNum">      21 </span>            : #include &lt;boost/utility/explicit_operator_bool.hpp&gt;
+<span class="lineNum">      22 </span>            : #include &lt;boost/log/utility/type_info_wrapper.hpp&gt;
+<span class="lineNum">      23 </span>            : #include &lt;boost/log/utility/type_dispatch/type_dispatcher.hpp&gt;
+<span class="lineNum">      24 </span>            : #include &lt;boost/log/attributes/attribute.hpp&gt;
+<span class="lineNum">      25 </span>            : #include &lt;boost/log/attributes/value_extraction_fwd.hpp&gt;
+<span class="lineNum">      26 </span>            : #include &lt;boost/log/attributes/value_visitation_fwd.hpp&gt;
+<span class="lineNum">      27 </span>            : #include &lt;boost/log/detail/header.hpp&gt;
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            : #ifdef BOOST_HAS_PRAGMA_ONCE
+<span class="lineNum">      30 </span>            : #pragma once
+<span class="lineNum">      31 </span>            : #endif
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : namespace boost {
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : BOOST_LOG_OPEN_NAMESPACE
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            : /*!
+<span class="lineNum">      38 </span>            :  * \brief An attribute value class
+<span class="lineNum">      39 </span>            :  *
+<span class="lineNum">      40 </span>            :  * An attribute value is an object that contains a piece of data that represents an attribute state
+<span class="lineNum">      41 </span>            :  * at the point of the value acquisition. All major operations with log records, such as filtering and
+<span class="lineNum">      42 </span>            :  * formatting, involve attribute values contained in a single view. Most likely an attribute value is
+<span class="lineNum">      43 </span>            :  * implemented as a simple holder of some typed value. This holder implements the
+<span class="lineNum">      44 </span>            :  * \c attribute_value::implementation interface and acts as a pimpl for the \c attribute_value
+<span class="lineNum">      45 </span>            :  * object. The \c attribute_value class provides type dispatching support in order to allow
+<span class="lineNum">      46 </span>            :  * to extract the value from the holder.
+<span class="lineNum">      47 </span>            :  *
+<span class="lineNum">      48 </span>            :  * Normally, attributes and their values shall be designed in order to exclude as much interference as
+<span class="lineNum">      49 </span>            :  * reasonable. Such approach allows to have more than one attribute value simultaneously, which improves
+<span class="lineNum">      50 </span>            :  * scalability and allows to implement generating attributes.
+<span class="lineNum">      51 </span>            :  *
+<span class="lineNum">      52 </span>            :  * However, there are cases when this approach does not help to achieve the required level of independency
+<span class="lineNum">      53 </span>            :  * of attribute values and attribute itself from each other at a reasonable performance tradeoff.
+<span class="lineNum">      54 </span>            :  * For example, an attribute or its values may use thread-specific data, which is global and shared
+<span class="lineNum">      55 </span>            :  * between all the instances of the attribute/value. Passing such an attribute value to another thread
+<span class="lineNum">      56 </span>            :  * would be a disaster. To solve this the library defines an additional method for attribute values,
+<span class="lineNum">      57 </span>            :  * namely \c detach_from_thread. The \c attribute_value class forwards the call to its pimpl,
+<span class="lineNum">      58 </span>            :  * which is supposed to ensure that it no longer refers to any thread-specific data after the call.
+<span class="lineNum">      59 </span>            :  * The pimpl can create a new holder as a result of this method and return it to the \c attribute_value
+<span class="lineNum">      60 </span>            :  * wrapper, which will keep the returned reference for any further calls.
+<a name="61"><span class="lineNum">      61 </span>            :  * This method is called for all attribute values that are passed to another thread.</a>
+<span class="lineNum">      62 </span>            :  */
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 : class attribute_value</span>
+<span class="lineNum">      64 </span>            : {
+<span class="lineNum">      65 </span>            :     BOOST_COPYABLE_AND_MOVABLE(attribute_value)
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span>            : public:
+<span class="lineNum">      68 </span>            :     /*!
+<span class="lineNum">      69 </span>            :      * \brief A base class for an attribute value implementation
+<span class="lineNum">      70 </span>            :      *
+<a name="71"><span class="lineNum">      71 </span>            :      * All attribute value holders should derive from this interface.</a>
+<span class="lineNum">      72 </span>            :      */
+<span class="lineNum">      73 </span><span class="lineCov">          4 :     struct BOOST_LOG_NO_VTABLE impl :</span>
+<span class="lineNum">      74 </span>            :         public attribute::impl
+<span class="lineNum">      75 </span>            :     {
+<span class="lineNum">      76 </span>            :     public:
+<span class="lineNum">      77 </span>            :         /*!
+<span class="lineNum">      78 </span>            :          * The method dispatches the value to the given object.
+<span class="lineNum">      79 </span>            :          *
+<span class="lineNum">      80 </span>            :          * \param dispatcher The object that attempts to dispatch the stored value.
+<span class="lineNum">      81 </span>            :          * \return true if \a dispatcher was capable to consume the real attribute value type and false otherwise.
+<span class="lineNum">      82 </span>            :          */
+<span class="lineNum">      83 </span>            :         virtual bool dispatch(type_dispatcher&amp; dispatcher) = 0;
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span>            :         /*!
+<span class="lineNum">      86 </span>            :          * The method is called when the attribute value is passed to another thread (e.g.
+<span class="lineNum">      87 </span>            :          * in case of asynchronous logging). The value should ensure it properly owns all thread-specific data.
+<span class="lineNum">      88 </span>            :          *
+<span class="lineNum">      89 </span>            :          * \return An actual pointer to the attribute value. It may either point to this object or another.
+<span class="lineNum">      90 </span>            :          *         In the latter case the returned pointer replaces the pointer used by caller to invoke this
+<a name="91"><span class="lineNum">      91 </span>            :          *         method and is considered to be a functional equivalent to the previous pointer.</a>
+<span class="lineNum">      92 </span>            :          */
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :         virtual intrusive_ptr&lt; impl &gt; detach_from_thread()</span>
+<span class="lineNum">      94 </span>            :         {
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :             return this;</span>
+<span class="lineNum">      96 </span>            :         }
+<span class="lineNum">      97 </span>            : 
+<span class="lineNum">      98 </span>            :         /*!
+<a name="99"><span class="lineNum">      99 </span>            :          * \return The attribute value that refers to self implementation.</a>
+<span class="lineNum">     100 </span>            :          */
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 :         virtual attribute_value get_value() { return attribute_value(this); }</span>
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span>            :         /*!
+<a name="104"><span class="lineNum">     104 </span>            :          * \return The attribute value type</a>
+<span class="lineNum">     105 </span>            :          */
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :         virtual type_info_wrapper get_type() const { return type_info_wrapper(); }</span>
+<span class="lineNum">     107 </span>            :     };
+<span class="lineNum">     108 </span>            : 
+<span class="lineNum">     109 </span>            : private:
+<span class="lineNum">     110 </span>            :     //! Pointer to the value implementation
+<span class="lineNum">     111 </span>            :     intrusive_ptr&lt; impl &gt; m_pImpl;
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span>            : public:
+<span class="lineNum">     114 </span>            :     /*!
+<a name="115"><span class="lineNum">     115 </span>            :      * Default constructor. Creates an empty (absent) attribute value.</a>
+<span class="lineNum">     116 </span>            :      */
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :     BOOST_DEFAULTED_FUNCTION(attribute_value(), {})</span>
+<span class="lineNum">     118 </span>            : 
+<span class="lineNum">     119 </span>            :     /*!
+<span class="lineNum">     120 </span>            :      * Copy constructor
+<span class="lineNum">     121 </span>            :      */
+<span class="lineNum">     122 </span>            :     attribute_value(attribute_value const&amp; that) BOOST_NOEXCEPT : m_pImpl(that.m_pImpl) {}
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span>            :     /*!
+<span class="lineNum">     125 </span>            :      * Move constructor
+<span class="lineNum">     126 </span>            :      */
+<span class="lineNum">     127 </span>            :     attribute_value(BOOST_RV_REF(attribute_value) that) BOOST_NOEXCEPT { m_pImpl.swap(that.m_pImpl); }
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span>            :     /*!
+<span class="lineNum">     130 </span>            :      * Initializing constructor. Creates an attribute value that refers to the specified holder.
+<span class="lineNum">     131 </span>            :      *
+<a name="132"><span class="lineNum">     132 </span>            :      * \param p A pointer to the attribute value holder.</a>
+<span class="lineNum">     133 </span>            :      */
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :     explicit attribute_value(intrusive_ptr&lt; impl &gt; p) BOOST_NOEXCEPT { m_pImpl.swap(p); }</span>
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span>            :     /*!
+<span class="lineNum">     137 </span>            :      * Copy assignment
+<span class="lineNum">     138 </span>            :      */
+<span class="lineNum">     139 </span>            :     attribute_value&amp; operator= (BOOST_COPY_ASSIGN_REF(attribute_value) that) BOOST_NOEXCEPT
+<span class="lineNum">     140 </span>            :     {
+<span class="lineNum">     141 </span>            :         m_pImpl = that.m_pImpl;
+<span class="lineNum">     142 </span>            :         return *this;
+<span class="lineNum">     143 </span>            :     }
+<span class="lineNum">     144 </span>            : 
+<span class="lineNum">     145 </span>            :     /*!
+<span class="lineNum">     146 </span>            :      * Move assignment
+<span class="lineNum">     147 </span>            :      */
+<span class="lineNum">     148 </span>            :     attribute_value&amp; operator= (BOOST_RV_REF(attribute_value) that) BOOST_NOEXCEPT
+<span class="lineNum">     149 </span>            :     {
+<span class="lineNum">     150 </span>            :         m_pImpl.swap(that.m_pImpl);
+<span class="lineNum">     151 </span>            :         return *this;
+<span class="lineNum">     152 </span>            :     }
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span>            :     /*!
+<span class="lineNum">     155 </span>            :      * The operator checks if the attribute value is empty
+<span class="lineNum">     156 </span>            :      */
+<span class="lineNum">     157 </span>            :     BOOST_EXPLICIT_OPERATOR_BOOL_NOEXCEPT()
+<span class="lineNum">     158 </span>            :     /*!
+<a name="159"><span class="lineNum">     159 </span>            :      * The operator checks if the attribute value is empty</a>
+<span class="lineNum">     160 </span>            :      */
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :     bool operator! () const BOOST_NOEXCEPT { return !m_pImpl; }</span>
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span>            :     /*!
+<span class="lineNum">     164 </span>            :      * The method returns the type information of the stored value of the attribute.
+<span class="lineNum">     165 </span>            :      * The returned type info wrapper may be empty if the attribute value is empty or
+<span class="lineNum">     166 </span>            :      * the information cannot be provided. If the returned value is not empty, the type
+<a name="167"><span class="lineNum">     167 </span>            :      * can be used for value extraction.</a>
+<span class="lineNum">     168 </span>            :      */
+<span class="lineNum">     169 </span><span class="lineNoCov">          0 :     type_info_wrapper get_type() const</span>
+<span class="lineNum">     170 </span>            :     {
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :         if (m_pImpl.get())</span>
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :             return m_pImpl-&gt;get_type();</span>
+<span class="lineNum">     173 </span>            :         else
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :             return type_info_wrapper();</span>
+<span class="lineNum">     175 </span>            :     }
+<span class="lineNum">     176 </span>            : 
+<span class="lineNum">     177 </span>            :     /*!
+<span class="lineNum">     178 </span>            :      * The method is called when the attribute value is passed to another thread (e.g.
+<span class="lineNum">     179 </span>            :      * in case of asynchronous logging). The value should ensure it properly owns all thread-specific data.
+<span class="lineNum">     180 </span>            :      *
+<span class="lineNum">     181 </span>            :      * \post The attribute value no longer refers to any thread-specific resources.
+<span class="lineNum">     182 </span>            :      */
+<span class="lineNum">     183 </span>            :     void detach_from_thread()
+<span class="lineNum">     184 </span>            :     {
+<span class="lineNum">     185 </span>            :         if (m_pImpl.get())
+<span class="lineNum">     186 </span>            :             m_pImpl-&gt;detach_from_thread().swap(m_pImpl);
+<span class="lineNum">     187 </span>            :     }
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span>            :     /*!
+<span class="lineNum">     190 </span>            :      * The method dispatches the value to the given object. This method is a low level interface for
+<span class="lineNum">     191 </span>            :      * attribute value visitation and extraction. For typical usage these interfaces may be more convenient.
+<span class="lineNum">     192 </span>            :      *
+<span class="lineNum">     193 </span>            :      * \param dispatcher The object that attempts to dispatch the stored value.
+<span class="lineNum">     194 </span>            :      * \return \c true if the value is not empty and the \a dispatcher was capable to consume
+<a name="195"><span class="lineNum">     195 </span>            :      *         the real attribute value type and \c false otherwise.</a>
+<span class="lineNum">     196 </span>            :      */
+<span class="lineNum">     197 </span><span class="lineNoCov">          0 :     bool dispatch(type_dispatcher&amp; dispatcher) const</span>
+<span class="lineNum">     198 </span>            :     {
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :         if (m_pImpl.get())</span>
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :             return m_pImpl-&gt;dispatch(dispatcher);</span>
+<span class="lineNum">     201 </span>            :         else
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :             return false;</span>
+<span class="lineNum">     203 </span>            :     }
+<span class="lineNum">     204 </span>            : 
+<span class="lineNum">     205 </span>            : #if !defined(BOOST_LOG_DOXYGEN_PASS)
+<span class="lineNum">     206 </span>            : #if !defined(BOOST_NO_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGS)
+<span class="lineNum">     207 </span>            : #define BOOST_LOG_AUX_VOID_DEFAULT = void
+<span class="lineNum">     208 </span>            : #else
+<span class="lineNum">     209 </span>            : #define BOOST_LOG_AUX_VOID_DEFAULT
+<span class="lineNum">     210 </span>            : #endif
+<span class="lineNum">     211 </span>            : #endif // !defined(BOOST_LOG_DOXYGEN_PASS)
+<span class="lineNum">     212 </span>            : 
+<span class="lineNum">     213 </span>            :     /*!
+<span class="lineNum">     214 </span>            :      * The method attempts to extract the stored value, assuming the value has the specified type.
+<span class="lineNum">     215 </span>            :      * One can specify either a single type or an MPL type sequence, in which case the stored value
+<span class="lineNum">     216 </span>            :      * is checked against every type in the sequence.
+<span class="lineNum">     217 </span>            :      *
+<span class="lineNum">     218 </span>            :      * \note Include &lt;tt&gt;value_extraction.hpp&lt;/tt&gt; prior to using this method.
+<span class="lineNum">     219 </span>            :      *
+<span class="lineNum">     220 </span>            :      * \return The extracted value, if the attribute value is not empty and the value is the same
+<span class="lineNum">     221 </span>            :      *         as specified. Otherwise returns an empty value. See description of the \c result_of::extract
+<span class="lineNum">     222 </span>            :      *         metafunction for information on the nature of the result value.
+<span class="lineNum">     223 </span>            :      */
+<span class="lineNum">     224 </span>            :     template&lt; typename T, typename TagT BOOST_LOG_AUX_VOID_DEFAULT &gt;
+<span class="lineNum">     225 </span>            :     typename result_of::extract&lt; T, TagT &gt;::type extract() const;
+<span class="lineNum">     226 </span>            : 
+<span class="lineNum">     227 </span>            :     /*!
+<span class="lineNum">     228 </span>            :      * The method attempts to extract the stored value, assuming the value has the specified type.
+<span class="lineNum">     229 </span>            :      * One can specify either a single type or an MPL type sequence, in which case the stored value
+<span class="lineNum">     230 </span>            :      * is checked against every type in the sequence.
+<span class="lineNum">     231 </span>            :      *
+<span class="lineNum">     232 </span>            :      * \note Include &lt;tt&gt;value_extraction.hpp&lt;/tt&gt; prior to using this method.
+<span class="lineNum">     233 </span>            :      *
+<span class="lineNum">     234 </span>            :      * \return The extracted value, if the attribute value is not empty and the value is the same
+<span class="lineNum">     235 </span>            :      *         as specified. Otherwise an exception is thrown. See description of the \c result_of::extract_or_throw
+<span class="lineNum">     236 </span>            :      *         metafunction for information on the nature of the result value.
+<span class="lineNum">     237 </span>            :      */
+<span class="lineNum">     238 </span>            :     template&lt; typename T, typename TagT BOOST_LOG_AUX_VOID_DEFAULT &gt;
+<span class="lineNum">     239 </span>            :     typename result_of::extract_or_throw&lt; T, TagT &gt;::type extract_or_throw() const;
+<span class="lineNum">     240 </span>            : 
+<span class="lineNum">     241 </span>            :     /*!
+<span class="lineNum">     242 </span>            :      * The method attempts to extract the stored value, assuming the value has the specified type.
+<span class="lineNum">     243 </span>            :      * One can specify either a single type or an MPL type sequence, in which case the stored value
+<span class="lineNum">     244 </span>            :      * is checked against every type in the sequence. If extraction fails, the default value is returned.
+<span class="lineNum">     245 </span>            :      *
+<span class="lineNum">     246 </span>            :      * \note Include &lt;tt&gt;value_extraction.hpp&lt;/tt&gt; prior to using this method.
+<span class="lineNum">     247 </span>            :      *
+<span class="lineNum">     248 </span>            :      * \param def_value Default value.
+<span class="lineNum">     249 </span>            :      *
+<span class="lineNum">     250 </span>            :      * \return The extracted value, if the attribute value is not empty and the value is the same
+<span class="lineNum">     251 </span>            :      *         as specified. Otherwise returns the default value. See description of the \c result_of::extract_or_default
+<span class="lineNum">     252 </span>            :      *         metafunction for information on the nature of the result value.
+<span class="lineNum">     253 </span>            :      */
+<span class="lineNum">     254 </span>            :     template&lt; typename T, typename TagT BOOST_LOG_AUX_VOID_DEFAULT &gt;
+<span class="lineNum">     255 </span>            :     typename result_of::extract_or_default&lt; T, T, TagT &gt;::type extract_or_default(T const&amp; def_value) const;
+<span class="lineNum">     256 </span>            : 
+<span class="lineNum">     257 </span>            :     /*!
+<span class="lineNum">     258 </span>            :      * The method attempts to extract the stored value, assuming the value has the specified type.
+<span class="lineNum">     259 </span>            :      * One can specify either a single type or an MPL type sequence, in which case the stored value
+<span class="lineNum">     260 </span>            :      * is checked against every type in the sequence. If extraction fails, the default value is returned.
+<span class="lineNum">     261 </span>            :      *
+<span class="lineNum">     262 </span>            :      * \note Include &lt;tt&gt;value_extraction.hpp&lt;/tt&gt; prior to using this method.
+<span class="lineNum">     263 </span>            :      *
+<span class="lineNum">     264 </span>            :      * \param def_value Default value.
+<span class="lineNum">     265 </span>            :      *
+<span class="lineNum">     266 </span>            :      * \return The extracted value, if the attribute value is not empty and the value is the same
+<span class="lineNum">     267 </span>            :      *         as specified. Otherwise returns the default value. See description of the \c result_of::extract_or_default
+<span class="lineNum">     268 </span>            :      *         metafunction for information on the nature of the result value.
+<span class="lineNum">     269 </span>            :      */
+<span class="lineNum">     270 </span>            :     template&lt; typename T, typename TagT BOOST_LOG_AUX_VOID_DEFAULT, typename DefaultT &gt;
+<span class="lineNum">     271 </span>            :     typename result_of::extract_or_default&lt; T, DefaultT, TagT &gt;::type extract_or_default(DefaultT const&amp; def_value) const;
+<span class="lineNum">     272 </span>            : 
+<span class="lineNum">     273 </span>            : #if defined(BOOST_NO_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGS)
+<span class="lineNum">     274 </span>            :     /*!
+<span class="lineNum">     275 </span>            :      * The method attempts to extract the stored value, assuming the value has the specified type.
+<span class="lineNum">     276 </span>            :      * One can specify either a single type or an MPL type sequence, in which case the stored value
+<span class="lineNum">     277 </span>            :      * is checked against every type in the sequence.
+<span class="lineNum">     278 </span>            :      *
+<span class="lineNum">     279 </span>            :      * \note Include &lt;tt&gt;value_extraction.hpp&lt;/tt&gt; prior to using this method.
+<span class="lineNum">     280 </span>            :      *
+<span class="lineNum">     281 </span>            :      * \return The extracted value, if the attribute value is not empty and the value is the same
+<span class="lineNum">     282 </span>            :      *         as specified. Otherwise returns an empty value. See description of the \c result_of::extract
+<span class="lineNum">     283 </span>            :      *         metafunction for information on the nature of the result value.
+<span class="lineNum">     284 </span>            :      */
+<span class="lineNum">     285 </span>            :     template&lt; typename T &gt;
+<span class="lineNum">     286 </span>            :     typename result_of::extract&lt; T &gt;::type extract() const;
+<span class="lineNum">     287 </span>            : 
+<span class="lineNum">     288 </span>            :     /*!
+<span class="lineNum">     289 </span>            :      * The method attempts to extract the stored value, assuming the value has the specified type.
+<span class="lineNum">     290 </span>            :      * One can specify either a single type or an MPL type sequence, in which case the stored value
+<span class="lineNum">     291 </span>            :      * is checked against every type in the sequence.
+<span class="lineNum">     292 </span>            :      *
+<span class="lineNum">     293 </span>            :      * \note Include &lt;tt&gt;value_extraction.hpp&lt;/tt&gt; prior to using this method.
+<span class="lineNum">     294 </span>            :      *
+<span class="lineNum">     295 </span>            :      * \return The extracted value, if the attribute value is not empty and the value is the same
+<span class="lineNum">     296 </span>            :      *         as specified. Otherwise an exception is thrown. See description of the \c result_of::extract_or_throw
+<span class="lineNum">     297 </span>            :      *         metafunction for information on the nature of the result value.
+<span class="lineNum">     298 </span>            :      */
+<span class="lineNum">     299 </span>            :     template&lt; typename T &gt;
+<span class="lineNum">     300 </span>            :     typename result_of::extract_or_throw&lt; T &gt;::type extract_or_throw() const;
+<span class="lineNum">     301 </span>            : 
+<span class="lineNum">     302 </span>            :     /*!
+<span class="lineNum">     303 </span>            :      * The method attempts to extract the stored value, assuming the value has the specified type.
+<span class="lineNum">     304 </span>            :      * One can specify either a single type or an MPL type sequence, in which case the stored value
+<span class="lineNum">     305 </span>            :      * is checked against every type in the sequence. If extraction fails, the default value is returned.
+<span class="lineNum">     306 </span>            :      *
+<span class="lineNum">     307 </span>            :      * \note Include &lt;tt&gt;value_extraction.hpp&lt;/tt&gt; prior to using this method.
+<span class="lineNum">     308 </span>            :      *
+<span class="lineNum">     309 </span>            :      * \param def_value Default value.
+<span class="lineNum">     310 </span>            :      *
+<span class="lineNum">     311 </span>            :      * \return The extracted value, if the attribute value is not empty and the value is the same
+<span class="lineNum">     312 </span>            :      *         as specified. Otherwise returns the default value. See description of the \c result_of::extract_or_default
+<span class="lineNum">     313 </span>            :      *         metafunction for information on the nature of the result value.
+<span class="lineNum">     314 </span>            :      */
+<span class="lineNum">     315 </span>            :     template&lt; typename T &gt;
+<span class="lineNum">     316 </span>            :     typename result_of::extract_or_default&lt; T, T &gt;::type extract_or_default(T const&amp; def_value) const;
+<span class="lineNum">     317 </span>            : 
+<span class="lineNum">     318 </span>            :     /*!
+<span class="lineNum">     319 </span>            :      * The method attempts to extract the stored value, assuming the value has the specified type.
+<span class="lineNum">     320 </span>            :      * One can specify either a single type or an MPL type sequence, in which case the stored value
+<span class="lineNum">     321 </span>            :      * is checked against every type in the sequence. If extraction fails, the default value is returned.
+<span class="lineNum">     322 </span>            :      *
+<span class="lineNum">     323 </span>            :      * \note Include &lt;tt&gt;value_extraction.hpp&lt;/tt&gt; prior to using this method.
+<span class="lineNum">     324 </span>            :      *
+<span class="lineNum">     325 </span>            :      * \param def_value Default value.
+<span class="lineNum">     326 </span>            :      *
+<span class="lineNum">     327 </span>            :      * \return The extracted value, if the attribute value is not empty and the value is the same
+<span class="lineNum">     328 </span>            :      *         as specified. Otherwise returns the default value. See description of the \c result_of::extract_or_default
+<span class="lineNum">     329 </span>            :      *         metafunction for information on the nature of the result value.
+<span class="lineNum">     330 </span>            :      */
+<span class="lineNum">     331 </span>            :     template&lt; typename T, typename DefaultT &gt;
+<span class="lineNum">     332 </span>            :     typename result_of::extract_or_default&lt; T, DefaultT &gt;::type extract_or_default(DefaultT const&amp; def_value) const;
+<span class="lineNum">     333 </span>            : #endif // defined(BOOST_NO_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGS)
+<span class="lineNum">     334 </span>            : 
+<span class="lineNum">     335 </span>            : #undef BOOST_LOG_AUX_VOID_DEFAULT
+<span class="lineNum">     336 </span>            : 
+<span class="lineNum">     337 </span>            :     /*!
+<span class="lineNum">     338 </span>            :      * The method attempts to extract the stored value, assuming the value has the specified type,
+<span class="lineNum">     339 </span>            :      * and pass it to the \a visitor function object.
+<span class="lineNum">     340 </span>            :      * One can specify either a single type or an MPL type sequence, in which case the stored value
+<span class="lineNum">     341 </span>            :      * is checked against every type in the sequence.
+<span class="lineNum">     342 </span>            :      *
+<span class="lineNum">     343 </span>            :      * \note Include &lt;tt&gt;value_visitation.hpp&lt;/tt&gt; prior to using this method.
+<span class="lineNum">     344 </span>            :      *
+<span class="lineNum">     345 </span>            :      * \param visitor A function object that will be invoked on the extracted attribute value.
+<span class="lineNum">     346 </span>            :      *                The visitor should be capable to be called with a single argument of
+<span class="lineNum">     347 </span>            :      *                any type of the specified types in \c T.
+<span class="lineNum">     348 </span>            :      *
+<span class="lineNum">     349 </span>            :      * \return The result of visitation.
+<span class="lineNum">     350 </span>            :      */
+<span class="lineNum">     351 </span>            :     template&lt; typename T, typename VisitorT &gt;
+<span class="lineNum">     352 </span>            :     visitation_result visit(VisitorT visitor) const;
+<span class="lineNum">     353 </span>            : 
+<span class="lineNum">     354 </span>            :     /*!
+<span class="lineNum">     355 </span>            :      * The method swaps two attribute values
+<span class="lineNum">     356 </span>            :      */
+<span class="lineNum">     357 </span>            :     void swap(attribute_value&amp; that) BOOST_NOEXCEPT
+<span class="lineNum">     358 </span>            :     {
+<span class="lineNum">     359 </span>            :         m_pImpl.swap(that.m_pImpl);
+<span class="lineNum">     360 </span>            :     }
+<span class="lineNum">     361 </span>            : };
+<span class="lineNum">     362 </span>            : 
+<span class="lineNum">     363 </span>            : /*!
+<span class="lineNum">     364 </span>            :  * The function swaps two attribute values
+<span class="lineNum">     365 </span>            :  */
+<span class="lineNum">     366 </span>            : inline void swap(attribute_value&amp; left, attribute_value&amp; right) BOOST_NOEXCEPT
+<span class="lineNum">     367 </span>            : {
+<span class="lineNum">     368 </span>            :     left.swap(right);
+<span class="lineNum">     369 </span>            : }
+<span class="lineNum">     370 </span>            : 
+<span class="lineNum">     371 </span>            : BOOST_LOG_CLOSE_NAMESPACE // namespace log
+<span class="lineNum">     372 </span>            : 
+<span class="lineNum">     373 </span>            : } // namespace boost
+<span class="lineNum">     374 </span>            : 
+<span class="lineNum">     375 </span>            : #include &lt;boost/log/detail/footer.hpp&gt;
+<span class="lineNum">     376 </span>            : #if defined(BOOST_LOG_ATTRIBUTES_ATTRIBUTE_HPP_INCLUDED_)
+<span class="lineNum">     377 </span>            : #include &lt;boost/log/detail/attribute_get_value_impl.hpp&gt;
+<span class="lineNum">     378 </span>            : #endif
+<span class="lineNum">     379 </span>            : 
+<span class="lineNum">     380 </span>            : #endif // BOOST_LOG_ATTRIBUTE_VALUE_HPP_INCLUDED_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

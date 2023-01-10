@@ -1,0 +1,265 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - /usr/local/include/thrift/concurrency/Mutex.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">usr/local/include/thrift/concurrency</a> - Mutex.h<span style="font-size: 80%;"> (source / <a href="Mutex.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 01:14:10</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * Licensed to the Apache Software Foundation (ASF) under one
+<span class="lineNum">       3 </span>            :  * or more contributor license agreements. See the NOTICE file
+<span class="lineNum">       4 </span>            :  * distributed with this work for additional information
+<span class="lineNum">       5 </span>            :  * regarding copyright ownership. The ASF licenses this file
+<span class="lineNum">       6 </span>            :  * to you under the Apache License, Version 2.0 (the
+<span class="lineNum">       7 </span>            :  * &quot;License&quot;); you may not use this file except in compliance
+<span class="lineNum">       8 </span>            :  * with the License. You may obtain a copy of the License at
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *   http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * Unless required by applicable law or agreed to in writing,
+<span class="lineNum">      13 </span>            :  * software distributed under the License is distributed on an
+<span class="lineNum">      14 </span>            :  * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+<span class="lineNum">      15 </span>            :  * KIND, either express or implied. See the License for the
+<span class="lineNum">      16 </span>            :  * specific language governing permissions and limitations
+<span class="lineNum">      17 </span>            :  * under the License.
+<span class="lineNum">      18 </span>            :  */
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #ifndef _THRIFT_CONCURRENCY_MUTEX_H_
+<span class="lineNum">      21 </span>            : #define _THRIFT_CONCURRENCY_MUTEX_H_ 1
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : #include &lt;thrift/stdcxx.h&gt;
+<span class="lineNum">      24 </span>            : #include &lt;boost/noncopyable.hpp&gt;
+<span class="lineNum">      25 </span>            : #include &lt;stdint.h&gt;
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : namespace apache {
+<span class="lineNum">      28 </span>            : namespace thrift {
+<span class="lineNum">      29 </span>            : namespace concurrency {
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : #ifndef THRIFT_NO_CONTENTION_PROFILING
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : /**
+<span class="lineNum">      34 </span>            :  * Determines if the Thrift Mutex and ReadWriteMutex classes will attempt to
+<span class="lineNum">      35 </span>            :  * profile their blocking acquire methods. If this value is set to non-zero,
+<span class="lineNum">      36 </span>            :  * Thrift will attempt to invoke the callback once every profilingSampleRate
+<span class="lineNum">      37 </span>            :  * times.  However, as the sampling is not synchronized the rate is not
+<span class="lineNum">      38 </span>            :  * guranateed, and could be subject to big bursts and swings.  Please ensure
+<span class="lineNum">      39 </span>            :  * your sampling callback is as performant as your application requires.
+<span class="lineNum">      40 </span>            :  *
+<span class="lineNum">      41 </span>            :  * The callback will get called with the wait time taken to lock the mutex in
+<span class="lineNum">      42 </span>            :  * usec and a (void*) that uniquely identifies the Mutex (or ReadWriteMutex)
+<span class="lineNum">      43 </span>            :  * being locked.
+<span class="lineNum">      44 </span>            :  *
+<span class="lineNum">      45 </span>            :  * The enableMutexProfiling() function is unsynchronized; calling this function
+<span class="lineNum">      46 </span>            :  * while profiling is already enabled may result in race conditions.  On
+<span class="lineNum">      47 </span>            :  * architectures where a pointer assignment is atomic, this is safe but there
+<span class="lineNum">      48 </span>            :  * is no guarantee threads will agree on a single callback within any
+<span class="lineNum">      49 </span>            :  * particular time period.
+<span class="lineNum">      50 </span>            :  */
+<span class="lineNum">      51 </span>            : typedef void (*MutexWaitCallback)(const void* id, int64_t waitTimeMicros);
+<span class="lineNum">      52 </span>            : void enableMutexProfiling(int32_t profilingSampleRate, MutexWaitCallback callback);
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span>            : #endif
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            : /**
+<span class="lineNum">      57 </span>            :  * NOTE: All mutex implementations throw an exception on failure.  See each
+<span class="lineNum">      58 </span>            :  *       specific implementation to understand the exception type(s) used.
+<span class="lineNum">      59 </span>            :  */
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span>            : /**
+<span class="lineNum">      62 </span>            :  * A simple mutex class
+<span class="lineNum">      63 </span>            :  *
+<span class="lineNum">      64 </span>            :  * @version $Id:$
+<span class="lineNum">      65 </span>            :  */
+<span class="lineNum">      66 </span>            : class Mutex {
+<span class="lineNum">      67 </span>            : public:
+<span class="lineNum">      68 </span>            :   typedef void (*Initializer)(void*);
+<a name="69"><span class="lineNum">      69 </span>            : </a>
+<span class="lineNum">      70 </span>            :   Mutex(Initializer init = DEFAULT_INITIALIZER);
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :   virtual ~Mutex() {}</span>
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span>            :   virtual void lock() const;
+<span class="lineNum">      74 </span>            :   virtual bool trylock() const;
+<span class="lineNum">      75 </span>            :   virtual bool timedlock(int64_t milliseconds) const;
+<span class="lineNum">      76 </span>            :   virtual void unlock() const;
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span>            :   void* getUnderlyingImpl() const;
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span>            :   // If you attempt to use one of these and it fails to link, it means
+<span class="lineNum">      81 </span>            :   // your version of pthreads does not support it - try another one.
+<span class="lineNum">      82 </span>            :   static void ADAPTIVE_INITIALIZER(void*);
+<span class="lineNum">      83 </span>            :   static void DEFAULT_INITIALIZER(void*);
+<span class="lineNum">      84 </span>            :   static void ERRORCHECK_INITIALIZER(void*);
+<span class="lineNum">      85 </span>            :   static void RECURSIVE_INITIALIZER(void*);
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span>            : private:
+<span class="lineNum">      88 </span>            :   class impl;
+<span class="lineNum">      89 </span>            :   stdcxx::shared_ptr&lt;impl&gt; impl_;
+<span class="lineNum">      90 </span>            : };
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span>            : class ReadWriteMutex {
+<span class="lineNum">      93 </span>            : public:
+<span class="lineNum">      94 </span>            :   ReadWriteMutex();
+<span class="lineNum">      95 </span>            :   virtual ~ReadWriteMutex() {}
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span>            :   // these get the lock and block until it is done successfully
+<span class="lineNum">      98 </span>            :   virtual void acquireRead() const;
+<span class="lineNum">      99 </span>            :   virtual void acquireWrite() const;
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span>            :   // these attempt to get the lock, returning false immediately if they fail
+<span class="lineNum">     102 </span>            :   virtual bool attemptRead() const;
+<span class="lineNum">     103 </span>            :   virtual bool attemptWrite() const;
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span>            :   // this releases both read and write locks
+<span class="lineNum">     106 </span>            :   virtual void release() const;
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span>            : private:
+<span class="lineNum">     109 </span>            :   class impl;
+<span class="lineNum">     110 </span>            :   stdcxx::shared_ptr&lt;impl&gt; impl_;
+<span class="lineNum">     111 </span>            : };
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span>            : /**
+<span class="lineNum">     114 </span>            :  * A ReadWriteMutex that guarantees writers will not be starved by readers:
+<span class="lineNum">     115 </span>            :  * When a writer attempts to acquire the mutex, all new readers will be
+<span class="lineNum">     116 </span>            :  * blocked from acquiring the mutex until the writer has acquired and
+<span class="lineNum">     117 </span>            :  * released it. In some operating systems, this may already be guaranteed
+<span class="lineNum">     118 </span>            :  * by a regular ReadWriteMutex.
+<span class="lineNum">     119 </span>            :  */
+<span class="lineNum">     120 </span>            : class NoStarveReadWriteMutex : public ReadWriteMutex {
+<span class="lineNum">     121 </span>            : public:
+<span class="lineNum">     122 </span>            :   NoStarveReadWriteMutex();
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span>            :   virtual void acquireRead() const;
+<span class="lineNum">     125 </span>            :   virtual void acquireWrite() const;
+<span class="lineNum">     126 </span>            : 
+<span class="lineNum">     127 </span>            : private:
+<span class="lineNum">     128 </span>            :   Mutex mutex_;
+<span class="lineNum">     129 </span>            :   mutable volatile bool writerWaiting_;
+<span class="lineNum">     130 </span>            : };
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span>            : class Guard : boost::noncopyable {
+<span class="lineNum">     133 </span>            : public:
+<span class="lineNum">     134 </span>            :   Guard(const Mutex&amp; value, int64_t timeout = 0) : mutex_(&amp;value) {
+<span class="lineNum">     135 </span>            :     if (timeout == 0) {
+<span class="lineNum">     136 </span>            :       value.lock();
+<span class="lineNum">     137 </span>            :     } else if (timeout &lt; 0) {
+<span class="lineNum">     138 </span>            :       if (!value.trylock()) {
+<span class="lineNum">     139 </span>            :         mutex_ = NULL;
+<span class="lineNum">     140 </span>            :       }
+<span class="lineNum">     141 </span>            :     } else {
+<span class="lineNum">     142 </span>            :       if (!value.timedlock(timeout)) {
+<span class="lineNum">     143 </span>            :         mutex_ = NULL;
+<span class="lineNum">     144 </span>            :       }
+<span class="lineNum">     145 </span>            :     }
+<span class="lineNum">     146 </span>            :   }
+<span class="lineNum">     147 </span>            :   ~Guard() {
+<span class="lineNum">     148 </span>            :     if (mutex_) {
+<span class="lineNum">     149 </span>            :       mutex_-&gt;unlock();
+<span class="lineNum">     150 </span>            :     }
+<span class="lineNum">     151 </span>            :   }
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span>            :   operator bool() const { return (mutex_ != NULL); }
+<span class="lineNum">     154 </span>            : 
+<span class="lineNum">     155 </span>            : private:
+<span class="lineNum">     156 </span>            :   const Mutex* mutex_;
+<span class="lineNum">     157 </span>            : };
+<span class="lineNum">     158 </span>            : 
+<span class="lineNum">     159 </span>            : // Can be used as second argument to RWGuard to make code more readable
+<span class="lineNum">     160 </span>            : // as to whether we're doing acquireRead() or acquireWrite().
+<span class="lineNum">     161 </span>            : enum RWGuardType { RW_READ = 0, RW_WRITE = 1 };
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span>            : class RWGuard : boost::noncopyable {
+<span class="lineNum">     164 </span>            : public:
+<span class="lineNum">     165 </span>            :   RWGuard(const ReadWriteMutex&amp; value, bool write = false) : rw_mutex_(value) {
+<span class="lineNum">     166 </span>            :     if (write) {
+<span class="lineNum">     167 </span>            :       rw_mutex_.acquireWrite();
+<span class="lineNum">     168 </span>            :     } else {
+<span class="lineNum">     169 </span>            :       rw_mutex_.acquireRead();
+<span class="lineNum">     170 </span>            :     }
+<span class="lineNum">     171 </span>            :   }
+<span class="lineNum">     172 </span>            : 
+<span class="lineNum">     173 </span>            :   RWGuard(const ReadWriteMutex&amp; value, RWGuardType type) : rw_mutex_(value) {
+<span class="lineNum">     174 </span>            :     if (type == RW_WRITE) {
+<span class="lineNum">     175 </span>            :       rw_mutex_.acquireWrite();
+<span class="lineNum">     176 </span>            :     } else {
+<span class="lineNum">     177 </span>            :       rw_mutex_.acquireRead();
+<span class="lineNum">     178 </span>            :     }
+<span class="lineNum">     179 </span>            :   }
+<span class="lineNum">     180 </span>            :   ~RWGuard() { rw_mutex_.release(); }
+<span class="lineNum">     181 </span>            : 
+<span class="lineNum">     182 </span>            : private:
+<span class="lineNum">     183 </span>            :   const ReadWriteMutex&amp; rw_mutex_;
+<span class="lineNum">     184 </span>            : };
+<span class="lineNum">     185 </span>            : }
+<span class="lineNum">     186 </span>            : }
+<span class="lineNum">     187 </span>            : } // apache::thrift::concurrency
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span>            : #endif // #ifndef _THRIFT_CONCURRENCY_MUTEX_H_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

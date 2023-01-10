@@ -1,0 +1,589 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - /usr/local/include/thrift/protocol/TVirtualProtocol.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">usr/local/include/thrift/protocol</a> - TVirtualProtocol.h<span style="font-size: 80%;"> (source / <a href="TVirtualProtocol.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">38</td>
+            <td class="headerCovTableEntry">85</td>
+            <td class="headerCovTableEntryLo">44.7 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 01:14:10</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">25</td>
+            <td class="headerCovTableEntry">51</td>
+            <td class="headerCovTableEntryLo">49.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * Licensed to the Apache Software Foundation (ASF) under one
+<span class="lineNum">       3 </span>            :  * or more contributor license agreements. See the NOTICE file
+<span class="lineNum">       4 </span>            :  * distributed with this work for additional information
+<span class="lineNum">       5 </span>            :  * regarding copyright ownership. The ASF licenses this file
+<span class="lineNum">       6 </span>            :  * to you under the Apache License, Version 2.0 (the
+<span class="lineNum">       7 </span>            :  * &quot;License&quot;); you may not use this file except in compliance
+<span class="lineNum">       8 </span>            :  * with the License. You may obtain a copy of the License at
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *   http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * Unless required by applicable law or agreed to in writing,
+<span class="lineNum">      13 </span>            :  * software distributed under the License is distributed on an
+<span class="lineNum">      14 </span>            :  * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+<span class="lineNum">      15 </span>            :  * KIND, either express or implied. See the License for the
+<span class="lineNum">      16 </span>            :  * specific language governing permissions and limitations
+<span class="lineNum">      17 </span>            :  * under the License.
+<span class="lineNum">      18 </span>            :  */
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #ifndef _THRIFT_PROTOCOL_TVIRTUALPROTOCOL_H_
+<span class="lineNum">      21 </span>            : #define _THRIFT_PROTOCOL_TVIRTUALPROTOCOL_H_ 1
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : #include &lt;thrift/protocol/TProtocol.h&gt;
+<span class="lineNum">      24 </span>            : 
+<span class="lineNum">      25 </span>            : namespace apache {
+<span class="lineNum">      26 </span>            : namespace thrift {
+<span class="lineNum">      27 </span>            : namespace protocol {
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            : using apache::thrift::transport::TTransport;
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : /**
+<span class="lineNum">      32 </span>            :  * Helper class that provides default implementations of TProtocol methods.
+<span class="lineNum">      33 </span>            :  *
+<span class="lineNum">      34 </span>            :  * This class provides default implementations of the non-virtual TProtocol
+<span class="lineNum">      35 </span>            :  * methods.  It exists primarily so TVirtualProtocol can derive from it.  It
+<span class="lineNum">      36 </span>            :  * prevents TVirtualProtocol methods from causing infinite recursion if the
+<span class="lineNum">      37 </span>            :  * non-virtual methods are not overridden by the TVirtualProtocol subclass.
+<span class="lineNum">      38 </span>            :  *
+<span class="lineNum">      39 </span>            :  * You probably don't want to use this class directly.  Use TVirtualProtocol
+<a name="40"><span class="lineNum">      40 </span>            :  * instead.</a>
+<span class="lineNum">      41 </span>            :  */
+<span class="lineNum">      42 </span><span class="lineCov">          8 : class TProtocolDefaults : public TProtocol {</span>
+<span class="lineNum">      43 </span>            : public:
+<span class="lineNum">      44 </span>            :   uint32_t readMessageBegin(std::string&amp; name, TMessageType&amp; messageType, int32_t&amp; seqid) {
+<span class="lineNum">      45 </span>            :     (void)name;
+<span class="lineNum">      46 </span>            :     (void)messageType;
+<span class="lineNum">      47 </span>            :     (void)seqid;
+<span class="lineNum">      48 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">      49 </span>            :                              &quot;this protocol does not support reading (yet).&quot;);
+<span class="lineNum">      50 </span>            :   }
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            :   uint32_t readMessageEnd() {
+<span class="lineNum">      53 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">      54 </span>            :                              &quot;this protocol does not support reading (yet).&quot;);
+<span class="lineNum">      55 </span>            :   }
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span>            :   uint32_t readStructBegin(std::string&amp; name) {
+<span class="lineNum">      58 </span>            :     (void)name;
+<span class="lineNum">      59 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">      60 </span>            :                              &quot;this protocol does not support reading (yet).&quot;);
+<span class="lineNum">      61 </span>            :   }
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span>            :   uint32_t readStructEnd() {
+<span class="lineNum">      64 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">      65 </span>            :                              &quot;this protocol does not support reading (yet).&quot;);
+<span class="lineNum">      66 </span>            :   }
+<span class="lineNum">      67 </span>            : 
+<span class="lineNum">      68 </span>            :   uint32_t readFieldBegin(std::string&amp; name, TType&amp; fieldType, int16_t&amp; fieldId) {
+<span class="lineNum">      69 </span>            :     (void)name;
+<span class="lineNum">      70 </span>            :     (void)fieldType;
+<span class="lineNum">      71 </span>            :     (void)fieldId;
+<span class="lineNum">      72 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">      73 </span>            :                              &quot;this protocol does not support reading (yet).&quot;);
+<span class="lineNum">      74 </span>            :   }
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span>            :   uint32_t readFieldEnd() {
+<span class="lineNum">      77 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">      78 </span>            :                              &quot;this protocol does not support reading (yet).&quot;);
+<span class="lineNum">      79 </span>            :   }
+<span class="lineNum">      80 </span>            : 
+<span class="lineNum">      81 </span>            :   uint32_t readMapBegin(TType&amp; keyType, TType&amp; valType, uint32_t&amp; size) {
+<span class="lineNum">      82 </span>            :     (void)keyType;
+<span class="lineNum">      83 </span>            :     (void)valType;
+<span class="lineNum">      84 </span>            :     (void)size;
+<span class="lineNum">      85 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">      86 </span>            :                              &quot;this protocol does not support reading (yet).&quot;);
+<span class="lineNum">      87 </span>            :   }
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span>            :   uint32_t readMapEnd() {
+<span class="lineNum">      90 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">      91 </span>            :                              &quot;this protocol does not support reading (yet).&quot;);
+<span class="lineNum">      92 </span>            :   }
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span>            :   uint32_t readListBegin(TType&amp; elemType, uint32_t&amp; size) {
+<span class="lineNum">      95 </span>            :     (void)elemType;
+<span class="lineNum">      96 </span>            :     (void)size;
+<span class="lineNum">      97 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">      98 </span>            :                              &quot;this protocol does not support reading (yet).&quot;);
+<span class="lineNum">      99 </span>            :   }
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span>            :   uint32_t readListEnd() {
+<span class="lineNum">     102 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     103 </span>            :                              &quot;this protocol does not support reading (yet).&quot;);
+<span class="lineNum">     104 </span>            :   }
+<span class="lineNum">     105 </span>            : 
+<span class="lineNum">     106 </span>            :   uint32_t readSetBegin(TType&amp; elemType, uint32_t&amp; size) {
+<span class="lineNum">     107 </span>            :     (void)elemType;
+<span class="lineNum">     108 </span>            :     (void)size;
+<span class="lineNum">     109 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     110 </span>            :                              &quot;this protocol does not support reading (yet).&quot;);
+<span class="lineNum">     111 </span>            :   }
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span>            :   uint32_t readSetEnd() {
+<span class="lineNum">     114 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     115 </span>            :                              &quot;this protocol does not support reading (yet).&quot;);
+<span class="lineNum">     116 </span>            :   }
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span>            :   uint32_t readBool(bool&amp; value) {
+<span class="lineNum">     119 </span>            :     (void)value;
+<span class="lineNum">     120 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     121 </span>            :                              &quot;this protocol does not support reading (yet).&quot;);
+<span class="lineNum">     122 </span>            :   }
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span>            :   uint32_t readBool(std::vector&lt;bool&gt;::reference value) {
+<span class="lineNum">     125 </span>            :     (void)value;
+<span class="lineNum">     126 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     127 </span>            :                              &quot;this protocol does not support reading (yet).&quot;);
+<span class="lineNum">     128 </span>            :   }
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span>            :   uint32_t readByte(int8_t&amp; byte) {
+<span class="lineNum">     131 </span>            :     (void)byte;
+<span class="lineNum">     132 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     133 </span>            :                              &quot;this protocol does not support reading (yet).&quot;);
+<span class="lineNum">     134 </span>            :   }
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span>            :   uint32_t readI16(int16_t&amp; i16) {
+<span class="lineNum">     137 </span>            :     (void)i16;
+<span class="lineNum">     138 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     139 </span>            :                              &quot;this protocol does not support reading (yet).&quot;);
+<span class="lineNum">     140 </span>            :   }
+<span class="lineNum">     141 </span>            : 
+<span class="lineNum">     142 </span>            :   uint32_t readI32(int32_t&amp; i32) {
+<span class="lineNum">     143 </span>            :     (void)i32;
+<span class="lineNum">     144 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     145 </span>            :                              &quot;this protocol does not support reading (yet).&quot;);
+<span class="lineNum">     146 </span>            :   }
+<span class="lineNum">     147 </span>            : 
+<span class="lineNum">     148 </span>            :   uint32_t readI64(int64_t&amp; i64) {
+<span class="lineNum">     149 </span>            :     (void)i64;
+<span class="lineNum">     150 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     151 </span>            :                              &quot;this protocol does not support reading (yet).&quot;);
+<span class="lineNum">     152 </span>            :   }
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span>            :   uint32_t readDouble(double&amp; dub) {
+<span class="lineNum">     155 </span>            :     (void)dub;
+<span class="lineNum">     156 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     157 </span>            :                              &quot;this protocol does not support reading (yet).&quot;);
+<span class="lineNum">     158 </span>            :   }
+<span class="lineNum">     159 </span>            : 
+<span class="lineNum">     160 </span>            :   uint32_t readString(std::string&amp; str) {
+<span class="lineNum">     161 </span>            :     (void)str;
+<span class="lineNum">     162 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     163 </span>            :                              &quot;this protocol does not support reading (yet).&quot;);
+<span class="lineNum">     164 </span>            :   }
+<span class="lineNum">     165 </span>            : 
+<span class="lineNum">     166 </span>            :   uint32_t readBinary(std::string&amp; str) {
+<span class="lineNum">     167 </span>            :     (void)str;
+<span class="lineNum">     168 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     169 </span>            :                              &quot;this protocol does not support reading (yet).&quot;);
+<span class="lineNum">     170 </span>            :   }
+<span class="lineNum">     171 </span>            : 
+<span class="lineNum">     172 </span>            :   uint32_t writeMessageBegin(const std::string&amp; name,
+<span class="lineNum">     173 </span>            :                              const TMessageType messageType,
+<span class="lineNum">     174 </span>            :                              const int32_t seqid) {
+<span class="lineNum">     175 </span>            :     (void)name;
+<span class="lineNum">     176 </span>            :     (void)messageType;
+<span class="lineNum">     177 </span>            :     (void)seqid;
+<span class="lineNum">     178 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     179 </span>            :                              &quot;this protocol does not support writing (yet).&quot;);
+<span class="lineNum">     180 </span>            :   }
+<span class="lineNum">     181 </span>            : 
+<span class="lineNum">     182 </span>            :   uint32_t writeMessageEnd() {
+<span class="lineNum">     183 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     184 </span>            :                              &quot;this protocol does not support writing (yet).&quot;);
+<span class="lineNum">     185 </span>            :   }
+<span class="lineNum">     186 </span>            : 
+<span class="lineNum">     187 </span>            :   uint32_t writeStructBegin(const char* name) {
+<span class="lineNum">     188 </span>            :     (void)name;
+<span class="lineNum">     189 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     190 </span>            :                              &quot;this protocol does not support writing (yet).&quot;);
+<span class="lineNum">     191 </span>            :   }
+<span class="lineNum">     192 </span>            : 
+<span class="lineNum">     193 </span>            :   uint32_t writeStructEnd() {
+<span class="lineNum">     194 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     195 </span>            :                              &quot;this protocol does not support writing (yet).&quot;);
+<span class="lineNum">     196 </span>            :   }
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span>            :   uint32_t writeFieldBegin(const char* name, const TType fieldType, const int16_t fieldId) {
+<span class="lineNum">     199 </span>            :     (void)name;
+<span class="lineNum">     200 </span>            :     (void)fieldType;
+<span class="lineNum">     201 </span>            :     (void)fieldId;
+<span class="lineNum">     202 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     203 </span>            :                              &quot;this protocol does not support writing (yet).&quot;);
+<span class="lineNum">     204 </span>            :   }
+<span class="lineNum">     205 </span>            : 
+<span class="lineNum">     206 </span>            :   uint32_t writeFieldEnd() {
+<span class="lineNum">     207 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     208 </span>            :                              &quot;this protocol does not support writing (yet).&quot;);
+<span class="lineNum">     209 </span>            :   }
+<span class="lineNum">     210 </span>            : 
+<span class="lineNum">     211 </span>            :   uint32_t writeFieldStop() {
+<span class="lineNum">     212 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     213 </span>            :                              &quot;this protocol does not support writing (yet).&quot;);
+<span class="lineNum">     214 </span>            :   }
+<span class="lineNum">     215 </span>            : 
+<span class="lineNum">     216 </span>            :   uint32_t writeMapBegin(const TType keyType, const TType valType, const uint32_t size) {
+<span class="lineNum">     217 </span>            :     (void)keyType;
+<span class="lineNum">     218 </span>            :     (void)valType;
+<span class="lineNum">     219 </span>            :     (void)size;
+<span class="lineNum">     220 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     221 </span>            :                              &quot;this protocol does not support writing (yet).&quot;);
+<span class="lineNum">     222 </span>            :   }
+<span class="lineNum">     223 </span>            : 
+<span class="lineNum">     224 </span>            :   uint32_t writeMapEnd() {
+<span class="lineNum">     225 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     226 </span>            :                              &quot;this protocol does not support writing (yet).&quot;);
+<span class="lineNum">     227 </span>            :   }
+<span class="lineNum">     228 </span>            : 
+<span class="lineNum">     229 </span>            :   uint32_t writeListBegin(const TType elemType, const uint32_t size) {
+<span class="lineNum">     230 </span>            :     (void)elemType;
+<span class="lineNum">     231 </span>            :     (void)size;
+<span class="lineNum">     232 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     233 </span>            :                              &quot;this protocol does not support writing (yet).&quot;);
+<span class="lineNum">     234 </span>            :   }
+<span class="lineNum">     235 </span>            : 
+<span class="lineNum">     236 </span>            :   uint32_t writeListEnd() {
+<span class="lineNum">     237 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     238 </span>            :                              &quot;this protocol does not support writing (yet).&quot;);
+<span class="lineNum">     239 </span>            :   }
+<span class="lineNum">     240 </span>            : 
+<span class="lineNum">     241 </span>            :   uint32_t writeSetBegin(const TType elemType, const uint32_t size) {
+<span class="lineNum">     242 </span>            :     (void)elemType;
+<span class="lineNum">     243 </span>            :     (void)size;
+<span class="lineNum">     244 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     245 </span>            :                              &quot;this protocol does not support writing (yet).&quot;);
+<span class="lineNum">     246 </span>            :   }
+<span class="lineNum">     247 </span>            : 
+<span class="lineNum">     248 </span>            :   uint32_t writeSetEnd() {
+<span class="lineNum">     249 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     250 </span>            :                              &quot;this protocol does not support writing (yet).&quot;);
+<span class="lineNum">     251 </span>            :   }
+<span class="lineNum">     252 </span>            : 
+<span class="lineNum">     253 </span>            :   uint32_t writeBool(const bool value) {
+<span class="lineNum">     254 </span>            :     (void)value;
+<span class="lineNum">     255 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     256 </span>            :                              &quot;this protocol does not support writing (yet).&quot;);
+<span class="lineNum">     257 </span>            :   }
+<span class="lineNum">     258 </span>            : 
+<span class="lineNum">     259 </span>            :   uint32_t writeByte(const int8_t byte) {
+<span class="lineNum">     260 </span>            :     (void)byte;
+<span class="lineNum">     261 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     262 </span>            :                              &quot;this protocol does not support writing (yet).&quot;);
+<span class="lineNum">     263 </span>            :   }
+<span class="lineNum">     264 </span>            : 
+<span class="lineNum">     265 </span>            :   uint32_t writeI16(const int16_t i16) {
+<span class="lineNum">     266 </span>            :     (void)i16;
+<span class="lineNum">     267 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     268 </span>            :                              &quot;this protocol does not support writing (yet).&quot;);
+<span class="lineNum">     269 </span>            :   }
+<span class="lineNum">     270 </span>            : 
+<span class="lineNum">     271 </span>            :   uint32_t writeI32(const int32_t i32) {
+<span class="lineNum">     272 </span>            :     (void)i32;
+<span class="lineNum">     273 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     274 </span>            :                              &quot;this protocol does not support writing (yet).&quot;);
+<span class="lineNum">     275 </span>            :   }
+<span class="lineNum">     276 </span>            : 
+<span class="lineNum">     277 </span>            :   uint32_t writeI64(const int64_t i64) {
+<span class="lineNum">     278 </span>            :     (void)i64;
+<span class="lineNum">     279 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     280 </span>            :                              &quot;this protocol does not support writing (yet).&quot;);
+<span class="lineNum">     281 </span>            :   }
+<span class="lineNum">     282 </span>            : 
+<span class="lineNum">     283 </span>            :   uint32_t writeDouble(const double dub) {
+<span class="lineNum">     284 </span>            :     (void)dub;
+<span class="lineNum">     285 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     286 </span>            :                              &quot;this protocol does not support writing (yet).&quot;);
+<span class="lineNum">     287 </span>            :   }
+<span class="lineNum">     288 </span>            : 
+<span class="lineNum">     289 </span>            :   uint32_t writeString(const std::string&amp; str) {
+<span class="lineNum">     290 </span>            :     (void)str;
+<span class="lineNum">     291 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     292 </span>            :                              &quot;this protocol does not support writing (yet).&quot;);
+<span class="lineNum">     293 </span>            :   }
+<span class="lineNum">     294 </span>            : 
+<span class="lineNum">     295 </span>            :   uint32_t writeBinary(const std::string&amp; str) {
+<span class="lineNum">     296 </span>            :     (void)str;
+<span class="lineNum">     297 </span>            :     throw TProtocolException(TProtocolException::NOT_IMPLEMENTED,
+<span class="lineNum">     298 </span>            :                              &quot;this protocol does not support writing (yet).&quot;);
+<span class="lineNum">     299 </span>            :   }
+<span class="lineNum">     300 </span>            : 
+<span class="lineNum">     301 </span>            :   uint32_t skip(TType type) { return ::apache::thrift::protocol::skip(*this, type); }
+<a name="302"><span class="lineNum">     302 </span>            : </a>
+<span class="lineNum">     303 </span>            : protected:
+<span class="lineNum">     304 </span><span class="lineCov">          6 :   TProtocolDefaults(stdcxx::shared_ptr&lt;TTransport&gt; ptrans) : TProtocol(ptrans) {}</span>
+<span class="lineNum">     305 </span>            : };
+<span class="lineNum">     306 </span>            : 
+<span class="lineNum">     307 </span>            : /**
+<span class="lineNum">     308 </span>            :  * Concrete TProtocol classes should inherit from TVirtualProtocol
+<span class="lineNum">     309 </span>            :  * so they don't have to manually override virtual methods.
+<a name="310"><span class="lineNum">     310 </span>            :  */</a>
+<span class="lineNum">     311 </span>            : template &lt;class Protocol_, class Super_ = TProtocolDefaults&gt;
+<span class="lineNum">     312 </span><span class="lineCov">          8 : class TVirtualProtocol : public Super_ {</span>
+<span class="lineNum">     313 </span>            : public:
+<span class="lineNum">     314 </span>            :   /**
+<span class="lineNum">     315 </span>            :    * Writing functions.
+<a name="316"><span class="lineNum">     316 </span>            :    */</a>
+<span class="lineNum">     317 </span>            : 
+<span class="lineNum">     318 </span><span class="lineCov">        416 :   virtual uint32_t writeMessageBegin_virt(const std::string&amp; name,</span>
+<span class="lineNum">     319 </span>            :                                           const TMessageType messageType,
+<span class="lineNum">     320 </span>            :                                           const int32_t seqid) {
+<span class="lineNum">     321 </span><span class="lineCov">        416 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;writeMessageBegin(name, messageType, seqid);</span>
+<a name="322"><span class="lineNum">     322 </span>            :   }</a>
+<span class="lineNum">     323 </span>            : 
+<span class="lineNum">     324 </span><span class="lineCov">        416 :   virtual uint32_t writeMessageEnd_virt() {</span>
+<span class="lineNum">     325 </span><span class="lineCov">        416 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;writeMessageEnd();</span>
+<a name="326"><span class="lineNum">     326 </span>            :   }</a>
+<span class="lineNum">     327 </span>            : 
+<span class="lineNum">     328 </span><span class="lineCov">        416 :   virtual uint32_t writeStructBegin_virt(const char* name) {</span>
+<span class="lineNum">     329 </span><span class="lineCov">        416 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;writeStructBegin(name);</span>
+<a name="330"><span class="lineNum">     330 </span>            :   }</a>
+<span class="lineNum">     331 </span>            : 
+<a name="332"><span class="lineNum">     332 </span><span class="lineCov">        416 :   virtual uint32_t writeStructEnd_virt() { return static_cast&lt;Protocol_*&gt;(this)-&gt;writeStructEnd(); }</span></a>
+<span class="lineNum">     333 </span>            : 
+<span class="lineNum">     334 </span><span class="lineCov">        624 :   virtual uint32_t writeFieldBegin_virt(const char* name,</span>
+<span class="lineNum">     335 </span>            :                                         const TType fieldType,
+<span class="lineNum">     336 </span>            :                                         const int16_t fieldId) {
+<span class="lineNum">     337 </span><span class="lineCov">        624 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;writeFieldBegin(name, fieldType, fieldId);</span>
+<a name="338"><span class="lineNum">     338 </span>            :   }</a>
+<span class="lineNum">     339 </span>            : 
+<a name="340"><span class="lineNum">     340 </span><span class="lineCov">        624 :   virtual uint32_t writeFieldEnd_virt() { return static_cast&lt;Protocol_*&gt;(this)-&gt;writeFieldEnd(); }</span></a>
+<span class="lineNum">     341 </span>            : 
+<a name="342"><span class="lineNum">     342 </span><span class="lineCov">        416 :   virtual uint32_t writeFieldStop_virt() { return static_cast&lt;Protocol_*&gt;(this)-&gt;writeFieldStop(); }</span></a>
+<span class="lineNum">     343 </span>            : 
+<span class="lineNum">     344 </span><span class="lineCov">        208 :   virtual uint32_t writeMapBegin_virt(const TType keyType,</span>
+<span class="lineNum">     345 </span>            :                                       const TType valType,
+<span class="lineNum">     346 </span>            :                                       const uint32_t size) {
+<span class="lineNum">     347 </span><span class="lineCov">        208 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;writeMapBegin(keyType, valType, size);</span>
+<a name="348"><span class="lineNum">     348 </span>            :   }</a>
+<span class="lineNum">     349 </span>            : 
+<a name="350"><span class="lineNum">     350 </span><span class="lineCov">        208 :   virtual uint32_t writeMapEnd_virt() { return static_cast&lt;Protocol_*&gt;(this)-&gt;writeMapEnd(); }</span></a>
+<span class="lineNum">     351 </span>            : 
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 :   virtual uint32_t writeListBegin_virt(const TType elemType, const uint32_t size) {</span>
+<span class="lineNum">     353 </span><span class="lineNoCov">          0 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;writeListBegin(elemType, size);</span>
+<a name="354"><span class="lineNum">     354 </span>            :   }</a>
+<span class="lineNum">     355 </span>            : 
+<a name="356"><span class="lineNum">     356 </span><span class="lineNoCov">          0 :   virtual uint32_t writeListEnd_virt() { return static_cast&lt;Protocol_*&gt;(this)-&gt;writeListEnd(); }</span></a>
+<span class="lineNum">     357 </span>            : 
+<span class="lineNum">     358 </span><span class="lineNoCov">          0 :   virtual uint32_t writeSetBegin_virt(const TType elemType, const uint32_t size) {</span>
+<span class="lineNum">     359 </span><span class="lineNoCov">          0 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;writeSetBegin(elemType, size);</span>
+<a name="360"><span class="lineNum">     360 </span>            :   }</a>
+<span class="lineNum">     361 </span>            : 
+<a name="362"><span class="lineNum">     362 </span><span class="lineNoCov">          0 :   virtual uint32_t writeSetEnd_virt() { return static_cast&lt;Protocol_*&gt;(this)-&gt;writeSetEnd(); }</span></a>
+<span class="lineNum">     363 </span>            : 
+<span class="lineNum">     364 </span><span class="lineNoCov">          0 :   virtual uint32_t writeBool_virt(const bool value) {</span>
+<span class="lineNum">     365 </span><span class="lineNoCov">          0 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;writeBool(value);</span>
+<a name="366"><span class="lineNum">     366 </span>            :   }</a>
+<span class="lineNum">     367 </span>            : 
+<span class="lineNum">     368 </span><span class="lineNoCov">          0 :   virtual uint32_t writeByte_virt(const int8_t byte) {</span>
+<span class="lineNum">     369 </span><span class="lineNoCov">          0 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;writeByte(byte);</span>
+<a name="370"><span class="lineNum">     370 </span>            :   }</a>
+<span class="lineNum">     371 </span>            : 
+<span class="lineNum">     372 </span><span class="lineNoCov">          0 :   virtual uint32_t writeI16_virt(const int16_t i16) {</span>
+<span class="lineNum">     373 </span><span class="lineNoCov">          0 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;writeI16(i16);</span>
+<a name="374"><span class="lineNum">     374 </span>            :   }</a>
+<span class="lineNum">     375 </span>            : 
+<span class="lineNum">     376 </span><span class="lineNoCov">          0 :   virtual uint32_t writeI32_virt(const int32_t i32) {</span>
+<span class="lineNum">     377 </span><span class="lineNoCov">          0 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;writeI32(i32);</span>
+<a name="378"><span class="lineNum">     378 </span>            :   }</a>
+<span class="lineNum">     379 </span>            : 
+<span class="lineNum">     380 </span><span class="lineCov">        208 :   virtual uint32_t writeI64_virt(const int64_t i64) {</span>
+<span class="lineNum">     381 </span><span class="lineCov">        208 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;writeI64(i64);</span>
+<a name="382"><span class="lineNum">     382 </span>            :   }</a>
+<span class="lineNum">     383 </span>            : 
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 :   virtual uint32_t writeDouble_virt(const double dub) {</span>
+<span class="lineNum">     385 </span><span class="lineNoCov">          0 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;writeDouble(dub);</span>
+<a name="386"><span class="lineNum">     386 </span>            :   }</a>
+<span class="lineNum">     387 </span>            : 
+<span class="lineNum">     388 </span><span class="lineCov">        624 :   virtual uint32_t writeString_virt(const std::string&amp; str) {</span>
+<span class="lineNum">     389 </span><span class="lineCov">        624 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;writeString(str);</span>
+<a name="390"><span class="lineNum">     390 </span>            :   }</a>
+<span class="lineNum">     391 </span>            : 
+<span class="lineNum">     392 </span><span class="lineNoCov">          0 :   virtual uint32_t writeBinary_virt(const std::string&amp; str) {</span>
+<span class="lineNum">     393 </span><span class="lineNoCov">          0 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;writeBinary(str);</span>
+<span class="lineNum">     394 </span>            :   }
+<span class="lineNum">     395 </span>            : 
+<span class="lineNum">     396 </span>            :   /**
+<span class="lineNum">     397 </span>            :    * Reading functions
+<a name="398"><span class="lineNum">     398 </span>            :    */</a>
+<span class="lineNum">     399 </span>            : 
+<span class="lineNum">     400 </span><span class="lineCov">        420 :   virtual uint32_t readMessageBegin_virt(std::string&amp; name,</span>
+<span class="lineNum">     401 </span>            :                                          TMessageType&amp; messageType,
+<span class="lineNum">     402 </span>            :                                          int32_t&amp; seqid) {
+<span class="lineNum">     403 </span><span class="lineCov">        420 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;readMessageBegin(name, messageType, seqid);</span>
+<a name="404"><span class="lineNum">     404 </span>            :   }</a>
+<span class="lineNum">     405 </span>            : 
+<a name="406"><span class="lineNum">     406 </span><span class="lineCov">        416 :   virtual uint32_t readMessageEnd_virt() { return static_cast&lt;Protocol_*&gt;(this)-&gt;readMessageEnd(); }</span></a>
+<span class="lineNum">     407 </span>            : 
+<span class="lineNum">     408 </span><span class="lineCov">        416 :   virtual uint32_t readStructBegin_virt(std::string&amp; name) {</span>
+<span class="lineNum">     409 </span><span class="lineCov">        416 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;readStructBegin(name);</span>
+<a name="410"><span class="lineNum">     410 </span>            :   }</a>
+<span class="lineNum">     411 </span>            : 
+<a name="412"><span class="lineNum">     412 </span><span class="lineCov">        416 :   virtual uint32_t readStructEnd_virt() { return static_cast&lt;Protocol_*&gt;(this)-&gt;readStructEnd(); }</span></a>
+<span class="lineNum">     413 </span>            : 
+<span class="lineNum">     414 </span><span class="lineCov">       1040 :   virtual uint32_t readFieldBegin_virt(std::string&amp; name, TType&amp; fieldType, int16_t&amp; fieldId) {</span>
+<span class="lineNum">     415 </span><span class="lineCov">       1040 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;readFieldBegin(name, fieldType, fieldId);</span>
+<a name="416"><span class="lineNum">     416 </span>            :   }</a>
+<span class="lineNum">     417 </span>            : 
+<a name="418"><span class="lineNum">     418 </span><span class="lineCov">        624 :   virtual uint32_t readFieldEnd_virt() { return static_cast&lt;Protocol_*&gt;(this)-&gt;readFieldEnd(); }</span></a>
+<span class="lineNum">     419 </span>            : 
+<span class="lineNum">     420 </span><span class="lineCov">        208 :   virtual uint32_t readMapBegin_virt(TType&amp; keyType, TType&amp; valType, uint32_t&amp; size) {</span>
+<span class="lineNum">     421 </span><span class="lineCov">        208 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;readMapBegin(keyType, valType, size);</span>
+<a name="422"><span class="lineNum">     422 </span>            :   }</a>
+<span class="lineNum">     423 </span>            : 
+<a name="424"><span class="lineNum">     424 </span><span class="lineCov">        208 :   virtual uint32_t readMapEnd_virt() { return static_cast&lt;Protocol_*&gt;(this)-&gt;readMapEnd(); }</span></a>
+<span class="lineNum">     425 </span>            : 
+<span class="lineNum">     426 </span><span class="lineNoCov">          0 :   virtual uint32_t readListBegin_virt(TType&amp; elemType, uint32_t&amp; size) {</span>
+<span class="lineNum">     427 </span><span class="lineNoCov">          0 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;readListBegin(elemType, size);</span>
+<a name="428"><span class="lineNum">     428 </span>            :   }</a>
+<span class="lineNum">     429 </span>            : 
+<a name="430"><span class="lineNum">     430 </span><span class="lineNoCov">          0 :   virtual uint32_t readListEnd_virt() { return static_cast&lt;Protocol_*&gt;(this)-&gt;readListEnd(); }</span></a>
+<span class="lineNum">     431 </span>            : 
+<span class="lineNum">     432 </span><span class="lineNoCov">          0 :   virtual uint32_t readSetBegin_virt(TType&amp; elemType, uint32_t&amp; size) {</span>
+<span class="lineNum">     433 </span><span class="lineNoCov">          0 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;readSetBegin(elemType, size);</span>
+<a name="434"><span class="lineNum">     434 </span>            :   }</a>
+<span class="lineNum">     435 </span>            : 
+<a name="436"><span class="lineNum">     436 </span><span class="lineNoCov">          0 :   virtual uint32_t readSetEnd_virt() { return static_cast&lt;Protocol_*&gt;(this)-&gt;readSetEnd(); }</span></a>
+<span class="lineNum">     437 </span>            : 
+<span class="lineNum">     438 </span><span class="lineNoCov">          0 :   virtual uint32_t readBool_virt(bool&amp; value) {</span>
+<span class="lineNum">     439 </span><span class="lineNoCov">          0 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;readBool(value);</span>
+<a name="440"><span class="lineNum">     440 </span>            :   }</a>
+<span class="lineNum">     441 </span>            : 
+<span class="lineNum">     442 </span><span class="lineNoCov">          0 :   virtual uint32_t readBool_virt(std::vector&lt;bool&gt;::reference value) {</span>
+<span class="lineNum">     443 </span><span class="lineNoCov">          0 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;readBool(value);</span>
+<a name="444"><span class="lineNum">     444 </span>            :   }</a>
+<span class="lineNum">     445 </span>            : 
+<span class="lineNum">     446 </span><span class="lineNoCov">          0 :   virtual uint32_t readByte_virt(int8_t&amp; byte) {</span>
+<span class="lineNum">     447 </span><span class="lineNoCov">          0 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;readByte(byte);</span>
+<a name="448"><span class="lineNum">     448 </span>            :   }</a>
+<span class="lineNum">     449 </span>            : 
+<span class="lineNum">     450 </span><span class="lineNoCov">          0 :   virtual uint32_t readI16_virt(int16_t&amp; i16) {</span>
+<span class="lineNum">     451 </span><span class="lineNoCov">          0 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;readI16(i16);</span>
+<a name="452"><span class="lineNum">     452 </span>            :   }</a>
+<span class="lineNum">     453 </span>            : 
+<span class="lineNum">     454 </span><span class="lineNoCov">          0 :   virtual uint32_t readI32_virt(int32_t&amp; i32) {</span>
+<span class="lineNum">     455 </span><span class="lineNoCov">          0 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;readI32(i32);</span>
+<a name="456"><span class="lineNum">     456 </span>            :   }</a>
+<span class="lineNum">     457 </span>            : 
+<span class="lineNum">     458 </span><span class="lineCov">        208 :   virtual uint32_t readI64_virt(int64_t&amp; i64) {</span>
+<span class="lineNum">     459 </span><span class="lineCov">        208 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;readI64(i64);</span>
+<a name="460"><span class="lineNum">     460 </span>            :   }</a>
+<span class="lineNum">     461 </span>            : 
+<span class="lineNum">     462 </span><span class="lineNoCov">          0 :   virtual uint32_t readDouble_virt(double&amp; dub) {</span>
+<span class="lineNum">     463 </span><span class="lineNoCov">          0 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;readDouble(dub);</span>
+<a name="464"><span class="lineNum">     464 </span>            :   }</a>
+<span class="lineNum">     465 </span>            : 
+<span class="lineNum">     466 </span><span class="lineCov">        208 :   virtual uint32_t readString_virt(std::string&amp; str) {</span>
+<span class="lineNum">     467 </span><span class="lineCov">        208 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;readString(str);</span>
+<a name="468"><span class="lineNum">     468 </span>            :   }</a>
+<span class="lineNum">     469 </span>            : 
+<span class="lineNum">     470 </span><span class="lineNoCov">          0 :   virtual uint32_t readBinary_virt(std::string&amp; str) {</span>
+<span class="lineNum">     471 </span><span class="lineNoCov">          0 :     return static_cast&lt;Protocol_*&gt;(this)-&gt;readBinary(str);</span>
+<a name="472"><span class="lineNum">     472 </span>            :   }</a>
+<span class="lineNum">     473 </span>            : 
+<span class="lineNum">     474 </span><span class="lineNoCov">          0 :   virtual uint32_t skip_virt(TType type) { return static_cast&lt;Protocol_*&gt;(this)-&gt;skip(type); }</span>
+<span class="lineNum">     475 </span>            : 
+<span class="lineNum">     476 </span>            :   /*
+<span class="lineNum">     477 </span>            :    * Provide a default skip() implementation that uses non-virtual read
+<span class="lineNum">     478 </span>            :    * methods.
+<span class="lineNum">     479 </span>            :    *
+<span class="lineNum">     480 </span>            :    * Note: subclasses that use TVirtualProtocol to derive from another protocol
+<span class="lineNum">     481 </span>            :    * implementation (i.e., not TProtocolDefaults) should beware that this may
+<span class="lineNum">     482 </span>            :    * override any non-default skip() implementation provided by the parent
+<span class="lineNum">     483 </span>            :    * transport class.  They may need to explicitly redefine skip() to call the
+<a name="484"><span class="lineNum">     484 </span>            :    * correct parent implementation, if desired.</a>
+<span class="lineNum">     485 </span>            :    */
+<span class="lineNum">     486 </span><span class="lineNoCov">          0 :   uint32_t skip(TType type) {</span>
+<span class="lineNum">     487 </span><span class="lineNoCov">          0 :     Protocol_* const prot = static_cast&lt;Protocol_*&gt;(this);</span>
+<span class="lineNum">     488 </span><span class="lineNoCov">          0 :     return ::apache::thrift::protocol::skip(*prot, type);</span>
+<span class="lineNum">     489 </span>            :   }
+<span class="lineNum">     490 </span>            : 
+<span class="lineNum">     491 </span>            :   /*
+<span class="lineNum">     492 </span>            :    * Provide a default readBool() implementation for use with
+<span class="lineNum">     493 </span>            :    * std::vector&lt;bool&gt;, that behaves the same as reading into a normal bool.
+<span class="lineNum">     494 </span>            :    *
+<span class="lineNum">     495 </span>            :    * Subclasses can override this if desired, but there normally shouldn't
+<a name="496"><span class="lineNum">     496 </span>            :    * be a need to.</a>
+<span class="lineNum">     497 </span>            :    */
+<span class="lineNum">     498 </span><span class="lineNoCov">          0 :   uint32_t readBool(std::vector&lt;bool&gt;::reference value) {</span>
+<span class="lineNum">     499 </span><span class="lineNoCov">          0 :     bool b = false;</span>
+<span class="lineNum">     500 </span><span class="lineNoCov">          0 :     uint32_t ret = static_cast&lt;Protocol_*&gt;(this)-&gt;readBool(b);</span>
+<span class="lineNum">     501 </span><span class="lineNoCov">          0 :     value = b;</span>
+<span class="lineNum">     502 </span><span class="lineNoCov">          0 :     return ret;</span>
+<span class="lineNum">     503 </span>            :   }
+<span class="lineNum">     504 </span>            :   using Super_::readBool; // so we don't hide readBool(bool&amp;)
+<a name="505"><span class="lineNum">     505 </span>            : </a>
+<span class="lineNum">     506 </span>            : protected:
+<span class="lineNum">     507 </span><span class="lineCov">          6 :   TVirtualProtocol(stdcxx::shared_ptr&lt;TTransport&gt; ptrans) : Super_(ptrans) {}</span>
+<span class="lineNum">     508 </span>            : };
+<span class="lineNum">     509 </span>            : }
+<span class="lineNum">     510 </span>            : }
+<span class="lineNum">     511 </span>            : } // apache::thrift::protocol
+<span class="lineNum">     512 </span>            : 
+<span class="lineNum">     513 </span>            : #endif // #define _THRIFT_PROTOCOL_TVIRTUALPROTOCOL_H_ 1
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

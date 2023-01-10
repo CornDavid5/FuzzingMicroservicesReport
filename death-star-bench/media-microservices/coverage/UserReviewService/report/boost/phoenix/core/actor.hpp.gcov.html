@@ -1,0 +1,397 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/phoenix/core/actor.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">boost/phoenix/core</a> - actor.hpp<span style="font-size: 80%;"> (source / <a href="actor.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 01:09:21</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*=============================================================================</a>
+<span class="lineNum">       2 </span>            :     Copyright (c) 2005-2010 Joel de Guzman
+<span class="lineNum">       3 </span>            :     Copyright (c) 2010 Eric Niebler
+<span class="lineNum">       4 </span>            :     Copyright (c) 2010 Thomas Heller
+<span class="lineNum">       5 </span>            :     Copyright (c) 2014 John Fletcher
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            :     Distributed under the Boost Software License, Version 1.0. (See accompanying 
+<span class="lineNum">       8 </span>            :     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       9 </span>            : ==============================================================================*/
+<span class="lineNum">      10 </span>            : #ifndef BOOST_PHOENIX_CORE_ACTOR_HPP
+<span class="lineNum">      11 </span>            : #define BOOST_PHOENIX_CORE_ACTOR_HPP
+<span class="lineNum">      12 </span>            : 
+<span class="lineNum">      13 </span>            : #include &lt;boost/phoenix/core/limits.hpp&gt;
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : #include &lt;boost/is_placeholder.hpp&gt;
+<span class="lineNum">      16 </span>            : #include &lt;boost/mpl/identity.hpp&gt;
+<span class="lineNum">      17 </span>            : #include &lt;boost/mpl/eval_if.hpp&gt;
+<span class="lineNum">      18 </span>            : #include &lt;boost/phoenix/core/domain.hpp&gt;
+<span class="lineNum">      19 </span>            : #include &lt;boost/phoenix/core/environment.hpp&gt;
+<span class="lineNum">      20 </span>            : #include &lt;boost/phoenix/core/is_nullary.hpp&gt;
+<span class="lineNum">      21 </span>            : #include &lt;boost/phoenix/core/meta_grammar.hpp&gt;
+<span class="lineNum">      22 </span>            : #include &lt;boost/phoenix/support/iterate.hpp&gt;
+<span class="lineNum">      23 </span>            : #include &lt;boost/phoenix/support/vector.hpp&gt;
+<span class="lineNum">      24 </span>            : #include &lt;boost/proto/extends.hpp&gt;
+<span class="lineNum">      25 </span>            : #include &lt;boost/proto/make_expr.hpp&gt;
+<span class="lineNum">      26 </span>            : #include &lt;boost/utility/result_of.hpp&gt;
+<span class="lineNum">      27 </span>            : #include &lt;boost/mpl/void.hpp&gt;
+<span class="lineNum">      28 </span>            : #include &lt;cstring&gt;
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : #ifdef BOOST_MSVC
+<span class="lineNum">      31 </span>            : #pragma warning(push)
+<span class="lineNum">      32 </span>            : #pragma warning(disable: 4522) // 'this' used in base member initializer list
+<span class="lineNum">      33 </span>            : #pragma warning(disable: 4510) // default constructor could not be generated
+<span class="lineNum">      34 </span>            : #pragma warning(disable: 4610) // can never be instantiated - user defined cons
+<span class="lineNum">      35 </span>            : #endif
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            : namespace boost { namespace phoenix
+<span class="lineNum">      38 </span>            : {
+<span class="lineNum">      39 </span>            :     template &lt;typename Expr&gt;
+<span class="lineNum">      40 </span>            :     struct actor;
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            :     namespace detail
+<span class="lineNum">      43 </span>            :     {
+<span class="lineNum">      44 </span>            :         struct error_expecting_arguments
+<span class="lineNum">      45 </span>            :         {
+<span class="lineNum">      46 </span>            :             template &lt;typename T&gt;
+<span class="lineNum">      47 </span>            :             error_expecting_arguments(T const&amp;) {}
+<span class="lineNum">      48 </span>            :         };
+<span class="lineNum">      49 </span>            :         
+<span class="lineNum">      50 </span>            :         struct error_invalid_lambda_expr
+<span class="lineNum">      51 </span>            :         {
+<span class="lineNum">      52 </span>            :             template &lt;typename T&gt;
+<span class="lineNum">      53 </span>            :             error_invalid_lambda_expr(T const&amp;) {}
+<span class="lineNum">      54 </span>            :         };
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            :         template &lt;typename T&gt;
+<span class="lineNum">      57 </span>            :         struct result_type_deduction_helper
+<span class="lineNum">      58 </span>            :         {
+<span class="lineNum">      59 </span>            :             typedef T const &amp; type;
+<span class="lineNum">      60 </span>            :         };
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span>            :         template &lt;typename T&gt;
+<span class="lineNum">      63 </span>            :         struct result_type_deduction_helper&lt;T &amp;&gt;
+<span class="lineNum">      64 </span>            :         {
+<span class="lineNum">      65 </span>            :             typedef T &amp; type;
+<span class="lineNum">      66 </span>            :         };
+<span class="lineNum">      67 </span>            : 
+<span class="lineNum">      68 </span>            :         template &lt;typename T&gt;
+<span class="lineNum">      69 </span>            :         struct result_type_deduction_helper&lt;T const &amp;&gt;
+<span class="lineNum">      70 </span>            :         {
+<span class="lineNum">      71 </span>            :             typedef T const &amp; type;
+<span class="lineNum">      72 </span>            :         };
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span>            :         struct do_assign
+<span class="lineNum">      75 </span>            :         {
+<span class="lineNum">      76 </span>            :             BOOST_PROTO_CALLABLE()
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span>            :             typedef void result_type;
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span>            :             template &lt;typename T1, typename T2&gt;
+<span class="lineNum">      81 </span>            :             void operator()(T1 &amp; t1, T2 const &amp; t2) const
+<span class="lineNum">      82 </span>            :             {
+<span class="lineNum">      83 </span>            :                 proto::value(t1) = proto::value(t2);
+<span class="lineNum">      84 </span>            :             }
+<span class="lineNum">      85 </span>            :         };
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span>            :     #define BOOST_PHOENIX_ACTOR_ASSIGN_CHILD(N)                                 \
+<span class="lineNum">      88 </span>            :         assign(                                                                 \
+<span class="lineNum">      89 </span>            :             proto::_child_c&lt;N&gt;                                                  \
+<span class="lineNum">      90 </span>            :           , proto::call&lt;                                                        \
+<span class="lineNum">      91 </span>            :                 proto::_child_c&lt;N&gt;(proto::_state)                               \
+<span class="lineNum">      92 </span>            :             &gt;                                                                   \
+<span class="lineNum">      93 </span>            :         )                                                                       \
+<span class="lineNum">      94 </span>            :     /**/
+<span class="lineNum">      95 </span>            :     #define BOOST_PHOENIX_ACTOR_START_ASSIGN_CHILD(Z, N, D)                     \
+<span class="lineNum">      96 </span>            :        proto::and_&lt;                                                             \
+<span class="lineNum">      97 </span>            :             BOOST_PHOENIX_ACTOR_ASSIGN_CHILD(N)                                 \
+<span class="lineNum">      98 </span>            :     /**/
+<span class="lineNum">      99 </span>            :     #define BOOST_PHOENIX_ACTOR_END_ASSIGN(Z, N, D)                             \
+<span class="lineNum">     100 </span>            :         &gt;                                                                       \
+<span class="lineNum">     101 </span>            :     /**/
+<span class="lineNum">     102 </span>            :     #define BOOST_PHOENIX_ACTOR_ASSIGN_CALL(N)                                  \
+<span class="lineNum">     103 </span>            :            proto::when&lt;                                                        \
+<span class="lineNum">     104 </span>            :                 proto::nary_expr&lt;proto::_ ,                                     \
+<span class="lineNum">     105 </span>            :                   BOOST_PP_ENUM_PARAMS(N, proto::_ BOOST_PP_INTERCEPT)          \
+<span class="lineNum">     106 </span>            :                 &gt;                                                               \
+<span class="lineNum">     107 </span>            :                 , BOOST_PP_ENUM(                                                 \
+<span class="lineNum">     108 </span>            :                      N                                                          \
+<span class="lineNum">     109 </span>            :                   , BOOST_PHOENIX_ACTOR_START_ASSIGN_CHILD                     \
+<span class="lineNum">     110 </span>            :                   , _                                                          \
+<span class="lineNum">     111 </span>            :                  )                                                              \
+<span class="lineNum">     112 </span>            :                  BOOST_PP_REPEAT(                                               \
+<span class="lineNum">     113 </span>            :                      N                                                          \
+<span class="lineNum">     114 </span>            :                    , BOOST_PHOENIX_ACTOR_END_ASSIGN                             \
+<span class="lineNum">     115 </span>            :                    , _                                                          \
+<span class="lineNum">     116 </span>            :                  )                                                              \
+<span class="lineNum">     117 </span>            :             &gt;                                                                   \
+<span class="lineNum">     118 </span>            :       /**/
+<span class="lineNum">     119 </span>            :     #define BOOST_PHOENIX_ACTOR_START_ASSIGN_CALL(Z, N, D)                      \
+<span class="lineNum">     120 </span>            :         proto::or_&lt;                                                             \
+<span class="lineNum">     121 </span>            :             BOOST_PHOENIX_ACTOR_ASSIGN_CALL(N)                                  \
+<span class="lineNum">     122 </span>            :     /**/
+<span class="lineNum">     123 </span>            :  
+<span class="lineNum">     124 </span>            : #if !defined(BOOST_PHOENIX_DONT_USE_PREPROCESSED_FILES)
+<span class="lineNum">     125 </span>            : #include &lt;boost/phoenix/core/preprocessed/actor.hpp&gt;
+<span class="lineNum">     126 </span>            : #else
+<span class="lineNum">     127 </span>            : #if defined(__WAVE__) &amp;&amp; defined(BOOST_PHOENIX_CREATE_PREPROCESSED_FILES)
+<span class="lineNum">     128 </span>            : #pragma wave option(preserve: 2, line: 0, output: &quot;preprocessed/actor_&quot; BOOST_PHOENIX_LIMIT_STR &quot;.hpp&quot;)
+<span class="lineNum">     129 </span>            : #endif
+<span class="lineNum">     130 </span>            : /*==============================================================================
+<span class="lineNum">     131 </span>            :     Copyright (c) 2005-2010 Joel de Guzman
+<span class="lineNum">     132 </span>            :     Copyright (c) 2010-2011 Thomas Heller
+<span class="lineNum">     133 </span>            : 
+<span class="lineNum">     134 </span>            :     Distributed under the Boost Software License, Version 1.0. (See accompanying
+<span class="lineNum">     135 </span>            :     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">     136 </span>            : ==============================================================================*/
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span>            : #if defined(__WAVE__) &amp;&amp; defined(BOOST_PHOENIX_CREATE_PREPROCESSED_FILES)
+<span class="lineNum">     139 </span>            : #pragma wave option(preserve: 1)
+<span class="lineNum">     140 </span>            : #endif
+<span class="lineNum">     141 </span>            : 
+<span class="lineNum">     142 </span>            :         struct assign
+<span class="lineNum">     143 </span>            :             : BOOST_PP_ENUM_SHIFTED(
+<span class="lineNum">     144 </span>            :                   BOOST_PHOENIX_LIMIT
+<span class="lineNum">     145 </span>            :                 , BOOST_PHOENIX_ACTOR_START_ASSIGN_CALL
+<span class="lineNum">     146 </span>            :                 , _
+<span class="lineNum">     147 </span>            :               )
+<span class="lineNum">     148 </span>            :               , proto::when&lt;
+<span class="lineNum">     149 </span>            :                     proto::terminal&lt;proto::_&gt;
+<span class="lineNum">     150 </span>            :                   , do_assign(proto::_, proto::_state)
+<span class="lineNum">     151 </span>            :                 &gt;
+<span class="lineNum">     152 </span>            :               BOOST_PP_REPEAT(
+<span class="lineNum">     153 </span>            :                   BOOST_PP_DEC(BOOST_PHOENIX_LIMIT)
+<span class="lineNum">     154 </span>            :                 , BOOST_PHOENIX_ACTOR_END_ASSIGN
+<span class="lineNum">     155 </span>            :                 , _
+<span class="lineNum">     156 </span>            :               )
+<span class="lineNum">     157 </span>            :         {};
+<span class="lineNum">     158 </span>            : 
+<span class="lineNum">     159 </span>            : #if defined(__WAVE__) &amp;&amp; defined(BOOST_PHOENIX_CREATE_PREPROCESSED_FILES)
+<span class="lineNum">     160 </span>            : #pragma wave option(output: null)
+<span class="lineNum">     161 </span>            : #endif
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span>            : #endif
+<span class="lineNum">     164 </span>            :     #undef BOOST_PHOENIX_ACTOR_ASSIGN_CALL
+<span class="lineNum">     165 </span>            :     #undef BOOST_PHOENIX_ACTOR_START_ASSIGN_CALL
+<span class="lineNum">     166 </span>            :     #undef BOOST_PHOENIX_ACTOR_END_ASSIGN_CALL
+<span class="lineNum">     167 </span>            :     #undef BOOST_PHOENIX_ACTOR_ASSIGN_CHILD
+<span class="lineNum">     168 </span>            :     #undef BOOST_PHOENIX_ACTOR_START_ASSIGN_CHILD
+<span class="lineNum">     169 </span>            :     #undef BOOST_PHOENIX_ACTOR_END_ASSIGN_CHILD
+<span class="lineNum">     170 </span>            :     }
+<span class="lineNum">     171 </span>            : 
+<span class="lineNum">     172 </span>            :     // Bring in the result_of::actor&lt;&gt;
+<span class="lineNum">     173 </span>            :     #include &lt;boost/phoenix/core/detail/actor_result_of.hpp&gt;
+<span class="lineNum">     174 </span>            : 
+<span class="lineNum">     175 </span>            :     ////////////////////////////////////////////////////////////////////////////
+<span class="lineNum">     176 </span>            :     //
+<span class="lineNum">     177 </span>            :     //  actor
+<span class="lineNum">     178 </span>            :     //
+<span class="lineNum">     179 </span>            :     //      The actor class. The main thing! In phoenix, everything is an actor
+<span class="lineNum">     180 </span>            :     //      This class is responsible for full function evaluation. Partial
+<span class="lineNum">     181 </span>            :     //      function evaluation involves creating a hierarchy of actor objects.
+<span class="lineNum">     182 </span>            :     //
+<a name="183"><span class="lineNum">     183 </span>            :     ////////////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     184 </span>            :     template &lt;typename Expr&gt;
+<span class="lineNum">     185 </span><span class="lineCov">         26 :     struct actor</span>
+<span class="lineNum">     186 </span>            :     {
+<span class="lineNum">     187 </span>            :         typedef typename
+<span class="lineNum">     188 </span>            :             mpl::eval_if_c&lt;
+<span class="lineNum">     189 </span>            :                 mpl::or_&lt;
+<span class="lineNum">     190 </span>            :                     is_custom_terminal&lt;Expr&gt;
+<span class="lineNum">     191 </span>            :                   , mpl::bool_&lt;is_placeholder&lt;Expr&gt;::value&gt;
+<span class="lineNum">     192 </span>            :                 &gt;::value
+<span class="lineNum">     193 </span>            :               , proto::terminal&lt;Expr&gt;
+<span class="lineNum">     194 </span>            :               , mpl::identity&lt;Expr&gt;
+<span class="lineNum">     195 </span>            :             &gt;::type
+<span class="lineNum">     196 </span>            :             expr_type;
+<span class="lineNum">     197 </span>            :         
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :         BOOST_PROTO_BASIC_EXTENDS(expr_type, actor&lt;expr_type&gt;, phoenix_domain)</span>
+<span class="lineNum">     199 </span>            : 
+<span class="lineNum">     200 </span>            :         // providing operator= to be assignable
+<span class="lineNum">     201 </span>            :         actor&amp; operator=(actor const&amp; other)
+<span class="lineNum">     202 </span>            :         {
+<span class="lineNum">     203 </span>            :             detail::assign()(*this, other);
+<span class="lineNum">     204 </span>            :             return *this;
+<span class="lineNum">     205 </span>            :         }
+<span class="lineNum">     206 </span>            :         actor&amp; operator=(actor &amp; other)
+<span class="lineNum">     207 </span>            :         {
+<span class="lineNum">     208 </span>            :             detail::assign()(*this, other);
+<span class="lineNum">     209 </span>            :             return *this;
+<span class="lineNum">     210 </span>            :         }
+<span class="lineNum">     211 </span>            : 
+<span class="lineNum">     212 </span>            :         template &lt;typename A0&gt;
+<span class="lineNum">     213 </span>            :         typename proto::result_of::make_expr&lt;
+<span class="lineNum">     214 </span>            :             proto::tag::assign
+<span class="lineNum">     215 </span>            :           , phoenix_domain
+<span class="lineNum">     216 </span>            :           , proto_base_expr
+<span class="lineNum">     217 </span>            :           , A0
+<span class="lineNum">     218 </span>            :         &gt;::type const
+<span class="lineNum">     219 </span>            :         operator=(A0 const &amp; a0) const
+<span class="lineNum">     220 </span>            :         {
+<span class="lineNum">     221 </span>            :             return proto::make_expr&lt;proto::tag::assign, phoenix_domain&gt;(this-&gt;proto_expr_, a0);
+<span class="lineNum">     222 </span>            :         }
+<span class="lineNum">     223 </span>            : 
+<span class="lineNum">     224 </span>            :         template &lt;typename A0&gt;
+<span class="lineNum">     225 </span>            :         typename proto::result_of::make_expr&lt;
+<span class="lineNum">     226 </span>            :             proto::tag::assign
+<span class="lineNum">     227 </span>            :           , phoenix_domain
+<span class="lineNum">     228 </span>            :           , proto_base_expr
+<span class="lineNum">     229 </span>            :           , A0
+<span class="lineNum">     230 </span>            :         &gt;::type const
+<span class="lineNum">     231 </span>            :         operator=(A0 &amp; a0) const
+<span class="lineNum">     232 </span>            :         {
+<span class="lineNum">     233 </span>            :             return proto::make_expr&lt;proto::tag::assign, phoenix_domain&gt;(this-&gt;proto_expr_, a0);
+<span class="lineNum">     234 </span>            :         }
+<span class="lineNum">     235 </span>            :         
+<span class="lineNum">     236 </span>            :         template &lt;typename A0&gt;
+<span class="lineNum">     237 </span>            :         typename proto::result_of::make_expr&lt;
+<span class="lineNum">     238 </span>            :             proto::tag::subscript
+<span class="lineNum">     239 </span>            :           , phoenix_domain
+<span class="lineNum">     240 </span>            :           , proto_base_expr
+<span class="lineNum">     241 </span>            :           , A0
+<span class="lineNum">     242 </span>            :         &gt;::type const
+<span class="lineNum">     243 </span>            :         operator[](A0 const &amp; a0) const
+<span class="lineNum">     244 </span>            :         {
+<span class="lineNum">     245 </span>            :             return proto::make_expr&lt;proto::tag::subscript, phoenix_domain&gt;(this-&gt;proto_expr_, a0);
+<span class="lineNum">     246 </span>            :         }
+<span class="lineNum">     247 </span>            : 
+<span class="lineNum">     248 </span>            :         template &lt;typename A0&gt;
+<span class="lineNum">     249 </span>            :         typename proto::result_of::make_expr&lt;
+<span class="lineNum">     250 </span>            :             proto::tag::subscript
+<span class="lineNum">     251 </span>            :           , phoenix_domain
+<span class="lineNum">     252 </span>            :           , proto_base_expr
+<span class="lineNum">     253 </span>            :           , A0
+<span class="lineNum">     254 </span>            :         &gt;::type const
+<span class="lineNum">     255 </span>            :         operator[](A0 &amp; a0) const
+<span class="lineNum">     256 </span>            :         {
+<span class="lineNum">     257 </span>            :             return proto::make_expr&lt;proto::tag::subscript, phoenix_domain&gt;(this-&gt;proto_expr_, a0);
+<span class="lineNum">     258 </span>            :         }
+<span class="lineNum">     259 </span>            : 
+<span class="lineNum">     260 </span>            :         template &lt;typename Sig&gt;
+<span class="lineNum">     261 </span>            :         struct result;
+<span class="lineNum">     262 </span>            : 
+<span class="lineNum">     263 </span>            :         typename result_of::actor&lt;proto_base_expr&gt;::type
+<span class="lineNum">     264 </span>            :         operator()()
+<span class="lineNum">     265 </span>            :         {
+<span class="lineNum">     266 </span>            :             typedef vector1&lt;const actor&lt;Expr&gt; *&gt; env_type;
+<span class="lineNum">     267 </span>            :             env_type env = {this};
+<span class="lineNum">     268 </span>            :             
+<span class="lineNum">     269 </span>            :             return phoenix::eval(*this, phoenix::context(env, default_actions()));
+<span class="lineNum">     270 </span>            :         }
+<span class="lineNum">     271 </span>            : 
+<span class="lineNum">     272 </span>            :         typename result_of::actor&lt;proto_base_expr&gt;::type
+<span class="lineNum">     273 </span>            :         operator()() const
+<span class="lineNum">     274 </span>            :         {
+<span class="lineNum">     275 </span>            :             typedef vector1&lt;const actor&lt;Expr&gt; *&gt; env_type;
+<span class="lineNum">     276 </span>            :             env_type env = {this};
+<span class="lineNum">     277 </span>            :             
+<span class="lineNum">     278 </span>            :             return phoenix::eval(*this, phoenix::context(env, default_actions()));
+<span class="lineNum">     279 </span>            :         }
+<span class="lineNum">     280 </span>            : 
+<span class="lineNum">     281 </span>            :         template &lt;typename Env&gt;
+<span class="lineNum">     282 </span>            :         typename evaluator::impl&lt;
+<span class="lineNum">     283 </span>            :             proto_base_expr const &amp;
+<span class="lineNum">     284 </span>            :           , typename result_of::context&lt;
+<span class="lineNum">     285 </span>            :                 Env const &amp;
+<span class="lineNum">     286 </span>            :               , default_actions const &amp;
+<span class="lineNum">     287 </span>            :             &gt;::type
+<span class="lineNum">     288 </span>            :           , proto::empty_env
+<span class="lineNum">     289 </span>            :         &gt;::result_type
+<span class="lineNum">     290 </span>            :         eval(Env const &amp; env) const
+<span class="lineNum">     291 </span>            :         {
+<span class="lineNum">     292 </span>            :             return phoenix::eval(*this, phoenix::context(env, default_actions()));
+<span class="lineNum">     293 </span>            :         }
+<span class="lineNum">     294 </span>            :         
+<span class="lineNum">     295 </span>            :         // Bring in the rest
+<span class="lineNum">     296 </span>            :         #include &lt;boost/phoenix/core/detail/actor_operator.hpp&gt;
+<span class="lineNum">     297 </span>            :     };
+<span class="lineNum">     298 </span>            : 
+<span class="lineNum">     299 </span>            : }}
+<span class="lineNum">     300 </span>            : 
+<span class="lineNum">     301 </span>            : namespace boost
+<span class="lineNum">     302 </span>            : {
+<span class="lineNum">     303 </span>            :     // specialize boost::result_of to return the proper result type
+<span class="lineNum">     304 </span>            :     template &lt;typename Expr&gt;
+<span class="lineNum">     305 </span>            :     struct result_of&lt;phoenix::actor&lt;Expr&gt;()&gt;
+<span class="lineNum">     306 </span>            :         : phoenix::result_of::actor&lt;typename phoenix::actor&lt;Expr&gt;::proto_base_expr&gt;
+<span class="lineNum">     307 </span>            :     {};
+<span class="lineNum">     308 </span>            :     
+<span class="lineNum">     309 </span>            :     template &lt;typename Expr&gt;
+<span class="lineNum">     310 </span>            :     struct result_of&lt;phoenix::actor&lt;Expr&gt; const()&gt;
+<span class="lineNum">     311 </span>            :         : phoenix::result_of::actor&lt;typename phoenix::actor&lt;Expr&gt;::proto_base_expr&gt;
+<span class="lineNum">     312 </span>            :     {};
+<span class="lineNum">     313 </span>            : }
+<span class="lineNum">     314 </span>            : 
+<span class="lineNum">     315 </span>            : 
+<span class="lineNum">     316 </span>            : #ifdef BOOST_MSVC
+<span class="lineNum">     317 </span>            : #pragma warning(pop)
+<span class="lineNum">     318 </span>            : #endif
+<span class="lineNum">     319 </span>            : 
+<span class="lineNum">     320 </span>            : #endif
+<span class="lineNum">     321 </span>            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

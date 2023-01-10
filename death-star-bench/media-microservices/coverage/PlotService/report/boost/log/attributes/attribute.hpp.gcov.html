@@ -1,0 +1,267 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/log/attributes/attribute.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">boost/log/attributes</a> - attribute.hpp<span style="font-size: 80%;"> (source / <a href="attribute.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 01:02:56</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryMed">85.7 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *          Copyright Andrey Semashev 2007 - 2015.
+<span class="lineNum">       3 </span>            :  * Distributed under the Boost Software License, Version 1.0.
+<span class="lineNum">       4 </span>            :  *    (See accompanying file LICENSE_1_0.txt or copy at
+<span class="lineNum">       5 </span>            :  *          http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       6 </span>            :  */
+<span class="lineNum">       7 </span>            : /*!
+<span class="lineNum">       8 </span>            :  * \file   attribute.hpp
+<span class="lineNum">       9 </span>            :  * \author Andrey Semashev
+<span class="lineNum">      10 </span>            :  * \date   15.04.2007
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * The header contains attribute interface definition.
+<span class="lineNum">      13 </span>            :  */
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : #ifndef BOOST_LOG_ATTRIBUTES_ATTRIBUTE_HPP_INCLUDED_
+<span class="lineNum">      16 </span>            : #define BOOST_LOG_ATTRIBUTES_ATTRIBUTE_HPP_INCLUDED_
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #include &lt;new&gt;
+<span class="lineNum">      19 </span>            : #include &lt;boost/move/core.hpp&gt;
+<span class="lineNum">      20 </span>            : #include &lt;boost/smart_ptr/intrusive_ptr.hpp&gt;
+<span class="lineNum">      21 </span>            : #include &lt;boost/smart_ptr/intrusive_ref_counter.hpp&gt;
+<span class="lineNum">      22 </span>            : #include &lt;boost/log/detail/config.hpp&gt;
+<span class="lineNum">      23 </span>            : #include &lt;boost/utility/explicit_operator_bool.hpp&gt;
+<span class="lineNum">      24 </span>            : #include &lt;boost/log/detail/header.hpp&gt;
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #ifdef BOOST_HAS_PRAGMA_ONCE
+<span class="lineNum">      27 </span>            : #pragma once
+<span class="lineNum">      28 </span>            : #endif
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : namespace boost {
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : BOOST_LOG_OPEN_NAMESPACE
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            : #ifndef BOOST_LOG_DOXYGEN_PASS
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            : class attribute_value;
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            : namespace aux {
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span>            : //! Reference proxy object to implement \c operator[]
+<span class="lineNum">      41 </span>            : class attribute_set_reference_proxy;
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : } // namespace aux
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            : #endif // BOOST_LOG_DOXYGEN_PASS
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span>            : /*!
+<span class="lineNum">      48 </span>            :  * \brief A base class for an attribute value factory
+<span class="lineNum">      49 </span>            :  *
+<span class="lineNum">      50 </span>            :  * Every attribute is represented with a factory that is basically an attribute value generator.
+<span class="lineNum">      51 </span>            :  * The sole purpose of an attribute is to return an actual value when requested. A simplest attribute
+<span class="lineNum">      52 </span>            :  * can always return the same value that it stores internally, but more complex ones can
+<span class="lineNum">      53 </span>            :  * perform a considerable amount of work to return a value, and the returned values may differ
+<span class="lineNum">      54 </span>            :  * each time requested.
+<span class="lineNum">      55 </span>            :  *
+<span class="lineNum">      56 </span>            :  * A word about thread safety. An attribute should be prepared to be requested a value from
+<a name="57"><span class="lineNum">      57 </span>            :  * multiple threads concurrently.</a>
+<span class="lineNum">      58 </span>            :  */
+<span class="lineNum">      59 </span><span class="lineCov">          8 : class attribute</span>
+<span class="lineNum">      60 </span>            : {
+<span class="lineNum">      61 </span>            :     BOOST_COPYABLE_AND_MOVABLE(attribute)
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span>            : public:
+<span class="lineNum">      64 </span>            :     /*!
+<span class="lineNum">      65 </span>            :      * \brief A base class for an attribute value factory
+<span class="lineNum">      66 </span>            :      *
+<a name="67"><span class="lineNum">      67 </span>            :      * All attributes must derive their implementation from this class.</a>
+<span class="lineNum">      68 </span>            :      */
+<span class="lineNum">      69 </span><span class="lineCov">         64 :     struct BOOST_LOG_NO_VTABLE BOOST_SYMBOL_VISIBLE impl :</span>
+<span class="lineNum">      70 </span>            :         public boost::intrusive_ref_counter&lt; impl &gt;
+<span class="lineNum">      71 </span>            :     {
+<span class="lineNum">      72 </span>            :         /*!
+<a name="73"><span class="lineNum">      73 </span>            :          * \brief Virtual destructor</a>
+<span class="lineNum">      74 </span>            :          */
+<span class="lineNum">      75 </span><span class="lineCov">         56 :         virtual ~impl() {}</span>
+<span class="lineNum">      76 </span>            : 
+<span class="lineNum">      77 </span>            :         /*!
+<span class="lineNum">      78 </span>            :          * \return The actual attribute value. It shall not return empty values (exceptions
+<span class="lineNum">      79 </span>            :          *         shall be used to indicate errors).
+<span class="lineNum">      80 </span>            :          */
+<span class="lineNum">      81 </span>            :         virtual attribute_value get_value() = 0;
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span>            :         BOOST_LOG_API static void* operator new (std::size_t size);
+<span class="lineNum">      84 </span>            :         BOOST_LOG_API static void operator delete (void* p, std::size_t size) BOOST_NOEXCEPT;
+<span class="lineNum">      85 </span>            :     };
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span>            : private:
+<span class="lineNum">      88 </span>            :     //! Pointer to the attribute factory implementation
+<span class="lineNum">      89 </span>            :     intrusive_ptr&lt; impl &gt; m_pImpl;
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span>            : public:
+<span class="lineNum">      92 </span>            :     /*!
+<span class="lineNum">      93 </span>            :      * Default constructor. Creates an empty attribute value factory, which is not usable until
+<a name="94"><span class="lineNum">      94 </span>            :      * \c set_impl is called.</a>
+<span class="lineNum">      95 </span>            :      */
+<span class="lineNum">      96 </span><span class="lineCov">          2 :     BOOST_DEFAULTED_FUNCTION(attribute(), {})</span>
+<span class="lineNum">      97 </span>            : 
+<span class="lineNum">      98 </span>            :     /*!
+<span class="lineNum">      99 </span>            :      * Copy constructor
+<span class="lineNum">     100 </span>            :      */
+<span class="lineNum">     101 </span>            :     attribute(attribute const&amp; that) BOOST_NOEXCEPT : m_pImpl(that.m_pImpl) {}
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span>            :     /*!
+<span class="lineNum">     104 </span>            :      * Move constructor
+<span class="lineNum">     105 </span>            :      */
+<span class="lineNum">     106 </span>            :     attribute(BOOST_RV_REF(attribute) that) BOOST_NOEXCEPT { m_pImpl.swap(that.m_pImpl); }
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span>            :     /*!
+<span class="lineNum">     109 </span>            :      * Initializing constructor
+<span class="lineNum">     110 </span>            :      *
+<a name="111"><span class="lineNum">     111 </span>            :      * \param p Pointer to the implementation. Must not be \c NULL.</a>
+<span class="lineNum">     112 </span>            :      */
+<span class="lineNum">     113 </span><span class="lineCov">          6 :     explicit attribute(intrusive_ptr&lt; impl &gt; p) BOOST_NOEXCEPT { m_pImpl.swap(p); }</span>
+<span class="lineNum">     114 </span>            : 
+<span class="lineNum">     115 </span>            :     /*!
+<span class="lineNum">     116 </span>            :      * Copy assignment
+<span class="lineNum">     117 </span>            :      */
+<span class="lineNum">     118 </span>            :     attribute&amp; operator= (BOOST_COPY_ASSIGN_REF(attribute) that) BOOST_NOEXCEPT
+<span class="lineNum">     119 </span>            :     {
+<span class="lineNum">     120 </span>            :         m_pImpl = that.m_pImpl;
+<span class="lineNum">     121 </span>            :         return *this;
+<span class="lineNum">     122 </span>            :     }
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span>            :     /*!
+<span class="lineNum">     125 </span>            :      * Move assignment
+<span class="lineNum">     126 </span>            :      */
+<span class="lineNum">     127 </span>            :     attribute&amp; operator= (BOOST_RV_REF(attribute) that) BOOST_NOEXCEPT
+<span class="lineNum">     128 </span>            :     {
+<span class="lineNum">     129 </span>            :         m_pImpl.swap(that.m_pImpl);
+<span class="lineNum">     130 </span>            :         return *this;
+<span class="lineNum">     131 </span>            :     }
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span>            : #ifndef BOOST_LOG_DOXYGEN_PASS
+<span class="lineNum">     134 </span>            :     attribute&amp; operator= (aux::attribute_set_reference_proxy const&amp; that) BOOST_NOEXCEPT;
+<span class="lineNum">     135 </span>            : #endif
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span>            :     /*!
+<span class="lineNum">     138 </span>            :      * Verifies that the factory is not in empty state
+<span class="lineNum">     139 </span>            :      */
+<span class="lineNum">     140 </span>            :     BOOST_EXPLICIT_OPERATOR_BOOL_NOEXCEPT()
+<span class="lineNum">     141 </span>            : 
+<span class="lineNum">     142 </span>            :     /*!
+<span class="lineNum">     143 </span>            :      * Verifies that the factory is in empty state
+<span class="lineNum">     144 </span>            :      */
+<span class="lineNum">     145 </span>            :     bool operator! () const BOOST_NOEXCEPT { return !m_pImpl; }
+<span class="lineNum">     146 </span>            : 
+<span class="lineNum">     147 </span>            :     /*!
+<span class="lineNum">     148 </span>            :      * \return The actual attribute value. It shall not return empty values (exceptions
+<span class="lineNum">     149 </span>            :      *         shall be used to indicate errors).
+<span class="lineNum">     150 </span>            :      */
+<span class="lineNum">     151 </span>            :     attribute_value get_value() const;
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span>            :     /*!
+<span class="lineNum">     154 </span>            :      * The method swaps two factories (i.e. their implementations).
+<span class="lineNum">     155 </span>            :      */
+<span class="lineNum">     156 </span>            :     void swap(attribute&amp; that) BOOST_NOEXCEPT { m_pImpl.swap(that.m_pImpl); }
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span>            : protected:
+<span class="lineNum">     159 </span>            :     /*!
+<span class="lineNum">     160 </span>            :      * \returns The pointer to the implementation
+<span class="lineNum">     161 </span>            :      */
+<span class="lineNum">     162 </span>            :     impl* get_impl() const BOOST_NOEXCEPT { return m_pImpl.get(); }
+<span class="lineNum">     163 </span>            :     /*!
+<span class="lineNum">     164 </span>            :      * Sets the pointer to the factory implementation.
+<span class="lineNum">     165 </span>            :      *
+<a name="166"><span class="lineNum">     166 </span>            :      * \param p Pointer to the implementation. Must not be \c NULL.</a>
+<span class="lineNum">     167 </span>            :      */
+<span class="lineNum">     168 </span><span class="lineCov">          2 :     void set_impl(intrusive_ptr&lt; impl &gt; p) BOOST_NOEXCEPT { m_pImpl.swap(p); }</span>
+<span class="lineNum">     169 </span>            : 
+<span class="lineNum">     170 </span>            :     template&lt; typename T &gt;
+<span class="lineNum">     171 </span>            :     friend T attribute_cast(attribute const&amp;);
+<span class="lineNum">     172 </span>            : };
+<span class="lineNum">     173 </span>            : 
+<span class="lineNum">     174 </span>            : /*!
+<span class="lineNum">     175 </span>            :  * The function swaps two attribute value factories
+<span class="lineNum">     176 </span>            :  */
+<span class="lineNum">     177 </span>            : inline void swap(attribute&amp; left, attribute&amp; right) BOOST_NOEXCEPT
+<span class="lineNum">     178 </span>            : {
+<span class="lineNum">     179 </span>            :     left.swap(right);
+<span class="lineNum">     180 </span>            : }
+<span class="lineNum">     181 </span>            : 
+<span class="lineNum">     182 </span>            : BOOST_LOG_CLOSE_NAMESPACE // namespace log
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span>            : } // namespace boost
+<span class="lineNum">     185 </span>            : 
+<span class="lineNum">     186 </span>            : #include &lt;boost/log/detail/footer.hpp&gt;
+<span class="lineNum">     187 </span>            : #if defined(BOOST_LOG_ATTRIBUTES_ATTRIBUTE_VALUE_HPP_INCLUDED_)
+<span class="lineNum">     188 </span>            : #include &lt;boost/log/detail/attribute_get_value_impl.hpp&gt;
+<span class="lineNum">     189 </span>            : #endif
+<span class="lineNum">     190 </span>            : 
+<span class="lineNum">     191 </span>            : #endif // BOOST_LOG_ATTRIBUTES_ATTRIBUTE_HPP_INCLUDED_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

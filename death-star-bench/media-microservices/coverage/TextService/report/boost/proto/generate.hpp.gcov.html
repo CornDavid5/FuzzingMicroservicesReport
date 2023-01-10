@@ -1,0 +1,546 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/proto/generate.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">boost/proto</a> - generate.hpp<span style="font-size: 80%;"> (source / <a href="generate.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 01:14:10</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : ///////////////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">       2 </span>            : /// \file generate.hpp
+<span class="lineNum">       3 </span>            : /// Contains definition of generate\&lt;\&gt; class template, which end users can
+<span class="lineNum">       4 </span>            : /// specialize for generating domain-specific expression wrappers.
+<span class="lineNum">       5 </span>            : //
+<span class="lineNum">       6 </span>            : //  Copyright 2008 Eric Niebler. Distributed under the Boost
+<span class="lineNum">       7 </span>            : //  Software License, Version 1.0. (See accompanying file
+<span class="lineNum">       8 </span>            : //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span>            : #ifndef BOOST_PROTO_GENERATE_HPP_EAN_02_13_2007
+<span class="lineNum">      11 </span>            : #define BOOST_PROTO_GENERATE_HPP_EAN_02_13_2007
+<span class="lineNum">      12 </span>            : 
+<span class="lineNum">      13 </span>            : #include &lt;boost/config.hpp&gt;
+<span class="lineNum">      14 </span>            : #include &lt;boost/version.hpp&gt;
+<span class="lineNum">      15 </span>            : #include &lt;boost/preprocessor/cat.hpp&gt;
+<span class="lineNum">      16 </span>            : #include &lt;boost/preprocessor/iteration/iterate.hpp&gt;
+<span class="lineNum">      17 </span>            : #include &lt;boost/preprocessor/facilities/intercept.hpp&gt;
+<span class="lineNum">      18 </span>            : #include &lt;boost/preprocessor/repetition/enum_params.hpp&gt;
+<span class="lineNum">      19 </span>            : #include &lt;boost/preprocessor/repetition/enum_binary_params.hpp&gt;
+<span class="lineNum">      20 </span>            : #include &lt;boost/preprocessor/repetition/enum_trailing_params.hpp&gt;
+<span class="lineNum">      21 </span>            : #include &lt;boost/mpl/bool.hpp&gt;
+<span class="lineNum">      22 </span>            : #include &lt;boost/utility/enable_if.hpp&gt;
+<span class="lineNum">      23 </span>            : #include &lt;boost/utility/result_of.hpp&gt;
+<span class="lineNum">      24 </span>            : #include &lt;boost/proto/proto_fwd.hpp&gt;
+<span class="lineNum">      25 </span>            : #include &lt;boost/proto/args.hpp&gt;
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : #if defined(_MSC_VER)
+<span class="lineNum">      28 </span>            : # pragma warning(push)
+<span class="lineNum">      29 </span>            : # pragma warning(disable : 4714) // function 'xxx' marked as __forceinline not inlined
+<span class="lineNum">      30 </span>            : #endif
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : namespace boost { namespace proto
+<span class="lineNum">      33 </span>            : {
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            :     namespace detail
+<span class="lineNum">      36 </span>            :     {
+<span class="lineNum">      37 </span>            :         template&lt;typename Expr&gt;
+<span class="lineNum">      38 </span>            :         struct by_value_generator_;
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span>            :         template&lt;typename Tag, typename Arg&gt;
+<span class="lineNum">      41 </span>            :         struct by_value_generator_&lt;proto::expr&lt;Tag, term&lt;Arg&gt;, 0&gt; &gt;
+<span class="lineNum">      42 </span>            :         {
+<span class="lineNum">      43 </span>            :             typedef
+<span class="lineNum">      44 </span>            :                 proto::expr&lt;
+<span class="lineNum">      45 </span>            :                     Tag
+<span class="lineNum">      46 </span>            :                   , term&lt;typename detail::term_traits&lt;Arg&gt;::value_type&gt;
+<span class="lineNum">      47 </span>            :                   , 0
+<span class="lineNum">      48 </span>            :                 &gt;
+<span class="lineNum">      49 </span>            :             type;
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span>            :             BOOST_FORCEINLINE
+<span class="lineNum">      52 </span>            :             static type const call(proto::expr&lt;Tag, term&lt;Arg&gt;, 0&gt; const &amp;e)
+<span class="lineNum">      53 </span>            :             {
+<span class="lineNum">      54 </span>            :                 type that = {e.child0};
+<span class="lineNum">      55 </span>            :                 return that;
+<span class="lineNum">      56 </span>            :             }
+<span class="lineNum">      57 </span>            :         };
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span>            :         template&lt;typename Tag, typename Arg&gt;
+<span class="lineNum">      60 </span>            :         struct by_value_generator_&lt;proto::basic_expr&lt;Tag, term&lt;Arg&gt;, 0&gt; &gt;
+<span class="lineNum">      61 </span>            :         {
+<span class="lineNum">      62 </span>            :             typedef
+<span class="lineNum">      63 </span>            :                 proto::basic_expr&lt;
+<span class="lineNum">      64 </span>            :                     Tag
+<span class="lineNum">      65 </span>            :                   , term&lt;typename detail::term_traits&lt;Arg&gt;::value_type&gt;
+<span class="lineNum">      66 </span>            :                   , 0
+<span class="lineNum">      67 </span>            :                 &gt;
+<span class="lineNum">      68 </span>            :             type;
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span>            :             BOOST_FORCEINLINE
+<span class="lineNum">      71 </span>            :             static type const call(proto::basic_expr&lt;Tag, term&lt;Arg&gt;, 0&gt; const &amp;e)
+<span class="lineNum">      72 </span>            :             {
+<span class="lineNum">      73 </span>            :                 type that = {e.child0};
+<span class="lineNum">      74 </span>            :                 return that;
+<span class="lineNum">      75 </span>            :             }
+<span class="lineNum">      76 </span>            :         };
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span>            :         // Include the other specializations of by_value_generator_
+<span class="lineNum">      79 </span>            :         #include &lt;boost/proto/detail/generate_by_value.hpp&gt;
+<span class="lineNum">      80 </span>            :     }
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span>            :     /// \brief Annotate a generator to indicate that it would
+<span class="lineNum">      83 </span>            :     /// prefer to be passed instances of \c proto::basic_expr\&lt;\&gt; rather
+<span class="lineNum">      84 </span>            :     /// than \c proto::expr\&lt;\&gt;. &lt;tt&gt;use_basic_expr\&lt;Generator\&gt;&lt;/tt&gt; is
+<span class="lineNum">      85 </span>            :     /// itself a generator.
+<span class="lineNum">      86 </span>            :     ///
+<span class="lineNum">      87 </span>            :     template&lt;typename Generator&gt;
+<span class="lineNum">      88 </span>            :     struct use_basic_expr
+<span class="lineNum">      89 </span>            :       : Generator
+<span class="lineNum">      90 </span>            :     {
+<span class="lineNum">      91 </span>            :         BOOST_PROTO_USE_BASIC_EXPR()
+<span class="lineNum">      92 </span>            :     };
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span>            :     /// \brief A simple generator that passes an expression
+<span class="lineNum">      95 </span>            :     /// through unchanged.
+<span class="lineNum">      96 </span>            :     ///
+<span class="lineNum">      97 </span>            :     /// Generators are intended for use as the first template parameter
+<span class="lineNum">      98 </span>            :     /// to the \c domain\&lt;\&gt; class template and control if and how
+<span class="lineNum">      99 </span>            :     /// expressions within that domain are to be customized.
+<span class="lineNum">     100 </span>            :     /// The \c default_generator makes no modifications to the expressions
+<span class="lineNum">     101 </span>            :     /// passed to it.
+<span class="lineNum">     102 </span>            :     struct default_generator
+<span class="lineNum">     103 </span>            :     {
+<span class="lineNum">     104 </span>            :         BOOST_PROTO_CALLABLE()
+<span class="lineNum">     105 </span>            : 
+<span class="lineNum">     106 </span>            :         template&lt;typename Sig&gt;
+<span class="lineNum">     107 </span>            :         struct result;
+<span class="lineNum">     108 </span>            : 
+<span class="lineNum">     109 </span>            :         template&lt;typename This, typename Expr&gt;
+<span class="lineNum">     110 </span>            :         struct result&lt;This(Expr)&gt;
+<span class="lineNum">     111 </span>            :         {
+<span class="lineNum">     112 </span>            :             typedef Expr type;
+<span class="lineNum">     113 </span>            :         };
+<span class="lineNum">     114 </span>            : 
+<span class="lineNum">     115 </span>            :         /// \param expr A Proto expression
+<span class="lineNum">     116 </span>            :         /// \return expr
+<span class="lineNum">     117 </span>            :         template&lt;typename Expr&gt;
+<span class="lineNum">     118 </span>            :         BOOST_FORCEINLINE
+<span class="lineNum">     119 </span>            :         BOOST_PROTO_RETURN_TYPE_STRICT_LOOSE(Expr, Expr const &amp;)
+<span class="lineNum">     120 </span>            :         operator ()(Expr const &amp;e) const
+<span class="lineNum">     121 </span>            :         {
+<span class="lineNum">     122 </span>            :             return e;
+<span class="lineNum">     123 </span>            :         }
+<span class="lineNum">     124 </span>            :     };
+<span class="lineNum">     125 </span>            : 
+<span class="lineNum">     126 </span>            :     /// \brief A simple generator that passes an expression
+<span class="lineNum">     127 </span>            :     /// through unchanged and specifies a preference for
+<span class="lineNum">     128 </span>            :     /// \c proto::basic_expr\&lt;\&gt; over \c proto::expr\&lt;\&gt;.
+<span class="lineNum">     129 </span>            :     ///
+<span class="lineNum">     130 </span>            :     /// Generators are intended for use as the first template parameter
+<span class="lineNum">     131 </span>            :     /// to the \c domain\&lt;\&gt; class template and control if and how
+<span class="lineNum">     132 </span>            :     /// expressions within that domain are to be customized.
+<span class="lineNum">     133 </span>            :     /// The \c default_generator makes no modifications to the expressions
+<span class="lineNum">     134 </span>            :     /// passed to it.
+<span class="lineNum">     135 </span>            :     struct basic_default_generator
+<span class="lineNum">     136 </span>            :       : proto::use_basic_expr&lt;default_generator&gt;
+<span class="lineNum">     137 </span>            :     {};
+<span class="lineNum">     138 </span>            :     
+<span class="lineNum">     139 </span>            :     /// \brief A generator that wraps expressions passed
+<span class="lineNum">     140 </span>            :     /// to it in the specified extension wrapper.
+<span class="lineNum">     141 </span>            :     ///
+<span class="lineNum">     142 </span>            :     /// Generators are intended for use as the first template parameter
+<span class="lineNum">     143 </span>            :     /// to the \c domain\&lt;\&gt; class template and control if and how
+<span class="lineNum">     144 </span>            :     /// expressions within that domain are to be customized.
+<span class="lineNum">     145 </span>            :     /// \c generator\&lt;\&gt; wraps each expression passed to it in
+<span class="lineNum">     146 </span>            :     /// the \c Extends\&lt;\&gt; wrapper.
+<span class="lineNum">     147 </span>            :     template&lt;template&lt;typename&gt; class Extends&gt;
+<span class="lineNum">     148 </span>            :     struct generator
+<span class="lineNum">     149 </span>            :     {
+<span class="lineNum">     150 </span>            :         BOOST_PROTO_CALLABLE()
+<span class="lineNum">     151 </span>            :         BOOST_PROTO_USE_BASIC_EXPR()
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span>            :         template&lt;typename Sig&gt;
+<span class="lineNum">     154 </span>            :         struct result;
+<span class="lineNum">     155 </span>            : 
+<span class="lineNum">     156 </span>            :         template&lt;typename This, typename Expr&gt;
+<span class="lineNum">     157 </span>            :         struct result&lt;This(Expr)&gt;
+<span class="lineNum">     158 </span>            :         {
+<span class="lineNum">     159 </span>            :             typedef Extends&lt;Expr&gt; type;
+<span class="lineNum">     160 </span>            :         };
+<span class="lineNum">     161 </span>            : 
+<span class="lineNum">     162 </span>            :         template&lt;typename This, typename Expr&gt;
+<span class="lineNum">     163 </span>            :         struct result&lt;This(Expr &amp;)&gt;
+<span class="lineNum">     164 </span>            :         {
+<span class="lineNum">     165 </span>            :             typedef Extends&lt;Expr&gt; type;
+<span class="lineNum">     166 </span>            :         };
+<span class="lineNum">     167 </span>            : 
+<span class="lineNum">     168 </span>            :         template&lt;typename This, typename Expr&gt;
+<span class="lineNum">     169 </span>            :         struct result&lt;This(Expr const &amp;)&gt;
+<span class="lineNum">     170 </span>            :         {
+<span class="lineNum">     171 </span>            :             typedef Extends&lt;Expr&gt; type;
+<span class="lineNum">     172 </span>            :         };
+<span class="lineNum">     173 </span>            : 
+<span class="lineNum">     174 </span>            :         /// \param expr A Proto expression
+<span class="lineNum">     175 </span>            :         /// \return Extends&lt;Expr&gt;(expr)
+<span class="lineNum">     176 </span>            :         template&lt;typename Expr&gt;
+<span class="lineNum">     177 </span>            :         BOOST_FORCEINLINE
+<span class="lineNum">     178 </span>            :         Extends&lt;Expr&gt; operator ()(Expr const &amp;e) const
+<span class="lineNum">     179 </span>            :         {
+<span class="lineNum">     180 </span>            :             return Extends&lt;Expr&gt;(e);
+<span class="lineNum">     181 </span>            :         }
+<span class="lineNum">     182 </span>            :     };
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span>            :     /// \brief A generator that wraps expressions passed
+<span class="lineNum">     185 </span>            :     /// to it in the specified extension wrapper and uses
+<span class="lineNum">     186 </span>            :     /// aggregate initialization for the wrapper.
+<span class="lineNum">     187 </span>            :     ///
+<span class="lineNum">     188 </span>            :     /// Generators are intended for use as the first template parameter
+<span class="lineNum">     189 </span>            :     /// to the \c domain\&lt;\&gt; class template and control if and how
+<span class="lineNum">     190 </span>            :     /// expressions within that domain are to be customized.
+<span class="lineNum">     191 </span>            :     /// \c pod_generator\&lt;\&gt; wraps each expression passed to it in
+<span class="lineNum">     192 </span>            :     /// the \c Extends\&lt;\&gt; wrapper, and uses aggregate initialzation
+<span class="lineNum">     193 </span>            :     /// for the wrapped object.
+<span class="lineNum">     194 </span>            :     template&lt;template&lt;typename&gt; class Extends&gt;
+<span class="lineNum">     195 </span>            :     struct pod_generator
+<span class="lineNum">     196 </span>            :     {
+<span class="lineNum">     197 </span>            :         BOOST_PROTO_CALLABLE()
+<span class="lineNum">     198 </span>            :         BOOST_PROTO_USE_BASIC_EXPR()
+<span class="lineNum">     199 </span>            : 
+<span class="lineNum">     200 </span>            :         template&lt;typename Sig&gt;
+<span class="lineNum">     201 </span>            :         struct result;
+<span class="lineNum">     202 </span>            : 
+<span class="lineNum">     203 </span>            :         template&lt;typename This, typename Expr&gt;
+<span class="lineNum">     204 </span>            :         struct result&lt;This(Expr)&gt;
+<span class="lineNum">     205 </span>            :         {
+<span class="lineNum">     206 </span>            :             typedef Extends&lt;Expr&gt; type;
+<span class="lineNum">     207 </span>            :         };
+<span class="lineNum">     208 </span>            : 
+<span class="lineNum">     209 </span>            :         template&lt;typename This, typename Expr&gt;
+<span class="lineNum">     210 </span>            :         struct result&lt;This(Expr &amp;)&gt;
+<span class="lineNum">     211 </span>            :         {
+<span class="lineNum">     212 </span>            :             typedef Extends&lt;Expr&gt; type;
+<span class="lineNum">     213 </span>            :         };
+<span class="lineNum">     214 </span>            : 
+<span class="lineNum">     215 </span>            :         template&lt;typename This, typename Expr&gt;
+<span class="lineNum">     216 </span>            :         struct result&lt;This(Expr const &amp;)&gt;
+<span class="lineNum">     217 </span>            :         {
+<span class="lineNum">     218 </span>            :             typedef Extends&lt;Expr&gt; type;
+<span class="lineNum">     219 </span>            :         };
+<span class="lineNum">     220 </span>            : 
+<span class="lineNum">     221 </span>            :         /// \param expr The expression to wrap
+<span class="lineNum">     222 </span>            :         /// \return &lt;tt&gt;Extends\&lt;Expr\&gt; that = {expr}; return that;&lt;/tt&gt;
+<span class="lineNum">     223 </span>            :         template&lt;typename Expr&gt;
+<span class="lineNum">     224 </span>            :         BOOST_FORCEINLINE
+<span class="lineNum">     225 </span>            :         Extends&lt;Expr&gt; operator ()(Expr const &amp;e) const
+<span class="lineNum">     226 </span>            :         {
+<span class="lineNum">     227 </span><span class="lineCov">          4 :             Extends&lt;Expr&gt; that = {e};</span>
+<span class="lineNum">     228 </span><span class="lineCov">          2 :             return that;</span>
+<span class="lineNum">     229 </span>            :         }
+<span class="lineNum">     230 </span>            : 
+<span class="lineNum">     231 </span>            :         // Work-around for:
+<span class="lineNum">     232 </span>            :         // https://connect.microsoft.com/VisualStudio/feedback/details/765449/codegen-stack-corruption-using-runtime-checks-when-aggregate-initializing-struct
+<span class="lineNum">     233 </span>            :     #if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1700))
+<span class="lineNum">     234 </span>            :         template&lt;typename Class, typename Member&gt;
+<span class="lineNum">     235 </span>            :         BOOST_FORCEINLINE
+<span class="lineNum">     236 </span>            :         Extends&lt;expr&lt;tag::terminal, proto::term&lt;Member Class::*&gt; &gt; &gt; operator ()(expr&lt;tag::terminal, proto::term&lt;Member Class::*&gt; &gt; const &amp;e) const
+<span class="lineNum">     237 </span>            :         {
+<span class="lineNum">     238 </span>            :             Extends&lt;expr&lt;tag::terminal, proto::term&lt;Member Class::*&gt; &gt; &gt; that;
+<span class="lineNum">     239 </span>            :             proto::value(that.proto_expr_) = proto::value(e);
+<span class="lineNum">     240 </span>            :             return that;
+<span class="lineNum">     241 </span>            :         }
+<span class="lineNum">     242 </span>            : 
+<span class="lineNum">     243 </span>            :         template&lt;typename Class, typename Member&gt;
+<span class="lineNum">     244 </span>            :         BOOST_FORCEINLINE
+<span class="lineNum">     245 </span>            :         Extends&lt;basic_expr&lt;tag::terminal, proto::term&lt;Member Class::*&gt; &gt; &gt; operator ()(basic_expr&lt;tag::terminal, proto::term&lt;Member Class::*&gt; &gt; const &amp;e) const
+<span class="lineNum">     246 </span>            :         {
+<span class="lineNum">     247 </span>            :             Extends&lt;basic_expr&lt;tag::terminal, proto::term&lt;Member Class::*&gt; &gt; &gt; that;
+<span class="lineNum">     248 </span>            :             proto::value(that.proto_expr_) = proto::value(e);
+<span class="lineNum">     249 </span>            :             return that;
+<span class="lineNum">     250 </span>            :         }
+<span class="lineNum">     251 </span>            :     #endif
+<span class="lineNum">     252 </span>            :     };
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span>            :     /// \brief A generator that replaces child nodes held by
+<span class="lineNum">     255 </span>            :     /// reference with ones held by value. Use with
+<span class="lineNum">     256 </span>            :     /// \c compose_generators to forward that result to another
+<span class="lineNum">     257 </span>            :     /// generator.
+<span class="lineNum">     258 </span>            :     ///
+<span class="lineNum">     259 </span>            :     /// Generators are intended for use as the first template parameter
+<span class="lineNum">     260 </span>            :     /// to the \c domain\&lt;\&gt; class template and control if and how
+<span class="lineNum">     261 </span>            :     /// expressions within that domain are to be customized.
+<span class="lineNum">     262 </span>            :     /// \c by_value_generator ensures all child nodes are
+<span class="lineNum">     263 </span>            :     /// held by value. This generator is typically composed with a
+<span class="lineNum">     264 </span>            :     /// second generator for further processing, as
+<span class="lineNum">     265 </span>            :     /// &lt;tt&gt;compose_generators\&lt;by_value_generator, MyGenerator\&gt;&lt;/tt&gt;.
+<span class="lineNum">     266 </span>            :     struct by_value_generator
+<span class="lineNum">     267 </span>            :     {
+<span class="lineNum">     268 </span>            :         BOOST_PROTO_CALLABLE()
+<span class="lineNum">     269 </span>            : 
+<span class="lineNum">     270 </span>            :         template&lt;typename Sig&gt;
+<span class="lineNum">     271 </span>            :         struct result;
+<span class="lineNum">     272 </span>            : 
+<span class="lineNum">     273 </span>            :         template&lt;typename This, typename Expr&gt;
+<span class="lineNum">     274 </span>            :         struct result&lt;This(Expr)&gt;
+<span class="lineNum">     275 </span>            :         {
+<span class="lineNum">     276 </span>            :             typedef
+<span class="lineNum">     277 </span>            :                 typename detail::by_value_generator_&lt;Expr&gt;::type
+<span class="lineNum">     278 </span>            :             type;
+<span class="lineNum">     279 </span>            :         };
+<span class="lineNum">     280 </span>            : 
+<span class="lineNum">     281 </span>            :         template&lt;typename This, typename Expr&gt;
+<span class="lineNum">     282 </span>            :         struct result&lt;This(Expr &amp;)&gt;
+<span class="lineNum">     283 </span>            :         {
+<span class="lineNum">     284 </span>            :             typedef
+<span class="lineNum">     285 </span>            :                 typename detail::by_value_generator_&lt;Expr&gt;::type
+<span class="lineNum">     286 </span>            :             type;
+<span class="lineNum">     287 </span>            :         };
+<span class="lineNum">     288 </span>            : 
+<span class="lineNum">     289 </span>            :         template&lt;typename This, typename Expr&gt;
+<span class="lineNum">     290 </span>            :         struct result&lt;This(Expr const &amp;)&gt;
+<span class="lineNum">     291 </span>            :         {
+<span class="lineNum">     292 </span>            :             typedef
+<span class="lineNum">     293 </span>            :                 typename detail::by_value_generator_&lt;Expr&gt;::type
+<span class="lineNum">     294 </span>            :             type;
+<span class="lineNum">     295 </span>            :         };
+<span class="lineNum">     296 </span>            : 
+<span class="lineNum">     297 </span>            :         /// \param expr The expression to modify.
+<span class="lineNum">     298 </span>            :         /// \return &lt;tt&gt;deep_copy(expr)&lt;/tt&gt;
+<span class="lineNum">     299 </span>            :         template&lt;typename Expr&gt;
+<span class="lineNum">     300 </span>            :         BOOST_FORCEINLINE
+<span class="lineNum">     301 </span>            :         typename result&lt;by_value_generator(Expr)&gt;::type operator ()(Expr const &amp;e) const
+<span class="lineNum">     302 </span>            :         {
+<span class="lineNum">     303 </span>            :             return detail::by_value_generator_&lt;Expr&gt;::call(e);
+<span class="lineNum">     304 </span>            :         }
+<span class="lineNum">     305 </span>            :     };
+<span class="lineNum">     306 </span>            : 
+<span class="lineNum">     307 </span>            :     /// \brief A composite generator that first applies one
+<span class="lineNum">     308 </span>            :     /// transform to an expression and then forwards the result
+<span class="lineNum">     309 </span>            :     /// on to another generator for further transformation.
+<span class="lineNum">     310 </span>            :     ///
+<span class="lineNum">     311 </span>            :     /// Generators are intended for use as the first template parameter
+<span class="lineNum">     312 </span>            :     /// to the \c domain\&lt;\&gt; class template and control if and how
+<span class="lineNum">     313 </span>            :     /// expressions within that domain are to be customized.
+<span class="lineNum">     314 </span>            :     /// \c compose_generators\&lt;\&gt; is a composite generator that first
+<span class="lineNum">     315 </span>            :     /// applies one transform to an expression and then forwards the
+<span class="lineNum">     316 </span>            :     /// result on to another generator for further transformation.
+<span class="lineNum">     317 </span>            :     template&lt;typename First, typename Second&gt;
+<span class="lineNum">     318 </span>            :     struct compose_generators
+<span class="lineNum">     319 </span>            :     {
+<span class="lineNum">     320 </span>            :         BOOST_PROTO_CALLABLE()
+<span class="lineNum">     321 </span>            : 
+<span class="lineNum">     322 </span>            :         template&lt;typename Sig&gt;
+<span class="lineNum">     323 </span>            :         struct result;
+<span class="lineNum">     324 </span>            : 
+<span class="lineNum">     325 </span>            :         template&lt;typename This, typename Expr&gt;
+<span class="lineNum">     326 </span>            :         struct result&lt;This(Expr)&gt;
+<span class="lineNum">     327 </span>            :         {
+<span class="lineNum">     328 </span>            :             typedef
+<span class="lineNum">     329 </span>            :                 typename Second::template result&lt;
+<span class="lineNum">     330 </span>            :                     Second(typename First::template result&lt;First(Expr)&gt;::type)
+<span class="lineNum">     331 </span>            :                 &gt;::type
+<span class="lineNum">     332 </span>            :             type;
+<span class="lineNum">     333 </span>            :         };
+<span class="lineNum">     334 </span>            : 
+<span class="lineNum">     335 </span>            :         template&lt;typename This, typename Expr&gt;
+<span class="lineNum">     336 </span>            :         struct result&lt;This(Expr &amp;)&gt;
+<span class="lineNum">     337 </span>            :         {
+<span class="lineNum">     338 </span>            :             typedef
+<span class="lineNum">     339 </span>            :                 typename Second::template result&lt;
+<span class="lineNum">     340 </span>            :                     Second(typename First::template result&lt;First(Expr)&gt;::type)
+<span class="lineNum">     341 </span>            :                 &gt;::type
+<span class="lineNum">     342 </span>            :             type;
+<span class="lineNum">     343 </span>            :         };
+<span class="lineNum">     344 </span>            : 
+<span class="lineNum">     345 </span>            :         template&lt;typename This, typename Expr&gt;
+<span class="lineNum">     346 </span>            :         struct result&lt;This(Expr const &amp;)&gt;
+<span class="lineNum">     347 </span>            :         {
+<span class="lineNum">     348 </span>            :             typedef
+<span class="lineNum">     349 </span>            :                 typename Second::template result&lt;
+<span class="lineNum">     350 </span>            :                     Second(typename First::template result&lt;First(Expr)&gt;::type)
+<span class="lineNum">     351 </span>            :                 &gt;::type
+<span class="lineNum">     352 </span>            :             type;
+<span class="lineNum">     353 </span>            :         };
+<span class="lineNum">     354 </span>            : 
+<span class="lineNum">     355 </span>            :         /// \param expr The expression to modify.
+<span class="lineNum">     356 </span>            :         /// \return Second()(First()(expr))
+<span class="lineNum">     357 </span>            :         template&lt;typename Expr&gt;
+<span class="lineNum">     358 </span>            :         BOOST_FORCEINLINE
+<span class="lineNum">     359 </span>            :         typename result&lt;compose_generators(Expr)&gt;::type operator ()(Expr const &amp;e) const
+<span class="lineNum">     360 </span>            :         {
+<span class="lineNum">     361 </span>            :             return Second()(First()(e));
+<span class="lineNum">     362 </span>            :         }
+<span class="lineNum">     363 </span>            :     };
+<span class="lineNum">     364 </span>            : 
+<span class="lineNum">     365 </span>            :     /// \brief Tests a generator to see whether it would prefer
+<span class="lineNum">     366 </span>            :     /// to be passed instances of \c proto::basic_expr\&lt;\&gt; rather than
+<span class="lineNum">     367 </span>            :     /// \c proto::expr\&lt;\&gt;.
+<span class="lineNum">     368 </span>            :     ///
+<span class="lineNum">     369 </span>            :     template&lt;typename Generator, typename Void&gt;
+<span class="lineNum">     370 </span>            :     struct wants_basic_expr
+<span class="lineNum">     371 </span>            :       : mpl::false_
+<span class="lineNum">     372 </span>            :     {};
+<span class="lineNum">     373 </span>            : 
+<span class="lineNum">     374 </span>            :     template&lt;typename Generator&gt;
+<span class="lineNum">     375 </span>            :     struct wants_basic_expr&lt;Generator, typename Generator::proto_use_basic_expr_&gt;
+<span class="lineNum">     376 </span>            :       : mpl::true_
+<span class="lineNum">     377 </span>            :     {};
+<span class="lineNum">     378 </span>            : 
+<span class="lineNum">     379 </span>            :     /// INTERNAL ONLY
+<span class="lineNum">     380 </span>            :     template&lt;&gt;
+<span class="lineNum">     381 </span>            :     struct is_callable&lt;default_generator&gt;
+<span class="lineNum">     382 </span>            :       : mpl::true_
+<span class="lineNum">     383 </span>            :     {};
+<span class="lineNum">     384 </span>            : 
+<span class="lineNum">     385 </span>            :     /// INTERNAL ONLY
+<span class="lineNum">     386 </span>            :     template&lt;template&lt;typename&gt; class Extends&gt;
+<span class="lineNum">     387 </span>            :     struct is_callable&lt;generator&lt;Extends&gt; &gt;
+<span class="lineNum">     388 </span>            :       : mpl::true_
+<span class="lineNum">     389 </span>            :     {};
+<span class="lineNum">     390 </span>            : 
+<span class="lineNum">     391 </span>            :     /// INTERNAL ONLY
+<span class="lineNum">     392 </span>            :     template&lt;template&lt;typename&gt; class Extends&gt;
+<span class="lineNum">     393 </span>            :     struct is_callable&lt;pod_generator&lt;Extends&gt; &gt;
+<span class="lineNum">     394 </span>            :       : mpl::true_
+<span class="lineNum">     395 </span>            :     {};
+<span class="lineNum">     396 </span>            : 
+<span class="lineNum">     397 </span>            :     /// INTERNAL ONLY
+<span class="lineNum">     398 </span>            :     template&lt;&gt;
+<span class="lineNum">     399 </span>            :     struct is_callable&lt;by_value_generator&gt;
+<span class="lineNum">     400 </span>            :       : mpl::true_
+<span class="lineNum">     401 </span>            :     {};
+<span class="lineNum">     402 </span>            : 
+<span class="lineNum">     403 </span>            :     /// INTERNAL ONLY
+<span class="lineNum">     404 </span>            :     template&lt;typename First, typename Second&gt;
+<span class="lineNum">     405 </span>            :     struct is_callable&lt;compose_generators&lt;First, Second&gt; &gt;
+<span class="lineNum">     406 </span>            :       : mpl::true_
+<span class="lineNum">     407 </span>            :     {};
+<span class="lineNum">     408 </span>            : 
+<span class="lineNum">     409 </span>            : }}
+<span class="lineNum">     410 </span>            : 
+<span class="lineNum">     411 </span>            : // Specializations of boost::result_of and boost::tr1_result_of to eliminate
+<span class="lineNum">     412 </span>            : // some unnecessary template instantiations
+<span class="lineNum">     413 </span>            : namespace boost
+<span class="lineNum">     414 </span>            : {
+<span class="lineNum">     415 </span>            :     template&lt;typename Expr&gt;
+<span class="lineNum">     416 </span>            :     struct result_of&lt;proto::default_domain(Expr)&gt;
+<span class="lineNum">     417 </span>            :     {
+<span class="lineNum">     418 </span>            :         typedef Expr type;
+<span class="lineNum">     419 </span>            :     };
+<span class="lineNum">     420 </span>            : 
+<span class="lineNum">     421 </span>            :     template&lt;typename Expr&gt;
+<span class="lineNum">     422 </span>            :     struct result_of&lt;proto::basic_default_domain(Expr)&gt;
+<span class="lineNum">     423 </span>            :     {
+<span class="lineNum">     424 </span>            :         typedef Expr type;
+<span class="lineNum">     425 </span>            :     };
+<span class="lineNum">     426 </span>            : 
+<span class="lineNum">     427 </span>            :     template&lt;typename Expr&gt;
+<span class="lineNum">     428 </span>            :     struct result_of&lt;proto::default_generator(Expr)&gt;
+<span class="lineNum">     429 </span>            :     {
+<span class="lineNum">     430 </span>            :         typedef Expr type;
+<span class="lineNum">     431 </span>            :     };
+<span class="lineNum">     432 </span>            : 
+<span class="lineNum">     433 </span>            :     template&lt;typename Expr&gt;
+<span class="lineNum">     434 </span>            :     struct result_of&lt;proto::basic_default_generator(Expr)&gt;
+<span class="lineNum">     435 </span>            :     {
+<span class="lineNum">     436 </span>            :         typedef Expr type;
+<span class="lineNum">     437 </span>            :     };
+<span class="lineNum">     438 </span>            : 
+<span class="lineNum">     439 </span>            :     #if BOOST_VERSION &gt;= 104400
+<span class="lineNum">     440 </span>            :     template&lt;typename Expr&gt;
+<span class="lineNum">     441 </span>            :     struct tr1_result_of&lt;proto::default_domain(Expr)&gt;
+<span class="lineNum">     442 </span>            :     {
+<span class="lineNum">     443 </span>            :         typedef Expr type;
+<span class="lineNum">     444 </span>            :     };
+<span class="lineNum">     445 </span>            : 
+<span class="lineNum">     446 </span>            :     template&lt;typename Expr&gt;
+<span class="lineNum">     447 </span>            :     struct tr1_result_of&lt;proto::basic_default_domain(Expr)&gt;
+<span class="lineNum">     448 </span>            :     {
+<span class="lineNum">     449 </span>            :         typedef Expr type;
+<span class="lineNum">     450 </span>            :     };
+<span class="lineNum">     451 </span>            : 
+<span class="lineNum">     452 </span>            :     template&lt;typename Expr&gt;
+<span class="lineNum">     453 </span>            :     struct tr1_result_of&lt;proto::default_generator(Expr)&gt;
+<span class="lineNum">     454 </span>            :     {
+<span class="lineNum">     455 </span>            :         typedef Expr type;
+<span class="lineNum">     456 </span>            :     };
+<span class="lineNum">     457 </span>            : 
+<span class="lineNum">     458 </span>            :     template&lt;typename Expr&gt;
+<span class="lineNum">     459 </span>            :     struct tr1_result_of&lt;proto::basic_default_generator(Expr)&gt;
+<span class="lineNum">     460 </span>            :     {
+<span class="lineNum">     461 </span>            :         typedef Expr type;
+<span class="lineNum">     462 </span>            :     };
+<span class="lineNum">     463 </span>            :     #endif
+<span class="lineNum">     464 </span>            : }
+<span class="lineNum">     465 </span>            : 
+<span class="lineNum">     466 </span>            : #if defined(_MSC_VER)
+<span class="lineNum">     467 </span>            : # pragma warning(pop)
+<span class="lineNum">     468 </span>            : #endif
+<span class="lineNum">     469 </span>            : 
+<span class="lineNum">     470 </span>            : #endif // BOOST_PROTO_GENERATE_HPP_EAN_02_13_2007
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

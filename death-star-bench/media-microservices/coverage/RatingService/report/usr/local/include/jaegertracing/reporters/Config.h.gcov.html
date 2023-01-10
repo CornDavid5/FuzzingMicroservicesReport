@@ -1,0 +1,209 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - /usr/local/include/jaegertracing/reporters/Config.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">usr/local/include/jaegertracing/reporters</a> - Config.h<span style="font-size: 80%;"> (source / <a href="Config.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntry">28</td>
+            <td class="headerCovTableEntryMed">85.7 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 01:15:29</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * Copyright (c) 2017 Uber Technologies, Inc.
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       5 </span>            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>            :  * You may obtain a copy of the License at
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>            :  * limitations under the License.
+<span class="lineNum">      15 </span>            :  */
+<span class="lineNum">      16 </span>            : 
+<span class="lineNum">      17 </span>            : #ifndef JAEGERTRACING_REPORTERS_CONFIG_H
+<span class="lineNum">      18 </span>            : #define JAEGERTRACING_REPORTERS_CONFIG_H
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #include &lt;chrono&gt;
+<span class="lineNum">      21 </span>            : #include &lt;memory&gt;
+<span class="lineNum">      22 </span>            : #include &lt;string&gt;
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : #include &quot;jaegertracing/Logging.h&quot;
+<span class="lineNum">      25 </span>            : #include &quot;jaegertracing/UDPTransport.h&quot;
+<span class="lineNum">      26 </span>            : #include &quot;jaegertracing/metrics/Metrics.h&quot;
+<span class="lineNum">      27 </span>            : #include &quot;jaegertracing/reporters/CompositeReporter.h&quot;
+<span class="lineNum">      28 </span>            : #include &quot;jaegertracing/reporters/LoggingReporter.h&quot;
+<span class="lineNum">      29 </span>            : #include &quot;jaegertracing/reporters/RemoteReporter.h&quot;
+<span class="lineNum">      30 </span>            : #include &quot;jaegertracing/reporters/Reporter.h&quot;
+<span class="lineNum">      31 </span>            : #include &quot;jaegertracing/utils/YAML.h&quot;
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : namespace jaegertracing {
+<a name="34"><span class="lineNum">      34 </span>            : namespace reporters {</a>
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span><span class="lineCov">          3 : class Config {</span>
+<span class="lineNum">      37 </span>            :   public:
+<span class="lineNum">      38 </span>            :     using Clock = std::chrono::steady_clock;
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span>            :     static constexpr auto kDefaultQueueSize = 100;
+<a name="41"><span class="lineNum">      41 </span>            :     static constexpr auto kDefaultLocalAgentHostPort = &quot;127.0.0.1:6831&quot;;</a>
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span><span class="lineCov">          1 :     static Clock::duration defaultBufferFlushInterval()</span>
+<span class="lineNum">      44 </span>            :     {
+<span class="lineNum">      45 </span><span class="lineCov">          1 :         return std::chrono::seconds(10);</span>
+<span class="lineNum">      46 </span>            :     }
+<span class="lineNum">      47 </span>            : 
+<a name="48"><span class="lineNum">      48 </span>            : #ifdef JAEGERTRACING_WITH_YAML_CPP</a>
+<span class="lineNum">      49 </span>            : 
+<span class="lineNum">      50 </span><span class="lineCov">          1 :     static Config parse(const YAML::Node&amp; configYAML)</span>
+<span class="lineNum">      51 </span>            :     {
+<span class="lineNum">      52 </span><span class="lineCov">          1 :         if (!configYAML.IsDefined() || !configYAML.IsMap()) {</span>
+<span class="lineNum">      53 </span><span class="lineNoCov">          0 :             return Config();</span>
+<span class="lineNum">      54 </span>            :         }
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            :         const auto queueSize =
+<span class="lineNum">      57 </span><span class="lineCov">          1 :             utils::yaml::findOrDefault&lt;int&gt;(configYAML, &quot;queueSize&quot;, 0);</span>
+<span class="lineNum">      58 </span>            :         const auto bufferFlushInterval =
+<span class="lineNum">      59 </span><span class="lineCov">          2 :             std::chrono::seconds(utils::yaml::findOrDefault&lt;int&gt;(</span>
+<span class="lineNum">      60 </span><span class="lineCov">          1 :                 configYAML, &quot;bufferFlushInterval&quot;, 0));</span>
+<span class="lineNum">      61 </span>            :         const auto logSpans =
+<span class="lineNum">      62 </span><span class="lineCov">          1 :             utils::yaml::findOrDefault&lt;bool&gt;(configYAML, &quot;logSpans&quot;, false);</span>
+<span class="lineNum">      63 </span>            :         const auto localAgentHostPort = utils::yaml::findOrDefault&lt;std::string&gt;(
+<span class="lineNum">      64 </span><span class="lineCov">          2 :             configYAML, &quot;localAgentHostPort&quot;, &quot;&quot;);</span>
+<span class="lineNum">      65 </span>            :         return Config(
+<span class="lineNum">      66 </span><span class="lineCov">          1 :             queueSize, bufferFlushInterval, logSpans, localAgentHostPort);</span>
+<span class="lineNum">      67 </span>            :     }
+<span class="lineNum">      68 </span>            : 
+<a name="69"><span class="lineNum">      69 </span>            : #endif  // JAEGERTRACING_WITH_YAML_CPP</a>
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span><span class="lineCov">          1 :     explicit Config(</span>
+<span class="lineNum">      72 </span>            :         int queueSize = kDefaultQueueSize,
+<span class="lineNum">      73 </span>            :         const Clock::duration&amp; bufferFlushInterval =
+<span class="lineNum">      74 </span>            :             defaultBufferFlushInterval(),
+<span class="lineNum">      75 </span>            :         bool logSpans = false,
+<span class="lineNum">      76 </span>            :         const std::string&amp; localAgentHostPort = kDefaultLocalAgentHostPort)
+<span class="lineNum">      77 </span><span class="lineCov">          1 :         : _queueSize(queueSize &gt; 0 ? queueSize : kDefaultQueueSize)</span>
+<span class="lineNum">      78 </span><span class="lineCov">          1 :         , _bufferFlushInterval(bufferFlushInterval.count() &gt; 0</span>
+<span class="lineNum">      79 </span>            :                                    ? bufferFlushInterval
+<span class="lineNum">      80 </span>            :                                    : defaultBufferFlushInterval())
+<span class="lineNum">      81 </span>            :         , _logSpans(logSpans)
+<span class="lineNum">      82 </span><span class="lineCov">          1 :         , _localAgentHostPort(localAgentHostPort.empty()</span>
+<span class="lineNum">      83 </span>            :                                   ? kDefaultLocalAgentHostPort
+<span class="lineNum">      84 </span><span class="lineCov">          3 :                                   : localAgentHostPort)</span>
+<span class="lineNum">      85 </span>            :     {
+<a name="86"><span class="lineNum">      86 </span><span class="lineCov">          1 :     }</span></a>
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span><span class="lineCov">          1 :     std::unique_ptr&lt;Reporter&gt; makeReporter(const std::string&amp; serviceName,</span>
+<span class="lineNum">      89 </span>            :                                            logging::Logger&amp; logger,
+<span class="lineNum">      90 </span>            :                                            metrics::Metrics&amp; metrics) const
+<span class="lineNum">      91 </span>            :     {
+<span class="lineNum">      92 </span>            :         std::unique_ptr&lt;UDPTransport&gt; sender(
+<span class="lineNum">      93 </span><span class="lineCov">          2 :             new UDPTransport(net::IPAddress::v4(_localAgentHostPort), 0));</span>
+<span class="lineNum">      94 </span>            :         std::unique_ptr&lt;RemoteReporter&gt; remoteReporter(
+<span class="lineNum">      95 </span>            :             new RemoteReporter(_bufferFlushInterval,
+<span class="lineNum">      96 </span><span class="lineCov">          1 :                                _queueSize,</span>
+<span class="lineNum">      97 </span><span class="lineCov">          1 :                                std::move(sender),</span>
+<span class="lineNum">      98 </span>            :                                logger,
+<span class="lineNum">      99 </span><span class="lineCov">          3 :                                metrics));</span>
+<span class="lineNum">     100 </span><span class="lineCov">          1 :         if (_logSpans) {</span>
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 :             logger.info(&quot;Initializing logging reporter&quot;);</span>
+<span class="lineNum">     102 </span>            :             return std::unique_ptr&lt;CompositeReporter&gt;(new CompositeReporter(
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :                 { std::shared_ptr&lt;RemoteReporter&gt;(std::move(remoteReporter)),</span>
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :                   std::make_shared&lt;LoggingReporter&gt;(logger) }));</span>
+<span class="lineNum">     105 </span>            :         }
+<span class="lineNum">     106 </span><span class="lineCov">          1 :         return std::unique_ptr&lt;Reporter&gt;(std::move(remoteReporter));</span>
+<span class="lineNum">     107 </span>            :     }
+<span class="lineNum">     108 </span>            : 
+<span class="lineNum">     109 </span>            :     int queueSize() const { return _queueSize; }
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span>            :     const Clock::duration&amp; bufferFlushInterval() const
+<span class="lineNum">     112 </span>            :     {
+<span class="lineNum">     113 </span>            :         return _bufferFlushInterval;
+<span class="lineNum">     114 </span>            :     }
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span>            :     bool logSpans() const { return _logSpans; }
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span>            :     const std::string&amp; localAgentHostPort() const
+<span class="lineNum">     119 </span>            :     {
+<span class="lineNum">     120 </span>            :         return _localAgentHostPort;
+<span class="lineNum">     121 </span>            :     }
+<span class="lineNum">     122 </span>            : 
+<span class="lineNum">     123 </span>            :   private:
+<span class="lineNum">     124 </span>            :     int _queueSize;
+<span class="lineNum">     125 </span>            :     Clock::duration _bufferFlushInterval;
+<span class="lineNum">     126 </span>            :     bool _logSpans;
+<span class="lineNum">     127 </span>            :     std::string _localAgentHostPort;
+<span class="lineNum">     128 </span>            : };
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span>            : }  // namespace reporters
+<span class="lineNum">     131 </span>            : }  // namespace jaegertracing
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span>            : #endif  // JAEGERTRACING_REPORTERS_CONFIG_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
