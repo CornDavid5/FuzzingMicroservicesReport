@@ -1,0 +1,511 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - /usr/local/include/jwt/parameters.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">usr/local/include/jwt</a> - parameters.hpp<span style="font-size: 80%;"> (source / <a href="parameters.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 03:42:26</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            : Copyright (c) 2017 Arun Muralidharan
+<span class="lineNum">       3 </span>            : 
+<span class="lineNum">       4 </span>            : Permission is hereby granted, free of charge, to any person obtaining a copy
+<span class="lineNum">       5 </span>            : of this software and associated documentation files (the &quot;Software&quot;), to deal
+<span class="lineNum">       6 </span>            : in the Software without restriction, including without limitation the rights
+<span class="lineNum">       7 </span>            : to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+<span class="lineNum">       8 </span>            : copies of the Software, and to permit persons to whom the Software is
+<span class="lineNum">       9 </span>            : furnished to do so, subject to the following conditions:
+<span class="lineNum">      10 </span>            : 
+<span class="lineNum">      11 </span>            : The above copyright notice and this permission notice shall be included in all
+<span class="lineNum">      12 </span>            : copies or substantial portions of the Software.
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+<span class="lineNum">      15 </span>            : IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<span class="lineNum">      16 </span>            : FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+<span class="lineNum">      17 </span>            : AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<span class="lineNum">      18 </span>            : LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+<span class="lineNum">      19 </span>            : OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+<span class="lineNum">      20 </span>            : SOFTWARE.
+<span class="lineNum">      21 </span>            :  */
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : #ifndef CPP_JWT_PARAMETERS_HPP
+<span class="lineNum">      24 </span>            : #define CPP_JWT_PARAMETERS_HPP
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &lt;map&gt;
+<span class="lineNum">      27 </span>            : #include &lt;chrono&gt;
+<span class="lineNum">      28 </span>            : #include &lt;string&gt;
+<span class="lineNum">      29 </span>            : #include &lt;vector&gt;
+<span class="lineNum">      30 </span>            : #include &lt;utility&gt;
+<span class="lineNum">      31 </span>            : #include &lt;unordered_map&gt;
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : #include &quot;jwt/algorithm.hpp&quot;
+<span class="lineNum">      34 </span>            : #include &quot;jwt/detail/meta.hpp&quot;
+<span class="lineNum">      35 </span>            : #include &quot;jwt/string_view.hpp&quot;
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            : namespace jwt {
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : using system_time_t = std::chrono::time_point&lt;std::chrono::system_clock&gt;;
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            : namespace params {
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            : namespace detail {
+<span class="lineNum">      45 </span>            : /**
+<span class="lineNum">      46 </span>            :  * Parameter for providing the payload.
+<span class="lineNum">      47 </span>            :  * Takes a Mapping concept representing
+<span class="lineNum">      48 </span>            :  * key-value pairs.
+<span class="lineNum">      49 </span>            :  *
+<span class="lineNum">      50 </span>            :  * NOTE: MappingConcept allows only strings
+<span class="lineNum">      51 </span>            :  * for both keys and values. Use `add_header`
+<span class="lineNum">      52 </span>            :  * API of `jwt_object` otherwise.
+<span class="lineNum">      53 </span>            :  *
+<span class="lineNum">      54 </span>            :  * Modeled as ParameterConcept.
+<a name="55"><span class="lineNum">      55 </span>            :  */</a>
+<span class="lineNum">      56 </span>            : template &lt;typename MappingConcept&gt;
+<a name="57"><span class="lineNum">      57 </span><span class="lineCov">          4 : struct payload_param</span></a>
+<span class="lineNum">      58 </span>            : {
+<span class="lineNum">      59 </span><span class="lineCov">          4 :   payload_param(MappingConcept&amp;&amp; mc)</span>
+<span class="lineNum">      60 </span><span class="lineCov">          4 :     : payload_(std::forward&lt;MappingConcept&gt;(mc))</span>
+<span class="lineNum">      61 </span><span class="lineCov">          4 :   {}</span>
+<a name="62"><span class="lineNum">      62 </span>            : </a>
+<span class="lineNum">      63 </span>            :   MappingConcept get() &amp;&amp; { return std::move(payload_); }
+<span class="lineNum">      64 </span><span class="lineCov">          4 :   const MappingConcept&amp; get() const&amp; { return payload_; }</span>
+<span class="lineNum">      65 </span>            : 
+<span class="lineNum">      66 </span>            :   MappingConcept payload_;
+<span class="lineNum">      67 </span>            : };
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span>            : /**
+<span class="lineNum">      70 </span>            :  * Parameter for providing the secret key.
+<span class="lineNum">      71 </span>            :  * Stores only the view of the provided string
+<span class="lineNum">      72 </span>            :  * as string_view. Later the implementation may or
+<span class="lineNum">      73 </span>            :  * may-not copy it.
+<span class="lineNum">      74 </span>            :  *
+<a name="75"><span class="lineNum">      75 </span>            :  * Modeled as ParameterConcept.</a>
+<span class="lineNum">      76 </span>            :  */
+<a name="77"><span class="lineNum">      77 </span><span class="lineCov">          8 : struct secret_param</span></a>
+<span class="lineNum">      78 </span>            : {
+<span class="lineNum">      79 </span><span class="lineCov">          4 :   secret_param(string_view sv)</span>
+<span class="lineNum">      80 </span><span class="lineCov">          4 :     : secret_(sv)</span>
+<a name="81"><span class="lineNum">      81 </span><span class="lineCov">          4 :   {}</span></a>
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span><span class="lineCov">          8 :   string_view get() { return secret_; }</span>
+<span class="lineNum">      84 </span>            :   string_view secret_;
+<span class="lineNum">      85 </span>            : };
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span>            : /**
+<span class="lineNum">      88 </span>            :  * Parameter for providing the algorithm to use.
+<span class="lineNum">      89 </span>            :  * The parameter can accept either the string representation
+<span class="lineNum">      90 </span>            :  * or the enum class.
+<span class="lineNum">      91 </span>            :  *
+<span class="lineNum">      92 </span>            :  * Modeled as ParameterConcept.
+<span class="lineNum">      93 </span>            :  */
+<a name="94"><span class="lineNum">      94 </span>            : struct algorithm_param</a>
+<span class="lineNum">      95 </span>            : {
+<span class="lineNum">      96 </span><span class="lineCov">          4 :   algorithm_param(const string_view alg)</span>
+<span class="lineNum">      97 </span><span class="lineCov">          4 :     : alg_(str_to_alg(alg))</span>
+<span class="lineNum">      98 </span><span class="lineCov">          4 :   {}</span>
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span>            :   algorithm_param(jwt::algorithm alg)
+<span class="lineNum">     101 </span>            :     : alg_(alg)
+<a name="102"><span class="lineNum">     102 </span>            :   {}</a>
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span><span class="lineCov">          4 :   jwt::algorithm get() const noexcept</span>
+<span class="lineNum">     105 </span>            :   {
+<span class="lineNum">     106 </span><span class="lineCov">          4 :     return alg_;</span>
+<span class="lineNum">     107 </span>            :   }
+<span class="lineNum">     108 </span>            : 
+<span class="lineNum">     109 </span>            :   typename jwt::algorithm alg_;
+<span class="lineNum">     110 </span>            : };
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span>            : /**
+<span class="lineNum">     113 </span>            :  * Parameter for providing additional headers.
+<span class="lineNum">     114 </span>            :  * Takes a mapping concept representing
+<span class="lineNum">     115 </span>            :  * key-value pairs.
+<span class="lineNum">     116 </span>            :  *
+<span class="lineNum">     117 </span>            :  * Modeled as ParameterConcept.
+<span class="lineNum">     118 </span>            :  */
+<span class="lineNum">     119 </span>            : template &lt;typename MappingConcept&gt;
+<span class="lineNum">     120 </span>            : struct headers_param
+<span class="lineNum">     121 </span>            : {
+<span class="lineNum">     122 </span>            :   headers_param(MappingConcept&amp;&amp; mc)
+<span class="lineNum">     123 </span>            :     : headers_(std::forward&lt;MappingConcept&gt;(mc))
+<span class="lineNum">     124 </span>            :   {}
+<span class="lineNum">     125 </span>            : 
+<span class="lineNum">     126 </span>            :   MappingConcept get() &amp;&amp; { return std::move(headers_); }
+<span class="lineNum">     127 </span>            :   const MappingConcept&amp; get() const&amp; { return headers_; }
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span>            :   MappingConcept headers_;
+<span class="lineNum">     130 </span>            : };
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span>            : /**
+<span class="lineNum">     133 </span>            :  */
+<span class="lineNum">     134 </span>            : struct verify_param
+<span class="lineNum">     135 </span>            : {
+<span class="lineNum">     136 </span>            :   verify_param(bool v)
+<span class="lineNum">     137 </span>            :     : verify_(v)
+<span class="lineNum">     138 </span>            :   {}
+<span class="lineNum">     139 </span>            : 
+<span class="lineNum">     140 </span>            :   bool get() const { return verify_; }
+<span class="lineNum">     141 </span>            : 
+<span class="lineNum">     142 </span>            :   bool verify_;
+<span class="lineNum">     143 </span>            : };
+<span class="lineNum">     144 </span>            : 
+<span class="lineNum">     145 </span>            : /**
+<span class="lineNum">     146 </span>            :  */
+<span class="lineNum">     147 </span>            : template &lt;typename Sequence&gt;
+<span class="lineNum">     148 </span>            : struct algorithms_param
+<span class="lineNum">     149 </span>            : {
+<span class="lineNum">     150 </span>            :   algorithms_param(Sequence&amp;&amp; seq)
+<span class="lineNum">     151 </span>            :     : seq_(std::forward&lt;Sequence&gt;(seq))
+<span class="lineNum">     152 </span>            :   {}
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span>            :   Sequence get() &amp;&amp; { return std::move(seq_); }
+<span class="lineNum">     155 </span>            :   const Sequence&amp; get() const&amp; { return seq_; }
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span>            :   Sequence seq_;
+<span class="lineNum">     158 </span>            : };
+<span class="lineNum">     159 </span>            : 
+<span class="lineNum">     160 </span>            : /**
+<span class="lineNum">     161 </span>            :  */
+<span class="lineNum">     162 </span>            : struct leeway_param
+<span class="lineNum">     163 </span>            : {
+<span class="lineNum">     164 </span>            :   leeway_param(uint32_t v)
+<span class="lineNum">     165 </span>            :     : leeway_(v)
+<span class="lineNum">     166 </span>            :   {}
+<span class="lineNum">     167 </span>            : 
+<span class="lineNum">     168 </span>            :   uint32_t get() const noexcept { return leeway_; }
+<span class="lineNum">     169 </span>            : 
+<span class="lineNum">     170 </span>            :   uint32_t leeway_;
+<span class="lineNum">     171 </span>            : };
+<span class="lineNum">     172 </span>            : 
+<span class="lineNum">     173 </span>            : /**
+<span class="lineNum">     174 </span>            :  */
+<span class="lineNum">     175 </span>            : struct audience_param
+<span class="lineNum">     176 </span>            : {
+<span class="lineNum">     177 </span>            :   audience_param(std::string aud)
+<span class="lineNum">     178 </span>            :     : aud_(std::move(aud))
+<span class="lineNum">     179 </span>            :   {}
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span>            :   const std::string&amp; get() const&amp; noexcept { return aud_; }
+<span class="lineNum">     182 </span>            :   std::string get() &amp;&amp; noexcept { return aud_; }
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span>            :   std::string aud_;
+<span class="lineNum">     185 </span>            : };
+<span class="lineNum">     186 </span>            : 
+<span class="lineNum">     187 </span>            : /**
+<span class="lineNum">     188 </span>            :  */
+<span class="lineNum">     189 </span>            : struct issuer_param
+<span class="lineNum">     190 </span>            : {
+<span class="lineNum">     191 </span>            :   issuer_param(std::string iss)
+<span class="lineNum">     192 </span>            :     : iss_(std::move(iss))
+<span class="lineNum">     193 </span>            :   {}
+<span class="lineNum">     194 </span>            : 
+<span class="lineNum">     195 </span>            :   const std::string&amp; get() const&amp; noexcept { return iss_; }
+<span class="lineNum">     196 </span>            :   std::string get() &amp;&amp; noexcept { return iss_; }
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span>            :   std::string iss_;
+<span class="lineNum">     199 </span>            : };
+<span class="lineNum">     200 </span>            : 
+<span class="lineNum">     201 </span>            : /**
+<span class="lineNum">     202 </span>            :  */
+<span class="lineNum">     203 </span>            : struct subject_param
+<span class="lineNum">     204 </span>            : {
+<span class="lineNum">     205 </span>            :   subject_param(std::string sub)
+<span class="lineNum">     206 </span>            :     : sub_(std::move(sub))
+<span class="lineNum">     207 </span>            :   {}
+<span class="lineNum">     208 </span>            : 
+<span class="lineNum">     209 </span>            :   const std::string&amp; get() const&amp; noexcept { return sub_; }
+<span class="lineNum">     210 </span>            :   std::string get() &amp;&amp; noexcept { return sub_; }
+<span class="lineNum">     211 </span>            : 
+<span class="lineNum">     212 </span>            :   std::string sub_;
+<span class="lineNum">     213 </span>            : };
+<span class="lineNum">     214 </span>            : 
+<span class="lineNum">     215 </span>            : /**
+<span class="lineNum">     216 </span>            :  */
+<span class="lineNum">     217 </span>            : struct validate_iat_param
+<span class="lineNum">     218 </span>            : {
+<span class="lineNum">     219 </span>            :   validate_iat_param(bool v)
+<span class="lineNum">     220 </span>            :     : iat_(v)
+<span class="lineNum">     221 </span>            :   {}
+<span class="lineNum">     222 </span>            : 
+<span class="lineNum">     223 </span>            :   bool get() const noexcept { return iat_; }
+<span class="lineNum">     224 </span>            : 
+<span class="lineNum">     225 </span>            :   bool iat_;
+<span class="lineNum">     226 </span>            : };
+<span class="lineNum">     227 </span>            : 
+<span class="lineNum">     228 </span>            : /**
+<span class="lineNum">     229 </span>            :  */
+<span class="lineNum">     230 </span>            : struct validate_jti_param
+<span class="lineNum">     231 </span>            : {
+<span class="lineNum">     232 </span>            :   validate_jti_param(bool v)
+<span class="lineNum">     233 </span>            :     : jti_(v)
+<span class="lineNum">     234 </span>            :   {}
+<span class="lineNum">     235 </span>            : 
+<span class="lineNum">     236 </span>            :   bool get() const noexcept { return jti_; }
+<span class="lineNum">     237 </span>            : 
+<span class="lineNum">     238 </span>            :   bool jti_;
+<span class="lineNum">     239 </span>            : };
+<span class="lineNum">     240 </span>            : 
+<span class="lineNum">     241 </span>            : /**
+<span class="lineNum">     242 </span>            :  */
+<span class="lineNum">     243 </span>            : struct nbf_param
+<span class="lineNum">     244 </span>            : {
+<span class="lineNum">     245 </span>            :   nbf_param(const jwt::system_time_t tp)
+<span class="lineNum">     246 </span>            :     : duration_(std::chrono::duration_cast&lt;
+<span class="lineNum">     247 </span>            :         std::chrono::seconds&gt;(tp.time_since_epoch()).count())
+<span class="lineNum">     248 </span>            :   {}
+<span class="lineNum">     249 </span>            : 
+<span class="lineNum">     250 </span>            :   nbf_param(const uint64_t epoch)
+<span class="lineNum">     251 </span>            :     : duration_(epoch)
+<span class="lineNum">     252 </span>            :   {}
+<span class="lineNum">     253 </span>            :  
+<span class="lineNum">     254 </span>            :   uint64_t get() const noexcept { return duration_; }
+<span class="lineNum">     255 </span>            : 
+<span class="lineNum">     256 </span>            :   uint64_t duration_;
+<span class="lineNum">     257 </span>            : };
+<span class="lineNum">     258 </span>            : 
+<span class="lineNum">     259 </span>            : } // END namespace detail
+<span class="lineNum">     260 </span>            : 
+<span class="lineNum">     261 </span>            : // Useful typedef
+<span class="lineNum">     262 </span>            : using param_init_list_t = std::initializer_list&lt;std::pair&lt;jwt::string_view, jwt::string_view&gt;&gt;;
+<span class="lineNum">     263 </span>            : using param_seq_list_t  = std::initializer_list&lt;jwt::string_view&gt;;
+<span class="lineNum">     264 </span>            : 
+<span class="lineNum">     265 </span>            : 
+<span class="lineNum">     266 </span>            : /**
+<a name="267"><span class="lineNum">     267 </span>            :  */</a>
+<span class="lineNum">     268 </span>            : inline detail::payload_param&lt;std::unordered_map&lt;std::string, std::string&gt;&gt;
+<span class="lineNum">     269 </span><span class="lineCov">          4 : payload(const param_init_list_t&amp; kvs)</span>
+<span class="lineNum">     270 </span>            : {
+<span class="lineNum">     271 </span><span class="lineCov">          8 :   std::unordered_map&lt;std::string, std::string&gt; m;</span>
+<span class="lineNum">     272 </span>            : 
+<span class="lineNum">     273 </span><span class="lineCov">         20 :   for (const auto&amp; elem : kvs) {</span>
+<span class="lineNum">     274 </span><span class="lineCov">         16 :     m.emplace(elem.first.data(), elem.second.data());</span>
+<span class="lineNum">     275 </span>            :   }
+<span class="lineNum">     276 </span>            : 
+<span class="lineNum">     277 </span><span class="lineCov">          8 :   return { std::move(m) };</span>
+<span class="lineNum">     278 </span>            : }
+<span class="lineNum">     279 </span>            : 
+<span class="lineNum">     280 </span>            : /**
+<span class="lineNum">     281 </span>            :  */
+<span class="lineNum">     282 </span>            : template &lt;typename MappingConcept&gt;
+<span class="lineNum">     283 </span>            : detail::payload_param&lt;MappingConcept&gt;
+<span class="lineNum">     284 </span>            : payload(MappingConcept&amp;&amp; mc)
+<span class="lineNum">     285 </span>            : {
+<span class="lineNum">     286 </span>            :   static_assert (jwt::detail::meta::is_mapping_concept&lt;MappingConcept&gt;::value,
+<span class="lineNum">     287 </span>            :       &quot;Template parameter does not meet the requirements for MappingConcept.&quot;);
+<span class="lineNum">     288 </span>            : 
+<span class="lineNum">     289 </span>            :   return { std::forward&lt;MappingConcept&gt;(mc) };
+<span class="lineNum">     290 </span>            : }
+<span class="lineNum">     291 </span>            : 
+<span class="lineNum">     292 </span>            : 
+<a name="293"><span class="lineNum">     293 </span>            : /**</a>
+<span class="lineNum">     294 </span>            :  */
+<span class="lineNum">     295 </span><span class="lineCov">          4 : inline detail::secret_param secret(const string_view sv)</span>
+<span class="lineNum">     296 </span>            : {
+<span class="lineNum">     297 </span><span class="lineCov">          4 :   return { sv };</span>
+<span class="lineNum">     298 </span>            : }
+<span class="lineNum">     299 </span>            : 
+<a name="300"><span class="lineNum">     300 </span>            : /**</a>
+<span class="lineNum">     301 </span>            :  */
+<span class="lineNum">     302 </span><span class="lineCov">          4 : inline detail::algorithm_param algorithm(const string_view sv)</span>
+<span class="lineNum">     303 </span>            : {
+<span class="lineNum">     304 </span><span class="lineCov">          4 :   return { sv };</span>
+<span class="lineNum">     305 </span>            : }
+<span class="lineNum">     306 </span>            : 
+<span class="lineNum">     307 </span>            : /**
+<span class="lineNum">     308 </span>            :  */
+<span class="lineNum">     309 </span>            : inline detail::algorithm_param algorithm(jwt::algorithm alg)
+<span class="lineNum">     310 </span>            : {
+<span class="lineNum">     311 </span>            :   return { alg };
+<span class="lineNum">     312 </span>            : }
+<span class="lineNum">     313 </span>            : 
+<span class="lineNum">     314 </span>            : /**
+<span class="lineNum">     315 </span>            :  */
+<span class="lineNum">     316 </span>            : inline detail::headers_param&lt;std::map&lt;std::string, std::string&gt;&gt;
+<span class="lineNum">     317 </span>            : headers(const param_init_list_t&amp; kvs)
+<span class="lineNum">     318 </span>            : {
+<span class="lineNum">     319 </span>            :   std::map&lt;std::string, std::string&gt; m;
+<span class="lineNum">     320 </span>            : 
+<span class="lineNum">     321 </span>            :   for (const auto&amp; elem : kvs) {
+<span class="lineNum">     322 </span>            :     m.emplace(elem.first.data(), elem.second.data());
+<span class="lineNum">     323 </span>            :   }
+<span class="lineNum">     324 </span>            : 
+<span class="lineNum">     325 </span>            :   return { std::move(m) };
+<span class="lineNum">     326 </span>            : }
+<span class="lineNum">     327 </span>            : 
+<span class="lineNum">     328 </span>            : /**
+<span class="lineNum">     329 </span>            :  */
+<span class="lineNum">     330 </span>            : template &lt;typename MappingConcept&gt;
+<span class="lineNum">     331 </span>            : detail::headers_param&lt;MappingConcept&gt;
+<span class="lineNum">     332 </span>            : headers(MappingConcept&amp;&amp; mc)
+<span class="lineNum">     333 </span>            : {
+<span class="lineNum">     334 </span>            :   static_assert (jwt::detail::meta::is_mapping_concept&lt;MappingConcept&gt;::value,
+<span class="lineNum">     335 </span>            :        &quot;Template parameter does not meet the requirements for MappingConcept.&quot;);
+<span class="lineNum">     336 </span>            : 
+<span class="lineNum">     337 </span>            :   return { std::forward&lt;MappingConcept&gt;(mc) };
+<span class="lineNum">     338 </span>            : }
+<span class="lineNum">     339 </span>            : 
+<span class="lineNum">     340 </span>            : /**
+<span class="lineNum">     341 </span>            :  */
+<span class="lineNum">     342 </span>            : inline detail::verify_param
+<span class="lineNum">     343 </span>            : verify(bool v)
+<span class="lineNum">     344 </span>            : {
+<span class="lineNum">     345 </span>            :   return { v };
+<span class="lineNum">     346 </span>            : }
+<span class="lineNum">     347 </span>            : 
+<span class="lineNum">     348 </span>            : /**
+<span class="lineNum">     349 </span>            :  */
+<span class="lineNum">     350 </span>            : inline detail::leeway_param
+<span class="lineNum">     351 </span>            : leeway(uint32_t l)
+<span class="lineNum">     352 </span>            : {
+<span class="lineNum">     353 </span>            :   return { l };
+<span class="lineNum">     354 </span>            : }
+<span class="lineNum">     355 </span>            : 
+<span class="lineNum">     356 </span>            : /**
+<span class="lineNum">     357 </span>            :  */
+<span class="lineNum">     358 </span>            : inline detail::algorithms_param&lt;std::vector&lt;std::string&gt;&gt;
+<span class="lineNum">     359 </span>            : algorithms(const param_seq_list_t&amp; seq)
+<span class="lineNum">     360 </span>            : {
+<span class="lineNum">     361 </span>            :   std::vector&lt;std::string&gt; vec;
+<span class="lineNum">     362 </span>            :   vec.reserve(seq.size());
+<span class="lineNum">     363 </span>            : 
+<span class="lineNum">     364 </span>            :   for (const auto&amp; e: seq) { vec.emplace_back(e.data(), e.length()); }
+<span class="lineNum">     365 </span>            : 
+<span class="lineNum">     366 </span>            :   return { std::move(vec) };
+<span class="lineNum">     367 </span>            : }
+<span class="lineNum">     368 </span>            : 
+<span class="lineNum">     369 </span>            : template &lt;typename SequenceConcept&gt;
+<span class="lineNum">     370 </span>            : detail::algorithms_param&lt;SequenceConcept&gt;
+<span class="lineNum">     371 </span>            : algorithms(SequenceConcept&amp;&amp; sc)
+<span class="lineNum">     372 </span>            : {
+<span class="lineNum">     373 </span>            :   return { std::forward&lt;SequenceConcept&gt;(sc) };
+<span class="lineNum">     374 </span>            : }
+<span class="lineNum">     375 </span>            : 
+<span class="lineNum">     376 </span>            : /**
+<span class="lineNum">     377 </span>            :  */
+<span class="lineNum">     378 </span>            : inline detail::audience_param
+<span class="lineNum">     379 </span>            : aud(const jwt::string_view aud)
+<span class="lineNum">     380 </span>            : {
+<span class="lineNum">     381 </span>            :   return { aud.data() };
+<span class="lineNum">     382 </span>            : }
+<span class="lineNum">     383 </span>            : 
+<span class="lineNum">     384 </span>            : /**
+<span class="lineNum">     385 </span>            :  */
+<span class="lineNum">     386 </span>            : inline detail::issuer_param
+<span class="lineNum">     387 </span>            : issuer(const jwt::string_view iss)
+<span class="lineNum">     388 </span>            : {
+<span class="lineNum">     389 </span>            :   return { iss.data() };
+<span class="lineNum">     390 </span>            : }
+<span class="lineNum">     391 </span>            : 
+<span class="lineNum">     392 </span>            : /**
+<span class="lineNum">     393 </span>            :  */
+<span class="lineNum">     394 </span>            : inline detail::subject_param
+<span class="lineNum">     395 </span>            : sub(const jwt::string_view subj)
+<span class="lineNum">     396 </span>            : {
+<span class="lineNum">     397 </span>            :   return { subj.data() };
+<span class="lineNum">     398 </span>            : }
+<span class="lineNum">     399 </span>            : 
+<span class="lineNum">     400 </span>            : /**
+<span class="lineNum">     401 </span>            :  */
+<span class="lineNum">     402 </span>            : inline detail::validate_iat_param
+<span class="lineNum">     403 </span>            : validate_iat(bool v)
+<span class="lineNum">     404 </span>            : {
+<span class="lineNum">     405 </span>            :   return { v };
+<span class="lineNum">     406 </span>            : }
+<span class="lineNum">     407 </span>            : 
+<span class="lineNum">     408 </span>            : /**
+<span class="lineNum">     409 </span>            :  */
+<span class="lineNum">     410 </span>            : inline detail::validate_jti_param
+<span class="lineNum">     411 </span>            : validate_jti(bool v)
+<span class="lineNum">     412 </span>            : {
+<span class="lineNum">     413 </span>            :   return { v };
+<span class="lineNum">     414 </span>            : }
+<span class="lineNum">     415 </span>            : 
+<span class="lineNum">     416 </span>            : /**
+<span class="lineNum">     417 </span>            :  */
+<span class="lineNum">     418 </span>            : inline detail::nbf_param
+<span class="lineNum">     419 </span>            : nbf(const system_time_t tp)
+<span class="lineNum">     420 </span>            : {
+<span class="lineNum">     421 </span>            :   return { tp };
+<span class="lineNum">     422 </span>            : }
+<span class="lineNum">     423 </span>            : 
+<span class="lineNum">     424 </span>            : /**
+<span class="lineNum">     425 </span>            :  */
+<span class="lineNum">     426 </span>            : inline detail::nbf_param
+<span class="lineNum">     427 </span>            : nbf(const uint64_t epoch)
+<span class="lineNum">     428 </span>            : {
+<span class="lineNum">     429 </span>            :   return { epoch };
+<span class="lineNum">     430 </span>            : }
+<span class="lineNum">     431 </span>            : 
+<span class="lineNum">     432 </span>            : } // END namespace params
+<span class="lineNum">     433 </span>            : } // END namespace jwt
+<span class="lineNum">     434 </span>            : 
+<span class="lineNum">     435 </span>            : #endif
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

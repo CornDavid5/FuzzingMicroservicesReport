@@ -1,0 +1,274 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/lexical_cast/try_lexical_convert.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">boost/lexical_cast</a> - try_lexical_convert.hpp<span style="font-size: 80%;"> (source / <a href="try_lexical_convert.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 03:41:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // Copyright Kevlin Henney, 2000-2005.</a>
+<span class="lineNum">       2 </span>            : // Copyright Alexander Nasonov, 2006-2010.
+<span class="lineNum">       3 </span>            : // Copyright Antony Polukhin, 2011-2014.
+<span class="lineNum">       4 </span>            : //
+<span class="lineNum">       5 </span>            : // Distributed under the Boost Software License, Version 1.0. (See
+<span class="lineNum">       6 </span>            : // accompanying file LICENSE_1_0.txt or copy at
+<span class="lineNum">       7 </span>            : // http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       8 </span>            : //
+<span class="lineNum">       9 </span>            : // what:  lexical_cast custom keyword cast
+<span class="lineNum">      10 </span>            : // who:   contributed by Kevlin Henney,
+<span class="lineNum">      11 </span>            : //        enhanced with contributions from Terje Slettebo,
+<span class="lineNum">      12 </span>            : //        with additional fixes and suggestions from Gennaro Prota,
+<span class="lineNum">      13 </span>            : //        Beman Dawes, Dave Abrahams, Daryle Walker, Peter Dimov,
+<span class="lineNum">      14 </span>            : //        Alexander Nasonov, Antony Polukhin, Justin Viiret, Michael Hofmann,
+<span class="lineNum">      15 </span>            : //        Cheng Yang, Matthew Bradbury, David W. Birdsall, Pavel Korzh and other Boosters
+<span class="lineNum">      16 </span>            : // when:  November 2000, March 2003, June 2005, June 2006, March 2011 - 2014
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #ifndef BOOST_LEXICAL_CAST_TRY_LEXICAL_CONVERT_HPP
+<span class="lineNum">      19 </span>            : #define BOOST_LEXICAL_CAST_TRY_LEXICAL_CONVERT_HPP
+<span class="lineNum">      20 </span>            : 
+<span class="lineNum">      21 </span>            : #include &lt;boost/config.hpp&gt;
+<span class="lineNum">      22 </span>            : #ifdef BOOST_HAS_PRAGMA_ONCE
+<span class="lineNum">      23 </span>            : #   pragma once
+<span class="lineNum">      24 </span>            : #endif
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &lt;string&gt;
+<span class="lineNum">      27 </span>            : #include &lt;boost/mpl/if.hpp&gt;
+<span class="lineNum">      28 </span>            : #include &lt;boost/type_traits/ice.hpp&gt;
+<span class="lineNum">      29 </span>            : #include &lt;boost/type_traits/is_same.hpp&gt;
+<span class="lineNum">      30 </span>            : #include &lt;boost/type_traits/is_arithmetic.hpp&gt;
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : #include &lt;boost/lexical_cast/detail/is_character.hpp&gt;
+<span class="lineNum">      33 </span>            : #include &lt;boost/lexical_cast/detail/converter_numeric.hpp&gt;
+<span class="lineNum">      34 </span>            : #include &lt;boost/lexical_cast/detail/converter_lexical.hpp&gt;
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            : #include &lt;boost/range/iterator_range_core.hpp&gt;
+<span class="lineNum">      37 </span>            : #include &lt;boost/container/container_fwd.hpp&gt;
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : namespace boost {
+<span class="lineNum">      40 </span>            :     namespace detail
+<span class="lineNum">      41 </span>            :     {
+<span class="lineNum">      42 </span>            :         template&lt;typename T&gt;
+<span class="lineNum">      43 </span>            :         struct is_stdstring
+<span class="lineNum">      44 </span>            :             : boost::false_type
+<span class="lineNum">      45 </span>            :         {};
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span>            :         template&lt;typename CharT, typename Traits, typename Alloc&gt;
+<span class="lineNum">      48 </span>            :         struct is_stdstring&lt; std::basic_string&lt;CharT, Traits, Alloc&gt; &gt;
+<span class="lineNum">      49 </span>            :             : boost::true_type
+<span class="lineNum">      50 </span>            :         {};
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            :         template&lt;typename CharT, typename Traits, typename Alloc&gt;
+<span class="lineNum">      53 </span>            :         struct is_stdstring&lt; boost::container::basic_string&lt;CharT, Traits, Alloc&gt; &gt;
+<span class="lineNum">      54 </span>            :             : boost::true_type
+<span class="lineNum">      55 </span>            :         {};
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span>            :         template&lt;typename Target, typename Source&gt;
+<span class="lineNum">      58 </span>            :         struct is_arithmetic_and_not_xchars
+<span class="lineNum">      59 </span>            :         {
+<span class="lineNum">      60 </span>            :             BOOST_STATIC_CONSTANT(bool, value = (
+<span class="lineNum">      61 </span>            :                 boost::type_traits::ice_and&lt;
+<span class="lineNum">      62 </span>            :                     boost::type_traits::ice_not&lt;
+<span class="lineNum">      63 </span>            :                         boost::detail::is_character&lt;Target&gt;::value
+<span class="lineNum">      64 </span>            :                     &gt;::value,
+<span class="lineNum">      65 </span>            :                     boost::type_traits::ice_not&lt;
+<span class="lineNum">      66 </span>            :                         boost::detail::is_character&lt;Source&gt;::value
+<span class="lineNum">      67 </span>            :                     &gt;::value,
+<span class="lineNum">      68 </span>            :                     boost::is_arithmetic&lt;Source&gt;::value,
+<span class="lineNum">      69 </span>            :                     boost::is_arithmetic&lt;Target&gt;::value       
+<span class="lineNum">      70 </span>            :                 &gt;::value
+<span class="lineNum">      71 </span>            :             ));
+<span class="lineNum">      72 </span>            :         };
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span>            :         /*
+<span class="lineNum">      75 </span>            :          * is_xchar_to_xchar&lt;Target, Source&gt;::value is true, 
+<span class="lineNum">      76 </span>            :          * Target and Souce are char types of the same size 1 (char, signed char, unsigned char).
+<span class="lineNum">      77 </span>            :          */
+<span class="lineNum">      78 </span>            :         template&lt;typename Target, typename Source&gt;
+<span class="lineNum">      79 </span>            :         struct is_xchar_to_xchar 
+<span class="lineNum">      80 </span>            :         {
+<span class="lineNum">      81 </span>            :             BOOST_STATIC_CONSTANT(bool, value = (
+<span class="lineNum">      82 </span>            :                 boost::type_traits::ice_and&lt;
+<span class="lineNum">      83 </span>            :                      boost::type_traits::ice_eq&lt;sizeof(Source), sizeof(Target)&gt;::value,
+<span class="lineNum">      84 </span>            :                      boost::type_traits::ice_eq&lt;sizeof(Source), sizeof(char)&gt;::value,
+<span class="lineNum">      85 </span>            :                      boost::detail::is_character&lt;Target&gt;::value,
+<span class="lineNum">      86 </span>            :                      boost::detail::is_character&lt;Source&gt;::value
+<span class="lineNum">      87 </span>            :                 &gt;::value
+<span class="lineNum">      88 </span>            :             ));
+<span class="lineNum">      89 </span>            :         };
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span>            :         template&lt;typename Target, typename Source&gt;
+<span class="lineNum">      92 </span>            :         struct is_char_array_to_stdstring
+<span class="lineNum">      93 </span>            :             : boost::false_type
+<span class="lineNum">      94 </span>            :         {};
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span>            :         template&lt;typename CharT, typename Traits, typename Alloc&gt;
+<span class="lineNum">      97 </span>            :         struct is_char_array_to_stdstring&lt; std::basic_string&lt;CharT, Traits, Alloc&gt;, CharT* &gt;
+<span class="lineNum">      98 </span>            :             : boost::true_type
+<span class="lineNum">      99 </span>            :         {};
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span>            :         template&lt;typename CharT, typename Traits, typename Alloc&gt;
+<span class="lineNum">     102 </span>            :         struct is_char_array_to_stdstring&lt; std::basic_string&lt;CharT, Traits, Alloc&gt;, const CharT* &gt;
+<span class="lineNum">     103 </span>            :             : boost::true_type
+<span class="lineNum">     104 </span>            :         {};
+<span class="lineNum">     105 </span>            : 
+<span class="lineNum">     106 </span>            :         template&lt;typename CharT, typename Traits, typename Alloc&gt;
+<span class="lineNum">     107 </span>            :         struct is_char_array_to_stdstring&lt; boost::container::basic_string&lt;CharT, Traits, Alloc&gt;, CharT* &gt;
+<span class="lineNum">     108 </span>            :             : boost::true_type
+<span class="lineNum">     109 </span>            :         {};
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span>            :         template&lt;typename CharT, typename Traits, typename Alloc&gt;
+<span class="lineNum">     112 </span>            :         struct is_char_array_to_stdstring&lt; boost::container::basic_string&lt;CharT, Traits, Alloc&gt;, const CharT* &gt;
+<span class="lineNum">     113 </span>            :             : boost::true_type
+<span class="lineNum">     114 </span>            :         {};
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span>            :         template &lt;typename Target, typename Source&gt;
+<span class="lineNum">     117 </span>            :         struct copy_converter_impl
+<span class="lineNum">     118 </span>            :         {
+<span class="lineNum">     119 </span>            : // MSVC fail to forward an array (DevDiv#555157 &quot;SILENT BAD CODEGEN triggered by perfect forwarding&quot;,
+<span class="lineNum">     120 </span>            : // fixed in 2013 RTM).
+<span class="lineNum">     121 </span>            : #if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES) &amp;&amp; (!defined(BOOST_MSVC) || BOOST_MSVC &gt;= 1800)
+<span class="lineNum">     122 </span>            :             template &lt;class T&gt;
+<span class="lineNum">     123 </span>            :             static inline bool try_convert(T&amp;&amp; arg, Target&amp; result) {
+<span class="lineNum">     124 </span>            :                 result = static_cast&lt;T&amp;&amp;&gt;(arg); // eqaul to `result = std::forward&lt;T&gt;(arg);`
+<span class="lineNum">     125 </span>            :                 return true;
+<span class="lineNum">     126 </span>            :             }
+<span class="lineNum">     127 </span>            : #else
+<span class="lineNum">     128 </span>            :             static inline bool try_convert(const Source&amp; arg, Target&amp; result) {
+<span class="lineNum">     129 </span>            :                 result = arg;
+<span class="lineNum">     130 </span>            :                 return true;
+<span class="lineNum">     131 </span>            :             }
+<span class="lineNum">     132 </span>            : #endif
+<span class="lineNum">     133 </span>            :         };
+<span class="lineNum">     134 </span>            :     }
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span>            :     namespace conversion { namespace detail {
+<a name="137"><span class="lineNum">     137 </span>            : </a>
+<span class="lineNum">     138 </span>            :         template &lt;typename Target, typename Source&gt;
+<span class="lineNum">     139 </span><span class="lineCov">          4 :         inline bool try_lexical_convert(const Source&amp; arg, Target&amp; result)</span>
+<span class="lineNum">     140 </span>            :         {
+<span class="lineNum">     141 </span>            :             typedef BOOST_DEDUCED_TYPENAME boost::detail::array_to_pointer_decay&lt;Source&gt;::type src;
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span>            :             typedef BOOST_DEDUCED_TYPENAME boost::type_traits::ice_or&lt;
+<span class="lineNum">     144 </span>            :                 boost::detail::is_xchar_to_xchar&lt;Target, src &gt;::value,
+<span class="lineNum">     145 </span>            :                 boost::detail::is_char_array_to_stdstring&lt;Target, src &gt;::value,
+<span class="lineNum">     146 </span>            :                 boost::type_traits::ice_and&lt;
+<span class="lineNum">     147 </span>            :                      boost::is_same&lt;Target, src &gt;::value,
+<span class="lineNum">     148 </span>            :                      boost::detail::is_stdstring&lt;Target &gt;::value
+<span class="lineNum">     149 </span>            :                 &gt;::value,
+<span class="lineNum">     150 </span>            :                 boost::type_traits::ice_and&lt;
+<span class="lineNum">     151 </span>            :                      boost::is_same&lt;Target, src &gt;::value,
+<span class="lineNum">     152 </span>            :                      boost::detail::is_character&lt;Target &gt;::value
+<span class="lineNum">     153 </span>            :                 &gt;::value
+<span class="lineNum">     154 </span>            :             &gt; shall_we_copy_t;
+<span class="lineNum">     155 </span>            : 
+<span class="lineNum">     156 </span>            :             typedef boost::detail::is_arithmetic_and_not_xchars&lt;Target, src &gt;
+<span class="lineNum">     157 </span>            :                 shall_we_copy_with_dynamic_check_t;
+<span class="lineNum">     158 </span>            : 
+<span class="lineNum">     159 </span>            :             // We do evaluate second `if_` lazily to avoid unnecessary instantiations
+<span class="lineNum">     160 </span>            :             // of `shall_we_copy_with_dynamic_check_t` and improve compilation times.
+<span class="lineNum">     161 </span>            :             typedef BOOST_DEDUCED_TYPENAME boost::mpl::if_c&lt;
+<span class="lineNum">     162 </span>            :                 shall_we_copy_t::value,
+<span class="lineNum">     163 </span>            :                 boost::mpl::identity&lt;boost::detail::copy_converter_impl&lt;Target, src &gt; &gt;,
+<span class="lineNum">     164 </span>            :                 boost::mpl::if_&lt;
+<span class="lineNum">     165 </span>            :                      shall_we_copy_with_dynamic_check_t,
+<span class="lineNum">     166 </span>            :                      boost::detail::dynamic_num_converter_impl&lt;Target, src &gt;,
+<span class="lineNum">     167 </span>            :                      boost::detail::lexical_converter_impl&lt;Target, src &gt;
+<span class="lineNum">     168 </span>            :                 &gt;
+<span class="lineNum">     169 </span>            :             &gt;::type caster_type_lazy;
+<span class="lineNum">     170 </span>            : 
+<span class="lineNum">     171 </span>            :             typedef BOOST_DEDUCED_TYPENAME caster_type_lazy::type caster_type;
+<span class="lineNum">     172 </span>            : 
+<span class="lineNum">     173 </span><span class="lineCov">          4 :             return caster_type::try_convert(arg, result);</span>
+<span class="lineNum">     174 </span>            :         }
+<span class="lineNum">     175 </span>            : 
+<span class="lineNum">     176 </span>            :         template &lt;typename Target, typename CharacterT&gt;
+<span class="lineNum">     177 </span>            :         inline bool try_lexical_convert(const CharacterT* chars, std::size_t count, Target&amp; result)
+<span class="lineNum">     178 </span>            :         {
+<span class="lineNum">     179 </span>            :             BOOST_STATIC_ASSERT_MSG(
+<span class="lineNum">     180 </span>            :                 boost::detail::is_character&lt;CharacterT&gt;::value,
+<span class="lineNum">     181 </span>            :                 &quot;This overload of try_lexical_convert is meant to be used only with arrays of characters.&quot;
+<span class="lineNum">     182 </span>            :             );
+<span class="lineNum">     183 </span>            :             return ::boost::conversion::detail::try_lexical_convert(
+<span class="lineNum">     184 </span>            :                 ::boost::iterator_range&lt;const CharacterT*&gt;(chars, chars + count), result
+<span class="lineNum">     185 </span>            :             );
+<span class="lineNum">     186 </span>            :         }
+<span class="lineNum">     187 </span>            : 
+<span class="lineNum">     188 </span>            :     }} // namespace conversion::detail
+<span class="lineNum">     189 </span>            : 
+<span class="lineNum">     190 </span>            :     namespace conversion {
+<span class="lineNum">     191 </span>            :         // ADL barrier
+<span class="lineNum">     192 </span>            :         using ::boost::conversion::detail::try_lexical_convert;
+<span class="lineNum">     193 </span>            :     }
+<span class="lineNum">     194 </span>            : 
+<span class="lineNum">     195 </span>            : } // namespace boost
+<span class="lineNum">     196 </span>            : 
+<span class="lineNum">     197 </span>            : #endif // BOOST_LEXICAL_CAST_TRY_LEXICAL_CONVERT_HPP
+<span class="lineNum">     198 </span>            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

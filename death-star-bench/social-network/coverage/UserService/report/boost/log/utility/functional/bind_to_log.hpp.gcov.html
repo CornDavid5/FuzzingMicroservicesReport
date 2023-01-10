@@ -1,0 +1,152 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/log/utility/functional/bind_to_log.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">boost/log/utility/functional</a> - bind_to_log.hpp<span style="font-size: 80%;"> (source / <a href="bind_to_log.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 03:42:26</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *          Copyright Andrey Semashev 2007 - 2015.
+<span class="lineNum">       3 </span>            :  * Distributed under the Boost Software License, Version 1.0.
+<span class="lineNum">       4 </span>            :  *    (See accompanying file LICENSE_1_0.txt or copy at
+<span class="lineNum">       5 </span>            :  *          http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       6 </span>            :  */
+<span class="lineNum">       7 </span>            : /*!
+<span class="lineNum">       8 </span>            :  * \file   bind_to_log.hpp
+<span class="lineNum">       9 </span>            :  * \author Andrey Semashev
+<span class="lineNum">      10 </span>            :  * \date   06.11.2012
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * This header contains a function object that puts the received value to the bound stream using the \c to_log manipulator.
+<span class="lineNum">      13 </span>            :  * This is a lightweight alternative to what Boost.Phoenix and Boost.Lambda provides.
+<span class="lineNum">      14 </span>            :  */
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : #ifndef BOOST_LOG_UTILITY_FUNCTIONAL_BIND_TO_LOG_HPP_INCLUDED_
+<span class="lineNum">      17 </span>            : #define BOOST_LOG_UTILITY_FUNCTIONAL_BIND_TO_LOG_HPP_INCLUDED_
+<span class="lineNum">      18 </span>            : 
+<span class="lineNum">      19 </span>            : #include &lt;boost/log/detail/config.hpp&gt;
+<span class="lineNum">      20 </span>            : #include &lt;boost/log/utility/functional/bind.hpp&gt;
+<span class="lineNum">      21 </span>            : #include &lt;boost/log/utility/manipulators/to_log.hpp&gt;
+<span class="lineNum">      22 </span>            : #include &lt;boost/log/detail/header.hpp&gt;
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : #ifdef BOOST_HAS_PRAGMA_ONCE
+<span class="lineNum">      25 </span>            : #pragma once
+<span class="lineNum">      26 </span>            : #endif
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : namespace boost {
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : BOOST_LOG_OPEN_NAMESPACE
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : //! The function object that outputs its second operand to the first one
+<span class="lineNum">      33 </span>            : template&lt; typename TagT = void &gt;
+<span class="lineNum">      34 </span>            : struct to_log_fun
+<span class="lineNum">      35 </span>            : {
+<span class="lineNum">      36 </span>            :     typedef void result_type;
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            :     template&lt; typename StreamT, typename T &gt;
+<span class="lineNum">      39 </span>            :     void operator() (StreamT&amp; strm, T const&amp; val) const
+<span class="lineNum">      40 </span>            :     {
+<span class="lineNum">      41 </span>            :         strm &lt;&lt; boost::log::to_log&lt; TagT &gt;(val);
+<span class="lineNum">      42 </span>            :     }
+<span class="lineNum">      43 </span>            : };
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            : //! The function object that outputs its second operand to the first one
+<span class="lineNum">      46 </span>            : template&lt; &gt;
+<span class="lineNum">      47 </span>            : struct to_log_fun&lt; void &gt;
+<span class="lineNum">      48 </span>            : {
+<span class="lineNum">      49 </span>            :     typedef void result_type;
+<a name="50"><span class="lineNum">      50 </span>            : </a>
+<span class="lineNum">      51 </span>            :     template&lt; typename StreamT, typename T &gt;
+<span class="lineNum">      52 </span><span class="lineCov">          8 :     void operator() (StreamT&amp; strm, T const&amp; val) const</span>
+<span class="lineNum">      53 </span>            :     {
+<span class="lineNum">      54 </span><span class="lineCov">         16 :         strm &lt;&lt; boost::log::to_log(val);</span>
+<span class="lineNum">      55 </span><span class="lineCov">          8 :     }</span>
+<span class="lineNum">      56 </span>            : };
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span>            : template&lt; typename StreamT &gt;
+<span class="lineNum">      59 </span>            : BOOST_FORCEINLINE binder1st&lt; to_log_fun&lt; &gt;, StreamT&amp; &gt; bind_to_log(StreamT&amp; strm)
+<span class="lineNum">      60 </span>            : {
+<span class="lineNum">      61 </span>            :     return binder1st&lt; to_log_fun&lt; &gt;, StreamT&amp; &gt;(to_log_fun&lt; &gt;(), strm);
+<span class="lineNum">      62 </span>            : }
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span>            : template&lt; typename TagT, typename StreamT &gt;
+<span class="lineNum">      65 </span>            : BOOST_FORCEINLINE binder1st&lt; to_log_fun&lt; TagT &gt;, StreamT&amp; &gt; bind_to_log(StreamT&amp; strm)
+<span class="lineNum">      66 </span>            : {
+<span class="lineNum">      67 </span>            :     return binder1st&lt; to_log_fun&lt; TagT &gt;, StreamT&amp; &gt;(to_log_fun&lt; TagT &gt;(), strm);
+<span class="lineNum">      68 </span>            : }
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span>            : BOOST_LOG_CLOSE_NAMESPACE // namespace log
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span>            : } // namespace boost
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span>            : #include &lt;boost/log/detail/footer.hpp&gt;
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span>            : #endif // BOOST_LOG_UTILITY_FUNCTIONAL_BIND_TO_LOG_HPP_INCLUDED_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

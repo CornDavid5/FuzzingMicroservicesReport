@@ -1,0 +1,261 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - /usr/local/include/yaml-cpp/node/detail/impl.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../index.html">top level</a> - <a href="index.html">usr/local/include/yaml-cpp/node/detail</a> - impl.h<span style="font-size: 80%;"> (source / <a href="impl.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntry">19</td>
+            <td class="headerCovTableEntryLo">57.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 03:42:26</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryLo">66.7 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #ifndef NODE_DETAIL_IMPL_H_62B23520_7C8E_11DE_8A39_0800200C9A66</a>
+<span class="lineNum">       2 </span>            : #define NODE_DETAIL_IMPL_H_62B23520_7C8E_11DE_8A39_0800200C9A66
+<span class="lineNum">       3 </span>            : 
+<span class="lineNum">       4 </span>            : #if defined(_MSC_VER) ||                                            \
+<span class="lineNum">       5 </span>            :     (defined(__GNUC__) &amp;&amp; (__GNUC__ == 3 &amp;&amp; __GNUC_MINOR__ &gt;= 4) || \
+<span class="lineNum">       6 </span>            :      (__GNUC__ &gt;= 4))  // GCC supports &quot;pragma once&quot; correctly since 3.4
+<span class="lineNum">       7 </span>            : #pragma once
+<span class="lineNum">       8 </span>            : #endif
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span>            : #include &quot;yaml-cpp/node/detail/node.h&quot;
+<span class="lineNum">      11 </span>            : #include &quot;yaml-cpp/node/detail/node_data.h&quot;
+<span class="lineNum">      12 </span>            : #include &lt;type_traits&gt;
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : namespace YAML {
+<span class="lineNum">      15 </span>            : namespace detail {
+<a name="16"><span class="lineNum">      16 </span>            : template &lt;typename Key, typename Enable = void&gt;</a>
+<span class="lineNum">      17 </span>            : struct get_idx {
+<span class="lineNum">      18 </span><span class="lineNoCov">          0 :   static node* get(const std::vector&lt;node*&gt;&amp; /* sequence */,</span>
+<span class="lineNum">      19 </span>            :                    const Key&amp; /* key */, shared_memory_holder /* pMemory */) {
+<span class="lineNum">      20 </span><span class="lineNoCov">          0 :     return 0;</span>
+<span class="lineNum">      21 </span>            :   }
+<span class="lineNum">      22 </span>            : };
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : template &lt;typename Key&gt;
+<span class="lineNum">      25 </span>            : struct get_idx&lt;Key,
+<span class="lineNum">      26 </span>            :                typename std::enable_if&lt;std::is_unsigned&lt;Key&gt;::value &amp;&amp;
+<span class="lineNum">      27 </span>            :                                        !std::is_same&lt;Key, bool&gt;::value&gt;::type&gt; {
+<span class="lineNum">      28 </span>            :   static node* get(const std::vector&lt;node*&gt;&amp; sequence, const Key&amp; key,
+<span class="lineNum">      29 </span>            :                    shared_memory_holder /* pMemory */) {
+<span class="lineNum">      30 </span>            :     return key &lt; sequence.size() ? sequence[key] : 0;
+<span class="lineNum">      31 </span>            :   }
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            :   static node* get(std::vector&lt;node*&gt;&amp; sequence, const Key&amp; key,
+<span class="lineNum">      34 </span>            :                    shared_memory_holder pMemory) {
+<span class="lineNum">      35 </span>            :    if (key &gt; sequence.size() || (key &gt; 0 &amp;&amp; !sequence[key-1]-&gt;is_defined()))
+<span class="lineNum">      36 </span>            :       return 0;
+<span class="lineNum">      37 </span>            :     if (key == sequence.size())
+<span class="lineNum">      38 </span>            :       sequence.push_back(&amp;pMemory-&gt;create_node());
+<span class="lineNum">      39 </span>            :     return sequence[key];
+<span class="lineNum">      40 </span>            :   }
+<span class="lineNum">      41 </span>            : };
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : template &lt;typename Key&gt;
+<span class="lineNum">      44 </span>            : struct get_idx&lt;Key, typename std::enable_if&lt;std::is_signed&lt;Key&gt;::value&gt;::type&gt; {
+<span class="lineNum">      45 </span>            :   static node* get(const std::vector&lt;node*&gt;&amp; sequence, const Key&amp; key,
+<span class="lineNum">      46 </span>            :                    shared_memory_holder pMemory) {
+<span class="lineNum">      47 </span>            :     return key &gt;= 0 ? get_idx&lt;std::size_t&gt;::get(
+<span class="lineNum">      48 </span>            :                           sequence, static_cast&lt;std::size_t&gt;(key), pMemory)
+<span class="lineNum">      49 </span>            :                     : 0;
+<span class="lineNum">      50 </span>            :   }
+<span class="lineNum">      51 </span>            :   static node* get(std::vector&lt;node*&gt;&amp; sequence, const Key&amp; key,
+<span class="lineNum">      52 </span>            :                    shared_memory_holder pMemory) {
+<span class="lineNum">      53 </span>            :     return key &gt;= 0 ? get_idx&lt;std::size_t&gt;::get(
+<span class="lineNum">      54 </span>            :                           sequence, static_cast&lt;std::size_t&gt;(key), pMemory)
+<span class="lineNum">      55 </span>            :                     : 0;
+<span class="lineNum">      56 </span>            :   }
+<span class="lineNum">      57 </span>            : };
+<a name="58"><span class="lineNum">      58 </span>            : </a>
+<span class="lineNum">      59 </span>            : template &lt;typename T&gt;
+<span class="lineNum">      60 </span><span class="lineCov">         31 : inline bool node::equals(const T&amp; rhs, shared_memory_holder pMemory) {</span>
+<span class="lineNum">      61 </span><span class="lineCov">         62 :   T lhs;</span>
+<span class="lineNum">      62 </span><span class="lineCov">         31 :   if (convert&lt;T&gt;::decode(Node(*this, pMemory), lhs)) {</span>
+<span class="lineNum">      63 </span><span class="lineCov">         31 :     return lhs == rhs;</span>
+<span class="lineNum">      64 </span>            :   }
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :   return false;</span>
+<span class="lineNum">      66 </span>            : }
+<span class="lineNum">      67 </span>            : 
+<span class="lineNum">      68 </span>            : inline bool node::equals(const char* rhs, shared_memory_holder pMemory) {
+<span class="lineNum">      69 </span>            :   return equals&lt;std::string&gt;(rhs, pMemory);
+<span class="lineNum">      70 </span>            : }
+<span class="lineNum">      71 </span>            : 
+<a name="72"><span class="lineNum">      72 </span>            : // indexing</a>
+<span class="lineNum">      73 </span>            : template &lt;typename Key&gt;
+<span class="lineNum">      74 </span><span class="lineCov">         14 : inline node* node_data::get(const Key&amp; key,</span>
+<span class="lineNum">      75 </span>            :                             shared_memory_holder pMemory) const {
+<span class="lineNum">      76 </span><span class="lineCov">         14 :   switch (m_type) {</span>
+<span class="lineNum">      77 </span>            :     case NodeType::Map:
+<span class="lineNum">      78 </span><span class="lineCov">         14 :       break;</span>
+<span class="lineNum">      79 </span>            :     case NodeType::Undefined:
+<span class="lineNum">      80 </span>            :     case NodeType::Null:
+<span class="lineNum">      81 </span><span class="lineNoCov">          0 :       return NULL;</span>
+<span class="lineNum">      82 </span>            :     case NodeType::Sequence:
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :       if (node* pNode = get_idx&lt;Key&gt;::get(m_sequence, key, pMemory))</span>
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 :         return pNode;</span>
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :       return NULL;</span>
+<span class="lineNum">      86 </span>            :     case NodeType::Scalar:
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :       throw BadSubscript();</span>
+<span class="lineNum">      88 </span>            :   }
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span><span class="lineCov">         36 :   for (node_map::const_iterator it = m_map.begin(); it != m_map.end(); ++it) {</span>
+<span class="lineNum">      91 </span><span class="lineCov">         31 :     if (it-&gt;first-&gt;equals(key, pMemory)) {</span>
+<span class="lineNum">      92 </span><span class="lineCov">          9 :       return it-&gt;second;</span>
+<span class="lineNum">      93 </span>            :     }
+<span class="lineNum">      94 </span>            :   }
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span><span class="lineCov">          5 :   return NULL;</span>
+<span class="lineNum">      97 </span>            : }
+<span class="lineNum">      98 </span>            : 
+<span class="lineNum">      99 </span>            : template &lt;typename Key&gt;
+<span class="lineNum">     100 </span>            : inline node&amp; node_data::get(const Key&amp; key, shared_memory_holder pMemory) {
+<span class="lineNum">     101 </span>            :   switch (m_type) {
+<span class="lineNum">     102 </span>            :     case NodeType::Map:
+<span class="lineNum">     103 </span>            :       break;
+<span class="lineNum">     104 </span>            :     case NodeType::Undefined:
+<span class="lineNum">     105 </span>            :     case NodeType::Null:
+<span class="lineNum">     106 </span>            :     case NodeType::Sequence:
+<span class="lineNum">     107 </span>            :       if (node* pNode = get_idx&lt;Key&gt;::get(m_sequence, key, pMemory)) {
+<span class="lineNum">     108 </span>            :         m_type = NodeType::Sequence;
+<span class="lineNum">     109 </span>            :         return *pNode;
+<span class="lineNum">     110 </span>            :       }
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span>            :       convert_to_map(pMemory);
+<span class="lineNum">     113 </span>            :       break;
+<span class="lineNum">     114 </span>            :     case NodeType::Scalar:
+<span class="lineNum">     115 </span>            :       throw BadSubscript();
+<span class="lineNum">     116 </span>            :   }
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span>            :   for (node_map::const_iterator it = m_map.begin(); it != m_map.end(); ++it) {
+<span class="lineNum">     119 </span>            :     if (it-&gt;first-&gt;equals(key, pMemory)) {
+<span class="lineNum">     120 </span>            :       return *it-&gt;second;
+<span class="lineNum">     121 </span>            :     }
+<span class="lineNum">     122 </span>            :   }
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span>            :   node&amp; k = convert_to_node(key, pMemory);
+<span class="lineNum">     125 </span>            :   node&amp; v = pMemory-&gt;create_node();
+<span class="lineNum">     126 </span>            :   insert_map_pair(k, v);
+<span class="lineNum">     127 </span>            :   return v;
+<span class="lineNum">     128 </span>            : }
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span>            : template &lt;typename Key&gt;
+<span class="lineNum">     131 </span>            : inline bool node_data::remove(const Key&amp; key, shared_memory_holder pMemory) {
+<span class="lineNum">     132 </span>            :   if (m_type != NodeType::Map)
+<span class="lineNum">     133 </span>            :     return false;
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span>            :   for (kv_pairs::iterator it = m_undefinedPairs.begin();
+<span class="lineNum">     136 </span>            :        it != m_undefinedPairs.end();) {
+<span class="lineNum">     137 </span>            :     kv_pairs::iterator jt = std::next(it);
+<span class="lineNum">     138 </span>            :     if (it-&gt;first-&gt;equals(key, pMemory))
+<span class="lineNum">     139 </span>            :       m_undefinedPairs.erase(it);
+<span class="lineNum">     140 </span>            :     it = jt;
+<span class="lineNum">     141 </span>            :   }
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span>            :   for (node_map::iterator it = m_map.begin(); it != m_map.end(); ++it) {
+<span class="lineNum">     144 </span>            :     if (it-&gt;first-&gt;equals(key, pMemory)) {
+<span class="lineNum">     145 </span>            :       m_map.erase(it);
+<span class="lineNum">     146 </span>            :       return true;
+<span class="lineNum">     147 </span>            :     }
+<span class="lineNum">     148 </span>            :   }
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span>            :   return false;
+<span class="lineNum">     151 </span>            : }
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span>            : // map
+<span class="lineNum">     154 </span>            : template &lt;typename Key, typename Value&gt;
+<span class="lineNum">     155 </span>            : inline void node_data::force_insert(const Key&amp; key, const Value&amp; value,
+<span class="lineNum">     156 </span>            :                                     shared_memory_holder pMemory) {
+<span class="lineNum">     157 </span>            :   switch (m_type) {
+<span class="lineNum">     158 </span>            :     case NodeType::Map:
+<span class="lineNum">     159 </span>            :       break;
+<span class="lineNum">     160 </span>            :     case NodeType::Undefined:
+<span class="lineNum">     161 </span>            :     case NodeType::Null:
+<span class="lineNum">     162 </span>            :     case NodeType::Sequence:
+<span class="lineNum">     163 </span>            :       convert_to_map(pMemory);
+<span class="lineNum">     164 </span>            :       break;
+<span class="lineNum">     165 </span>            :     case NodeType::Scalar:
+<span class="lineNum">     166 </span>            :       throw BadInsert();
+<span class="lineNum">     167 </span>            :   }
+<span class="lineNum">     168 </span>            : 
+<span class="lineNum">     169 </span>            :   node&amp; k = convert_to_node(key, pMemory);
+<span class="lineNum">     170 </span>            :   node&amp; v = convert_to_node(value, pMemory);
+<span class="lineNum">     171 </span>            :   insert_map_pair(k, v);
+<span class="lineNum">     172 </span>            : }
+<span class="lineNum">     173 </span>            : 
+<span class="lineNum">     174 </span>            : template &lt;typename T&gt;
+<span class="lineNum">     175 </span>            : inline node&amp; node_data::convert_to_node(const T&amp; rhs,
+<span class="lineNum">     176 </span>            :                                         shared_memory_holder pMemory) {
+<span class="lineNum">     177 </span>            :   Node value = convert&lt;T&gt;::encode(rhs);
+<span class="lineNum">     178 </span>            :   value.EnsureNodeExists();
+<span class="lineNum">     179 </span>            :   pMemory-&gt;merge(*value.m_pMemory);
+<span class="lineNum">     180 </span>            :   return *value.m_pNode;
+<span class="lineNum">     181 </span>            : }
+<span class="lineNum">     182 </span>            : }
+<span class="lineNum">     183 </span>            : }
+<span class="lineNum">     184 </span>            : 
+<span class="lineNum">     185 </span>            : #endif  // NODE_DETAIL_IMPL_H_62B23520_7C8E_11DE_8A39_0800200C9A66
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

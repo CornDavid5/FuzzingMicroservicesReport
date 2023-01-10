@@ -1,0 +1,306 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - /usr/local/include/thrift/TProcessor.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">usr/local/include/thrift</a> - TProcessor.h<span style="font-size: 80%;"> (source / <a href="TProcessor.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntryLo">37.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 03:42:26</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntryLo">17.6 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * Licensed to the Apache Software Foundation (ASF) under one
+<span class="lineNum">       3 </span>            :  * or more contributor license agreements. See the NOTICE file
+<span class="lineNum">       4 </span>            :  * distributed with this work for additional information
+<span class="lineNum">       5 </span>            :  * regarding copyright ownership. The ASF licenses this file
+<span class="lineNum">       6 </span>            :  * to you under the Apache License, Version 2.0 (the
+<span class="lineNum">       7 </span>            :  * &quot;License&quot;); you may not use this file except in compliance
+<span class="lineNum">       8 </span>            :  * with the License. You may obtain a copy of the License at
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *   http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * Unless required by applicable law or agreed to in writing,
+<span class="lineNum">      13 </span>            :  * software distributed under the License is distributed on an
+<span class="lineNum">      14 </span>            :  * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+<span class="lineNum">      15 </span>            :  * KIND, either express or implied. See the License for the
+<span class="lineNum">      16 </span>            :  * specific language governing permissions and limitations
+<span class="lineNum">      17 </span>            :  * under the License.
+<span class="lineNum">      18 </span>            :  */
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #ifndef _THRIFT_TPROCESSOR_H_
+<span class="lineNum">      21 </span>            : #define _THRIFT_TPROCESSOR_H_ 1
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : #include &lt;string&gt;
+<span class="lineNum">      24 </span>            : #include &lt;thrift/protocol/TProtocol.h&gt;
+<span class="lineNum">      25 </span>            : #include &lt;thrift/stdcxx.h&gt;
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : namespace apache {
+<span class="lineNum">      28 </span>            : namespace thrift {
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : /**
+<span class="lineNum">      31 </span>            :  * Virtual interface class that can handle events from the processor. To
+<span class="lineNum">      32 </span>            :  * use this you should subclass it and implement the methods that you care
+<span class="lineNum">      33 </span>            :  * about. Your subclass can also store local data that you may care about,
+<span class="lineNum">      34 </span>            :  * such as additional &quot;arguments&quot; to these methods (stored in the object
+<span class="lineNum">      35 </span>            :  * instance's state).
+<span class="lineNum">      36 </span>            :  */
+<span class="lineNum">      37 </span>            : class TProcessorEventHandler {
+<span class="lineNum">      38 </span>            : public:
+<span class="lineNum">      39 </span>            :   virtual ~TProcessorEventHandler() {}
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            :   /**
+<span class="lineNum">      42 </span>            :    * Called before calling other callback methods.
+<span class="lineNum">      43 </span>            :    * Expected to return some sort of context object.
+<span class="lineNum">      44 </span>            :    * The return value is passed to all other callbacks
+<span class="lineNum">      45 </span>            :    * for that function invocation.
+<span class="lineNum">      46 </span>            :    */
+<span class="lineNum">      47 </span>            :   virtual void* getContext(const char* fn_name, void* serverContext) {
+<span class="lineNum">      48 </span>            :     (void)fn_name;
+<span class="lineNum">      49 </span>            :     (void)serverContext;
+<span class="lineNum">      50 </span>            :     return NULL;
+<span class="lineNum">      51 </span>            :   }
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span>            :   /**
+<span class="lineNum">      54 </span>            :    * Expected to free resources associated with a context.
+<span class="lineNum">      55 </span>            :    */
+<span class="lineNum">      56 </span>            :   virtual void freeContext(void* ctx, const char* fn_name) {
+<span class="lineNum">      57 </span>            :     (void)ctx;
+<span class="lineNum">      58 </span>            :     (void)fn_name;
+<span class="lineNum">      59 </span>            :   }
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span>            :   /**
+<span class="lineNum">      62 </span>            :    * Called before reading arguments.
+<span class="lineNum">      63 </span>            :    */
+<span class="lineNum">      64 </span>            :   virtual void preRead(void* ctx, const char* fn_name) {
+<span class="lineNum">      65 </span>            :     (void)ctx;
+<span class="lineNum">      66 </span>            :     (void)fn_name;
+<span class="lineNum">      67 </span>            :   }
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span>            :   /**
+<span class="lineNum">      70 </span>            :    * Called between reading arguments and calling the handler.
+<span class="lineNum">      71 </span>            :    */
+<span class="lineNum">      72 </span>            :   virtual void postRead(void* ctx, const char* fn_name, uint32_t bytes) {
+<span class="lineNum">      73 </span>            :     (void)ctx;
+<span class="lineNum">      74 </span>            :     (void)fn_name;
+<span class="lineNum">      75 </span>            :     (void)bytes;
+<span class="lineNum">      76 </span>            :   }
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span>            :   /**
+<span class="lineNum">      79 </span>            :    * Called between calling the handler and writing the response.
+<span class="lineNum">      80 </span>            :    */
+<span class="lineNum">      81 </span>            :   virtual void preWrite(void* ctx, const char* fn_name) {
+<span class="lineNum">      82 </span>            :     (void)ctx;
+<span class="lineNum">      83 </span>            :     (void)fn_name;
+<span class="lineNum">      84 </span>            :   }
+<span class="lineNum">      85 </span>            : 
+<span class="lineNum">      86 </span>            :   /**
+<span class="lineNum">      87 </span>            :    * Called after writing the response.
+<span class="lineNum">      88 </span>            :    */
+<span class="lineNum">      89 </span>            :   virtual void postWrite(void* ctx, const char* fn_name, uint32_t bytes) {
+<span class="lineNum">      90 </span>            :     (void)ctx;
+<span class="lineNum">      91 </span>            :     (void)fn_name;
+<span class="lineNum">      92 </span>            :     (void)bytes;
+<span class="lineNum">      93 </span>            :   }
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span>            :   /**
+<span class="lineNum">      96 </span>            :    * Called when an async function call completes successfully.
+<span class="lineNum">      97 </span>            :    */
+<span class="lineNum">      98 </span>            :   virtual void asyncComplete(void* ctx, const char* fn_name) {
+<span class="lineNum">      99 </span>            :     (void)ctx;
+<span class="lineNum">     100 </span>            :     (void)fn_name;
+<span class="lineNum">     101 </span>            :   }
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span>            :   /**
+<span class="lineNum">     104 </span>            :    * Called if the handler throws an undeclared exception.
+<span class="lineNum">     105 </span>            :    */
+<span class="lineNum">     106 </span>            :   virtual void handlerError(void* ctx, const char* fn_name) {
+<span class="lineNum">     107 </span>            :     (void)ctx;
+<span class="lineNum">     108 </span>            :     (void)fn_name;
+<span class="lineNum">     109 </span>            :   }
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span>            : protected:
+<span class="lineNum">     112 </span>            :   TProcessorEventHandler() {}
+<span class="lineNum">     113 </span>            : };
+<span class="lineNum">     114 </span>            : 
+<span class="lineNum">     115 </span>            : /**
+<span class="lineNum">     116 </span>            :  * A helper class used by the generated code to free each context.
+<span class="lineNum">     117 </span>            :  */
+<a name="118"><span class="lineNum">     118 </span>            : class TProcessorContextFreer {</a>
+<span class="lineNum">     119 </span>            : public:
+<a name="120"><span class="lineNum">     120 </span><span class="lineCov">         17 :   TProcessorContextFreer(TProcessorEventHandler* handler, void* context, const char* method)</span></a>
+<span class="lineNum">     121 </span><span class="lineCov">         17 :     : handler_(handler), context_(context), method_(method) {}</span>
+<span class="lineNum">     122 </span><span class="lineCov">         34 :   ~TProcessorContextFreer() {</span>
+<span class="lineNum">     123 </span><span class="lineCov">         17 :     if (handler_ != NULL)</span>
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :       handler_-&gt;freeContext(context_, method_);</span>
+<span class="lineNum">     125 </span><span class="lineCov">         17 :   }</span>
+<span class="lineNum">     126 </span>            :   void unregister() { handler_ = NULL; }
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span>            : private:
+<span class="lineNum">     129 </span>            :   apache::thrift::TProcessorEventHandler* handler_;
+<span class="lineNum">     130 </span>            :   void* context_;
+<span class="lineNum">     131 </span>            :   const char* method_;
+<span class="lineNum">     132 </span>            : };
+<span class="lineNum">     133 </span>            : 
+<span class="lineNum">     134 </span>            : /**
+<span class="lineNum">     135 </span>            :  * A processor is a generic object that acts upon two streams of data, one
+<span class="lineNum">     136 </span>            :  * an input and the other an output. The definition of this object is loose,
+<span class="lineNum">     137 </span>            :  * though the typical case is for some sort of server that either generates
+<span class="lineNum">     138 </span>            :  * responses to an input stream or forwards data from one pipe onto another.
+<span class="lineNum">     139 </span>            :  *
+<span class="lineNum">     140 </span>            :  */
+<a name="141"><span class="lineNum">     141 </span>            : class TProcessor {</a>
+<span class="lineNum">     142 </span>            : public:
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :   virtual ~TProcessor() {}</span>
+<span class="lineNum">     144 </span>            : 
+<span class="lineNum">     145 </span>            :   virtual bool process(stdcxx::shared_ptr&lt;protocol::TProtocol&gt; in,
+<span class="lineNum">     146 </span>            :                        stdcxx::shared_ptr&lt;protocol::TProtocol&gt; out,
+<span class="lineNum">     147 </span>            :                        void* connectionContext) = 0;
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span>            :   bool process(stdcxx::shared_ptr&lt;apache::thrift::protocol::TProtocol&gt; io, void* connectionContext) {
+<span class="lineNum">     150 </span>            :     return process(io, io, connectionContext);
+<span class="lineNum">     151 </span>            :   }
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span>            :   stdcxx::shared_ptr&lt;TProcessorEventHandler&gt; getEventHandler() const { return eventHandler_; }
+<span class="lineNum">     154 </span>            : 
+<span class="lineNum">     155 </span>            :   void setEventHandler(stdcxx::shared_ptr&lt;TProcessorEventHandler&gt; eventHandler) {
+<span class="lineNum">     156 </span>            :     eventHandler_ = eventHandler;
+<span class="lineNum">     157 </span>            :   }
+<a name="158"><span class="lineNum">     158 </span>            : </a>
+<span class="lineNum">     159 </span>            : protected:
+<span class="lineNum">     160 </span><span class="lineCov">          2 :   TProcessor() {}</span>
+<span class="lineNum">     161 </span>            : 
+<span class="lineNum">     162 </span>            :   stdcxx::shared_ptr&lt;TProcessorEventHandler&gt; eventHandler_;
+<span class="lineNum">     163 </span>            : };
+<span class="lineNum">     164 </span>            : 
+<span class="lineNum">     165 </span>            : /**
+<span class="lineNum">     166 </span>            :  * This is a helper class to allow stdcxx::shared_ptr to be used with handler
+<span class="lineNum">     167 </span>            :  * pointers returned by the generated handler factories.
+<span class="lineNum">     168 </span>            :  *
+<span class="lineNum">     169 </span>            :  * The handler factory classes generated by the thrift compiler return raw
+<span class="lineNum">     170 </span>            :  * pointers, and factory-&gt;releaseHandler() must be called when the handler is
+<span class="lineNum">     171 </span>            :  * no longer needed.
+<span class="lineNum">     172 </span>            :  *
+<span class="lineNum">     173 </span>            :  * A ReleaseHandler object can be instantiated and passed as the second
+<span class="lineNum">     174 </span>            :  * parameter to a shared_ptr, so that factory-&gt;releaseHandler() will be called
+<span class="lineNum">     175 </span>            :  * when the object is no longer needed, instead of deleting the pointer.
+<a name="176"><span class="lineNum">     176 </span>            :  */</a>
+<span class="lineNum">     177 </span>            : template &lt;typename HandlerFactory_&gt;
+<a name="178"><span class="lineNum">     178 </span><span class="lineNoCov">          0 : class ReleaseHandler {</span></a>
+<span class="lineNum">     179 </span>            : public:
+<span class="lineNum">     180 </span><span class="lineNoCov">          0 :   ReleaseHandler(const stdcxx::shared_ptr&lt;HandlerFactory_&gt;&amp; handlerFactory)</span>
+<a name="181"><span class="lineNum">     181 </span><span class="lineNoCov">          0 :     : handlerFactory_(handlerFactory) {}</span></a>
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :   void operator()(typename HandlerFactory_::Handler* handler) {</span>
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :     if (handler) {</span>
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :       handlerFactory_-&gt;releaseHandler(handler);</span>
+<span class="lineNum">     186 </span>            :     }
+<span class="lineNum">     187 </span><span class="lineNoCov">          0 :   }</span>
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span>            : private:
+<span class="lineNum">     190 </span>            :   stdcxx::shared_ptr&lt;HandlerFactory_&gt; handlerFactory_;
+<span class="lineNum">     191 </span>            : };
+<span class="lineNum">     192 </span>            : 
+<span class="lineNum">     193 </span>            : struct TConnectionInfo {
+<span class="lineNum">     194 </span>            :   // The input and output protocols
+<span class="lineNum">     195 </span>            :   stdcxx::shared_ptr&lt;protocol::TProtocol&gt; input;
+<span class="lineNum">     196 </span>            :   stdcxx::shared_ptr&lt;protocol::TProtocol&gt; output;
+<span class="lineNum">     197 </span>            :   // The underlying transport used for the connection
+<span class="lineNum">     198 </span>            :   // This is the transport that was returned by TServerTransport::accept(),
+<span class="lineNum">     199 </span>            :   // and it may be different than the transport pointed to by the input and
+<span class="lineNum">     200 </span>            :   // output protocols.
+<span class="lineNum">     201 </span>            :   stdcxx::shared_ptr&lt;transport::TTransport&gt; transport;
+<span class="lineNum">     202 </span>            : };
+<span class="lineNum">     203 </span>            : 
+<a name="204"><span class="lineNum">     204 </span>            : class TProcessorFactory {</a>
+<span class="lineNum">     205 </span>            : public:
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :   virtual ~TProcessorFactory() {}</span>
+<span class="lineNum">     207 </span>            : 
+<span class="lineNum">     208 </span>            :   /**
+<span class="lineNum">     209 </span>            :    * Get the TProcessor to use for a particular connection.
+<span class="lineNum">     210 </span>            :    *
+<span class="lineNum">     211 </span>            :    * This method is always invoked in the same thread that the connection was
+<span class="lineNum">     212 </span>            :    * accepted on.  This generally means that this call does not need to be
+<span class="lineNum">     213 </span>            :    * thread safe, as it will always be invoked from a single thread.
+<span class="lineNum">     214 </span>            :    */
+<span class="lineNum">     215 </span>            :   virtual stdcxx::shared_ptr&lt;TProcessor&gt; getProcessor(const TConnectionInfo&amp; connInfo) = 0;
+<span class="lineNum">     216 </span>            : };
+<span class="lineNum">     217 </span>            : 
+<span class="lineNum">     218 </span>            : class TSingletonProcessorFactory : public TProcessorFactory {
+<span class="lineNum">     219 </span>            : public:
+<span class="lineNum">     220 </span>            :   TSingletonProcessorFactory(stdcxx::shared_ptr&lt;TProcessor&gt; processor) : processor_(processor) {}
+<span class="lineNum">     221 </span>            : 
+<span class="lineNum">     222 </span>            :   stdcxx::shared_ptr&lt;TProcessor&gt; getProcessor(const TConnectionInfo&amp;) { return processor_; }
+<span class="lineNum">     223 </span>            : 
+<span class="lineNum">     224 </span>            : private:
+<span class="lineNum">     225 </span>            :   stdcxx::shared_ptr&lt;TProcessor&gt; processor_;
+<span class="lineNum">     226 </span>            : };
+<span class="lineNum">     227 </span>            : }
+<span class="lineNum">     228 </span>            : } // apache::thrift
+<span class="lineNum">     229 </span>            : 
+<span class="lineNum">     230 </span>            : #endif // #ifndef _THRIFT_TPROCESSOR_H_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

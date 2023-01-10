@@ -1,0 +1,263 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/smart_ptr/intrusive_ref_counter.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">boost/smart_ptr</a> - intrusive_ref_counter.hpp<span style="font-size: 80%;"> (source / <a href="intrusive_ref_counter.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntryHi">92.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 03:41:22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *          Copyright Andrey Semashev 2007 - 2013.
+<span class="lineNum">       3 </span>            :  * Distributed under the Boost Software License, Version 1.0.
+<span class="lineNum">       4 </span>            :  *    (See accompanying file LICENSE_1_0.txt or copy at
+<span class="lineNum">       5 </span>            :  *          http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       6 </span>            :  */
+<span class="lineNum">       7 </span>            : /*!
+<span class="lineNum">       8 </span>            :  * \file   intrusive_ref_counter.hpp
+<span class="lineNum">       9 </span>            :  * \author Andrey Semashev
+<span class="lineNum">      10 </span>            :  * \date   12.03.2009
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * This header contains a reference counter class for \c intrusive_ptr.
+<span class="lineNum">      13 </span>            :  */
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : #ifndef BOOST_SMART_PTR_INTRUSIVE_REF_COUNTER_HPP_INCLUDED_
+<span class="lineNum">      16 </span>            : #define BOOST_SMART_PTR_INTRUSIVE_REF_COUNTER_HPP_INCLUDED_
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #include &lt;boost/config.hpp&gt;
+<span class="lineNum">      19 </span>            : #include &lt;boost/smart_ptr/detail/atomic_count.hpp&gt;
+<span class="lineNum">      20 </span>            : 
+<span class="lineNum">      21 </span>            : #ifdef BOOST_HAS_PRAGMA_ONCE
+<span class="lineNum">      22 </span>            : #pragma once
+<span class="lineNum">      23 </span>            : #endif
+<span class="lineNum">      24 </span>            : 
+<span class="lineNum">      25 </span>            : #if defined(_MSC_VER)
+<span class="lineNum">      26 </span>            : #pragma warning(push)
+<span class="lineNum">      27 </span>            : // This is a bogus MSVC warning, which is flagged by friend declarations of intrusive_ptr_add_ref and intrusive_ptr_release in intrusive_ref_counter:
+<span class="lineNum">      28 </span>            : // 'name' : the inline specifier cannot be used when a friend declaration refers to a specialization of a function template
+<span class="lineNum">      29 </span>            : // Note that there is no inline specifier in the declarations.
+<span class="lineNum">      30 </span>            : #pragma warning(disable: 4396)
+<span class="lineNum">      31 </span>            : #endif
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : namespace boost {
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : namespace sp_adl_block {
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            : /*!
+<span class="lineNum">      38 </span>            :  * \brief Thread unsafe reference counter policy for \c intrusive_ref_counter
+<span class="lineNum">      39 </span>            :  *
+<span class="lineNum">      40 </span>            :  * The policy instructs the \c intrusive_ref_counter base class to implement
+<span class="lineNum">      41 </span>            :  * a reference counter suitable for single threaded use only. Pointers to the same
+<span class="lineNum">      42 </span>            :  * object with this kind of reference counter must not be used by different threads.
+<span class="lineNum">      43 </span>            :  */
+<span class="lineNum">      44 </span>            : struct thread_unsafe_counter
+<span class="lineNum">      45 </span>            : {
+<span class="lineNum">      46 </span>            :     typedef unsigned int type;
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span>            :     static unsigned int load(unsigned int const&amp; counter) BOOST_NOEXCEPT
+<span class="lineNum">      49 </span>            :     {
+<span class="lineNum">      50 </span>            :         return counter;
+<span class="lineNum">      51 </span>            :     }
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span>            :     static void increment(unsigned int&amp; counter) BOOST_NOEXCEPT
+<span class="lineNum">      54 </span>            :     {
+<span class="lineNum">      55 </span>            :         ++counter;
+<span class="lineNum">      56 </span>            :     }
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span>            :     static unsigned int decrement(unsigned int&amp; counter) BOOST_NOEXCEPT
+<span class="lineNum">      59 </span>            :     {
+<span class="lineNum">      60 </span>            :         return --counter;
+<span class="lineNum">      61 </span>            :     }
+<span class="lineNum">      62 </span>            : };
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span>            : /*!
+<span class="lineNum">      65 </span>            :  * \brief Thread safe reference counter policy for \c intrusive_ref_counter
+<span class="lineNum">      66 </span>            :  *
+<span class="lineNum">      67 </span>            :  * The policy instructs the \c intrusive_ref_counter base class to implement
+<span class="lineNum">      68 </span>            :  * a thread-safe reference counter, if the target platform supports multithreading.
+<span class="lineNum">      69 </span>            :  */
+<span class="lineNum">      70 </span>            : struct thread_safe_counter
+<span class="lineNum">      71 </span>            : {
+<span class="lineNum">      72 </span>            :     typedef boost::detail::atomic_count type;
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span>            :     static unsigned int load(boost::detail::atomic_count const&amp; counter) BOOST_NOEXCEPT
+<span class="lineNum">      75 </span>            :     {
+<span class="lineNum">      76 </span>            :         return static_cast&lt; unsigned int &gt;(static_cast&lt; long &gt;(counter));
+<a name="77"><span class="lineNum">      77 </span>            :     }</a>
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span><span class="lineCov">         12 :     static void increment(boost::detail::atomic_count&amp; counter) BOOST_NOEXCEPT</span>
+<span class="lineNum">      80 </span>            :     {
+<span class="lineNum">      81 </span><span class="lineCov">         12 :         ++counter;</span>
+<a name="82"><span class="lineNum">      82 </span><span class="lineCov">         12 :     }</span></a>
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span><span class="lineCov">          8 :     static unsigned int decrement(boost::detail::atomic_count&amp; counter) BOOST_NOEXCEPT</span>
+<span class="lineNum">      85 </span>            :     {
+<span class="lineNum">      86 </span><span class="lineCov">          8 :         return --counter;</span>
+<span class="lineNum">      87 </span>            :     }
+<span class="lineNum">      88 </span>            : };
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span>            : template&lt; typename DerivedT, typename CounterPolicyT = thread_safe_counter &gt;
+<span class="lineNum">      91 </span>            : class intrusive_ref_counter;
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span>            : template&lt; typename DerivedT, typename CounterPolicyT &gt;
+<span class="lineNum">      94 </span>            : void intrusive_ptr_add_ref(const intrusive_ref_counter&lt; DerivedT, CounterPolicyT &gt;* p) BOOST_NOEXCEPT;
+<span class="lineNum">      95 </span>            : template&lt; typename DerivedT, typename CounterPolicyT &gt;
+<span class="lineNum">      96 </span>            : void intrusive_ptr_release(const intrusive_ref_counter&lt; DerivedT, CounterPolicyT &gt;* p) BOOST_NOEXCEPT;
+<span class="lineNum">      97 </span>            : 
+<span class="lineNum">      98 </span>            : /*!
+<span class="lineNum">      99 </span>            :  * \brief A reference counter base class
+<span class="lineNum">     100 </span>            :  *
+<span class="lineNum">     101 </span>            :  * This base class can be used with user-defined classes to add support
+<span class="lineNum">     102 </span>            :  * for \c intrusive_ptr. The class contains a reference counter defined by the \c CounterPolicyT.
+<span class="lineNum">     103 </span>            :  * Upon releasing the last \c intrusive_ptr referencing the object
+<span class="lineNum">     104 </span>            :  * derived from the \c intrusive_ref_counter class, operator \c delete
+<span class="lineNum">     105 </span>            :  * is automatically called on the pointer to the object.
+<span class="lineNum">     106 </span>            :  *
+<span class="lineNum">     107 </span>            :  * The other template parameter, \c DerivedT, is the user's class that derives from \c intrusive_ref_counter.
+<span class="lineNum">     108 </span>            :  */
+<span class="lineNum">     109 </span>            : template&lt; typename DerivedT, typename CounterPolicyT &gt;
+<span class="lineNum">     110 </span>            : class intrusive_ref_counter
+<span class="lineNum">     111 </span>            : {
+<span class="lineNum">     112 </span>            : private:
+<span class="lineNum">     113 </span>            :     //! Reference counter type
+<span class="lineNum">     114 </span>            :     typedef typename CounterPolicyT::type counter_type;
+<span class="lineNum">     115 </span>            :     //! Reference counter
+<span class="lineNum">     116 </span>            :     mutable counter_type m_ref_counter;
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span>            : public:
+<span class="lineNum">     119 </span>            :     /*!
+<span class="lineNum">     120 </span>            :      * Default constructor
+<span class="lineNum">     121 </span>            :      *
+<a name="122"><span class="lineNum">     122 </span>            :      * \post &lt;tt&gt;use_count() == 0&lt;/tt&gt;</a>
+<span class="lineNum">     123 </span>            :      */
+<span class="lineNum">     124 </span><span class="lineCov">         12 :     intrusive_ref_counter() BOOST_NOEXCEPT : m_ref_counter(0)</span>
+<span class="lineNum">     125 </span>            :     {
+<span class="lineNum">     126 </span><span class="lineCov">         12 :     }</span>
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span>            :     /*!
+<span class="lineNum">     129 </span>            :      * Copy constructor
+<span class="lineNum">     130 </span>            :      *
+<span class="lineNum">     131 </span>            :      * \post &lt;tt&gt;use_count() == 0&lt;/tt&gt;
+<span class="lineNum">     132 </span>            :      */
+<span class="lineNum">     133 </span>            :     intrusive_ref_counter(intrusive_ref_counter const&amp;) BOOST_NOEXCEPT : m_ref_counter(0)
+<span class="lineNum">     134 </span>            :     {
+<span class="lineNum">     135 </span>            :     }
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span>            :     /*!
+<span class="lineNum">     138 </span>            :      * Assignment
+<span class="lineNum">     139 </span>            :      *
+<span class="lineNum">     140 </span>            :      * \post The reference counter is not modified after assignment
+<span class="lineNum">     141 </span>            :      */
+<span class="lineNum">     142 </span>            :     intrusive_ref_counter&amp; operator= (intrusive_ref_counter const&amp;) BOOST_NOEXCEPT { return *this; }
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span>            :     /*!
+<span class="lineNum">     145 </span>            :      * \return The reference counter
+<span class="lineNum">     146 </span>            :      */
+<span class="lineNum">     147 </span>            :     unsigned int use_count() const BOOST_NOEXCEPT
+<span class="lineNum">     148 </span>            :     {
+<span class="lineNum">     149 </span>            :         return CounterPolicyT::load(m_ref_counter);
+<span class="lineNum">     150 </span>            :     }
+<span class="lineNum">     151 </span>            : 
+<span class="lineNum">     152 </span>            : protected:
+<span class="lineNum">     153 </span>            :     /*!
+<span class="lineNum">     154 </span>            :      * Destructor
+<span class="lineNum">     155 </span>            :      */
+<span class="lineNum">     156 </span>            :     BOOST_DEFAULTED_FUNCTION(~intrusive_ref_counter(), {})
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span>            :     friend void intrusive_ptr_add_ref&lt; DerivedT, CounterPolicyT &gt;(const intrusive_ref_counter&lt; DerivedT, CounterPolicyT &gt;* p) BOOST_NOEXCEPT;
+<span class="lineNum">     159 </span>            :     friend void intrusive_ptr_release&lt; DerivedT, CounterPolicyT &gt;(const intrusive_ref_counter&lt; DerivedT, CounterPolicyT &gt;* p) BOOST_NOEXCEPT;
+<span class="lineNum">     160 </span>            : };
+<a name="161"><span class="lineNum">     161 </span>            : </a>
+<span class="lineNum">     162 </span>            : template&lt; typename DerivedT, typename CounterPolicyT &gt;
+<span class="lineNum">     163 </span><span class="lineCov">         12 : inline void intrusive_ptr_add_ref(const intrusive_ref_counter&lt; DerivedT, CounterPolicyT &gt;* p) BOOST_NOEXCEPT</span>
+<span class="lineNum">     164 </span>            : {
+<span class="lineNum">     165 </span><span class="lineCov">         12 :     CounterPolicyT::increment(p-&gt;m_ref_counter);</span>
+<span class="lineNum">     166 </span><span class="lineCov">         12 : }</span>
+<a name="167"><span class="lineNum">     167 </span>            : </a>
+<span class="lineNum">     168 </span>            : template&lt; typename DerivedT, typename CounterPolicyT &gt;
+<span class="lineNum">     169 </span><span class="lineCov">          8 : inline void intrusive_ptr_release(const intrusive_ref_counter&lt; DerivedT, CounterPolicyT &gt;* p) BOOST_NOEXCEPT</span>
+<span class="lineNum">     170 </span>            : {
+<span class="lineNum">     171 </span><span class="lineCov">          8 :     if (CounterPolicyT::decrement(p-&gt;m_ref_counter) == 0)</span>
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :         delete static_cast&lt; const DerivedT* &gt;(p);</span>
+<span class="lineNum">     173 </span><span class="lineCov">          8 : }</span>
+<span class="lineNum">     174 </span>            : 
+<span class="lineNum">     175 </span>            : } // namespace sp_adl_block
+<span class="lineNum">     176 </span>            : 
+<span class="lineNum">     177 </span>            : using sp_adl_block::intrusive_ref_counter;
+<span class="lineNum">     178 </span>            : using sp_adl_block::thread_unsafe_counter;
+<span class="lineNum">     179 </span>            : using sp_adl_block::thread_safe_counter;
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span>            : } // namespace boost
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span>            : #if defined(_MSC_VER)
+<span class="lineNum">     184 </span>            : #pragma warning(pop)
+<span class="lineNum">     185 </span>            : #endif
+<span class="lineNum">     186 </span>            : 
+<span class="lineNum">     187 </span>            : #endif // BOOST_SMART_PTR_INTRUSIVE_REF_COUNTER_HPP_INCLUDED_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

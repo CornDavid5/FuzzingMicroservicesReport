@@ -1,0 +1,206 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/log/expressions/message.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">boost/log/expressions</a> - message.hpp<span style="font-size: 80%;"> (source / <a href="message.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 03:42:26</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *          Copyright Andrey Semashev 2007 - 2015.
+<span class="lineNum">       3 </span>            :  * Distributed under the Boost Software License, Version 1.0.
+<span class="lineNum">       4 </span>            :  *    (See accompanying file LICENSE_1_0.txt or copy at
+<span class="lineNum">       5 </span>            :  *          http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       6 </span>            :  */
+<span class="lineNum">       7 </span>            : /*!
+<span class="lineNum">       8 </span>            :  * \file   message.hpp
+<span class="lineNum">       9 </span>            :  * \author Andrey Semashev
+<span class="lineNum">      10 </span>            :  * \date   13.07.2012
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * The header contains log message keyword declaration.
+<span class="lineNum">      13 </span>            :  */
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : #ifndef BOOST_LOG_EXPRESSIONS_MESSAGE_HPP_INCLUDED_
+<span class="lineNum">      16 </span>            : #define BOOST_LOG_EXPRESSIONS_MESSAGE_HPP_INCLUDED_
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #include &lt;string&gt;
+<span class="lineNum">      19 </span>            : #include &lt;boost/mpl/vector.hpp&gt;
+<span class="lineNum">      20 </span>            : #include &lt;boost/log/detail/config.hpp&gt;
+<span class="lineNum">      21 </span>            : #include &lt;boost/log/detail/default_attribute_names.hpp&gt;
+<span class="lineNum">      22 </span>            : #include &lt;boost/log/expressions/keyword.hpp&gt;
+<span class="lineNum">      23 </span>            : #include &lt;boost/log/expressions/is_keyword_descriptor.hpp&gt;
+<span class="lineNum">      24 </span>            : #include &lt;boost/log/attributes/attribute_name.hpp&gt;
+<span class="lineNum">      25 </span>            : #include &lt;boost/log/detail/header.hpp&gt;
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : #ifdef BOOST_HAS_PRAGMA_ONCE
+<span class="lineNum">      28 </span>            : #pragma once
+<span class="lineNum">      29 </span>            : #endif
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : namespace boost {
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : BOOST_LOG_OPEN_NAMESPACE
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : namespace expressions {
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            : namespace tag {
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : /*!
+<span class="lineNum">      40 </span>            :  * Generic log message attribute descriptor.
+<span class="lineNum">      41 </span>            :  */
+<span class="lineNum">      42 </span>            : struct message :
+<span class="lineNum">      43 </span>            :     public keyword_descriptor
+<span class="lineNum">      44 </span>            : {
+<span class="lineNum">      45 </span>            :     // The attribute value type here is not essential since message attributes are not intended to be created via the keyword
+<span class="lineNum">      46 </span>            :     typedef void attribute_type;
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span>            : #if defined(BOOST_LOG_USE_CHAR) &amp;&amp; defined(BOOST_LOG_USE_WCHAR_T)
+<span class="lineNum">      49 </span>            :     typedef mpl::vector2&lt; std::string, std::wstring &gt; value_type;
+<span class="lineNum">      50 </span>            : #elif defined(BOOST_LOG_USE_CHAR)
+<span class="lineNum">      51 </span>            :     typedef std::string value_type;
+<span class="lineNum">      52 </span>            : #elif defined(BOOST_LOG_USE_WCHAR_T)
+<span class="lineNum">      53 </span>            :     typedef std::wstring value_type;
+<a name="54"><span class="lineNum">      54 </span>            : #endif</a>
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span><span class="lineCov">          2 :     static attribute_name get_name() { return boost::log::aux::default_attribute_names::message(); }</span>
+<span class="lineNum">      57 </span>            : };
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span>            : #if defined(BOOST_LOG_USE_CHAR)
+<span class="lineNum">      60 </span>            : /*!
+<span class="lineNum">      61 </span>            :  * Narrow character log message attribute descriptor.
+<span class="lineNum">      62 </span>            :  */
+<span class="lineNum">      63 </span>            : struct smessage :
+<span class="lineNum">      64 </span>            :     public keyword_descriptor
+<span class="lineNum">      65 </span>            : {
+<span class="lineNum">      66 </span>            :     // The attribute value type here is not essential since message attributes are not intended to be created via the keyword
+<span class="lineNum">      67 </span>            :     typedef void attribute_type;
+<span class="lineNum">      68 </span>            :     typedef std::string value_type;
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span>            :     static attribute_name get_name() { return boost::log::aux::default_attribute_names::message(); }
+<span class="lineNum">      71 </span>            : };
+<span class="lineNum">      72 </span>            : #endif
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span>            : #if defined(BOOST_LOG_USE_WCHAR_T)
+<span class="lineNum">      75 </span>            : /*!
+<span class="lineNum">      76 </span>            :  * Wide character log message attribute descriptor.
+<span class="lineNum">      77 </span>            :  */
+<span class="lineNum">      78 </span>            : struct wmessage :
+<span class="lineNum">      79 </span>            :     public keyword_descriptor
+<span class="lineNum">      80 </span>            : {
+<span class="lineNum">      81 </span>            :     // The attribute value type here is not essential since message attributes are not intended to be created via the keyword
+<span class="lineNum">      82 </span>            :     typedef void attribute_type;
+<span class="lineNum">      83 </span>            :     typedef std::wstring value_type;
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span>            :     static attribute_name get_name() { return boost::log::aux::default_attribute_names::message(); }
+<span class="lineNum">      86 </span>            : };
+<span class="lineNum">      87 </span>            : #endif
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span>            : } // namespace tag
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span>            : /*!
+<span class="lineNum">      92 </span>            :  * Generic message keyword type.
+<span class="lineNum">      93 </span>            :  */
+<span class="lineNum">      94 </span>            : typedef attribute_keyword&lt; tag::message &gt; message_type;
+<span class="lineNum">      95 </span>            : /*!
+<span class="lineNum">      96 </span>            :  * Generic message keyword.
+<span class="lineNum">      97 </span>            :  */
+<span class="lineNum">      98 </span>            : const message_type message = {};
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span>            : #if defined(BOOST_LOG_USE_CHAR)
+<span class="lineNum">     101 </span>            : /*!
+<span class="lineNum">     102 </span>            :  * Narrow message keyword type.
+<span class="lineNum">     103 </span>            :  */
+<span class="lineNum">     104 </span>            : typedef attribute_keyword&lt; tag::smessage &gt; smessage_type;
+<span class="lineNum">     105 </span>            : /*!
+<span class="lineNum">     106 </span>            :  * Narrow message keyword.
+<span class="lineNum">     107 </span>            :  */
+<span class="lineNum">     108 </span>            : const smessage_type smessage = {};
+<span class="lineNum">     109 </span>            : #endif
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span>            : #if defined(BOOST_LOG_USE_WCHAR_T)
+<span class="lineNum">     112 </span>            : /*!
+<span class="lineNum">     113 </span>            :  * Wide message keyword type.
+<span class="lineNum">     114 </span>            :  */
+<span class="lineNum">     115 </span>            : typedef attribute_keyword&lt; tag::wmessage &gt; wmessage_type;
+<span class="lineNum">     116 </span>            : /*!
+<span class="lineNum">     117 </span>            :  * Wide message keyword.
+<span class="lineNum">     118 </span>            :  */
+<span class="lineNum">     119 </span>            : const wmessage_type wmessage = {};
+<span class="lineNum">     120 </span>            : #endif
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span>            : } // namespace expressions
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span>            : BOOST_LOG_CLOSE_NAMESPACE // namespace log
+<span class="lineNum">     125 </span>            : 
+<span class="lineNum">     126 </span>            : } // namespace boost
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span>            : #include &lt;boost/log/detail/footer.hpp&gt;
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span>            : #endif // BOOST_LOG_EXPRESSIONS_MESSAGE_HPP_INCLUDED_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

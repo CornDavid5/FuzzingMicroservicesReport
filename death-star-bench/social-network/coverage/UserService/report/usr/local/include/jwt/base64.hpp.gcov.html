@@ -1,0 +1,411 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - /usr/local/include/jwt/base64.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">usr/local/include/jwt</a> - base64.hpp<span style="font-size: 80%;"> (source / <a href="base64.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">39</td>
+            <td class="headerCovTableEntry">47</td>
+            <td class="headerCovTableEntryMed">83.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 03:42:26</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryLo">66.7 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            : Copyright (c) 2017 Arun Muralidharan
+<span class="lineNum">       3 </span>            : 
+<span class="lineNum">       4 </span>            : Permission is hereby granted, free of charge, to any person obtaining a copy
+<span class="lineNum">       5 </span>            : of this software and associated documentation files (the &quot;Software&quot;), to deal
+<span class="lineNum">       6 </span>            : in the Software without restriction, including without limitation the rights
+<span class="lineNum">       7 </span>            : to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+<span class="lineNum">       8 </span>            : copies of the Software, and to permit persons to whom the Software is
+<span class="lineNum">       9 </span>            : furnished to do so, subject to the following conditions:
+<span class="lineNum">      10 </span>            : 
+<span class="lineNum">      11 </span>            : The above copyright notice and this permission notice shall be included in all
+<span class="lineNum">      12 </span>            : copies or substantial portions of the Software.
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+<span class="lineNum">      15 </span>            : IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<span class="lineNum">      16 </span>            : FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+<span class="lineNum">      17 </span>            : AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<span class="lineNum">      18 </span>            : LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+<span class="lineNum">      19 </span>            : OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+<span class="lineNum">      20 </span>            : SOFTWARE.
+<span class="lineNum">      21 </span>            :  */
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : #ifndef CPP_JWT_BASE64_HPP
+<span class="lineNum">      24 </span>            : #define CPP_JWT_BASE64_HPP
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &lt;array&gt;
+<span class="lineNum">      27 </span>            : #include &lt;cassert&gt;
+<span class="lineNum">      28 </span>            : #include &lt;cstring&gt;
+<span class="lineNum">      29 </span>            : #include &lt;ostream&gt;
+<span class="lineNum">      30 </span>            : #include &quot;jwt/config.hpp&quot;
+<span class="lineNum">      31 </span>            : #include &quot;jwt/string_view.hpp&quot;
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : namespace jwt {
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : // Returns the maximum number of bytes required to
+<a name="36"><span class="lineNum">      36 </span>            : // encode an input byte string of length `n` to base64.</a>
+<span class="lineNum">      37 </span>            : inline constexpr 
+<span class="lineNum">      38 </span><span class="lineCov">         12 : size_t encoding_size(size_t n)</span>
+<span class="lineNum">      39 </span>            : {
+<span class="lineNum">      40 </span><span class="lineCov">         12 :   return 4 * ((n + 2) / 3);</span>
+<span class="lineNum">      41 </span>            : }
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            : // Returns the maximum number of bytes required
+<span class="lineNum">      45 </span>            : // to store a decoded base64 byte string.
+<span class="lineNum">      46 </span>            : inline constexpr
+<span class="lineNum">      47 </span>            : size_t decoding_size(size_t n)
+<span class="lineNum">      48 </span>            : {
+<span class="lineNum">      49 </span>            :   return n / 4 * 3;
+<span class="lineNum">      50 </span>            : }
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            : /**
+<span class="lineNum">      53 </span>            :  * Encoding map.
+<span class="lineNum">      54 </span>            :  * A constexpr helper class for performing base64
+<span class="lineNum">      55 </span>            :  * encoding on the input byte string.
+<span class="lineNum">      56 </span>            :  */
+<span class="lineNum">      57 </span>            : class EMap
+<span class="lineNum">      58 </span>            : {
+<span class="lineNum">      59 </span>            : public:
+<span class="lineNum">      60 </span>            :   constexpr EMap() = default;
+<a name="61"><span class="lineNum">      61 </span>            : </a>
+<span class="lineNum">      62 </span>            : public:
+<a name="63"><span class="lineNum">      63 </span><span class="lineCov">        776 :   constexpr char at(size_t pos) const noexcept</span></a>
+<span class="lineNum">      64 </span>            :   {
+<span class="lineNum">      65 </span><span class="lineCov">        776 :     return X_ASSERT(pos &lt; chars_.size()), chars_.at(pos);</span>
+<span class="lineNum">      66 </span>            :   }
+<span class="lineNum">      67 </span>            : 
+<span class="lineNum">      68 </span>            : private:
+<span class="lineNum">      69 </span>            :   std::array&lt;char, 64&gt; chars_ = {{
+<span class="lineNum">      70 </span>            :     'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+<span class="lineNum">      71 </span>            :     'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
+<span class="lineNum">      72 </span>            :     '0','1','2','3','4','5','6','7','8','9',
+<span class="lineNum">      73 </span>            :     '+','/',
+<span class="lineNum">      74 </span>            :   }};
+<span class="lineNum">      75 </span>            : };
+<span class="lineNum">      76 </span>            : 
+<span class="lineNum">      77 </span>            : /**
+<span class="lineNum">      78 </span>            :  * Encodes a sequence of octet into base64 string.
+<span class="lineNum">      79 </span>            :  * Returns std::string resized to contain only the
+<span class="lineNum">      80 </span>            :  * encoded data (as usual without null terminator).
+<span class="lineNum">      81 </span>            :  *
+<span class="lineNum">      82 </span>            :  * The encoded string is atleast `encoding_size(input len)`
+<span class="lineNum">      83 </span>            :  * in size.
+<span class="lineNum">      84 </span>            :  *
+<span class="lineNum">      85 </span>            :  * Arguments:
+<span class="lineNum">      86 </span>            :  *  @in : Input byte string to be encoded.
+<a name="87"><span class="lineNum">      87 </span>            :  *  @len : Length of the input byte string.</a>
+<span class="lineNum">      88 </span>            :  */
+<span class="lineNum">      89 </span><span class="lineCov">         12 : inline std::string base64_encode(const char* in, size_t len)</span>
+<span class="lineNum">      90 </span>            : {
+<span class="lineNum">      91 </span><span class="lineCov">         12 :   std::string result;</span>
+<span class="lineNum">      92 </span><span class="lineCov">         12 :   const auto encoded_siz = encoding_size(len);</span>
+<span class="lineNum">      93 </span><span class="lineCov">         12 :   result.resize(encoded_siz);</span>
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span>            :   constexpr static const EMap emap{};
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span><span class="lineCov">         12 :   int i = 0;</span>
+<span class="lineNum">      98 </span><span class="lineCov">         12 :   int j = 0;</span>
+<span class="lineNum">      99 </span><span class="lineCov">        388 :   for (; i &lt; static_cast&lt;int&gt;(len) - 2; i += 3) {</span>
+<span class="lineNum">     100 </span><span class="lineCov">        188 :     const auto first  = in[i];</span>
+<span class="lineNum">     101 </span><span class="lineCov">        188 :     const auto second = in[i+1];</span>
+<span class="lineNum">     102 </span><span class="lineCov">        188 :     const auto third  = in[i+2];</span>
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span><span class="lineCov">        188 :     result[j++] = emap.at( (first &gt;&gt; 2) &amp; 0x3F                           );</span>
+<span class="lineNum">     105 </span><span class="lineCov">        188 :     result[j++] = emap.at(((first  &amp; 0x03) &lt;&lt; 4) | ((second &amp; 0xF0) &gt;&gt; 4));</span>
+<span class="lineNum">     106 </span><span class="lineCov">        188 :     result[j++] = emap.at(((second &amp; 0x0F) &lt;&lt; 2) | ((third  &amp; 0xC0) &gt;&gt; 6));</span>
+<span class="lineNum">     107 </span><span class="lineCov">        188 :     result[j++] = emap.at(                          (third  &amp; 0x3F)      );</span>
+<span class="lineNum">     108 </span>            :   }
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span><span class="lineCov">         12 :   switch (len % 3) {</span>
+<span class="lineNum">     111 </span>            :   case 2:
+<span class="lineNum">     112 </span>            :   {
+<span class="lineNum">     113 </span><span class="lineCov">          8 :     const auto first  = in[i];</span>
+<span class="lineNum">     114 </span><span class="lineCov">          8 :     const auto second = in[i+1];</span>
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span><span class="lineCov">          8 :     result[j++] = emap.at( (first &gt;&gt; 2) &amp; 0x3F                          );</span>
+<span class="lineNum">     117 </span><span class="lineCov">          8 :     result[j++] = emap.at(((first &amp; 0x03) &lt;&lt; 4) | ((second &amp; 0xF0) &gt;&gt; 4));</span>
+<span class="lineNum">     118 </span><span class="lineCov">          8 :     result[j++] = emap.at(                         (second &amp; 0x0F) &lt;&lt; 2 );</span>
+<span class="lineNum">     119 </span><span class="lineCov">          8 :     result[j++] = '=';</span>
+<span class="lineNum">     120 </span><span class="lineCov">          8 :     break;</span>
+<span class="lineNum">     121 </span>            :   }
+<span class="lineNum">     122 </span>            :   case 1:
+<span class="lineNum">     123 </span>            :   {
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :     const auto first = in[i];</span>
+<span class="lineNum">     125 </span>            : 
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :     result[j++] = emap.at((first &gt;&gt; 2) &amp; 0x3F);</span>
+<span class="lineNum">     127 </span><span class="lineNoCov">          0 :     result[j++] = emap.at((first &amp; 0x03) &lt;&lt; 4);</span>
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :     result[j++] = '=';</span>
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :     result[j++] = '=';</span>
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :     break;</span>
+<span class="lineNum">     131 </span>            :   }
+<span class="lineNum">     132 </span>            :   case 0:
+<span class="lineNum">     133 </span><span class="lineCov">          4 :     break;</span>
+<span class="lineNum">     134 </span>            :   };
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span><span class="lineCov">         12 :   result.resize(j);</span>
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span><span class="lineCov">         12 :   return result;</span>
+<span class="lineNum">     139 </span>            : }
+<span class="lineNum">     140 </span>            : 
+<span class="lineNum">     141 </span>            : 
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span>            : //======================= Decoder ==========================
+<span class="lineNum">     144 </span>            : 
+<span class="lineNum">     145 </span>            : /**
+<span class="lineNum">     146 </span>            :  * Decoding map.
+<span class="lineNum">     147 </span>            :  * A helper constexpr class for providing interface
+<span class="lineNum">     148 </span>            :  * to the decoding map for base64.
+<span class="lineNum">     149 </span>            :  */
+<span class="lineNum">     150 </span>            : class DMap
+<span class="lineNum">     151 </span>            : {
+<span class="lineNum">     152 </span>            : public:
+<span class="lineNum">     153 </span>            :   constexpr DMap() = default;
+<span class="lineNum">     154 </span>            : 
+<span class="lineNum">     155 </span>            : public:
+<span class="lineNum">     156 </span>            :   constexpr char at(size_t pos) const noexcept
+<span class="lineNum">     157 </span>            :   {
+<span class="lineNum">     158 </span>            :     return X_ASSERT(pos &lt; map_.size()), map_[pos];
+<span class="lineNum">     159 </span>            :   }
+<span class="lineNum">     160 </span>            : 
+<span class="lineNum">     161 </span>            : private:
+<span class="lineNum">     162 </span>            :   std::array&lt;signed char, 256&gt; map_ = {{
+<span class="lineNum">     163 </span>            :     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, //   0-15
+<span class="lineNum">     164 </span>            :     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, //  16-31
+<span class="lineNum">     165 </span>            :     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 62, -1, -1, -1, 63, //  32-47
+<span class="lineNum">     166 </span>            :     52, 53, 54, 55, 56, 57, 58, 59, 60, 61, -1, -1, -1, -1, -1, -1, //  48-63
+<span class="lineNum">     167 </span>            :     -1,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, //  64-79
+<span class="lineNum">     168 </span>            :     15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1, -1, //  80-95
+<span class="lineNum">     169 </span>            :     -1, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, //  96-111
+<span class="lineNum">     170 </span>            :     41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, -1, -1, -1, -1, -1, // 112-127
+<span class="lineNum">     171 </span>            :     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 128-143
+<span class="lineNum">     172 </span>            :     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 144-159
+<span class="lineNum">     173 </span>            :     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 160-175
+<span class="lineNum">     174 </span>            :     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 176-191
+<span class="lineNum">     175 </span>            :     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 192-207
+<span class="lineNum">     176 </span>            :     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 208-223
+<span class="lineNum">     177 </span>            :     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 224-239
+<span class="lineNum">     178 </span>            :     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1  // 240-255
+<span class="lineNum">     179 </span>            :   }};
+<span class="lineNum">     180 </span>            : };
+<span class="lineNum">     181 </span>            : 
+<span class="lineNum">     182 </span>            : /**
+<span class="lineNum">     183 </span>            :  * Decodes octet of base64 encoded byte string.
+<span class="lineNum">     184 </span>            :  *
+<span class="lineNum">     185 </span>            :  * Returns a std::string with the decoded byte string.
+<span class="lineNum">     186 </span>            :  *
+<span class="lineNum">     187 </span>            :  * Arguments:
+<span class="lineNum">     188 </span>            :  *  @in : Encoded base64 byte string.
+<span class="lineNum">     189 </span>            :  *  @len : Length of the encoded input byte string.
+<span class="lineNum">     190 </span>            :  */
+<span class="lineNum">     191 </span>            : inline std::string base64_decode(const char* in, size_t len)
+<span class="lineNum">     192 </span>            : {
+<span class="lineNum">     193 </span>            :   std::string result;
+<span class="lineNum">     194 </span>            :   const auto decoded_siz = decoding_size(len);
+<span class="lineNum">     195 </span>            :   result.resize(decoded_siz);
+<span class="lineNum">     196 </span>            : 
+<span class="lineNum">     197 </span>            :   int i = 0;
+<span class="lineNum">     198 </span>            :   size_t bytes_rem = len;
+<span class="lineNum">     199 </span>            :   size_t bytes_wr = 0;
+<span class="lineNum">     200 </span>            : 
+<span class="lineNum">     201 </span>            :   constexpr static const DMap dmap{};
+<span class="lineNum">     202 </span>            : 
+<span class="lineNum">     203 </span>            :   while (bytes_rem &gt; 0 &amp;&amp; dmap.at(in[bytes_rem - 1]) == -1) { bytes_rem--; }
+<span class="lineNum">     204 </span>            : 
+<span class="lineNum">     205 </span>            :   while (bytes_rem &gt; 4)
+<span class="lineNum">     206 </span>            :   {
+<span class="lineNum">     207 </span>            :     // Error case in input
+<span class="lineNum">     208 </span>            :     if (dmap.at(*in) == -1) return result;
+<span class="lineNum">     209 </span>            : 
+<span class="lineNum">     210 </span>            :     const auto first  = dmap.at(in[0]);
+<span class="lineNum">     211 </span>            :     const auto second = dmap.at(in[1]);
+<span class="lineNum">     212 </span>            :     const auto third  = dmap.at(in[2]);
+<span class="lineNum">     213 </span>            :     const auto fourth = dmap.at(in[3]);
+<span class="lineNum">     214 </span>            : 
+<span class="lineNum">     215 </span>            :     result[i]     = (first  &lt;&lt; 2) | (second &gt;&gt; 4);
+<span class="lineNum">     216 </span>            :     result[i + 1] = (second &lt;&lt; 4) | (third  &gt;&gt; 2);
+<span class="lineNum">     217 </span>            :     result[i + 2] = (third  &lt;&lt; 6) | fourth;
+<span class="lineNum">     218 </span>            : 
+<span class="lineNum">     219 </span>            :     bytes_rem -= 4;
+<span class="lineNum">     220 </span>            :     i += 3;
+<span class="lineNum">     221 </span>            :     in += 4;
+<span class="lineNum">     222 </span>            :   }
+<span class="lineNum">     223 </span>            :   bytes_wr = i;
+<span class="lineNum">     224 </span>            : 
+<span class="lineNum">     225 </span>            :   switch(bytes_rem) {
+<span class="lineNum">     226 </span>            :   case 4:
+<span class="lineNum">     227 </span>            :   {
+<span class="lineNum">     228 </span>            :     const auto third  = dmap.at(in[2]);
+<span class="lineNum">     229 </span>            :     const auto fourth = dmap.at(in[3]);
+<span class="lineNum">     230 </span>            :     result[i + 2] = (third &lt;&lt; 6) | fourth;
+<span class="lineNum">     231 </span>            :     bytes_wr++;
+<span class="lineNum">     232 </span>            :     //FALLTHROUGH
+<span class="lineNum">     233 </span>            :   }
+<span class="lineNum">     234 </span>            :   case 3:
+<span class="lineNum">     235 </span>            :   {
+<span class="lineNum">     236 </span>            :     const auto second = dmap.at(in[1]);
+<span class="lineNum">     237 </span>            :     const auto third  = dmap.at(in[2]);
+<span class="lineNum">     238 </span>            :     result[i + 1] = (second &lt;&lt; 4) | (third &gt;&gt; 2);
+<span class="lineNum">     239 </span>            :     bytes_wr++;
+<span class="lineNum">     240 </span>            :     //FALLTHROUGH
+<span class="lineNum">     241 </span>            :   }
+<span class="lineNum">     242 </span>            :   case 2:
+<span class="lineNum">     243 </span>            :   {
+<span class="lineNum">     244 </span>            :     const auto first  = dmap.at(in[0]);
+<span class="lineNum">     245 </span>            :     const auto second = dmap.at(in[1]);
+<span class="lineNum">     246 </span>            :     result[i] = (first &lt;&lt; 2) | (second &gt;&gt; 4);
+<span class="lineNum">     247 </span>            :     bytes_wr++;
+<span class="lineNum">     248 </span>            :   }
+<span class="lineNum">     249 </span>            :   };
+<span class="lineNum">     250 </span>            : 
+<span class="lineNum">     251 </span>            :   result.resize(bytes_wr);
+<span class="lineNum">     252 </span>            : 
+<span class="lineNum">     253 </span>            :   return result;
+<span class="lineNum">     254 </span>            : }
+<span class="lineNum">     255 </span>            : 
+<span class="lineNum">     256 </span>            : /**
+<span class="lineNum">     257 </span>            :  * Makes the base64 encoded byte string URL safe.
+<span class="lineNum">     258 </span>            :  * Overwrites/skips few URL unsafe characters
+<span class="lineNum">     259 </span>            :  * from the input sequence.
+<span class="lineNum">     260 </span>            :  *
+<span class="lineNum">     261 </span>            :  * Arguments:
+<span class="lineNum">     262 </span>            :  *  @data : Base64 encoded byte string.
+<span class="lineNum">     263 </span>            :  *  @len : Length of the base64 byte string.
+<span class="lineNum">     264 </span>            :  *
+<span class="lineNum">     265 </span>            :  * Returns:
+<a name="266"><span class="lineNum">     266 </span>            :  *  Length of the URL safe base64 encoded byte string.</a>
+<span class="lineNum">     267 </span>            :  */
+<span class="lineNum">     268 </span><span class="lineCov">         12 : inline size_t base64_uri_encode(char* data, size_t len) noexcept</span>
+<span class="lineNum">     269 </span>            : {
+<span class="lineNum">     270 </span><span class="lineCov">         12 :   size_t i = 0;</span>
+<span class="lineNum">     271 </span><span class="lineCov">         12 :   size_t j = 0;</span>
+<span class="lineNum">     272 </span>            : 
+<span class="lineNum">     273 </span><span class="lineCov">       1580 :   for (; i &lt; len; ++i) {</span>
+<span class="lineNum">     274 </span><span class="lineCov">        784 :     switch (data[i]) {</span>
+<span class="lineNum">     275 </span>            :     case '+':
+<span class="lineNum">     276 </span><span class="lineNoCov">          0 :       data[j++] = '-';</span>
+<span class="lineNum">     277 </span><span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">     278 </span>            :     case '/':
+<span class="lineNum">     279 </span><span class="lineCov">          2 :       data[j++] = '_';</span>
+<span class="lineNum">     280 </span><span class="lineCov">          2 :       break;</span>
+<span class="lineNum">     281 </span>            :     case '=':
+<span class="lineNum">     282 </span><span class="lineCov">          8 :       break;</span>
+<span class="lineNum">     283 </span>            :     default:
+<span class="lineNum">     284 </span><span class="lineCov">        774 :       data[j++] = data[i];</span>
+<span class="lineNum">     285 </span>            :     };
+<span class="lineNum">     286 </span>            :   }
+<span class="lineNum">     287 </span>            : 
+<span class="lineNum">     288 </span><span class="lineCov">         12 :   return j;</span>
+<span class="lineNum">     289 </span>            : }
+<span class="lineNum">     290 </span>            : 
+<span class="lineNum">     291 </span>            : /**
+<span class="lineNum">     292 </span>            :  * Decodes an input URL safe base64 encoded byte string.
+<span class="lineNum">     293 </span>            :  *
+<span class="lineNum">     294 </span>            :  * NOTE: To be used only for decoding URL safe base64 encoded
+<span class="lineNum">     295 </span>            :  * byte string.
+<span class="lineNum">     296 </span>            :  *
+<span class="lineNum">     297 </span>            :  * Arguments:
+<span class="lineNum">     298 </span>            :  *  @data : URL safe base64 encoded byte string.
+<span class="lineNum">     299 </span>            :  *  @len : Length of the input byte string.
+<span class="lineNum">     300 </span>            :  */
+<span class="lineNum">     301 </span>            : inline std::string base64_uri_decode(const char* data, size_t len)
+<span class="lineNum">     302 </span>            : {
+<span class="lineNum">     303 </span>            :   std::string uri_dec;
+<span class="lineNum">     304 </span>            :   uri_dec.resize(len + 4);
+<span class="lineNum">     305 </span>            : 
+<span class="lineNum">     306 </span>            :   size_t i = 0;
+<span class="lineNum">     307 </span>            : 
+<span class="lineNum">     308 </span>            :   for (; i &lt; len; ++i) 
+<span class="lineNum">     309 </span>            :   {
+<span class="lineNum">     310 </span>            :     switch (data[i]) {
+<span class="lineNum">     311 </span>            :     case '-':
+<span class="lineNum">     312 </span>            :       uri_dec[i] = '+';
+<span class="lineNum">     313 </span>            :       break;
+<span class="lineNum">     314 </span>            :     case '_':
+<span class="lineNum">     315 </span>            :       uri_dec[i] = '/';
+<span class="lineNum">     316 </span>            :       break;
+<span class="lineNum">     317 </span>            :     default:
+<span class="lineNum">     318 </span>            :       uri_dec[i] = data[i];
+<span class="lineNum">     319 </span>            :     };
+<span class="lineNum">     320 </span>            :   }
+<span class="lineNum">     321 </span>            : 
+<span class="lineNum">     322 </span>            :   size_t trailer = 4 - (i % 4);
+<span class="lineNum">     323 </span>            :   if (trailer &amp;&amp; trailer &lt; 4) {
+<span class="lineNum">     324 </span>            :     while (trailer--) {
+<span class="lineNum">     325 </span>            :       uri_dec[i++] = '=';
+<span class="lineNum">     326 </span>            :     }
+<span class="lineNum">     327 </span>            :   }
+<span class="lineNum">     328 </span>            : 
+<span class="lineNum">     329 </span>            :   return base64_decode(uri_dec.c_str(), uri_dec.length());
+<span class="lineNum">     330 </span>            : }
+<span class="lineNum">     331 </span>            : 
+<span class="lineNum">     332 </span>            : } // END namespace jwt
+<span class="lineNum">     333 </span>            : 
+<span class="lineNum">     334 </span>            : 
+<span class="lineNum">     335 </span>            : #endif
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
