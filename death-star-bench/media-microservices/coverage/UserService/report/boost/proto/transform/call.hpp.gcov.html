@@ -1,0 +1,477 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - boost/proto/transform/call.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">boost/proto/transform</a> - call.hpp<span style="font-size: 80%;"> (source / <a href="call.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 01:11:27</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : ///////////////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">       2 </span>            : /// \file call.hpp
+<span class="lineNum">       3 </span>            : /// Contains definition of the call&lt;&gt; transform.
+<span class="lineNum">       4 </span>            : //
+<span class="lineNum">       5 </span>            : //  Copyright 2008 Eric Niebler. Distributed under the Boost
+<span class="lineNum">       6 </span>            : //  Software License, Version 1.0. (See accompanying file
+<span class="lineNum">       7 </span>            : //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       8 </span>            : 
+<span class="lineNum">       9 </span>            : #ifndef BOOST_PROTO_TRANSFORM_CALL_HPP_EAN_11_02_2007
+<span class="lineNum">      10 </span>            : #define BOOST_PROTO_TRANSFORM_CALL_HPP_EAN_11_02_2007
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span>            : #if defined(_MSC_VER)
+<span class="lineNum">      13 </span>            : # pragma warning(push)
+<span class="lineNum">      14 </span>            : # pragma warning(disable: 4714) // function 'xxx' marked as __forceinline not inlined
+<span class="lineNum">      15 </span>            : #endif
+<span class="lineNum">      16 </span>            : 
+<span class="lineNum">      17 </span>            : #include &lt;boost/preprocessor/cat.hpp&gt;
+<span class="lineNum">      18 </span>            : #include &lt;boost/preprocessor/facilities/intercept.hpp&gt;
+<span class="lineNum">      19 </span>            : #include &lt;boost/preprocessor/iteration/iterate.hpp&gt;
+<span class="lineNum">      20 </span>            : #include &lt;boost/preprocessor/repetition/enum.hpp&gt;
+<span class="lineNum">      21 </span>            : #include &lt;boost/preprocessor/repetition/repeat.hpp&gt;
+<span class="lineNum">      22 </span>            : #include &lt;boost/preprocessor/repetition/enum_params.hpp&gt;
+<span class="lineNum">      23 </span>            : #include &lt;boost/preprocessor/repetition/enum_binary_params.hpp&gt;
+<span class="lineNum">      24 </span>            : #include &lt;boost/preprocessor/repetition/enum_trailing_params.hpp&gt;
+<span class="lineNum">      25 </span>            : #include &lt;boost/ref.hpp&gt;
+<span class="lineNum">      26 </span>            : #include &lt;boost/utility/result_of.hpp&gt;
+<span class="lineNum">      27 </span>            : #include &lt;boost/proto/proto_fwd.hpp&gt;
+<span class="lineNum">      28 </span>            : #include &lt;boost/proto/traits.hpp&gt;
+<span class="lineNum">      29 </span>            : #include &lt;boost/proto/transform/impl.hpp&gt;
+<span class="lineNum">      30 </span>            : #include &lt;boost/proto/detail/as_lvalue.hpp&gt;
+<span class="lineNum">      31 </span>            : #include &lt;boost/proto/detail/poly_function.hpp&gt;
+<span class="lineNum">      32 </span>            : #include &lt;boost/proto/transform/detail/pack.hpp&gt;
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            : namespace boost { namespace proto
+<span class="lineNum">      35 </span>            : {
+<span class="lineNum">      36 </span>            :     /// \brief Wrap \c PrimitiveTransform so that &lt;tt&gt;when\&lt;\&gt;&lt;/tt&gt; knows
+<span class="lineNum">      37 </span>            :     /// it is callable. Requires that the parameter is actually a
+<span class="lineNum">      38 </span>            :     /// PrimitiveTransform.
+<span class="lineNum">      39 </span>            :     ///
+<span class="lineNum">      40 </span>            :     /// This form of &lt;tt&gt;call\&lt;\&gt;&lt;/tt&gt; is useful for annotating an
+<span class="lineNum">      41 </span>            :     /// arbitrary PrimitiveTransform as callable when using it with
+<span class="lineNum">      42 </span>            :     /// &lt;tt&gt;when\&lt;\&gt;&lt;/tt&gt;. Consider the following transform, which
+<span class="lineNum">      43 </span>            :     /// is parameterized with another transform.
+<span class="lineNum">      44 </span>            :     ///
+<span class="lineNum">      45 </span>            :     /// \code
+<span class="lineNum">      46 </span>            :     /// template&lt;typename Grammar&gt;
+<span class="lineNum">      47 </span>            :     /// struct Foo
+<span class="lineNum">      48 </span>            :     ///   : when&lt;
+<span class="lineNum">      49 </span>            :     ///         unary_plus&lt;Grammar&gt;
+<span class="lineNum">      50 </span>            :     ///       , Grammar(_child)   // May or may not work.
+<span class="lineNum">      51 </span>            :     ///     &gt;
+<span class="lineNum">      52 </span>            :     /// {};
+<span class="lineNum">      53 </span>            :     /// \endcode
+<span class="lineNum">      54 </span>            :     ///
+<span class="lineNum">      55 </span>            :     /// The problem with the above is that &lt;tt&gt;when\&lt;\&gt;&lt;/tt&gt; may or
+<span class="lineNum">      56 </span>            :     /// may not recognize \c Grammar as callable, depending on how
+<span class="lineNum">      57 </span>            :     /// \c Grammar is implemented. (See &lt;tt&gt;is_callable\&lt;\&gt;&lt;/tt&gt; for
+<span class="lineNum">      58 </span>            :     /// a discussion of this issue.) You can guard against
+<span class="lineNum">      59 </span>            :     /// the issue by wrapping \c Grammar in &lt;tt&gt;call\&lt;\&gt;&lt;/tt&gt;, such
+<span class="lineNum">      60 </span>            :     /// as:
+<span class="lineNum">      61 </span>            :     ///
+<span class="lineNum">      62 </span>            :     /// \code
+<span class="lineNum">      63 </span>            :     /// template&lt;typename Grammar&gt;
+<span class="lineNum">      64 </span>            :     /// struct Foo
+<span class="lineNum">      65 </span>            :     ///   : when&lt;
+<span class="lineNum">      66 </span>            :     ///         unary_plus&lt;Grammar&gt;
+<span class="lineNum">      67 </span>            :     ///       , call&lt;Grammar&gt;(_child)   // OK, this works
+<span class="lineNum">      68 </span>            :     ///     &gt;
+<span class="lineNum">      69 </span>            :     /// {};
+<span class="lineNum">      70 </span>            :     /// \endcode
+<span class="lineNum">      71 </span>            :     ///
+<span class="lineNum">      72 </span>            :     /// The above could also have been written as:
+<span class="lineNum">      73 </span>            :     ///
+<span class="lineNum">      74 </span>            :     /// \code
+<span class="lineNum">      75 </span>            :     /// template&lt;typename Grammar&gt;
+<span class="lineNum">      76 </span>            :     /// struct Foo
+<span class="lineNum">      77 </span>            :     ///   : when&lt;
+<span class="lineNum">      78 </span>            :     ///         unary_plus&lt;Grammar&gt;
+<span class="lineNum">      79 </span>            :     ///       , call&lt;Grammar(_child)&gt;   // OK, this works, too
+<span class="lineNum">      80 </span>            :     ///     &gt;
+<span class="lineNum">      81 </span>            :     /// {};
+<span class="lineNum">      82 </span>            :     /// \endcode
+<span class="lineNum">      83 </span>            :     template&lt;typename PrimitiveTransform&gt;
+<span class="lineNum">      84 </span>            :     struct call
+<span class="lineNum">      85 </span>            :       : PrimitiveTransform
+<span class="lineNum">      86 </span>            :     {};
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span>            :     /// \brief A specialization that treats function pointer Transforms as
+<span class="lineNum">      89 </span>            :     /// if they were function type Transforms.
+<span class="lineNum">      90 </span>            :     ///
+<span class="lineNum">      91 </span>            :     /// This specialization requires that \c Fun is actually a function type.
+<span class="lineNum">      92 </span>            :     ///
+<span class="lineNum">      93 </span>            :     /// This specialization is required for nested transforms such as
+<span class="lineNum">      94 </span>            :     /// &lt;tt&gt;call\&lt;T0(T1(_))\&gt;&lt;/tt&gt;. In C++, functions that are used as
+<span class="lineNum">      95 </span>            :     /// parameters to other functions automatically decay to funtion
+<span class="lineNum">      96 </span>            :     /// pointer types. In other words, the type &lt;tt&gt;T0(T1(_))&lt;/tt&gt; is
+<span class="lineNum">      97 </span>            :     /// indistinguishable from &lt;tt&gt;T0(T1(*)(_))&lt;/tt&gt;. This specialization
+<span class="lineNum">      98 </span>            :     /// is required to handle these nested function pointer type transforms
+<span class="lineNum">      99 </span>            :     /// properly.
+<span class="lineNum">     100 </span>            :     template&lt;typename Fun&gt;
+<span class="lineNum">     101 </span>            :     struct call&lt;Fun *&gt;
+<span class="lineNum">     102 </span>            :       : call&lt;Fun&gt;
+<span class="lineNum">     103 </span>            :     {};
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span>            :     /// INTERNAL ONLY
+<span class="lineNum">     106 </span>            :     template&lt;typename Fun&gt;
+<span class="lineNum">     107 </span>            :     struct call&lt;detail::msvc_fun_workaround&lt;Fun&gt; &gt;
+<span class="lineNum">     108 </span>            :       : call&lt;Fun&gt;
+<span class="lineNum">     109 </span>            :     {};
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span>            :     /// \brief Either call the PolymorphicFunctionObject with 0
+<span class="lineNum">     112 </span>            :     /// arguments, or invoke the PrimitiveTransform with 3
+<span class="lineNum">     113 </span>            :     /// arguments.
+<span class="lineNum">     114 </span>            :     template&lt;typename Fun&gt;
+<span class="lineNum">     115 </span>            :     struct call&lt;Fun()&gt; : transform&lt;call&lt;Fun()&gt; &gt;
+<span class="lineNum">     116 </span>            :     {
+<span class="lineNum">     117 </span>            :         /// INTERNAL ONLY
+<span class="lineNum">     118 </span>            :         template&lt;typename Expr, typename State, typename Data, bool B&gt;
+<span class="lineNum">     119 </span>            :         struct impl2
+<span class="lineNum">     120 </span>            :           : transform_impl&lt;Expr, State, Data&gt;
+<span class="lineNum">     121 </span>            :         {
+<span class="lineNum">     122 </span>            :             typedef typename BOOST_PROTO_RESULT_OF&lt;Fun()&gt;::type result_type;
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span>            :             BOOST_FORCEINLINE
+<span class="lineNum">     125 </span>            :             result_type operator()(
+<span class="lineNum">     126 </span>            :                 typename impl2::expr_param
+<span class="lineNum">     127 </span>            :               , typename impl2::state_param
+<span class="lineNum">     128 </span>            :               , typename impl2::data_param
+<span class="lineNum">     129 </span>            :             ) const
+<span class="lineNum">     130 </span>            :             {
+<span class="lineNum">     131 </span>            :                 return Fun()();
+<span class="lineNum">     132 </span>            :             }
+<span class="lineNum">     133 </span>            :         };
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span>            :         /// INTERNAL ONLY
+<span class="lineNum">     136 </span>            :         template&lt;typename Expr, typename State, typename Data&gt;
+<span class="lineNum">     137 </span>            :         struct impl2&lt;Expr, State, Data, true&gt;
+<span class="lineNum">     138 </span>            :           : Fun::template impl&lt;Expr, State, Data&gt;
+<span class="lineNum">     139 </span>            :         {};
+<span class="lineNum">     140 </span>            : 
+<span class="lineNum">     141 </span>            :         /// Either call the PolymorphicFunctionObject \c Fun with 0 arguments; or
+<span class="lineNum">     142 </span>            :         /// invoke the PrimitiveTransform \c Fun with 3 arguments: the current
+<span class="lineNum">     143 </span>            :         /// expression, state, and data.
+<span class="lineNum">     144 </span>            :         ///
+<span class="lineNum">     145 </span>            :         /// If \c Fun is a nullary PolymorphicFunctionObject, return &lt;tt&gt;Fun()()&lt;/tt&gt;.
+<span class="lineNum">     146 </span>            :         /// Otherwise, return &lt;tt&gt;Fun()(e, s, d)&lt;/tt&gt;.
+<span class="lineNum">     147 </span>            :         ///
+<span class="lineNum">     148 </span>            :         /// \param e The current expression
+<span class="lineNum">     149 </span>            :         /// \param s The current state
+<span class="lineNum">     150 </span>            :         /// \param d An arbitrary data
+<span class="lineNum">     151 </span>            : 
+<span class="lineNum">     152 </span>            :         /// If \c Fun is a nullary PolymorphicFunctionObject, \c type is a typedef
+<span class="lineNum">     153 </span>            :         /// for &lt;tt&gt;boost::result_of\&lt;Fun()\&gt;::type&lt;/tt&gt;. Otherwise, it is
+<span class="lineNum">     154 </span>            :         /// a typedef for &lt;tt&gt;boost::result_of\&lt;Fun(Expr, State, Data)\&gt;::type&lt;/tt&gt;.
+<span class="lineNum">     155 </span>            :         template&lt;typename Expr, typename State, typename Data&gt;
+<span class="lineNum">     156 </span>            :         struct impl
+<span class="lineNum">     157 </span>            :           : impl2&lt;Expr, State, Data, detail::is_transform_&lt;Fun&gt;::value&gt;
+<span class="lineNum">     158 </span>            :         {};
+<span class="lineNum">     159 </span>            :     };
+<span class="lineNum">     160 </span>            : 
+<span class="lineNum">     161 </span>            :     /// \brief Either call the PolymorphicFunctionObject with 1
+<span class="lineNum">     162 </span>            :     /// argument, or invoke the PrimitiveTransform with 3
+<span class="lineNum">     163 </span>            :     /// arguments.
+<span class="lineNum">     164 </span>            :     template&lt;typename Fun, typename A0&gt;
+<span class="lineNum">     165 </span>            :     struct call&lt;Fun(A0)&gt; : transform&lt;call&lt;Fun(A0)&gt; &gt;
+<span class="lineNum">     166 </span>            :     {
+<span class="lineNum">     167 </span>            :         template&lt;typename Expr, typename State, typename Data, bool B&gt;
+<span class="lineNum">     168 </span>            :         struct impl2
+<span class="lineNum">     169 </span>            :           : transform_impl&lt;Expr, State, Data&gt;
+<span class="lineNum">     170 </span>            :         {
+<span class="lineNum">     171 </span>            :             typedef typename when&lt;_, A0&gt;::template impl&lt;Expr, State, Data&gt;::result_type a0;
+<span class="lineNum">     172 </span>            :             typedef typename detail::poly_function_traits&lt;Fun, Fun(a0)&gt;::result_type result_type;
+<span class="lineNum">     173 </span>            :             
+<span class="lineNum">     174 </span>            :             BOOST_FORCEINLINE
+<span class="lineNum">     175 </span>            :             result_type operator ()(
+<span class="lineNum">     176 </span>            :                 typename impl2::expr_param   e
+<span class="lineNum">     177 </span>            :               , typename impl2::state_param  s
+<span class="lineNum">     178 </span>            :               , typename impl2::data_param   d
+<span class="lineNum">     179 </span>            :             ) const
+<span class="lineNum">     180 </span>            :             {
+<span class="lineNum">     181 </span><span class="lineCov">          2 :                 return typename detail::poly_function_traits&lt;Fun, Fun(a0)&gt;::function_type()(</span>
+<span class="lineNum">     182 </span><span class="lineCov">         12 :                     detail::as_lvalue(typename when&lt;_, A0&gt;::template impl&lt;Expr, State, Data&gt;()(e, s, d))</span>
+<span class="lineNum">     183 </span><span class="lineCov">          2 :                 );</span>
+<span class="lineNum">     184 </span>            :             }
+<span class="lineNum">     185 </span>            :         };
+<span class="lineNum">     186 </span>            : 
+<span class="lineNum">     187 </span>            :         template&lt;typename Expr, typename State, typename Data&gt;
+<span class="lineNum">     188 </span>            :         struct impl2&lt;Expr, State, Data, true&gt;
+<span class="lineNum">     189 </span>            :           : transform_impl&lt;Expr, State, Data&gt;
+<span class="lineNum">     190 </span>            :         {
+<span class="lineNum">     191 </span>            :             typedef typename when&lt;_, A0&gt;::template impl&lt;Expr, State, Data&gt;::result_type a0;
+<span class="lineNum">     192 </span>            :             typedef typename Fun::template impl&lt;a0, State, Data&gt;::result_type result_type;
+<span class="lineNum">     193 </span>            :             
+<span class="lineNum">     194 </span>            :             BOOST_FORCEINLINE
+<span class="lineNum">     195 </span>            :             result_type operator ()(
+<span class="lineNum">     196 </span>            :                 typename impl2::expr_param   e
+<span class="lineNum">     197 </span>            :               , typename impl2::state_param  s
+<span class="lineNum">     198 </span>            :               , typename impl2::data_param   d
+<span class="lineNum">     199 </span>            :             ) const
+<span class="lineNum">     200 </span>            :             {
+<span class="lineNum">     201 </span>            :                 return typename Fun::template impl&lt;a0, State, Data&gt;()(
+<span class="lineNum">     202 </span>            :                     typename when&lt;_, A0&gt;::template impl&lt;Expr, State, Data&gt;()(e, s, d)
+<span class="lineNum">     203 </span>            :                   , s
+<span class="lineNum">     204 </span>            :                   , d
+<span class="lineNum">     205 </span>            :                 );
+<span class="lineNum">     206 </span>            :             }
+<span class="lineNum">     207 </span>            :         };
+<span class="lineNum">     208 </span>            :         /// Let \c x be &lt;tt&gt;when\&lt;_, A0\&gt;()(e, s, d)&lt;/tt&gt; and \c X
+<span class="lineNum">     209 </span>            :         /// be the type of \c x.
+<span class="lineNum">     210 </span>            :         /// If \c Fun is a unary PolymorphicFunctionObject that accepts \c x,
+<span class="lineNum">     211 </span>            :         /// then \c type is a typedef for &lt;tt&gt;boost::result_of\&lt;Fun(X)\&gt;::type&lt;/tt&gt;.
+<span class="lineNum">     212 </span>            :         /// Otherwise, it is a typedef for &lt;tt&gt;boost::result_of\&lt;Fun(X, State, Data)\&gt;::type&lt;/tt&gt;.
+<span class="lineNum">     213 </span>            : 
+<span class="lineNum">     214 </span>            :         /// Either call the PolymorphicFunctionObject with 1 argument:
+<span class="lineNum">     215 </span>            :         /// the result of applying the \c A0 transform; or
+<span class="lineNum">     216 </span>            :         /// invoke the PrimitiveTransform with 3 arguments:
+<span class="lineNum">     217 </span>            :         /// result of applying the \c A0 transform, the state, and the
+<span class="lineNum">     218 </span>            :         /// data.
+<span class="lineNum">     219 </span>            :         ///
+<span class="lineNum">     220 </span>            :         /// Let \c x be &lt;tt&gt;when\&lt;_, A0\&gt;()(e, s, d)&lt;/tt&gt;.
+<span class="lineNum">     221 </span>            :         /// If \c Fun is a unary PolymorphicFunctionObject that accepts \c x,
+<span class="lineNum">     222 </span>            :         /// then return &lt;tt&gt;Fun()(x)&lt;/tt&gt;. Otherwise, return
+<span class="lineNum">     223 </span>            :         /// &lt;tt&gt;Fun()(x, s, d)&lt;/tt&gt;.
+<span class="lineNum">     224 </span>            :         ///
+<span class="lineNum">     225 </span>            :         /// \param e The current expression
+<span class="lineNum">     226 </span>            :         /// \param s The current state
+<span class="lineNum">     227 </span>            :         /// \param d An arbitrary data
+<span class="lineNum">     228 </span>            :         template&lt;typename Expr, typename State, typename Data&gt;
+<span class="lineNum">     229 </span>            :         struct impl
+<span class="lineNum">     230 </span>            :           : impl2&lt;Expr, State, Data, detail::is_transform_&lt;Fun&gt;::value&gt;
+<span class="lineNum">     231 </span>            :         {};
+<span class="lineNum">     232 </span>            :     };
+<span class="lineNum">     233 </span>            : 
+<span class="lineNum">     234 </span>            :     /// \brief Either call the PolymorphicFunctionObject with 2
+<span class="lineNum">     235 </span>            :     /// arguments, or invoke the PrimitiveTransform with 3
+<span class="lineNum">     236 </span>            :     /// arguments.
+<span class="lineNum">     237 </span>            :     template&lt;typename Fun, typename A0, typename A1&gt;
+<span class="lineNum">     238 </span>            :     struct call&lt;Fun(A0, A1)&gt; : transform&lt;call&lt;Fun(A0, A1)&gt; &gt;
+<span class="lineNum">     239 </span>            :     {
+<span class="lineNum">     240 </span>            :         template&lt;typename Expr, typename State, typename Data, bool B&gt;
+<span class="lineNum">     241 </span>            :         struct impl2
+<span class="lineNum">     242 </span>            :           : transform_impl&lt;Expr, State, Data&gt;
+<span class="lineNum">     243 </span>            :         {
+<span class="lineNum">     244 </span>            :             typedef typename when&lt;_, A0&gt;::template impl&lt;Expr, State, Data&gt;::result_type a0;
+<span class="lineNum">     245 </span>            :             typedef typename when&lt;_, A1&gt;::template impl&lt;Expr, State, Data&gt;::result_type a1;
+<span class="lineNum">     246 </span>            :             typedef typename detail::poly_function_traits&lt;Fun, Fun(a0, a1)&gt;::result_type result_type;
+<span class="lineNum">     247 </span>            :             
+<span class="lineNum">     248 </span>            :             BOOST_FORCEINLINE
+<span class="lineNum">     249 </span>            :             result_type operator ()(
+<span class="lineNum">     250 </span>            :                 typename impl2::expr_param   e
+<span class="lineNum">     251 </span>            :               , typename impl2::state_param  s
+<span class="lineNum">     252 </span>            :               , typename impl2::data_param   d
+<span class="lineNum">     253 </span>            :             ) const
+<span class="lineNum">     254 </span>            :             {
+<span class="lineNum">     255 </span><span class="lineCov">       2982 :                 return typename detail::poly_function_traits&lt;Fun, Fun(a0, a1)&gt;::function_type()(</span>
+<span class="lineNum">     256 </span><span class="lineCov">       8946 :                     detail::as_lvalue(typename when&lt;_, A0&gt;::template impl&lt;Expr, State, Data&gt;()(e, s, d))</span>
+<span class="lineNum">     257 </span><span class="lineCov">       7952 :                   , detail::as_lvalue(typename when&lt;_, A1&gt;::template impl&lt;Expr, State, Data&gt;()(e, s, d))</span>
+<span class="lineNum">     258 </span><span class="lineCov">       2982 :                 );</span>
+<span class="lineNum">     259 </span>            :             }
+<span class="lineNum">     260 </span>            :         };
+<span class="lineNum">     261 </span>            : 
+<span class="lineNum">     262 </span>            :         template&lt;typename Expr, typename State, typename Data&gt;
+<span class="lineNum">     263 </span>            :         struct impl2&lt;Expr, State, Data, true&gt;
+<span class="lineNum">     264 </span>            :           : transform_impl&lt;Expr, State, Data&gt;
+<span class="lineNum">     265 </span>            :         {
+<span class="lineNum">     266 </span>            :             typedef typename when&lt;_, A0&gt;::template impl&lt;Expr, State, Data&gt;::result_type a0;
+<span class="lineNum">     267 </span>            :             typedef typename when&lt;_, A1&gt;::template impl&lt;Expr, State, Data&gt;::result_type a1;
+<span class="lineNum">     268 </span>            :             typedef typename Fun::template impl&lt;a0, a1, Data&gt;::result_type result_type;
+<span class="lineNum">     269 </span>            :             
+<span class="lineNum">     270 </span>            :             BOOST_FORCEINLINE
+<span class="lineNum">     271 </span>            :             result_type operator ()(
+<span class="lineNum">     272 </span>            :                 typename impl2::expr_param   e
+<span class="lineNum">     273 </span>            :               , typename impl2::state_param  s
+<span class="lineNum">     274 </span>            :               , typename impl2::data_param   d
+<span class="lineNum">     275 </span>            :             ) const
+<span class="lineNum">     276 </span>            :             {
+<span class="lineNum">     277 </span>            :                 return typename Fun::template impl&lt;a0, a1, Data&gt;()(
+<span class="lineNum">     278 </span>            :                     typename when&lt;_, A0&gt;::template impl&lt;Expr, State, Data&gt;()(e, s, d)
+<span class="lineNum">     279 </span>            :                   , typename when&lt;_, A1&gt;::template impl&lt;Expr, State, Data&gt;()(e, s, d)
+<span class="lineNum">     280 </span>            :                   , d
+<span class="lineNum">     281 </span>            :                 );
+<span class="lineNum">     282 </span>            :             }
+<span class="lineNum">     283 </span>            :         };
+<span class="lineNum">     284 </span>            : 
+<span class="lineNum">     285 </span>            :             /// Let \c x be &lt;tt&gt;when\&lt;_, A0\&gt;()(e, s, d)&lt;/tt&gt; and \c X
+<span class="lineNum">     286 </span>            :             /// be the type of \c x.
+<span class="lineNum">     287 </span>            :             /// Let \c y be &lt;tt&gt;when\&lt;_, A1\&gt;()(e, s, d)&lt;/tt&gt; and \c Y
+<span class="lineNum">     288 </span>            :             /// be the type of \c y.
+<span class="lineNum">     289 </span>            :             /// If \c Fun is a binary PolymorphicFunction object that accepts \c x
+<span class="lineNum">     290 </span>            :             /// and \c y, then \c type is a typedef for
+<span class="lineNum">     291 </span>            :             /// &lt;tt&gt;boost::result_of\&lt;Fun(X, Y)\&gt;::type&lt;/tt&gt;. Otherwise, it is
+<span class="lineNum">     292 </span>            :             /// a typedef for &lt;tt&gt;boost::result_of\&lt;Fun(X, Y, Data)\&gt;::type&lt;/tt&gt;.
+<span class="lineNum">     293 </span>            : 
+<span class="lineNum">     294 </span>            :         /// Either call the PolymorphicFunctionObject with 2 arguments:
+<span class="lineNum">     295 </span>            :         /// the result of applying the \c A0 transform, and the
+<span class="lineNum">     296 </span>            :         /// result of applying the \c A1 transform; or invoke the
+<span class="lineNum">     297 </span>            :         /// PrimitiveTransform with 3 arguments: the result of applying
+<span class="lineNum">     298 </span>            :         /// the \c A0 transform, the result of applying the \c A1
+<span class="lineNum">     299 </span>            :         /// transform, and the data.
+<span class="lineNum">     300 </span>            :         ///
+<span class="lineNum">     301 </span>            :         /// Let \c x be &lt;tt&gt;when\&lt;_, A0\&gt;()(e, s, d)&lt;/tt&gt;.
+<span class="lineNum">     302 </span>            :         /// Let \c y be &lt;tt&gt;when\&lt;_, A1\&gt;()(e, s, d)&lt;/tt&gt;.
+<span class="lineNum">     303 </span>            :         /// If \c Fun is a binary PolymorphicFunction object that accepts \c x
+<span class="lineNum">     304 </span>            :         /// and \c y, return &lt;tt&gt;Fun()(x, y)&lt;/tt&gt;. Otherwise, return
+<span class="lineNum">     305 </span>            :         /// &lt;tt&gt;Fun()(x, y, d)&lt;/tt&gt;.
+<span class="lineNum">     306 </span>            :         ///
+<span class="lineNum">     307 </span>            :         /// \param e The current expression
+<span class="lineNum">     308 </span>            :         /// \param s The current state
+<span class="lineNum">     309 </span>            :         /// \param d An arbitrary data
+<span class="lineNum">     310 </span>            :         template&lt;typename Expr, typename State, typename Data&gt;
+<span class="lineNum">     311 </span>            :         struct impl
+<span class="lineNum">     312 </span>            :           : impl2&lt;Expr, State, Data, detail::is_transform_&lt;Fun&gt;::value&gt;
+<span class="lineNum">     313 </span>            :         {};
+<span class="lineNum">     314 </span>            :     };
+<span class="lineNum">     315 </span>            : 
+<span class="lineNum">     316 </span>            :     /// \brief Call the PolymorphicFunctionObject or the
+<span class="lineNum">     317 </span>            :     /// PrimitiveTransform with the current expression, state
+<span class="lineNum">     318 </span>            :     /// and data, transformed according to \c A0, \c A1, and
+<span class="lineNum">     319 </span>            :     /// \c A2, respectively.
+<span class="lineNum">     320 </span>            :     template&lt;typename Fun, typename A0, typename A1, typename A2&gt;
+<span class="lineNum">     321 </span>            :     struct call&lt;Fun(A0, A1, A2)&gt; : transform&lt;call&lt;Fun(A0, A1, A2)&gt; &gt;
+<span class="lineNum">     322 </span>            :     {
+<span class="lineNum">     323 </span>            :         template&lt;typename Expr, typename State, typename Data, bool B&gt;
+<span class="lineNum">     324 </span>            :         struct impl2
+<span class="lineNum">     325 </span>            :           : transform_impl&lt;Expr, State, Data&gt;
+<span class="lineNum">     326 </span>            :         {
+<span class="lineNum">     327 </span>            :             typedef typename when&lt;_, A0&gt;::template impl&lt;Expr, State, Data&gt;::result_type a0;
+<span class="lineNum">     328 </span>            :             typedef typename when&lt;_, A1&gt;::template impl&lt;Expr, State, Data&gt;::result_type a1;
+<span class="lineNum">     329 </span>            :             typedef typename when&lt;_, A2&gt;::template impl&lt;Expr, State, Data&gt;::result_type a2;
+<span class="lineNum">     330 </span>            :             typedef typename detail::poly_function_traits&lt;Fun, Fun(a0, a1, a2)&gt;::result_type result_type;
+<span class="lineNum">     331 </span>            :             
+<span class="lineNum">     332 </span>            :             BOOST_FORCEINLINE
+<span class="lineNum">     333 </span>            :             result_type operator ()(
+<span class="lineNum">     334 </span>            :                 typename impl2::expr_param   e
+<span class="lineNum">     335 </span>            :               , typename impl2::state_param  s
+<span class="lineNum">     336 </span>            :               , typename impl2::data_param   d
+<span class="lineNum">     337 </span>            :             ) const
+<span class="lineNum">     338 </span>            :             {
+<span class="lineNum">     339 </span>            :                 return typename detail::poly_function_traits&lt;Fun, Fun(a0, a1, a2)&gt;::function_type()(
+<span class="lineNum">     340 </span>            :                     detail::as_lvalue(typename when&lt;_, A0&gt;::template impl&lt;Expr, State, Data&gt;()(e, s, d))
+<span class="lineNum">     341 </span>            :                   , detail::as_lvalue(typename when&lt;_, A1&gt;::template impl&lt;Expr, State, Data&gt;()(e, s, d))
+<span class="lineNum">     342 </span>            :                   , detail::as_lvalue(typename when&lt;_, A2&gt;::template impl&lt;Expr, State, Data&gt;()(e, s, d))
+<span class="lineNum">     343 </span>            :                 );
+<span class="lineNum">     344 </span>            :             }
+<span class="lineNum">     345 </span>            :         };
+<span class="lineNum">     346 </span>            : 
+<span class="lineNum">     347 </span>            :         template&lt;typename Expr, typename State, typename Data&gt;
+<span class="lineNum">     348 </span>            :         struct impl2&lt;Expr, State, Data, true&gt;
+<span class="lineNum">     349 </span>            :           : transform_impl&lt;Expr, State, Data&gt;
+<span class="lineNum">     350 </span>            :         {
+<span class="lineNum">     351 </span>            :             typedef typename when&lt;_, A0&gt;::template impl&lt;Expr, State, Data&gt;::result_type a0;
+<span class="lineNum">     352 </span>            :             typedef typename when&lt;_, A1&gt;::template impl&lt;Expr, State, Data&gt;::result_type a1;
+<span class="lineNum">     353 </span>            :             typedef typename when&lt;_, A2&gt;::template impl&lt;Expr, State, Data&gt;::result_type a2;
+<span class="lineNum">     354 </span>            :             typedef typename Fun::template impl&lt;a0, a1, a2&gt;::result_type result_type;
+<span class="lineNum">     355 </span>            :             
+<span class="lineNum">     356 </span>            :             BOOST_FORCEINLINE
+<span class="lineNum">     357 </span>            :             result_type operator ()(
+<span class="lineNum">     358 </span>            :                 typename impl2::expr_param   e
+<span class="lineNum">     359 </span>            :               , typename impl2::state_param  s
+<span class="lineNum">     360 </span>            :               , typename impl2::data_param   d
+<span class="lineNum">     361 </span>            :             ) const
+<span class="lineNum">     362 </span>            :             {
+<span class="lineNum">     363 </span>            :                 return typename Fun::template impl&lt;a0, a1, a2&gt;()(
+<span class="lineNum">     364 </span>            :                     typename when&lt;_, A0&gt;::template impl&lt;Expr, State, Data&gt;()(e, s, d)
+<span class="lineNum">     365 </span>            :                   , typename when&lt;_, A1&gt;::template impl&lt;Expr, State, Data&gt;()(e, s, d)
+<span class="lineNum">     366 </span>            :                   , typename when&lt;_, A2&gt;::template impl&lt;Expr, State, Data&gt;()(e, s, d)
+<span class="lineNum">     367 </span>            :                 );
+<span class="lineNum">     368 </span>            :             }
+<span class="lineNum">     369 </span>            :         };
+<span class="lineNum">     370 </span>            : 
+<span class="lineNum">     371 </span>            :         /// Let \c x be &lt;tt&gt;when\&lt;_, A0\&gt;()(e, s, d)&lt;/tt&gt;.
+<span class="lineNum">     372 </span>            :         /// Let \c y be &lt;tt&gt;when\&lt;_, A1\&gt;()(e, s, d)&lt;/tt&gt;.
+<span class="lineNum">     373 </span>            :         /// Let \c z be &lt;tt&gt;when\&lt;_, A2\&gt;()(e, s, d)&lt;/tt&gt;.
+<span class="lineNum">     374 </span>            :         /// Return &lt;tt&gt;Fun()(x, y, z)&lt;/tt&gt;.
+<span class="lineNum">     375 </span>            :         ///
+<span class="lineNum">     376 </span>            :         /// \param e The current expression
+<span class="lineNum">     377 </span>            :         /// \param s The current state
+<span class="lineNum">     378 </span>            :         /// \param d An arbitrary data
+<span class="lineNum">     379 </span>            : 
+<span class="lineNum">     380 </span>            :         template&lt;typename Expr, typename State, typename Data&gt;
+<span class="lineNum">     381 </span>            :         struct impl
+<span class="lineNum">     382 </span>            :           : impl2&lt;Expr, State, Data, detail::is_transform_&lt;Fun&gt;::value&gt;
+<span class="lineNum">     383 </span>            :         {};
+<span class="lineNum">     384 </span>            :     };
+<span class="lineNum">     385 </span>            : 
+<span class="lineNum">     386 </span>            :     #include &lt;boost/proto/transform/detail/call.hpp&gt;
+<span class="lineNum">     387 </span>            : 
+<span class="lineNum">     388 </span>            :     /// INTERNAL ONLY
+<span class="lineNum">     389 </span>            :     ///
+<span class="lineNum">     390 </span>            :     template&lt;typename Fun&gt;
+<span class="lineNum">     391 </span>            :     struct is_callable&lt;call&lt;Fun&gt; &gt;
+<span class="lineNum">     392 </span>            :       : mpl::true_
+<span class="lineNum">     393 </span>            :     {};
+<span class="lineNum">     394 </span>            : 
+<span class="lineNum">     395 </span>            : }} // namespace boost::proto
+<span class="lineNum">     396 </span>            : 
+<span class="lineNum">     397 </span>            : #if defined(_MSC_VER)
+<span class="lineNum">     398 </span>            : # pragma warning(pop)
+<span class="lineNum">     399 </span>            : #endif
+<span class="lineNum">     400 </span>            : 
+<span class="lineNum">     401 </span>            : #endif
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

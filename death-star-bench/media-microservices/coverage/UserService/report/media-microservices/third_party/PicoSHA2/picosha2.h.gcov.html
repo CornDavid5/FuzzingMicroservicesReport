@@ -1,0 +1,453 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - /media-microservices/third_party/PicoSHA2/picosha2.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">media-microservices/third_party/PicoSHA2</a> - picosha2.h<span style="font-size: 80%;"> (source / <a href="picosha2.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">137</td>
+            <td class="headerCovTableEntry">144</td>
+            <td class="headerCovTableEntryHi">95.1 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 01:11:27</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">25</td>
+            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntryHi">96.2 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            : The MIT License (MIT)
+<span class="lineNum">       3 </span>            : 
+<span class="lineNum">       4 </span>            : Copyright (C) 2017 okdshin
+<span class="lineNum">       5 </span>            : 
+<span class="lineNum">       6 </span>            : Permission is hereby granted, free of charge, to any person obtaining a copy
+<span class="lineNum">       7 </span>            : of this software and associated documentation files (the &quot;Software&quot;), to deal
+<span class="lineNum">       8 </span>            : in the Software without restriction, including without limitation the rights
+<span class="lineNum">       9 </span>            : to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+<span class="lineNum">      10 </span>            : copies of the Software, and to permit persons to whom the Software is
+<span class="lineNum">      11 </span>            : furnished to do so, subject to the following conditions:
+<span class="lineNum">      12 </span>            : 
+<span class="lineNum">      13 </span>            : The above copyright notice and this permission notice shall be included in
+<span class="lineNum">      14 </span>            : all copies or substantial portions of the Software.
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+<span class="lineNum">      17 </span>            : IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<span class="lineNum">      18 </span>            : FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+<span class="lineNum">      19 </span>            : AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<span class="lineNum">      20 </span>            : LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+<span class="lineNum">      21 </span>            : OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+<span class="lineNum">      22 </span>            : THE SOFTWARE.
+<span class="lineNum">      23 </span>            : */
+<span class="lineNum">      24 </span>            : #ifndef PICOSHA2_H
+<span class="lineNum">      25 </span>            : #define PICOSHA2_H
+<span class="lineNum">      26 </span>            : // picosha2:20140213
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : #ifndef PICOSHA2_BUFFER_SIZE_FOR_INPUT_ITERATOR
+<span class="lineNum">      29 </span>            : #define PICOSHA2_BUFFER_SIZE_FOR_INPUT_ITERATOR \
+<span class="lineNum">      30 </span>            :     1048576  //=1024*1024: default is 1MB memory
+<span class="lineNum">      31 </span>            : #endif
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : #include &lt;algorithm&gt;
+<span class="lineNum">      34 </span>            : #include &lt;cassert&gt;
+<span class="lineNum">      35 </span>            : #include &lt;iterator&gt;
+<span class="lineNum">      36 </span>            : #include &lt;sstream&gt;
+<span class="lineNum">      37 </span>            : #include &lt;vector&gt;
+<span class="lineNum">      38 </span>            : #include &lt;fstream&gt;
+<span class="lineNum">      39 </span>            : namespace picosha2 {
+<span class="lineNum">      40 </span>            : typedef unsigned long word_t;
+<span class="lineNum">      41 </span>            : typedef unsigned char byte_t;
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : static const size_t k_digest_size = 32;
+<a name="44"><span class="lineNum">      44 </span>            : </a>
+<span class="lineNum">      45 </span>            : namespace detail {
+<a name="46"><span class="lineNum">      46 </span><span class="lineCov">      57216 : inline byte_t mask_8bit(byte_t x) { return x &amp; 0xff; }</span></a>
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span><span class="lineCov">     452960 : inline word_t mask_32bit(word_t x) { return x &amp; 0xffffffff; }</span>
+<span class="lineNum">      49 </span>            : 
+<span class="lineNum">      50 </span>            : const word_t add_constant[64] = {
+<span class="lineNum">      51 </span>            :     0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1,
+<span class="lineNum">      52 </span>            :     0x923f82a4, 0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
+<span class="lineNum">      53 </span>            :     0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174, 0xe49b69c1, 0xefbe4786,
+<span class="lineNum">      54 </span>            :     0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+<span class="lineNum">      55 </span>            :     0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147,
+<span class="lineNum">      56 </span>            :     0x06ca6351, 0x14292967, 0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
+<span class="lineNum">      57 </span>            :     0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85, 0xa2bfe8a1, 0xa81a664b,
+<span class="lineNum">      58 </span>            :     0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+<span class="lineNum">      59 </span>            :     0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a,
+<span class="lineNum">      60 </span>            :     0x5b9cca4f, 0x682e6ff3, 0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
+<span class="lineNum">      61 </span>            :     0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2};
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span>            : const word_t initial_message_digest[8] = {0x6a09e667, 0xbb67ae85, 0x3c6ef372,
+<span class="lineNum">      64 </span>            :                                           0xa54ff53a, 0x510e527f, 0x9b05688c,
+<a name="65"><span class="lineNum">      65 </span>            :                                           0x1f83d9ab, 0x5be0cd19};</a>
+<span class="lineNum">      66 </span>            : 
+<a name="67"><span class="lineNum">      67 </span><span class="lineCov">      38144 : inline word_t ch(word_t x, word_t y, word_t z) { return (x &amp; y) ^ ((~x) &amp; z); }</span></a>
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span><span class="lineCov">      38144 : inline word_t maj(word_t x, word_t y, word_t z) {</span>
+<span class="lineNum">      70 </span><span class="lineCov">      38144 :     return (x &amp; y) ^ (x &amp; z) ^ (y &amp; z);</span>
+<a name="71"><span class="lineNum">      71 </span>            : }</a>
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span><span class="lineCov">     343296 : inline word_t rotr(word_t x, std::size_t n) {</span>
+<span class="lineNum">      74 </span><span class="lineCov">     343296 :     assert(n &lt; 32);</span>
+<span class="lineNum">      75 </span><span class="lineCov">     343296 :     return mask_32bit((x &gt;&gt; n) | (x &lt;&lt; (32 - n)));</span>
+<a name="76"><span class="lineNum">      76 </span>            : }</a>
+<span class="lineNum">      77 </span>            : 
+<a name="78"><span class="lineNum">      78 </span><span class="lineCov">      38144 : inline word_t bsig0(word_t x) { return rotr(x, 2) ^ rotr(x, 13) ^ rotr(x, 22); }</span></a>
+<span class="lineNum">      79 </span>            : 
+<a name="80"><span class="lineNum">      80 </span><span class="lineCov">      38144 : inline word_t bsig1(word_t x) { return rotr(x, 6) ^ rotr(x, 11) ^ rotr(x, 25); }</span></a>
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span><span class="lineCov">      57216 : inline word_t shr(word_t x, std::size_t n) {</span>
+<span class="lineNum">      83 </span><span class="lineCov">      57216 :     assert(n &lt; 32);</span>
+<span class="lineNum">      84 </span><span class="lineCov">      57216 :     return x &gt;&gt; n;</span>
+<a name="85"><span class="lineNum">      85 </span>            : }</a>
+<span class="lineNum">      86 </span>            : 
+<a name="87"><span class="lineNum">      87 </span><span class="lineCov">      28608 : inline word_t ssig0(word_t x) { return rotr(x, 7) ^ rotr(x, 18) ^ shr(x, 3); }</span></a>
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span><span class="lineCov">      28608 : inline word_t ssig1(word_t x) { return rotr(x, 17) ^ rotr(x, 19) ^ shr(x, 10); }</span>
+<a name="90"><span class="lineNum">      90 </span>            : </a>
+<span class="lineNum">      91 </span>            : template &lt;typename RaIter1, typename RaIter2&gt;
+<span class="lineNum">      92 </span><span class="lineCov">        596 : void hash256_block(RaIter1 message_digest, RaIter2 first, RaIter2 last) {</span>
+<span class="lineNum">      93 </span><span class="lineCov">        596 :     assert(first + 64 == last);</span>
+<span class="lineNum">      94 </span>            :     static_cast&lt;void&gt;(last);  // for avoiding unused-variable warning
+<span class="lineNum">      95 </span>            :     word_t w[64];
+<span class="lineNum">      96 </span><span class="lineCov">        596 :     std::fill(w, w + 64, 0);</span>
+<span class="lineNum">      97 </span><span class="lineCov">      10132 :     for (std::size_t i = 0; i &lt; 16; ++i) {</span>
+<span class="lineNum">      98 </span><span class="lineCov">      38144 :         w[i] = (static_cast&lt;word_t&gt;(mask_8bit(*(first + i * 4))) &lt;&lt; 24) |</span>
+<span class="lineNum">      99 </span><span class="lineCov">       9536 :                (static_cast&lt;word_t&gt;(mask_8bit(*(first + i * 4 + 1))) &lt;&lt; 16) |</span>
+<span class="lineNum">     100 </span><span class="lineCov">       9536 :                (static_cast&lt;word_t&gt;(mask_8bit(*(first + i * 4 + 2))) &lt;&lt; 8) |</span>
+<span class="lineNum">     101 </span><span class="lineCov">       9536 :                (static_cast&lt;word_t&gt;(mask_8bit(*(first + i * 4 + 3))));</span>
+<span class="lineNum">     102 </span>            :     }
+<span class="lineNum">     103 </span><span class="lineCov">      29204 :     for (std::size_t i = 16; i &lt; 64; ++i) {</span>
+<span class="lineNum">     104 </span><span class="lineCov">      28608 :         w[i] = mask_32bit(ssig1(w[i - 2]) + w[i - 7] + ssig0(w[i - 15]) +</span>
+<span class="lineNum">     105 </span>            :                           w[i - 16]);
+<span class="lineNum">     106 </span>            :     }
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span><span class="lineCov">        596 :     word_t a = *message_digest;</span>
+<span class="lineNum">     109 </span><span class="lineCov">        596 :     word_t b = *(message_digest + 1);</span>
+<span class="lineNum">     110 </span><span class="lineCov">        596 :     word_t c = *(message_digest + 2);</span>
+<span class="lineNum">     111 </span><span class="lineCov">        596 :     word_t d = *(message_digest + 3);</span>
+<span class="lineNum">     112 </span><span class="lineCov">        596 :     word_t e = *(message_digest + 4);</span>
+<span class="lineNum">     113 </span><span class="lineCov">        596 :     word_t f = *(message_digest + 5);</span>
+<span class="lineNum">     114 </span><span class="lineCov">        596 :     word_t g = *(message_digest + 6);</span>
+<span class="lineNum">     115 </span><span class="lineCov">        596 :     word_t h = *(message_digest + 7);</span>
+<span class="lineNum">     116 </span>            : 
+<span class="lineNum">     117 </span><span class="lineCov">      38740 :     for (std::size_t i = 0; i &lt; 64; ++i) {</span>
+<span class="lineNum">     118 </span><span class="lineCov">      38144 :         word_t temp1 = h + bsig1(e) + ch(e, f, g) + add_constant[i] + w[i];</span>
+<span class="lineNum">     119 </span><span class="lineCov">      38144 :         word_t temp2 = bsig0(a) + maj(a, b, c);</span>
+<span class="lineNum">     120 </span><span class="lineCov">      38144 :         h = g;</span>
+<span class="lineNum">     121 </span><span class="lineCov">      38144 :         g = f;</span>
+<span class="lineNum">     122 </span><span class="lineCov">      38144 :         f = e;</span>
+<span class="lineNum">     123 </span><span class="lineCov">      38144 :         e = mask_32bit(d + temp1);</span>
+<span class="lineNum">     124 </span><span class="lineCov">      38144 :         d = c;</span>
+<span class="lineNum">     125 </span><span class="lineCov">      38144 :         c = b;</span>
+<span class="lineNum">     126 </span><span class="lineCov">      38144 :         b = a;</span>
+<span class="lineNum">     127 </span><span class="lineCov">      38144 :         a = mask_32bit(temp1 + temp2);</span>
+<span class="lineNum">     128 </span>            :     }
+<span class="lineNum">     129 </span><span class="lineCov">        596 :     *message_digest += a;</span>
+<span class="lineNum">     130 </span><span class="lineCov">        596 :     *(message_digest + 1) += b;</span>
+<span class="lineNum">     131 </span><span class="lineCov">        596 :     *(message_digest + 2) += c;</span>
+<span class="lineNum">     132 </span><span class="lineCov">        596 :     *(message_digest + 3) += d;</span>
+<span class="lineNum">     133 </span><span class="lineCov">        596 :     *(message_digest + 4) += e;</span>
+<span class="lineNum">     134 </span><span class="lineCov">        596 :     *(message_digest + 5) += f;</span>
+<span class="lineNum">     135 </span><span class="lineCov">        596 :     *(message_digest + 6) += g;</span>
+<span class="lineNum">     136 </span><span class="lineCov">        596 :     *(message_digest + 7) += h;</span>
+<span class="lineNum">     137 </span><span class="lineCov">       5364 :     for (std::size_t i = 0; i &lt; 8; ++i) {</span>
+<span class="lineNum">     138 </span><span class="lineCov">       4768 :         *(message_digest + i) = mask_32bit(*(message_digest + i));</span>
+<span class="lineNum">     139 </span>            :     }
+<span class="lineNum">     140 </span><span class="lineCov">        596 : }</span>
+<span class="lineNum">     141 </span>            : 
+<span class="lineNum">     142 </span>            : }  // namespace detail
+<a name="143"><span class="lineNum">     143 </span>            : </a>
+<span class="lineNum">     144 </span>            : template &lt;typename InIter&gt;
+<span class="lineNum">     145 </span><span class="lineCov">        596 : void output_hex(InIter first, InIter last, std::ostream&amp; os) {</span>
+<span class="lineNum">     146 </span><span class="lineCov">        596 :     os.setf(std::ios::hex, std::ios::basefield);</span>
+<span class="lineNum">     147 </span><span class="lineCov">      38740 :     while (first != last) {</span>
+<span class="lineNum">     148 </span><span class="lineCov">      19072 :         os.width(2);</span>
+<span class="lineNum">     149 </span><span class="lineCov">      19072 :         os.fill('0');</span>
+<span class="lineNum">     150 </span><span class="lineCov">      19072 :         os &lt;&lt; static_cast&lt;unsigned int&gt;(*first);</span>
+<span class="lineNum">     151 </span><span class="lineCov">      19072 :         ++first;</span>
+<span class="lineNum">     152 </span>            :     }
+<span class="lineNum">     153 </span><span class="lineCov">        596 :     os.setf(std::ios::dec, std::ios::basefield);</span>
+<span class="lineNum">     154 </span><span class="lineCov">        596 : }</span>
+<span class="lineNum">     155 </span>            : 
+<span class="lineNum">     156 </span>            : template &lt;typename InIter&gt;
+<span class="lineNum">     157 </span>            : void bytes_to_hex_string(InIter first, InIter last, std::string&amp; hex_str) {
+<span class="lineNum">     158 </span>            :     std::ostringstream oss;
+<span class="lineNum">     159 </span>            :     output_hex(first, last, oss);
+<span class="lineNum">     160 </span>            :     hex_str.assign(oss.str());
+<span class="lineNum">     161 </span>            : }
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span>            : template &lt;typename InContainer&gt;
+<span class="lineNum">     164 </span>            : void bytes_to_hex_string(const InContainer&amp; bytes, std::string&amp; hex_str) {
+<span class="lineNum">     165 </span>            :     bytes_to_hex_string(bytes.begin(), bytes.end(), hex_str);
+<span class="lineNum">     166 </span>            : }
+<span class="lineNum">     167 </span>            : 
+<span class="lineNum">     168 </span>            : template &lt;typename InIter&gt;
+<span class="lineNum">     169 </span>            : std::string bytes_to_hex_string(InIter first, InIter last) {
+<span class="lineNum">     170 </span>            :     std::string hex_str;
+<span class="lineNum">     171 </span>            :     bytes_to_hex_string(first, last, hex_str);
+<span class="lineNum">     172 </span>            :     return hex_str;
+<span class="lineNum">     173 </span>            : }
+<span class="lineNum">     174 </span>            : 
+<span class="lineNum">     175 </span>            : template &lt;typename InContainer&gt;
+<span class="lineNum">     176 </span>            : std::string bytes_to_hex_string(const InContainer&amp; bytes) {
+<span class="lineNum">     177 </span>            :     std::string hex_str;
+<span class="lineNum">     178 </span>            :     bytes_to_hex_string(bytes, hex_str);
+<span class="lineNum">     179 </span>            :     return hex_str;
+<a name="180"><span class="lineNum">     180 </span>            : }</a>
+<span class="lineNum">     181 </span>            : 
+<a name="182"><span class="lineNum">     182 </span><span class="lineCov">        596 : class hash256_one_by_one {</span></a>
+<span class="lineNum">     183 </span>            :    public:
+<a name="184"><span class="lineNum">     184 </span><span class="lineCov">        596 :     hash256_one_by_one() { init(); }</span></a>
+<span class="lineNum">     185 </span>            : 
+<span class="lineNum">     186 </span><span class="lineCov">        596 :     void init() {</span>
+<span class="lineNum">     187 </span><span class="lineCov">        596 :         buffer_.clear();</span>
+<span class="lineNum">     188 </span><span class="lineCov">        596 :         std::fill(data_length_digits_, data_length_digits_ + 4, 0);</span>
+<span class="lineNum">     189 </span><span class="lineCov">        596 :         std::copy(detail::initial_message_digest,</span>
+<span class="lineNum">     190 </span><span class="lineCov">        596 :                   detail::initial_message_digest + 8, h_);</span>
+<span class="lineNum">     191 </span><span class="lineCov">        596 :     }</span>
+<a name="192"><span class="lineNum">     192 </span>            : </a>
+<span class="lineNum">     193 </span>            :     template &lt;typename RaIter&gt;
+<span class="lineNum">     194 </span><span class="lineCov">        596 :     void process(RaIter first, RaIter last) {</span>
+<span class="lineNum">     195 </span><span class="lineCov">        596 :         add_to_data_length(static_cast&lt;word_t&gt;(std::distance(first, last)));</span>
+<span class="lineNum">     196 </span><span class="lineCov">        596 :         std::copy(first, last, std::back_inserter(buffer_));</span>
+<span class="lineNum">     197 </span><span class="lineCov">        596 :         std::size_t i = 0;</span>
+<span class="lineNum">     198 </span><span class="lineCov">        596 :         for (; i + 64 &lt;= buffer_.size(); i += 64) {</span>
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :             detail::hash256_block(h_, buffer_.begin() + i,</span>
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :                                   buffer_.begin() + i + 64);</span>
+<span class="lineNum">     201 </span>            :         }
+<span class="lineNum">     202 </span><span class="lineCov">        596 :         buffer_.erase(buffer_.begin(), buffer_.begin() + i);</span>
+<a name="203"><span class="lineNum">     203 </span><span class="lineCov">        596 :     }</span></a>
+<span class="lineNum">     204 </span>            : 
+<span class="lineNum">     205 </span><span class="lineCov">        596 :     void finish() {</span>
+<span class="lineNum">     206 </span>            :         byte_t temp[64];
+<span class="lineNum">     207 </span><span class="lineCov">        596 :         std::fill(temp, temp + 64, 0);</span>
+<span class="lineNum">     208 </span><span class="lineCov">        596 :         std::size_t remains = buffer_.size();</span>
+<span class="lineNum">     209 </span><span class="lineCov">        596 :         std::copy(buffer_.begin(), buffer_.end(), temp);</span>
+<span class="lineNum">     210 </span><span class="lineCov">        596 :         temp[remains] = 0x80;</span>
+<span class="lineNum">     211 </span>            : 
+<span class="lineNum">     212 </span><span class="lineCov">        596 :         if (remains &gt; 55) {</span>
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :             std::fill(temp + remains + 1, temp + 64, 0);</span>
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 :             detail::hash256_block(h_, temp, temp + 64);</span>
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :             std::fill(temp, temp + 64 - 4, 0);</span>
+<span class="lineNum">     216 </span>            :         } else {
+<span class="lineNum">     217 </span><span class="lineCov">        596 :             std::fill(temp + remains + 1, temp + 64 - 4, 0);</span>
+<span class="lineNum">     218 </span>            :         }
+<span class="lineNum">     219 </span>            : 
+<span class="lineNum">     220 </span><span class="lineCov">        596 :         write_data_bit_length(&amp;(temp[56]));</span>
+<span class="lineNum">     221 </span><span class="lineCov">        596 :         detail::hash256_block(h_, temp, temp + 64);</span>
+<span class="lineNum">     222 </span><span class="lineCov">        596 :     }</span>
+<a name="223"><span class="lineNum">     223 </span>            : </a>
+<span class="lineNum">     224 </span>            :     template &lt;typename OutIter&gt;
+<span class="lineNum">     225 </span><span class="lineCov">        596 :     void get_hash_bytes(OutIter first, OutIter last) const {</span>
+<span class="lineNum">     226 </span><span class="lineCov">       5364 :         for (const word_t* iter = h_; iter != h_ + 8; ++iter) {</span>
+<span class="lineNum">     227 </span><span class="lineCov">      23840 :             for (std::size_t i = 0; i &lt; 4 &amp;&amp; first != last; ++i) {</span>
+<span class="lineNum">     228 </span><span class="lineCov">      19072 :                 *(first++) = detail::mask_8bit(</span>
+<span class="lineNum">     229 </span>            :                     static_cast&lt;byte_t&gt;((*iter &gt;&gt; (24 - 8 * i))));
+<span class="lineNum">     230 </span>            :             }
+<span class="lineNum">     231 </span>            :         }
+<span class="lineNum">     232 </span><span class="lineCov">        596 :     }</span>
+<a name="233"><span class="lineNum">     233 </span>            : </a>
+<span class="lineNum">     234 </span>            :    private:
+<span class="lineNum">     235 </span><span class="lineCov">        596 :     void add_to_data_length(word_t n) {</span>
+<span class="lineNum">     236 </span><span class="lineCov">        596 :         word_t carry = 0;</span>
+<span class="lineNum">     237 </span><span class="lineCov">        596 :         data_length_digits_[0] += n;</span>
+<span class="lineNum">     238 </span><span class="lineCov">        596 :         for (std::size_t i = 0; i &lt; 4; ++i) {</span>
+<span class="lineNum">     239 </span><span class="lineCov">        596 :             data_length_digits_[i] += carry;</span>
+<span class="lineNum">     240 </span><span class="lineCov">        596 :             if (data_length_digits_[i] &gt;= 65536u) {</span>
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :                 carry = data_length_digits_[i] &gt;&gt; 16;</span>
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :                 data_length_digits_[i] &amp;= 65535u;</span>
+<span class="lineNum">     243 </span>            :             } else {
+<span class="lineNum">     244 </span><span class="lineCov">        596 :                 break;</span>
+<span class="lineNum">     245 </span>            :             }
+<a name="246"><span class="lineNum">     246 </span>            :         }</a>
+<span class="lineNum">     247 </span><span class="lineCov">        596 :     }</span>
+<span class="lineNum">     248 </span><span class="lineCov">        596 :     void write_data_bit_length(byte_t* begin) {</span>
+<span class="lineNum">     249 </span>            :         word_t data_bit_length_digits[4];
+<span class="lineNum">     250 </span><span class="lineCov">        596 :         std::copy(data_length_digits_, data_length_digits_ + 4,</span>
+<span class="lineNum">     251 </span><span class="lineCov">        596 :                   data_bit_length_digits);</span>
+<span class="lineNum">     252 </span>            : 
+<span class="lineNum">     253 </span>            :         // convert byte length to bit length (multiply 8 or shift 3 times left)
+<span class="lineNum">     254 </span><span class="lineCov">        596 :         word_t carry = 0;</span>
+<span class="lineNum">     255 </span><span class="lineCov">       2980 :         for (std::size_t i = 0; i &lt; 4; ++i) {</span>
+<span class="lineNum">     256 </span><span class="lineCov">       2384 :             word_t before_val = data_bit_length_digits[i];</span>
+<span class="lineNum">     257 </span><span class="lineCov">       2384 :             data_bit_length_digits[i] &lt;&lt;= 3;</span>
+<span class="lineNum">     258 </span><span class="lineCov">       2384 :             data_bit_length_digits[i] |= carry;</span>
+<span class="lineNum">     259 </span><span class="lineCov">       2384 :             data_bit_length_digits[i] &amp;= 65535u;</span>
+<span class="lineNum">     260 </span><span class="lineCov">       2384 :             carry = (before_val &gt;&gt; (16 - 3)) &amp; 65535u;</span>
+<span class="lineNum">     261 </span>            :         }
+<span class="lineNum">     262 </span>            : 
+<span class="lineNum">     263 </span>            :         // write data_bit_length
+<span class="lineNum">     264 </span><span class="lineCov">       2980 :         for (int i = 3; i &gt;= 0; --i) {</span>
+<span class="lineNum">     265 </span><span class="lineCov">       2384 :             (*begin++) = static_cast&lt;byte_t&gt;(data_bit_length_digits[i] &gt;&gt; 8);</span>
+<span class="lineNum">     266 </span><span class="lineCov">       2384 :             (*begin++) = static_cast&lt;byte_t&gt;(data_bit_length_digits[i]);</span>
+<span class="lineNum">     267 </span>            :         }
+<span class="lineNum">     268 </span><span class="lineCov">        596 :     }</span>
+<span class="lineNum">     269 </span>            :     std::vector&lt;byte_t&gt; buffer_;
+<span class="lineNum">     270 </span>            :     word_t data_length_digits_[4];  // as 64bit integer (16bit x 4 integer)
+<span class="lineNum">     271 </span>            :     word_t h_[8];
+<span class="lineNum">     272 </span>            : };
+<span class="lineNum">     273 </span>            : 
+<span class="lineNum">     274 </span>            : inline void get_hash_hex_string(const hash256_one_by_one&amp; hasher,
+<span class="lineNum">     275 </span>            :                                 std::string&amp; hex_str) {
+<span class="lineNum">     276 </span>            :     byte_t hash[k_digest_size];
+<span class="lineNum">     277 </span>            :     hasher.get_hash_bytes(hash, hash + k_digest_size);
+<span class="lineNum">     278 </span>            :     return bytes_to_hex_string(hash, hash + k_digest_size, hex_str);
+<span class="lineNum">     279 </span>            : }
+<span class="lineNum">     280 </span>            : 
+<span class="lineNum">     281 </span>            : inline std::string get_hash_hex_string(const hash256_one_by_one&amp; hasher) {
+<span class="lineNum">     282 </span>            :     std::string hex_str;
+<span class="lineNum">     283 </span>            :     get_hash_hex_string(hasher, hex_str);
+<span class="lineNum">     284 </span>            :     return hex_str;
+<span class="lineNum">     285 </span>            : }
+<span class="lineNum">     286 </span>            : 
+<a name="287"><span class="lineNum">     287 </span>            : namespace impl {</a>
+<span class="lineNum">     288 </span>            : template &lt;typename RaIter, typename OutIter&gt;
+<span class="lineNum">     289 </span><span class="lineCov">        596 : void hash256_impl(RaIter first, RaIter last, OutIter first2, OutIter last2, int,</span>
+<span class="lineNum">     290 </span>            :                   std::random_access_iterator_tag) {
+<span class="lineNum">     291 </span><span class="lineCov">       1192 :     hash256_one_by_one hasher;</span>
+<span class="lineNum">     292 </span>            :     // hasher.init();
+<span class="lineNum">     293 </span><span class="lineCov">        596 :     hasher.process(first, last);</span>
+<span class="lineNum">     294 </span><span class="lineCov">        596 :     hasher.finish();</span>
+<span class="lineNum">     295 </span><span class="lineCov">        596 :     hasher.get_hash_bytes(first2, last2);</span>
+<span class="lineNum">     296 </span><span class="lineCov">        596 : }</span>
+<span class="lineNum">     297 </span>            : 
+<span class="lineNum">     298 </span>            : template &lt;typename InputIter, typename OutIter&gt;
+<span class="lineNum">     299 </span>            : void hash256_impl(InputIter first, InputIter last, OutIter first2,
+<span class="lineNum">     300 </span>            :                   OutIter last2, int buffer_size, std::input_iterator_tag) {
+<span class="lineNum">     301 </span>            :     std::vector&lt;byte_t&gt; buffer(buffer_size);
+<span class="lineNum">     302 </span>            :     hash256_one_by_one hasher;
+<span class="lineNum">     303 </span>            :     // hasher.init();
+<span class="lineNum">     304 </span>            :     while (first != last) {
+<span class="lineNum">     305 </span>            :         int size = buffer_size;
+<span class="lineNum">     306 </span>            :         for (int i = 0; i != buffer_size; ++i, ++first) {
+<span class="lineNum">     307 </span>            :             if (first == last) {
+<span class="lineNum">     308 </span>            :                 size = i;
+<span class="lineNum">     309 </span>            :                 break;
+<span class="lineNum">     310 </span>            :             }
+<span class="lineNum">     311 </span>            :             buffer[i] = *first;
+<span class="lineNum">     312 </span>            :         }
+<span class="lineNum">     313 </span>            :         hasher.process(buffer.begin(), buffer.begin() + size);
+<span class="lineNum">     314 </span>            :     }
+<span class="lineNum">     315 </span>            :     hasher.finish();
+<span class="lineNum">     316 </span>            :     hasher.get_hash_bytes(first2, last2);
+<span class="lineNum">     317 </span>            : }
+<span class="lineNum">     318 </span>            : }
+<a name="319"><span class="lineNum">     319 </span>            : </a>
+<span class="lineNum">     320 </span>            : template &lt;typename InIter, typename OutIter&gt;
+<span class="lineNum">     321 </span><span class="lineCov">        596 : void hash256(InIter first, InIter last, OutIter first2, OutIter last2,</span>
+<span class="lineNum">     322 </span>            :              int buffer_size = PICOSHA2_BUFFER_SIZE_FOR_INPUT_ITERATOR) {
+<span class="lineNum">     323 </span><span class="lineCov">        596 :     picosha2::impl::hash256_impl(</span>
+<span class="lineNum">     324 </span>            :         first, last, first2, last2, buffer_size,
+<span class="lineNum">     325 </span>            :         typename std::iterator_traits&lt;InIter&gt;::iterator_category());
+<span class="lineNum">     326 </span><span class="lineCov">        596 : }</span>
+<span class="lineNum">     327 </span>            : 
+<span class="lineNum">     328 </span>            : template &lt;typename InIter, typename OutContainer&gt;
+<span class="lineNum">     329 </span>            : void hash256(InIter first, InIter last, OutContainer&amp; dst) {
+<span class="lineNum">     330 </span>            :     hash256(first, last, dst.begin(), dst.end());
+<span class="lineNum">     331 </span>            : }
+<span class="lineNum">     332 </span>            : 
+<span class="lineNum">     333 </span>            : template &lt;typename InContainer, typename OutIter&gt;
+<span class="lineNum">     334 </span>            : void hash256(const InContainer&amp; src, OutIter first, OutIter last) {
+<span class="lineNum">     335 </span>            :     hash256(src.begin(), src.end(), first, last);
+<span class="lineNum">     336 </span>            : }
+<span class="lineNum">     337 </span>            : 
+<span class="lineNum">     338 </span>            : template &lt;typename InContainer, typename OutContainer&gt;
+<span class="lineNum">     339 </span>            : void hash256(const InContainer&amp; src, OutContainer&amp; dst) {
+<span class="lineNum">     340 </span>            :     hash256(src.begin(), src.end(), dst.begin(), dst.end());
+<span class="lineNum">     341 </span>            : }
+<a name="342"><span class="lineNum">     342 </span>            : </a>
+<span class="lineNum">     343 </span>            : template &lt;typename InIter&gt;
+<span class="lineNum">     344 </span><span class="lineCov">        596 : void hash256_hex_string(InIter first, InIter last, std::string&amp; hex_str) {</span>
+<span class="lineNum">     345 </span>            :     byte_t hashed[k_digest_size];
+<span class="lineNum">     346 </span><span class="lineCov">        596 :     hash256(first, last, hashed, hashed + k_digest_size);</span>
+<span class="lineNum">     347 </span><span class="lineCov">       1192 :     std::ostringstream oss;</span>
+<span class="lineNum">     348 </span><span class="lineCov">        596 :     output_hex(hashed, hashed + k_digest_size, oss);</span>
+<span class="lineNum">     349 </span><span class="lineCov">        596 :     hex_str.assign(oss.str());</span>
+<span class="lineNum">     350 </span><span class="lineCov">        596 : }</span>
+<a name="351"><span class="lineNum">     351 </span>            : </a>
+<span class="lineNum">     352 </span>            : template &lt;typename InIter&gt;
+<span class="lineNum">     353 </span><span class="lineCov">        596 : std::string hash256_hex_string(InIter first, InIter last) {</span>
+<span class="lineNum">     354 </span><span class="lineCov">        596 :     std::string hex_str;</span>
+<span class="lineNum">     355 </span><span class="lineCov">        596 :     hash256_hex_string(first, last, hex_str);</span>
+<span class="lineNum">     356 </span><span class="lineCov">        596 :     return hex_str;</span>
+<span class="lineNum">     357 </span>            : }
+<span class="lineNum">     358 </span>            : 
+<span class="lineNum">     359 </span>            : inline void hash256_hex_string(const std::string&amp; src, std::string&amp; hex_str) {
+<span class="lineNum">     360 </span>            :     hash256_hex_string(src.begin(), src.end(), hex_str);
+<span class="lineNum">     361 </span>            : }
+<span class="lineNum">     362 </span>            : 
+<span class="lineNum">     363 </span>            : template &lt;typename InContainer&gt;
+<span class="lineNum">     364 </span>            : void hash256_hex_string(const InContainer&amp; src, std::string&amp; hex_str) {
+<span class="lineNum">     365 </span>            :     hash256_hex_string(src.begin(), src.end(), hex_str);
+<span class="lineNum">     366 </span>            : }
+<a name="367"><span class="lineNum">     367 </span>            : </a>
+<span class="lineNum">     368 </span>            : template &lt;typename InContainer&gt;
+<span class="lineNum">     369 </span><span class="lineCov">        596 : std::string hash256_hex_string(const InContainer&amp; src) {</span>
+<span class="lineNum">     370 </span><span class="lineCov">        596 :     return hash256_hex_string(src.begin(), src.end());</span>
+<span class="lineNum">     371 </span>            : }
+<span class="lineNum">     372 </span>            : template&lt;typename OutIter&gt;void hash256(std::ifstream&amp; f, OutIter first, OutIter last){
+<span class="lineNum">     373 </span>            :     hash256(std::istreambuf_iterator&lt;char&gt;(f), std::istreambuf_iterator&lt;char&gt;(), first,last);
+<span class="lineNum">     374 </span>            : 
+<span class="lineNum">     375 </span>            : }
+<span class="lineNum">     376 </span>            : }// namespace picosha2
+<span class="lineNum">     377 </span>            : #endif  // PICOSHA2_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

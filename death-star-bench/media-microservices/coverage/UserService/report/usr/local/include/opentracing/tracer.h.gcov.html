@@ -1,0 +1,351 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - /usr/local/include/opentracing/tracer.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">usr/local/include/opentracing</a> - tracer.h<span style="font-size: 80%;"> (source / <a href="tracer.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntry">23</td>
+            <td class="headerCovTableEntryLo">69.6 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 01:11:27</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntryLo">58.8 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #ifndef OPENTRACING_TRACER_H</a>
+<span class="lineNum">       2 </span>            : #define OPENTRACING_TRACER_H
+<span class="lineNum">       3 </span>            : 
+<span class="lineNum">       4 </span>            : #include &lt;opentracing/propagation.h&gt;
+<span class="lineNum">       5 </span>            : #include &lt;opentracing/span.h&gt;
+<span class="lineNum">       6 </span>            : #include &lt;opentracing/string_view.h&gt;
+<span class="lineNum">       7 </span>            : #include &lt;opentracing/symbols.h&gt;
+<span class="lineNum">       8 </span>            : #include &lt;opentracing/util.h&gt;
+<span class="lineNum">       9 </span>            : #include &lt;opentracing/version.h&gt;
+<span class="lineNum">      10 </span>            : #include &lt;chrono&gt;
+<span class="lineNum">      11 </span>            : #include &lt;initializer_list&gt;
+<span class="lineNum">      12 </span>            : #include &lt;iosfwd&gt;
+<span class="lineNum">      13 </span>            : #include &lt;memory&gt;
+<span class="lineNum">      14 </span>            : #include &lt;utility&gt;
+<span class="lineNum">      15 </span>            : #include &lt;vector&gt;
+<span class="lineNum">      16 </span>            : 
+<span class="lineNum">      17 </span>            : namespace opentracing {
+<span class="lineNum">      18 </span>            : BEGIN_OPENTRACING_ABI_NAMESPACE
+<span class="lineNum">      19 </span>            : // StartSpanOptions allows Tracer.StartSpan() callers a mechanism to override
+<span class="lineNum">      20 </span>            : // the start timestamp, specify Span References, and make a single Tag or
+<span class="lineNum">      21 </span>            : // multiple Tags available at Span start time.
+<span class="lineNum">      22 </span>            : //
+<a name="23"><span class="lineNum">      23 </span>            : // StartSpan() callers should look at the StartSpanOption interface and</a>
+<span class="lineNum">      24 </span>            : // implementations available in this library.
+<span class="lineNum">      25 </span><span class="lineCov">       4788 : struct StartSpanOptions {</span>
+<span class="lineNum">      26 </span>            :   // start_system_timestamp and start_steady_timestamp override the Span's start
+<span class="lineNum">      27 </span>            :   // time, or implicitly become std::chrono::system_clock::now() and
+<span class="lineNum">      28 </span>            :   // std::chrono::steady_clock::now() if both are equal to the epoch (default
+<span class="lineNum">      29 </span>            :   // behavior).
+<span class="lineNum">      30 </span>            :   //
+<span class="lineNum">      31 </span>            :   // If one of the timestamps is set but not the other, the set timestamp is
+<span class="lineNum">      32 </span>            :   // used to estimate the corresponding timestamp of the other.
+<span class="lineNum">      33 </span>            :   SystemTime start_system_timestamp;
+<span class="lineNum">      34 </span>            :   SteadyTime start_steady_timestamp;
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            :   // Zero or more causal references to other Spans (via their SpanContext).
+<span class="lineNum">      37 </span>            :   // If empty, start a &quot;root&quot; Span (i.e., start a new trace).
+<span class="lineNum">      38 </span>            :   //
+<span class="lineNum">      39 </span>            :   // Any nullptrs provided will be ignored.
+<span class="lineNum">      40 </span>            :   std::vector&lt;std::pair&lt;SpanReferenceType, const SpanContext*&gt;&gt; references;
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            :   // Zero or more tags to apply to the newly created span.
+<span class="lineNum">      43 </span>            :   std::vector&lt;std::pair&lt;std::string, Value&gt;&gt; tags;
+<span class="lineNum">      44 </span>            : };
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            : // StartSpanOption instances (zero or more) may be passed to Tracer.StartSpan.
+<span class="lineNum">      47 </span>            : class StartSpanOption {
+<span class="lineNum">      48 </span>            :  public:
+<a name="49"><span class="lineNum">      49 </span>            :   StartSpanOption(const StartSpanOption&amp;) = delete;</a>
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span><span class="lineCov">       2394 :   virtual ~StartSpanOption() = default;</span>
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span>            :   virtual void Apply(StartSpanOptions&amp; options) const noexcept = 0;
+<a name="54"><span class="lineNum">      54 </span>            : </a>
+<span class="lineNum">      55 </span>            :  protected:
+<span class="lineNum">      56 </span><span class="lineCov">       2394 :   StartSpanOption() = default;</span>
+<span class="lineNum">      57 </span>            : };
+<span class="lineNum">      58 </span>            : 
+<a name="59"><span class="lineNum">      59 </span>            : // Tracer is a simple, thin interface for Span creation and SpanContext</a>
+<span class="lineNum">      60 </span>            : // propagation.
+<a name="61"><span class="lineNum">      61 </span><span class="lineCov">          2 : class OPENTRACING_API Tracer {</span></a>
+<span class="lineNum">      62 </span>            :  public:
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :   virtual ~Tracer() = default;</span>
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span>            :   // Create, start, and return a new Span with the given `operationName` and
+<span class="lineNum">      66 </span>            :   // incorporate the given StartSpanOption `option_list`.
+<span class="lineNum">      67 </span>            :   //
+<span class="lineNum">      68 </span>            :   // A Span with no SpanReference options (e.g., opentracing::ChildOf() or
+<span class="lineNum">      69 </span>            :   // opentracing::FollowsFrom()) becomes the root of its own trace.
+<span class="lineNum">      70 </span>            :   //
+<span class="lineNum">      71 </span>            :   // Examples:
+<span class="lineNum">      72 </span>            :   //
+<span class="lineNum">      73 </span>            :   //     opentracing::Tracer&amp; tracer = ...
+<span class="lineNum">      74 </span>            :   //
+<span class="lineNum">      75 </span>            :   //     // The root-span case:
+<span class="lineNum">      76 </span>            :   //     auto span = tracer.StartSpan(&quot;GetFeed&quot;)
+<span class="lineNum">      77 </span>            :   //
+<span class="lineNum">      78 </span>            :   //     // The vanilla child span case:
+<span class="lineNum">      79 </span>            :   //     auto span = tracer.StartSpan(
+<span class="lineNum">      80 </span>            :   //         &quot;GetFeed&quot;,
+<span class="lineNum">      81 </span>            :   //         {opentracing::ChildOf(&amp;parentSpan.context())})
+<span class="lineNum">      82 </span>            :   //
+<span class="lineNum">      83 </span>            :   //     // All the bells and whistles:
+<span class="lineNum">      84 </span>            :   //     auto span = tracer.StartSpan(
+<span class="lineNum">      85 </span>            :   //         &quot;GetFeed&quot;,
+<span class="lineNum">      86 </span>            :   //         {opentracing::ChildOf(&amp;parentSpan.context()),
+<span class="lineNum">      87 </span>            :   //         opentracing::Tag{&quot;user_agent&quot;, loggedReq.UserAgent},
+<span class="lineNum">      88 </span>            :   //         opentracing::StartTimestamp(loggedReq.timestamp())})
+<span class="lineNum">      89 </span>            :   //
+<a name="90"><span class="lineNum">      90 </span>            :   // If StartSpan is called after Close, it leaves the Tracer in a valid</a>
+<span class="lineNum">      91 </span>            :   // state, but its behavior is unspecified.
+<span class="lineNum">      92 </span><span class="lineCov">       2394 :   std::unique_ptr&lt;Span&gt; StartSpan(</span>
+<span class="lineNum">      93 </span>            :       string_view operation_name,
+<span class="lineNum">      94 </span>            :       std::initializer_list&lt;option_wrapper&lt;StartSpanOption&gt;&gt; option_list = {})
+<span class="lineNum">      95 </span>            :       const noexcept {
+<span class="lineNum">      96 </span><span class="lineCov">       4788 :     StartSpanOptions options;</span>
+<span class="lineNum">      97 </span><span class="lineCov">       2394 :     for (const auto&amp; option : option_list) option.get().Apply(options);</span>
+<span class="lineNum">      98 </span><span class="lineCov">       4788 :     return StartSpanWithOptions(operation_name, options);</span>
+<span class="lineNum">      99 </span>            :   }
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span>            :   virtual std::unique_ptr&lt;Span&gt; StartSpanWithOptions(
+<span class="lineNum">     102 </span>            :       string_view operation_name, const StartSpanOptions&amp; options) const
+<span class="lineNum">     103 </span>            :       noexcept = 0;
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span>            :   // Inject() takes the `sc` SpanContext instance and injects it for propagation
+<span class="lineNum">     106 </span>            :   // within `carrier`.
+<span class="lineNum">     107 </span>            :   //
+<span class="lineNum">     108 </span>            :   // OpenTracing defines a common set of `carrier` interfaces.
+<span class="lineNum">     109 </span>            :   //
+<span class="lineNum">     110 </span>            :   // Throws only if `writer` does.
+<span class="lineNum">     111 </span>            :   //
+<span class="lineNum">     112 </span>            :   // If `writer` is an `std::ostream`, then Inject() propagates `sc` as a blob
+<span class="lineNum">     113 </span>            :   // of binary data.
+<span class="lineNum">     114 </span>            :   virtual expected&lt;void&gt; Inject(const SpanContext&amp; sc,
+<span class="lineNum">     115 </span>            :                                 std::ostream&amp; writer) const = 0;
+<span class="lineNum">     116 </span>            : 
+<span class="lineNum">     117 </span>            :   virtual expected&lt;void&gt; Inject(const SpanContext&amp; sc,
+<span class="lineNum">     118 </span>            :                                 const TextMapWriter&amp; writer) const = 0;
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span>            :   virtual expected&lt;void&gt; Inject(const SpanContext&amp; sc,
+<a name="121"><span class="lineNum">     121 </span>            :                                 const HTTPHeadersWriter&amp; writer) const = 0;</a>
+<span class="lineNum">     122 </span>            : 
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :   virtual expected&lt;void&gt; Inject(const SpanContext&amp; sc,</span>
+<span class="lineNum">     124 </span>            :                                 const CustomCarrierWriter&amp; writer) const {
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :     return writer.Inject(*this, sc);</span>
+<span class="lineNum">     126 </span>            :   }
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span>            :   // Extract() returns a SpanContext instance given `carrier`.
+<span class="lineNum">     129 </span>            :   //
+<span class="lineNum">     130 </span>            :   // OpenTracing defines a common set of `carrier` interfaces.
+<span class="lineNum">     131 </span>            :   //
+<span class="lineNum">     132 </span>            :   // Returns a `SpanContext` that is `non-null` on success or nullptr if no span
+<span class="lineNum">     133 </span>            :   // is found; otherwise an std::error_code.
+<span class="lineNum">     134 </span>            :   //
+<span class="lineNum">     135 </span>            :   // Throws only if `reader` does.
+<span class="lineNum">     136 </span>            :   virtual expected&lt;std::unique_ptr&lt;SpanContext&gt;&gt; Extract(
+<span class="lineNum">     137 </span>            :       std::istream&amp; reader) const = 0;
+<span class="lineNum">     138 </span>            : 
+<span class="lineNum">     139 </span>            :   virtual expected&lt;std::unique_ptr&lt;SpanContext&gt;&gt; Extract(
+<span class="lineNum">     140 </span>            :       const TextMapReader&amp; reader) const = 0;
+<span class="lineNum">     141 </span>            : 
+<span class="lineNum">     142 </span>            :   virtual expected&lt;std::unique_ptr&lt;SpanContext&gt;&gt; Extract(
+<a name="143"><span class="lineNum">     143 </span>            :       const HTTPHeadersReader&amp; reader) const = 0;</a>
+<span class="lineNum">     144 </span>            : 
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :   virtual expected&lt;std::unique_ptr&lt;SpanContext&gt;&gt; Extract(</span>
+<span class="lineNum">     146 </span>            :       const CustomCarrierReader&amp; reader) const {
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :     return reader.Extract(*this);</span>
+<span class="lineNum">     148 </span>            :   }
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span>            :   // Close is called when a tracer is finished processing spans. It is not
+<span class="lineNum">     151 </span>            :   // required to be called and its effect is unspecified. For example, an
+<span class="lineNum">     152 </span>            :   // implementation might use this function to flush buffered spans to its
+<a name="153"><span class="lineNum">     153 </span>            :   // recording system and failing to call it could result in some spans being</a>
+<span class="lineNum">     154 </span>            :   // dropped.
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :   virtual void Close() noexcept {}</span>
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span>            :   // GlobalTracer returns the global tracer.
+<span class="lineNum">     158 </span>            :   static std::shared_ptr&lt;Tracer&gt; Global() noexcept;
+<span class="lineNum">     159 </span>            : 
+<span class="lineNum">     160 </span>            :   // InitGlobalTracer sets the global tracer pointer, returns the
+<span class="lineNum">     161 </span>            :   // former global tracer value.
+<span class="lineNum">     162 </span>            :   static std::shared_ptr&lt;Tracer&gt; InitGlobal(
+<span class="lineNum">     163 </span>            :       std::shared_ptr&lt;Tracer&gt; tracer) noexcept;
+<span class="lineNum">     164 </span>            : };
+<span class="lineNum">     165 </span>            : 
+<span class="lineNum">     166 </span>            : // StartTimestamp is a StartSpanOption that sets an explicit start timestamp for
+<span class="lineNum">     167 </span>            : // the new Span.
+<span class="lineNum">     168 </span>            : class StartTimestamp : public StartSpanOption {
+<span class="lineNum">     169 </span>            :  public:
+<span class="lineNum">     170 </span>            :   StartTimestamp(SystemTime system_when, SteadyTime steady_when) noexcept
+<span class="lineNum">     171 </span>            :       : system_when_(system_when), steady_when_(steady_when) {}
+<span class="lineNum">     172 </span>            : 
+<span class="lineNum">     173 </span>            :   StartTimestamp(SystemTime system_when) noexcept
+<span class="lineNum">     174 </span>            :       : system_when_(system_when),
+<span class="lineNum">     175 </span>            :         steady_when_(convert_time_point&lt;SteadyClock&gt;(system_when_)) {}
+<span class="lineNum">     176 </span>            : 
+<span class="lineNum">     177 </span>            :   // Construct a timestamp using a duration from the epoch of std::time_t.
+<span class="lineNum">     178 </span>            :   // From the documentation on std::time_t's epoch:
+<span class="lineNum">     179 </span>            :   //     Although not defined, this is almost always an integral value holding
+<span class="lineNum">     180 </span>            :   //     the number of seconds (not counting leap seconds) since 00:00, Jan 1
+<span class="lineNum">     181 </span>            :   //     1970 UTC, corresponding to POSIX time
+<span class="lineNum">     182 </span>            :   // See http://en.cppreference.com/w/cpp/chrono/c/time_t
+<span class="lineNum">     183 </span>            :   template &lt;class Rep, class Period&gt;
+<span class="lineNum">     184 </span>            :   explicit StartTimestamp(
+<span class="lineNum">     185 </span>            :       const std::chrono::duration&lt;Rep, Period&gt;&amp; time_since_epoch) noexcept
+<span class="lineNum">     186 </span>            :       : StartTimestamp(SystemClock::from_time_t(std::time_t(0)) +
+<span class="lineNum">     187 </span>            :                        std::chrono::duration_cast&lt;SystemClock::duration&gt;(
+<span class="lineNum">     188 </span>            :                            time_since_epoch)) {}
+<span class="lineNum">     189 </span>            : 
+<span class="lineNum">     190 </span>            :   StartTimestamp(const StartTimestamp&amp; other) noexcept
+<span class="lineNum">     191 </span>            :       : StartSpanOption(),
+<span class="lineNum">     192 </span>            :         system_when_(other.system_when_),
+<span class="lineNum">     193 </span>            :         steady_when_(other.steady_when_) {}
+<span class="lineNum">     194 </span>            : 
+<span class="lineNum">     195 </span>            :   void Apply(StartSpanOptions&amp; options) const noexcept override {
+<span class="lineNum">     196 </span>            :     options.start_system_timestamp = system_when_;
+<span class="lineNum">     197 </span>            :     options.start_steady_timestamp = steady_when_;
+<span class="lineNum">     198 </span>            :   }
+<span class="lineNum">     199 </span>            : 
+<span class="lineNum">     200 </span>            :  private:
+<span class="lineNum">     201 </span>            :   SystemTime system_when_;
+<span class="lineNum">     202 </span>            :   SteadyTime steady_when_;
+<span class="lineNum">     203 </span>            : };
+<span class="lineNum">     204 </span>            : 
+<span class="lineNum">     205 </span>            : // SpanReference is a StartSpanOption that pairs a SpanReferenceType and a
+<span class="lineNum">     206 </span>            : // referenced SpanContext. See the SpanReferenceType documentation for
+<span class="lineNum">     207 </span>            : // supported relationships.
+<span class="lineNum">     208 </span>            : //
+<span class="lineNum">     209 </span>            : // If the referenced SpanContext is a nullptr, it is ignored. The passed
+<a name="210"><span class="lineNum">     210 </span>            : // SpanContext is copied during Span construction and the pointer is not</a>
+<span class="lineNum">     211 </span>            : // retained.
+<a name="212"><span class="lineNum">     212 </span><span class="lineCov">       2394 : class SpanReference : public StartSpanOption {</span></a>
+<span class="lineNum">     213 </span>            :  public:
+<span class="lineNum">     214 </span><span class="lineCov">       2394 :   SpanReference(SpanReferenceType type, const SpanContext* referenced) noexcept</span>
+<span class="lineNum">     215 </span><span class="lineCov">       2394 :       : type_(type), referenced_(referenced) {}</span>
+<span class="lineNum">     216 </span>            : 
+<span class="lineNum">     217 </span>            :   SpanReference(const SpanReference&amp; other) noexcept
+<a name="218"><span class="lineNum">     218 </span>            :       : StartSpanOption(), type_(other.type_), referenced_(other.referenced_) {}</a>
+<span class="lineNum">     219 </span>            : 
+<span class="lineNum">     220 </span><span class="lineCov">       2394 :   void Apply(StartSpanOptions&amp; options) const noexcept override {</span>
+<span class="lineNum">     221 </span>            :     try {
+<span class="lineNum">     222 </span><span class="lineCov">       2394 :       if (referenced_) options.references.emplace_back(type_, referenced_);</span>
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :     } catch (const std::bad_alloc&amp;) {</span>
+<span class="lineNum">     224 </span>            :       // Ignore reference if memory can't be allocated for it.
+<span class="lineNum">     225 </span>            :     }
+<span class="lineNum">     226 </span><span class="lineCov">       2394 :   }</span>
+<span class="lineNum">     227 </span>            : 
+<span class="lineNum">     228 </span>            :  private:
+<span class="lineNum">     229 </span>            :   SpanReferenceType type_;
+<span class="lineNum">     230 </span>            :   const SpanContext* referenced_;
+<span class="lineNum">     231 </span>            : };
+<span class="lineNum">     232 </span>            : 
+<span class="lineNum">     233 </span>            : // ChildOf returns a StartSpanOption pointing to a dependent parent span.
+<a name="234"><span class="lineNum">     234 </span>            : //</a>
+<span class="lineNum">     235 </span>            : // See ChildOfRef, SpanReference
+<span class="lineNum">     236 </span><span class="lineCov">       2394 : inline SpanReference ChildOf(const SpanContext* span_context) noexcept {</span>
+<span class="lineNum">     237 </span><span class="lineCov">       2394 :   return {SpanReferenceType::ChildOfRef, span_context};</span>
+<span class="lineNum">     238 </span>            : }
+<span class="lineNum">     239 </span>            : 
+<span class="lineNum">     240 </span>            : // FollowsFrom returns a StartSpanOption pointing to a parent Span that caused
+<span class="lineNum">     241 </span>            : // the child Span but does not directly depend on its result in any way.
+<span class="lineNum">     242 </span>            : //
+<span class="lineNum">     243 </span>            : // See FollowsFromRef, SpanReference
+<span class="lineNum">     244 </span>            : inline SpanReference FollowsFrom(const SpanContext* span_context) noexcept {
+<span class="lineNum">     245 </span>            :   return {SpanReferenceType::FollowsFromRef, span_context};
+<span class="lineNum">     246 </span>            : }
+<span class="lineNum">     247 </span>            : 
+<span class="lineNum">     248 </span>            : // SetTag may be passed as a StartSpanOption to add a tag to new spans,
+<span class="lineNum">     249 </span>            : // for example:
+<span class="lineNum">     250 </span>            : //
+<span class="lineNum">     251 </span>            : // tracer.StartSpan(&quot;opName&quot;, SetTag{&quot;Key&quot;, value})
+<span class="lineNum">     252 </span>            : class SetTag : public StartSpanOption {
+<span class="lineNum">     253 </span>            :  public:
+<span class="lineNum">     254 </span>            :   SetTag(string_view key, const Value&amp; value) noexcept
+<span class="lineNum">     255 </span>            :       : key_(key), value_(value) {}
+<span class="lineNum">     256 </span>            : 
+<span class="lineNum">     257 </span>            :   SetTag(const SetTag&amp; other) noexcept
+<span class="lineNum">     258 </span>            :       : StartSpanOption(), key_(other.key_), value_(other.value_) {}
+<span class="lineNum">     259 </span>            : 
+<span class="lineNum">     260 </span>            :   void Apply(StartSpanOptions&amp; options) const noexcept override {
+<span class="lineNum">     261 </span>            :     try {
+<span class="lineNum">     262 </span>            :       options.tags.emplace_back(key_, value_);
+<span class="lineNum">     263 </span>            :     } catch (const std::bad_alloc&amp;) {
+<span class="lineNum">     264 </span>            :       // Ignore tag if memory can't be allocated for it.
+<span class="lineNum">     265 </span>            :     }
+<span class="lineNum">     266 </span>            :   }
+<span class="lineNum">     267 </span>            : 
+<span class="lineNum">     268 </span>            :  private:
+<span class="lineNum">     269 </span>            :   const string_view key_;
+<span class="lineNum">     270 </span>            :   const Value&amp; value_;
+<span class="lineNum">     271 </span>            : };
+<span class="lineNum">     272 </span>            : END_OPENTRACING_ABI_NAMESPACE
+<span class="lineNum">     273 </span>            : }  // namespace opentracing
+<span class="lineNum">     274 </span>            : 
+<span class="lineNum">     275 </span>            : #endif  // OPENTRACING_TRACER_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

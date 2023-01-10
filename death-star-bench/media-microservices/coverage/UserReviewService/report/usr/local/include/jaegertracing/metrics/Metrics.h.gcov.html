@@ -1,0 +1,317 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - /usr/local/include/jaegertracing/metrics/Metrics.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">usr/local/include/jaegertracing/metrics</a> - Metrics.h<span style="font-size: 80%;"> (source / <a href="Metrics.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntry">21</td>
+            <td class="headerCovTableEntryHi">95.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 01:09:21</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * Copyright (c) 2017 Uber Technologies, Inc.
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       5 </span>            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>            :  * You may obtain a copy of the License at
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>            :  * limitations under the License.
+<span class="lineNum">      15 </span>            :  */
+<span class="lineNum">      16 </span>            : 
+<span class="lineNum">      17 </span>            : #ifndef JAEGERTRACING_METRICS_METRICS_H
+<span class="lineNum">      18 </span>            : #define JAEGERTRACING_METRICS_METRICS_H
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #include &lt;string&gt;
+<span class="lineNum">      21 </span>            : #include &lt;unordered_map&gt;
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : #include &quot;jaegertracing/metrics/Counter.h&quot;
+<span class="lineNum">      24 </span>            : #include &quot;jaegertracing/metrics/Gauge.h&quot;
+<span class="lineNum">      25 </span>            : #include &quot;jaegertracing/metrics/StatsFactory.h&quot;
+<span class="lineNum">      26 </span>            : #include &quot;jaegertracing/metrics/StatsFactoryImpl.h&quot;
+<span class="lineNum">      27 </span>            : #include &quot;jaegertracing/metrics/StatsReporter.h&quot;
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            : namespace jaegertracing {
+<span class="lineNum">      30 </span>            : namespace metrics {
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : class Metrics {
+<span class="lineNum">      33 </span>            :   public:
+<span class="lineNum">      34 </span>            :     static std::unique_ptr&lt;Metrics&gt; makeNullMetrics();
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            :     static std::unique_ptr&lt;Metrics&gt; fromStatsReporter(StatsReporter&amp; reporter)
+<span class="lineNum">      37 </span>            :     {
+<span class="lineNum">      38 </span>            :         // Factory only used for constructor, so need not live past the
+<span class="lineNum">      39 </span>            :         // initialization of Metrics object.
+<span class="lineNum">      40 </span>            :         StatsFactoryImpl factory(reporter);
+<span class="lineNum">      41 </span>            :         return std::unique_ptr&lt;Metrics&gt;(new Metrics(factory));
+<span class="lineNum">      42 </span>            :     }
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            :     static std::string addTagsToMetricName(
+<span class="lineNum">      45 </span>            :         const std::string&amp; name,
+<a name="46"><span class="lineNum">      46 </span>            :         const std::unordered_map&lt;std::string, std::string&gt;&amp; tags);</a>
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span><span class="lineCov">          2 :     explicit Metrics(StatsFactory&amp; factory)</span>
+<span class="lineNum">      49 </span>            :         : _tracesStartedSampled(factory.createCounter(
+<span class="lineNum">      50 </span><span class="lineCov">          6 :               &quot;jaeger.traces&quot;, { { &quot;state&quot;, &quot;started&quot; }, { &quot;sampled&quot;, &quot;y&quot; } }))</span>
+<span class="lineNum">      51 </span>            :         , _tracesStartedNotSampled(factory.createCounter(
+<span class="lineNum">      52 </span><span class="lineCov">          6 :               &quot;jaeger.traces&quot;, { { &quot;state&quot;, &quot;started&quot; }, { &quot;sampled&quot;, &quot;n&quot; } }))</span>
+<span class="lineNum">      53 </span>            :         , _spansStarted(factory.createCounter(
+<span class="lineNum">      54 </span>            :               &quot;jaeger.spans&quot;,
+<span class="lineNum">      55 </span><span class="lineCov">          6 :               { { &quot;state&quot;, &quot;started&quot; }, { &quot;group&quot;, &quot;lifecycle&quot; } }))</span>
+<span class="lineNum">      56 </span>            :         , _spansFinished(factory.createCounter(
+<span class="lineNum">      57 </span>            :               &quot;jaeger.spans&quot;,
+<span class="lineNum">      58 </span><span class="lineCov">          6 :               { { &quot;state&quot;, &quot;finished&quot; }, { &quot;group&quot;, &quot;lifecycle&quot; } }))</span>
+<span class="lineNum">      59 </span>            :         , _spansSampled(factory.createCounter(
+<span class="lineNum">      60 </span><span class="lineCov">          6 :               &quot;jaeger.spans&quot;, { { &quot;group&quot;, &quot;sampling&quot; }, { &quot;sampled&quot;, &quot;y&quot; } }))</span>
+<span class="lineNum">      61 </span>            :         , _spansNotSampled(factory.createCounter(
+<span class="lineNum">      62 </span><span class="lineCov">          6 :               &quot;jaeger.spans&quot;, { { &quot;group&quot;, &quot;sampling&quot; }, { &quot;sampled&quot;, &quot;n&quot; } }))</span>
+<span class="lineNum">      63 </span>            :         , _decodingErrors(factory.createCounter(&quot;jaeger.decoding-errors&quot;))
+<span class="lineNum">      64 </span>            :         , _reporterSuccess(factory.createCounter(&quot;jaeger.reporter-spans&quot;,
+<span class="lineNum">      65 </span><span class="lineCov">          4 :                                                  { { &quot;state&quot;, &quot;success&quot; } }))</span>
+<span class="lineNum">      66 </span>            :         , _reporterFailure(factory.createCounter(&quot;jaeger.reporter-spans&quot;,
+<span class="lineNum">      67 </span><span class="lineCov">          4 :                                                  { { &quot;state&quot;, &quot;failure&quot; } }))</span>
+<span class="lineNum">      68 </span>            :         , _reporterDropped(factory.createCounter(&quot;jaeger.reporter-spans&quot;,
+<span class="lineNum">      69 </span><span class="lineCov">          4 :                                                  { { &quot;state&quot;, &quot;dropped&quot; } }))</span>
+<span class="lineNum">      70 </span>            :         , _reporterQueueLength(factory.createGauge(&quot;jaeger.reporter-queue&quot;))
+<span class="lineNum">      71 </span>            :         , _samplerRetrieved(factory.createCounter(&quot;jaeger.sampler&quot;,
+<span class="lineNum">      72 </span><span class="lineCov">          4 :                                                   { { &quot;state&quot;, &quot;retrieved&quot; } }))</span>
+<span class="lineNum">      73 </span>            :         , _samplerUpdated(factory.createCounter(&quot;jaeger.sampler&quot;,
+<span class="lineNum">      74 </span><span class="lineCov">          4 :                                                 { { &quot;state&quot;, &quot;updated&quot; } }))</span>
+<span class="lineNum">      75 </span>            :         , _samplerUpdateFailure(factory.createCounter(
+<span class="lineNum">      76 </span>            :               &quot;jaeger.sampler&quot;,
+<span class="lineNum">      77 </span><span class="lineCov">          6 :               { { &quot;state&quot;, &quot;failure&quot; }, { &quot;phase&quot;, &quot;updating&quot; } }))</span>
+<span class="lineNum">      78 </span>            :         , _samplerQueryFailure(factory.createCounter(
+<span class="lineNum">      79 </span>            :               &quot;jaeger.sampler&quot;,
+<span class="lineNum">      80 </span><span class="lineCov">          6 :               { { &quot;state&quot;, &quot;failure&quot; }, { &quot;phase&quot;, &quot;query&quot; } }))</span>
+<span class="lineNum">      81 </span>            :         , _samplerParsingFailure(factory.createCounter(
+<span class="lineNum">      82 </span>            :               &quot;jaeger.sampler&quot;,
+<span class="lineNum">      83 </span><span class="lineCov">          6 :               { { &quot;state&quot;, &quot;failure&quot; }, { &quot;phase&quot;, &quot;parsing&quot; } }))</span>
+<span class="lineNum">      84 </span>            :         , _baggageUpdateSuccess(factory.createCounter(&quot;jaeger.baggage-update&quot;,
+<span class="lineNum">      85 </span><span class="lineCov">          4 :                                                       { { &quot;result&quot;, &quot;ok&quot; } }))</span>
+<span class="lineNum">      86 </span>            :         , _baggageUpdateFailure(factory.createCounter(&quot;jaeger.baggage-update&quot;,
+<span class="lineNum">      87 </span><span class="lineCov">          4 :                                                       { { &quot;result&quot;, &quot;err&quot; } }))</span>
+<span class="lineNum">      88 </span>            :         , _baggageTruncate(factory.createCounter(&quot;jaeger.baggage-truncate&quot;))
+<span class="lineNum">      89 </span>            :         , _baggageRestrictionsUpdateSuccess(factory.createCounter(
+<span class="lineNum">      90 </span><span class="lineCov">          4 :               &quot;jaeger.baggage-restrictions-update&quot;, { { &quot;result&quot;, &quot;ok&quot; } }))</span>
+<span class="lineNum">      91 </span>            :         , _baggageRestrictionsUpdateFailure(factory.createCounter(
+<span class="lineNum">      92 </span><span class="lineCov">         86 :               &quot;jaeger.baggage-restrictions-update&quot;, { { &quot;result&quot;, &quot;err&quot; } }))</span>
+<span class="lineNum">      93 </span>            :     {
+<span class="lineNum">      94 </span><span class="lineCov">          2 :     }</span>
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span>            :     ~Metrics();
+<span class="lineNum">      97 </span>            : 
+<span class="lineNum">      98 </span>            :     const Counter&amp; tracesStartedSampled() const
+<span class="lineNum">      99 </span>            :     {
+<span class="lineNum">     100 </span>            :         return *_tracesStartedSampled;
+<span class="lineNum">     101 </span>            :     }
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span>            :     Counter&amp; tracesStartedSampled() { return *_tracesStartedSampled; }
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span>            :     const Counter&amp; tracesStartedNotSampled() const
+<span class="lineNum">     106 </span>            :     {
+<span class="lineNum">     107 </span>            :         return *_tracesStartedNotSampled;
+<span class="lineNum">     108 </span>            :     }
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span>            :     Counter&amp; tracesStartedNotSampled() { return *_tracesStartedNotSampled; }
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span>            :     const Counter&amp; spansStarted() const { return *_spansStarted; }
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span>            :     Counter&amp; spansStarted() { return *_spansStarted; }
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span>            :     const Counter&amp; spansFinished() const { return *_spansFinished; }
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span>            :     Counter&amp; spansFinished() { return *_spansFinished; }
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span>            :     const Counter&amp; spansSampled() const { return *_spansSampled; }
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span>            :     Counter&amp; spansSampled() { return *_spansSampled; }
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span>            :     const Counter&amp; spansNotSampled() const { return *_spansNotSampled; }
+<span class="lineNum">     125 </span>            : 
+<span class="lineNum">     126 </span>            :     Counter&amp; spansNotSampled() { return *_spansNotSampled; }
+<span class="lineNum">     127 </span>            : 
+<a name="128"><span class="lineNum">     128 </span>            :     const Counter&amp; decodingErrors() const { return *_decodingErrors; }</a>
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :     Counter&amp; decodingErrors() { return *_decodingErrors; }</span>
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span>            :     const Counter&amp; reporterSuccess() const { return *_reporterSuccess; }
+<span class="lineNum">     133 </span>            : 
+<span class="lineNum">     134 </span>            :     Counter&amp; reporterSuccess() { return *_reporterSuccess; }
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span>            :     const Counter&amp; reporterFailure() const { return *_reporterFailure; }
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span>            :     Counter&amp; reporterFailure() { return *_reporterFailure; }
+<span class="lineNum">     139 </span>            : 
+<span class="lineNum">     140 </span>            :     const Counter&amp; reporterDropped() const { return *_reporterDropped; }
+<span class="lineNum">     141 </span>            : 
+<span class="lineNum">     142 </span>            :     Counter&amp; reporterDropped() { return *_reporterDropped; }
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span>            :     const Gauge&amp; reporterQueueLength() const { return *_reporterQueueLength; }
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span>            :     Gauge&amp; reporterQueueLength() { return *_reporterQueueLength; }
+<span class="lineNum">     147 </span>            : 
+<span class="lineNum">     148 </span>            :     const Counter&amp; samplerRetrieved() const { return *_samplerRetrieved; }
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span>            :     Counter&amp; samplerRetrieved() { return *_samplerRetrieved; }
+<span class="lineNum">     151 </span>            : 
+<span class="lineNum">     152 </span>            :     const Counter&amp; samplerUpdated() const { return *_samplerUpdated; }
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span>            :     Counter&amp; samplerUpdated() { return *_samplerUpdated; }
+<span class="lineNum">     155 </span>            : 
+<span class="lineNum">     156 </span>            :     const Counter&amp; samplerUpdateFailure() const
+<span class="lineNum">     157 </span>            :     {
+<span class="lineNum">     158 </span>            :         return *_samplerUpdateFailure;
+<span class="lineNum">     159 </span>            :     }
+<span class="lineNum">     160 </span>            : 
+<span class="lineNum">     161 </span>            :     Counter&amp; samplerUpdateFailure() { return *_samplerUpdateFailure; }
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span>            :     const Counter&amp; samplerQueryFailure() const { return *_samplerQueryFailure; }
+<span class="lineNum">     164 </span>            : 
+<span class="lineNum">     165 </span>            :     Counter&amp; samplerQueryFailure() { return *_samplerQueryFailure; }
+<span class="lineNum">     166 </span>            : 
+<span class="lineNum">     167 </span>            :     const Counter&amp; samplerParsingFailure() const
+<span class="lineNum">     168 </span>            :     {
+<span class="lineNum">     169 </span>            :         return *_samplerParsingFailure;
+<span class="lineNum">     170 </span>            :     }
+<span class="lineNum">     171 </span>            : 
+<span class="lineNum">     172 </span>            :     Counter&amp; samplerParsingFailure() { return *_samplerParsingFailure; }
+<span class="lineNum">     173 </span>            : 
+<span class="lineNum">     174 </span>            :     const Counter&amp; baggageUpdateSuccess() const
+<span class="lineNum">     175 </span>            :     {
+<span class="lineNum">     176 </span>            :         return *_baggageUpdateSuccess;
+<span class="lineNum">     177 </span>            :     }
+<span class="lineNum">     178 </span>            : 
+<span class="lineNum">     179 </span>            :     Counter&amp; baggageUpdateSuccess() { return *_baggageUpdateSuccess; }
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span>            :     const Counter&amp; baggageUpdateFailure() const
+<span class="lineNum">     182 </span>            :     {
+<span class="lineNum">     183 </span>            :         return *_baggageUpdateFailure;
+<span class="lineNum">     184 </span>            :     }
+<span class="lineNum">     185 </span>            : 
+<span class="lineNum">     186 </span>            :     Counter&amp; baggageUpdateFailure() { return *_baggageUpdateFailure; }
+<span class="lineNum">     187 </span>            : 
+<span class="lineNum">     188 </span>            :     const Counter&amp; baggageTruncate() const { return *_baggageTruncate; }
+<span class="lineNum">     189 </span>            : 
+<span class="lineNum">     190 </span>            :     Counter&amp; baggageTruncate() { return *_baggageTruncate; }
+<span class="lineNum">     191 </span>            : 
+<span class="lineNum">     192 </span>            :     const Counter&amp; baggageRestrictionsUpdateSuccess() const
+<span class="lineNum">     193 </span>            :     {
+<span class="lineNum">     194 </span>            :         return *_baggageRestrictionsUpdateSuccess;
+<span class="lineNum">     195 </span>            :     }
+<span class="lineNum">     196 </span>            : 
+<span class="lineNum">     197 </span>            :     Counter&amp; baggageRestrictionsUpdateSuccess()
+<span class="lineNum">     198 </span>            :     {
+<span class="lineNum">     199 </span>            :         return *_baggageRestrictionsUpdateSuccess;
+<span class="lineNum">     200 </span>            :     }
+<span class="lineNum">     201 </span>            : 
+<span class="lineNum">     202 </span>            :     const Counter&amp; baggageRestrictionsUpdateFailure() const
+<span class="lineNum">     203 </span>            :     {
+<span class="lineNum">     204 </span>            :         return *_baggageRestrictionsUpdateFailure;
+<span class="lineNum">     205 </span>            :     }
+<span class="lineNum">     206 </span>            : 
+<span class="lineNum">     207 </span>            :     Counter&amp; baggageRestrictionsUpdateFailure()
+<span class="lineNum">     208 </span>            :     {
+<span class="lineNum">     209 </span>            :         return *_baggageRestrictionsUpdateFailure;
+<span class="lineNum">     210 </span>            :     }
+<span class="lineNum">     211 </span>            : 
+<span class="lineNum">     212 </span>            :   private:
+<span class="lineNum">     213 </span>            :     std::unique_ptr&lt;Counter&gt; _tracesStartedSampled;
+<span class="lineNum">     214 </span>            :     std::unique_ptr&lt;Counter&gt; _tracesStartedNotSampled;
+<span class="lineNum">     215 </span>            :     std::unique_ptr&lt;Counter&gt; _tracesJoinedSampled;
+<span class="lineNum">     216 </span>            :     std::unique_ptr&lt;Counter&gt; _tracesJoinedNotSampled;
+<span class="lineNum">     217 </span>            :     std::unique_ptr&lt;Counter&gt; _spansStarted;
+<span class="lineNum">     218 </span>            :     std::unique_ptr&lt;Counter&gt; _spansFinished;
+<span class="lineNum">     219 </span>            :     std::unique_ptr&lt;Counter&gt; _spansSampled;
+<span class="lineNum">     220 </span>            :     std::unique_ptr&lt;Counter&gt; _spansNotSampled;
+<span class="lineNum">     221 </span>            :     std::unique_ptr&lt;Counter&gt; _decodingErrors;
+<span class="lineNum">     222 </span>            :     std::unique_ptr&lt;Counter&gt; _reporterSuccess;
+<span class="lineNum">     223 </span>            :     std::unique_ptr&lt;Counter&gt; _reporterFailure;
+<span class="lineNum">     224 </span>            :     std::unique_ptr&lt;Counter&gt; _reporterDropped;
+<span class="lineNum">     225 </span>            :     std::unique_ptr&lt;Gauge&gt; _reporterQueueLength;
+<span class="lineNum">     226 </span>            :     std::unique_ptr&lt;Counter&gt; _samplerRetrieved;
+<span class="lineNum">     227 </span>            :     std::unique_ptr&lt;Counter&gt; _samplerUpdated;
+<span class="lineNum">     228 </span>            :     std::unique_ptr&lt;Counter&gt; _samplerUpdateFailure;
+<span class="lineNum">     229 </span>            :     std::unique_ptr&lt;Counter&gt; _samplerQueryFailure;
+<span class="lineNum">     230 </span>            :     std::unique_ptr&lt;Counter&gt; _samplerParsingFailure;
+<span class="lineNum">     231 </span>            :     std::unique_ptr&lt;Counter&gt; _baggageUpdateSuccess;
+<span class="lineNum">     232 </span>            :     std::unique_ptr&lt;Counter&gt; _baggageUpdateFailure;
+<span class="lineNum">     233 </span>            :     std::unique_ptr&lt;Counter&gt; _baggageTruncate;
+<span class="lineNum">     234 </span>            :     std::unique_ptr&lt;Counter&gt; _baggageRestrictionsUpdateSuccess;
+<span class="lineNum">     235 </span>            :     std::unique_ptr&lt;Counter&gt; _baggageRestrictionsUpdateFailure;
+<span class="lineNum">     236 </span>            : };
+<span class="lineNum">     237 </span>            : 
+<span class="lineNum">     238 </span>            : }  // namespace metrics
+<span class="lineNum">     239 </span>            : }  // namespace jaegertracing
+<span class="lineNum">     240 </span>            : 
+<span class="lineNum">     241 </span>            : #endif  // JAEGERTRACING_METRICS_METRICS_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - report.info - /usr/local/include/jaegertracing/samplers/ProbabilisticSampler.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">usr/local/include/jaegertracing/samplers</a> - ProbabilisticSampler.h<span style="font-size: 80%;"> (source / <a href="ProbabilisticSampler.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">report.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2023-01-10 01:11:27</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * Copyright (c) 2017 Uber Technologies, Inc.
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       5 </span>            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>            :  * You may obtain a copy of the License at
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>            :  * limitations under the License.
+<span class="lineNum">      15 </span>            :  */
+<span class="lineNum">      16 </span>            : 
+<span class="lineNum">      17 </span>            : #ifndef JAEGERTRACING_SAMPLERS_PROBABILISTICSAMPLER_H
+<span class="lineNum">      18 </span>            : #define JAEGERTRACING_SAMPLERS_PROBABILISTICSAMPLER_H
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #include &quot;jaegertracing/Constants.h&quot;
+<span class="lineNum">      21 </span>            : #include &quot;jaegertracing/Tag.h&quot;
+<span class="lineNum">      22 </span>            : #include &quot;jaegertracing/TraceID.h&quot;
+<span class="lineNum">      23 </span>            : #include &quot;jaegertracing/samplers/Sampler.h&quot;
+<span class="lineNum">      24 </span>            : #include &quot;jaegertracing/samplers/SamplingStatus.h&quot;
+<span class="lineNum">      25 </span>            : #include &lt;algorithm&gt;
+<span class="lineNum">      26 </span>            : #include &lt;cstdint&gt;
+<span class="lineNum">      27 </span>            : #include &lt;limits&gt;
+<span class="lineNum">      28 </span>            : #include &lt;string&gt;
+<span class="lineNum">      29 </span>            : #include &lt;vector&gt;
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : namespace jaegertracing {
+<a name="32"><span class="lineNum">      32 </span>            : namespace samplers {</a>
+<span class="lineNum">      33 </span>            : 
+<a name="34"><span class="lineNum">      34 </span><span class="lineNoCov">          0 : class ProbabilisticSampler : public Sampler {</span></a>
+<span class="lineNum">      35 </span>            :   public:
+<span class="lineNum">      36 </span><span class="lineNoCov">          0 :     explicit ProbabilisticSampler(double samplingRate)</span>
+<span class="lineNum">      37 </span><span class="lineNoCov">          0 :         : _samplingRate(std::max(0.0, std::min(samplingRate, 1.0)))</span>
+<span class="lineNum">      38 </span><span class="lineNoCov">          0 :         , _samplingBoundary(computeSamplingBoundary(_samplingRate))</span>
+<span class="lineNum">      39 </span>            :         , _tags({ { kSamplerTypeTagKey, kSamplerTypeProbabilistic },
+<span class="lineNum">      40 </span><span class="lineNoCov">          0 :                   { kSamplerParamTagKey, _samplingRate } })</span>
+<span class="lineNum">      41 </span>            :     {
+<span class="lineNum">      42 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">      43 </span>            : 
+<a name="44"><span class="lineNum">      44 </span>            :     double samplingRate() const { return _samplingRate; }</a>
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 :     SamplingStatus isSampled(const TraceID&amp; id,</span>
+<span class="lineNum">      47 </span>            :                              const std::string&amp; operation) override
+<span class="lineNum">      48 </span>            :     {
+<span class="lineNum">      49 </span><span class="lineNoCov">          0 :         return SamplingStatus(_samplingBoundary &gt;= id.low(), _tags);</span>
+<a name="50"><span class="lineNum">      50 </span>            :     }</a>
+<span class="lineNum">      51 </span>            : 
+<a name="52"><span class="lineNum">      52 </span><span class="lineNoCov">          0 :     void close() override {}</span></a>
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span><span class="lineNoCov">          0 :     Type type() const override { return Type::kProbabilisticSampler; }</span>
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            :   private:
+<span class="lineNum">      57 </span>            :     static constexpr auto kMaxRandomNumber =
+<span class="lineNum">      58 </span>            :         std::numeric_limits&lt;uint64_t&gt;::max();
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span>            :     double _samplingRate;
+<span class="lineNum">      61 </span>            :     uint64_t _samplingBoundary;
+<a name="62"><span class="lineNum">      62 </span>            :     std::vector&lt;Tag&gt; _tags;</a>
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :     static uint64_t computeSamplingBoundary(long double samplingRate)</span>
+<span class="lineNum">      65 </span>            :     {
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :         const auto maxRandNumber = static_cast&lt;long double&gt;(kMaxRandomNumber);</span>
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :         const auto samplingBoundary = samplingRate * maxRandNumber;</span>
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span>            :         // Protect against overflow in case samplingBoundary rounds
+<span class="lineNum">      70 </span>            :         // higher than kMaxRandNumber.
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :         if (samplingBoundary == maxRandNumber) {</span>
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :             return kMaxRandomNumber;</span>
+<span class="lineNum">      73 </span>            :         }
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :         return static_cast&lt;uint64_t&gt;(samplingBoundary);</span>
+<span class="lineNum">      76 </span>            :     }
+<span class="lineNum">      77 </span>            : };
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span>            : }  // namespace samplers
+<span class="lineNum">      80 </span>            : }  // namespace jaegertracing
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span>            : #endif  // JAEGERTRACING_SAMPLERS_PROBABILISTICSAMPLER_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
