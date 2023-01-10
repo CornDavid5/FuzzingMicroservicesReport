@@ -1,5 +1,6 @@
 # How to Run
 Following steps is for `docker compose` deployment:
+- run `docker build -t yg397/media-microservices:local .`
 - run `docker compose up -d`
 - populate database, `cd scripts && python3 write_movie_info.py && ./register_users.sh && ./register_movies.sh && cd ..`
 - test it, `'curl -X POST http://localhost:8080/wrk2-api/cast-info/write -H "Content-Type: application/json" -d '{ "cast_info_id": 123456, "name": "alpaca", "gender": "male", "intro": "nice" }'`
@@ -11,7 +12,7 @@ This project provides Python scripts to test all of business logic related servi
 - you may need to remove all exited container generated from `How to Run` section to prevent `duplicated key` error.
 - run `docker build -t yg397/media-microservices:local .`
 - run `docker compose up`
-- go to test folder, enable virtual environment, run `./run-test.bash`
+- go to test folder, enable virtual environment, run `./run-test.bash` twice
 - terminate docker containers, then restart docker containers
 - you have to do the following command for each service, change the service name for different services
 - ssh into the docker container, `docker exec -it <container-id> bash`
