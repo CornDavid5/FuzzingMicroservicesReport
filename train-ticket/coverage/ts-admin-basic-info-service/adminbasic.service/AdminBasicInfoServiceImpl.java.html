@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AdminBasicInfoServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ts-admin-basic-info-service</a> &gt; <a href="index.source.html" class="el_package">adminbasic.service</a> &gt; <span class="el_source">AdminBasicInfoServiceImpl.java</span></div><h1>AdminBasicInfoServiceImpl.java</h1><pre class="source lang-java linenums">package adminbasic.service;
+
+import adminbasic.entity.*;
+import edu.fudan.common.entity.Config;
+import edu.fudan.common.entity.Contacts;
+import edu.fudan.common.entity.Station;
+import edu.fudan.common.entity.TrainType;
+import edu.fudan.common.util.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+
+/**
+ * @author fdse
+ */
+@Service
+<span class="fc" id="L25">public class AdminBasicInfoServiceImpl implements AdminBasicInfoService {</span>
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Autowired
+    private DiscoveryClient discoveryClient;
+
+<span class="fc" id="L33">    private static final Logger LOGGER = LoggerFactory.getLogger(AdminBasicInfoServiceImpl.class);</span>
+
+    private String getServiceUrl(String serviceName) {
+<span class="fc" id="L36">        return &quot;http://&quot; + serviceName;</span>
+    }
+
+    @Override
+    public Response getAllContacts(HttpHeaders headers) {
+        Response result;
+<span class="fc" id="L42">        HttpEntity requestEntity = new HttpEntity(headers);</span>
+<span class="fc" id="L43">        String contacts_service_url = getServiceUrl(&quot;ts-contacts-service&quot;);</span>
+<span class="fc" id="L44">        ResponseEntity&lt;Response&gt; re = restTemplate.exchange(</span>
+<span class="fc" id="L45">                contacts_service_url + &quot;/api/v1/contactservice/contacts&quot;,</span>
+<span class="fc" id="L46">                HttpMethod.GET,</span>
+<span class="fc" id="L47">                requestEntity,</span>
+<span class="fc" id="L48">                Response.class);</span>
+<span class="fc" id="L49">        result = re.getBody();</span>
+
+<span class="fc" id="L51">        return result;</span>
+    }
+
+    @Override
+    public Response deleteContact(String contactsId, HttpHeaders headers) {
+        Response result;
+<span class="fc" id="L57">        HttpEntity requestEntity = new HttpEntity(headers);</span>
+<span class="fc" id="L58">        String contacts_service_url = getServiceUrl(&quot;ts-contacts-service&quot;);</span>
+<span class="fc" id="L59">        ResponseEntity&lt;Response&gt; re = restTemplate.exchange(</span>
+<span class="fc" id="L60">                contacts_service_url + &quot;/api/v1/contactservice/contacts/&quot; + contactsId,</span>
+<span class="fc" id="L61">                HttpMethod.DELETE,</span>
+<span class="fc" id="L62">                requestEntity,</span>
+<span class="fc" id="L63">                Response.class);</span>
+<span class="fc" id="L64">        result = re.getBody();</span>
+
+<span class="fc" id="L66">        return result;</span>
+    }
+
+    @Override
+    public Response modifyContact(Contacts mci, HttpHeaders headers) {
+        Response result;
+<span class="fc" id="L72">        HttpEntity requestEntity = new HttpEntity(mci, headers);</span>
+<span class="fc" id="L73">        String contacts_service_url = getServiceUrl(&quot;ts-contacts-service&quot;);</span>
+<span class="fc" id="L74">        ResponseEntity&lt;Response&gt; re = restTemplate.exchange(</span>
+<span class="fc" id="L75">                contacts_service_url + &quot;/api/v1/contactservice/contacts&quot;,</span>
+<span class="fc" id="L76">                HttpMethod.PUT,</span>
+<span class="fc" id="L77">                requestEntity,</span>
+<span class="fc" id="L78">                Response.class);</span>
+<span class="fc" id="L79">        result = re.getBody();</span>
+
+<span class="fc" id="L81">        return result;</span>
+    }
+
+
+    @Override
+    public Response addContact(Contacts c, HttpHeaders headers) {
+        Response result;
+<span class="fc" id="L88">        HttpEntity requestEntity = new HttpEntity(c, headers);</span>
+<span class="fc" id="L89">        String contacts_service_url = getServiceUrl(&quot;ts-contacts-service&quot;);</span>
+<span class="fc" id="L90">        ResponseEntity&lt;Response&gt; re = restTemplate.exchange(</span>
+<span class="fc" id="L91">                contacts_service_url + &quot;/api/v1/contactservice/contacts/admin&quot;,</span>
+<span class="fc" id="L92">                HttpMethod.POST,</span>
+<span class="fc" id="L93">                requestEntity,</span>
+<span class="fc" id="L94">                Response.class);</span>
+<span class="fc" id="L95">        result = re.getBody();</span>
+
+<span class="fc" id="L97">        return result;</span>
+    }
+
+    @Override
+    public Response getAllStations(HttpHeaders headers) {
+<span class="fc" id="L102">        HttpEntity requestEntity = new HttpEntity(headers);</span>
+<span class="fc" id="L103">        String station_service_url = getServiceUrl(&quot;ts-station-service&quot;);</span>
+<span class="fc" id="L104">        String stations = station_service_url + &quot;/api/v1/stationservice/stations&quot;;</span>
+<span class="fc" id="L105">        ResponseEntity&lt;Response&gt; re = restTemplate.exchange(</span>
+<span class="fc" id="L106">                stations,</span>
+<span class="fc" id="L107">                HttpMethod.GET,</span>
+<span class="fc" id="L108">                requestEntity,</span>
+<span class="fc" id="L109">                Response.class);</span>
+
+<span class="fc" id="L111">        return re.getBody();</span>
+
+
+    }
+
+    @Override
+    public Response addStation(Station s, HttpHeaders headers) {
+        Response result;
+<span class="fc" id="L119">        HttpEntity requestEntity = new HttpEntity(s, headers);</span>
+<span class="fc" id="L120">        String station_service_url = getServiceUrl(&quot;ts-station-service&quot;);</span>
+<span class="fc" id="L121">        String stations = station_service_url + &quot;/api/v1/stationservice/stations&quot;;</span>
+<span class="fc" id="L122">        ResponseEntity&lt;Response&gt; re = restTemplate.exchange(</span>
+<span class="fc" id="L123">                stations,</span>
+<span class="fc" id="L124">                HttpMethod.POST,</span>
+<span class="fc" id="L125">                requestEntity,</span>
+<span class="fc" id="L126">                Response.class);</span>
+<span class="fc" id="L127">        result = re.getBody();</span>
+<span class="fc" id="L128">        return result;</span>
+    }
+
+    @Override
+    public Response deleteStation(String id, HttpHeaders headers) {
+        Response result;
+<span class="fc" id="L134">        HttpEntity requestEntity = new HttpEntity(headers);</span>
+<span class="fc" id="L135">        String station_service_url = getServiceUrl(&quot;ts-station-service&quot;);</span>
+<span class="fc" id="L136">        String path = station_service_url + &quot;/api/v1/stationservice/stations/&quot; + id;</span>
+<span class="fc" id="L137">        ResponseEntity&lt;Response&gt; re = restTemplate.exchange(</span>
+<span class="fc" id="L138">                path,</span>
+<span class="fc" id="L139">                HttpMethod.DELETE,</span>
+<span class="fc" id="L140">                requestEntity,</span>
+<span class="fc" id="L141">                Response.class);</span>
+<span class="fc" id="L142">        result = re.getBody();</span>
+<span class="fc" id="L143">        return result;</span>
+    }
+
+    @Override
+    public Response modifyStation(Station s, HttpHeaders headers) {
+        Response result;
+<span class="fc" id="L149">        HttpEntity requestEntity = new HttpEntity(s, headers);</span>
+<span class="fc" id="L150">        String station_service_url = getServiceUrl(&quot;ts-station-service&quot;);</span>
+<span class="fc" id="L151">        String stations = station_service_url + &quot;/api/v1/stationservice/stations&quot;;</span>
+<span class="fc" id="L152">        ResponseEntity&lt;Response&gt; re = restTemplate.exchange(</span>
+<span class="fc" id="L153">                stations,</span>
+<span class="fc" id="L154">                HttpMethod.PUT,</span>
+<span class="fc" id="L155">                requestEntity,</span>
+<span class="fc" id="L156">                Response.class);</span>
+<span class="fc" id="L157">        result = re.getBody();</span>
+
+<span class="fc" id="L159">        return result;</span>
+
+    }
+
+    @Override
+    public Response getAllTrains(HttpHeaders headers) {
+<span class="fc" id="L165">        HttpEntity requestEntity = new HttpEntity(headers);</span>
+<span class="fc" id="L166">        String train_service_url = getServiceUrl(&quot;ts-train-service&quot;);</span>
+<span class="fc" id="L167">        String trains = train_service_url + &quot;/api/v1/trainservice/trains&quot;;</span>
+<span class="fc" id="L168">        ResponseEntity&lt;Response&gt; re = restTemplate.exchange(</span>
+<span class="fc" id="L169">                trains,</span>
+<span class="fc" id="L170">                HttpMethod.GET,</span>
+<span class="fc" id="L171">                requestEntity,</span>
+<span class="fc" id="L172">                Response.class);</span>
+
+<span class="fc" id="L174">        return re.getBody();</span>
+
+    }
+
+    @Override
+    public Response addTrain(TrainType t, HttpHeaders headers) {
+        Response result;
+<span class="fc" id="L181">        HttpEntity requestEntity = new HttpEntity(t, headers);</span>
+<span class="fc" id="L182">        String train_service_url = getServiceUrl(&quot;ts-train-service&quot;);</span>
+<span class="fc" id="L183">        String trains = train_service_url + &quot;/api/v1/trainservice/trains&quot;;</span>
+<span class="fc" id="L184">        ResponseEntity&lt;Response&gt; re = restTemplate.exchange(</span>
+<span class="fc" id="L185">                trains,</span>
+<span class="fc" id="L186">                HttpMethod.POST,</span>
+<span class="fc" id="L187">                requestEntity,</span>
+<span class="fc" id="L188">                Response.class);</span>
+<span class="fc" id="L189">        result = re.getBody();</span>
+<span class="fc" id="L190">        return result;</span>
+
+    }
+
+    @Override
+    public Response deleteTrain(String id, HttpHeaders headers) {
+        Response result;
+<span class="fc" id="L197">        HttpEntity requestEntity = new HttpEntity(headers);</span>
+<span class="fc" id="L198">        String train_service_url = getServiceUrl(&quot;ts-train-service&quot;);</span>
+<span class="fc" id="L199">        ResponseEntity&lt;Response&gt; re = restTemplate.exchange(</span>
+<span class="fc" id="L200">                train_service_url + &quot;/api/v1/trainservice/trains/&quot; + id,</span>
+<span class="fc" id="L201">                HttpMethod.DELETE,</span>
+<span class="fc" id="L202">                requestEntity,</span>
+<span class="fc" id="L203">                Response.class);</span>
+<span class="fc" id="L204">        result = re.getBody();</span>
+<span class="fc" id="L205">        return result;</span>
+    }
+
+    @Override
+    public Response modifyTrain(TrainType t, HttpHeaders headers) {
+        Response result;
+<span class="fc" id="L211">        HttpEntity requestEntity = new HttpEntity(t, headers);</span>
+<span class="fc" id="L212">        String train_service_url = getServiceUrl(&quot;ts-train-service&quot;);</span>
+<span class="fc" id="L213">        String trains = train_service_url + &quot;/api/v1/trainservice/trains&quot;;</span>
+<span class="fc" id="L214">        ResponseEntity&lt;Response&gt; re = restTemplate.exchange(</span>
+<span class="fc" id="L215">                trains,</span>
+<span class="fc" id="L216">                HttpMethod.PUT,</span>
+<span class="fc" id="L217">                requestEntity,</span>
+<span class="fc" id="L218">                Response.class);</span>
+<span class="fc" id="L219">        result = re.getBody();</span>
+<span class="fc" id="L220">        return result;</span>
+    }
+
+    @Override
+    public Response getAllConfigs(HttpHeaders headers) {
+<span class="fc" id="L225">        HttpEntity requestEntity = new HttpEntity(headers);</span>
+<span class="fc" id="L226">        String config_service_url = getServiceUrl(&quot;ts-config-service&quot;);</span>
+<span class="fc" id="L227">        String configs = config_service_url + &quot;/api/v1/configservice/configs&quot;;</span>
+<span class="fc" id="L228">        ResponseEntity&lt;Response&gt; re = restTemplate.exchange(</span>
+<span class="fc" id="L229">                configs,</span>
+<span class="fc" id="L230">                HttpMethod.GET,</span>
+<span class="fc" id="L231">                requestEntity,</span>
+<span class="fc" id="L232">                Response.class);</span>
+
+<span class="fc" id="L234">        return re.getBody();</span>
+    }
+
+    @Override
+    public Response addConfig(Config c, HttpHeaders headers) {
+<span class="fc" id="L239">        HttpEntity requestEntity = new HttpEntity(c, headers);</span>
+<span class="fc" id="L240">        String config_service_url = getServiceUrl(&quot;ts-config-service&quot;);</span>
+<span class="fc" id="L241">        String configs = config_service_url + &quot;/api/v1/configservice/configs&quot;;</span>
+<span class="fc" id="L242">        ResponseEntity&lt;Response&gt; re = restTemplate.exchange(</span>
+<span class="fc" id="L243">                configs,</span>
+<span class="fc" id="L244">                HttpMethod.POST,</span>
+<span class="fc" id="L245">                requestEntity,</span>
+<span class="fc" id="L246">                Response.class);</span>
+<span class="fc" id="L247">        return re.getBody();</span>
+    }
+
+    @Override
+    public Response deleteConfig(String name, HttpHeaders headers) {
+<span class="fc" id="L252">        HttpEntity requestEntity = new HttpEntity(headers);</span>
+<span class="fc" id="L253">        String config_service_url = getServiceUrl(&quot;ts-config-service&quot;);</span>
+<span class="fc" id="L254">        ResponseEntity&lt;Response&gt; re = restTemplate.exchange(</span>
+<span class="fc" id="L255">                config_service_url + &quot;/api/v1/configservice/configs/&quot; + name,</span>
+<span class="fc" id="L256">                HttpMethod.DELETE,</span>
+<span class="fc" id="L257">                requestEntity,</span>
+<span class="fc" id="L258">                Response.class);</span>
+<span class="fc" id="L259">        return re.getBody();</span>
+    }
+
+    @Override
+    public Response modifyConfig(Config c, HttpHeaders headers) {
+<span class="fc" id="L264">        HttpEntity requestEntity = new HttpEntity(c, headers);</span>
+<span class="fc" id="L265">        String config_service_url = getServiceUrl(&quot;ts-config-service&quot;);</span>
+<span class="fc" id="L266">        String configs = config_service_url + &quot;/api/v1/configservice/configs&quot;;</span>
+<span class="fc" id="L267">        ResponseEntity&lt;Response&gt; re = restTemplate.exchange(</span>
+<span class="fc" id="L268">                configs,</span>
+<span class="fc" id="L269">                HttpMethod.PUT,</span>
+<span class="fc" id="L270">                requestEntity,</span>
+<span class="fc" id="L271">                Response.class);</span>
+<span class="fc" id="L272">        return re.getBody();</span>
+    }
+
+    @Override
+    public Response getAllPrices(HttpHeaders headers) {
+<span class="fc" id="L277">        HttpEntity requestEntity = new HttpEntity(headers);</span>
+<span class="fc" id="L278">        String price_service_url = getServiceUrl(&quot;ts-price-service&quot;);</span>
+<span class="fc" id="L279">        String prices = price_service_url + &quot;/api/v1/priceservice/prices&quot;;</span>
+<span class="fc" id="L280">        ResponseEntity&lt;Response&gt; re = restTemplate.exchange(</span>
+<span class="fc" id="L281">                prices,</span>
+<span class="fc" id="L282">                HttpMethod.GET,</span>
+<span class="fc" id="L283">                requestEntity,</span>
+<span class="fc" id="L284">                Response.class);</span>
+<span class="fc" id="L285">        return re.getBody();</span>
+    }
+
+    @Override
+    public Response addPrice(PriceInfo pi, HttpHeaders headers) {
+<span class="fc" id="L290">        HttpEntity requestEntity = new HttpEntity(pi, headers);</span>
+<span class="fc" id="L291">        String price_service_url = getServiceUrl(&quot;ts-price-service&quot;);</span>
+<span class="fc" id="L292">        String prices = price_service_url + &quot;/api/v1/priceservice/prices&quot;;</span>
+<span class="fc" id="L293">        ResponseEntity&lt;Response&gt; re = restTemplate.exchange(</span>
+<span class="fc" id="L294">                prices,</span>
+<span class="fc" id="L295">                HttpMethod.POST,</span>
+<span class="fc" id="L296">                requestEntity,</span>
+<span class="fc" id="L297">                Response.class);</span>
+<span class="fc" id="L298">        return re.getBody();</span>
+
+    }
+
+    @Override
+    public Response deletePrice(String pricesId, HttpHeaders headers) {
+<span class="fc" id="L304">        HttpEntity requestEntity = new HttpEntity(headers);</span>
+<span class="fc" id="L305">        String price_service_url = getServiceUrl(&quot;ts-price-service&quot;);</span>
+<span class="fc" id="L306">        String path = price_service_url + &quot;/api/v1/priceservice/prices/&quot; + pricesId;</span>
+<span class="fc" id="L307">        ResponseEntity&lt;Response&gt; re = restTemplate.exchange(</span>
+<span class="fc" id="L308">                path,</span>
+<span class="fc" id="L309">                HttpMethod.DELETE,</span>
+<span class="fc" id="L310">                requestEntity,</span>
+<span class="fc" id="L311">                Response.class);</span>
+
+<span class="fc" id="L313">        return re.getBody();</span>
+    }
+
+    @Override
+    public Response modifyPrice(PriceInfo pi, HttpHeaders headers) {
+<span class="fc" id="L318">        HttpEntity requestEntity = new HttpEntity(pi, headers);</span>
+<span class="fc" id="L319">        String price_service_url = getServiceUrl(&quot;ts-price-service&quot;);</span>
+<span class="fc" id="L320">        String prices = price_service_url + &quot;/api/v1/priceservice/prices&quot;;</span>
+<span class="fc" id="L321">        ResponseEntity&lt;Response&gt; re = restTemplate.exchange(</span>
+<span class="fc" id="L322">                prices,</span>
+<span class="fc" id="L323">                HttpMethod.PUT,</span>
+<span class="fc" id="L324">                requestEntity,</span>
+<span class="fc" id="L325">                Response.class);</span>
+<span class="fc" id="L326">        return re.getBody();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -1,0 +1,10 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+ts-admin-user-service,adminuser.service,AdminUserServiceImpl.new ParameterizedTypeReference() {...},0,6,0,0,0,1,0,1,0,1
+ts-admin-user-service,adminuser.service,AdminUserServiceImpl,47,267,8,8,8,57,8,7,0,7
+ts-admin-user-service,adminuser.service,AdminUserServiceImpl.new ParameterizedTypeReference() {...},0,6,0,0,0,1,0,1,0,1
+ts-admin-user-service,adminuser.dto,UserDto.UserDtoBuilder,97,0,0,0,1,0,10,0,10,0
+ts-admin-user-service,adminuser.dto,UserDto,261,73,50,0,2,3,35,11,10,11
+ts-admin-user-service,adminuser,AdminUserApplication,11,0,0,0,4,0,3,0,3,0
+ts-admin-user-service,adminuser.controller,AdminUserController,0,53,0,0,0,11,0,7,0,7
+ts-admin-user-service,adminuser.config,SecurityConfig.new WebMvcConfigurerAdapter() {...},36,0,0,0,8,0,2,0,2,0
+ts-admin-user-service,adminuser.config,SecurityConfig,80,0,0,0,16,0,4,0,4,0

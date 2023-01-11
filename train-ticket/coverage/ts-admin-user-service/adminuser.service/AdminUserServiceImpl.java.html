@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AdminUserServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ts-admin-user-service</a> &gt; <a href="index.source.html" class="el_package">adminuser.service</a> &gt; <span class="el_source">AdminUserServiceImpl.java</span></div><h1>AdminUserServiceImpl.java</h1><pre class="source lang-java linenums">package adminuser.service;
+
+import adminuser.dto.UserDto;
+import edu.fudan.common.entity.User;
+import edu.fudan.common.util.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+
+import java.util.List;
+
+/**
+ * @author fdse
+ */
+@Service
+<span class="fc" id="L25">public class AdminUserServiceImpl implements AdminUserService {</span>
+    @Autowired
+    private RestTemplate restTemplate;
+    @Autowired
+    private DiscoveryClient discoveryClient;
+
+<span class="fc" id="L31">    private static final Logger LOGGER = LoggerFactory.getLogger(AdminUserServiceImpl.class);</span>
+//    @Value(&quot;${user-service.url}&quot;)
+//    String user_service_url;
+//    private final String USER_SERVICE_IP_URI = user_service_url + &quot;/api/v1/userservice/users&quot;;
+
+    private String getServiceUrl(String serviceName) {
+<span class="fc" id="L37">        return &quot;http://&quot; + serviceName;</span>
+    }
+
+    @Override
+    public Response getAllUsers(HttpHeaders headers) {
+<span class="fc" id="L42">        HttpEntity requestEntity = new HttpEntity(null);</span>
+<span class="fc" id="L43">        String user_service_url = getServiceUrl(&quot;ts-user-service&quot;);</span>
+<span class="fc" id="L44">        String USER_SERVICE_IP_URI = user_service_url + &quot;/api/v1/userservice/users&quot;;</span>
+<span class="fc" id="L45">        ResponseEntity&lt;Response&lt;List&lt;User&gt;&gt;&gt; re = restTemplate.exchange(</span>
+<span class="fc" id="L46">                USER_SERVICE_IP_URI,</span>
+<span class="fc" id="L47">                HttpMethod.GET,</span>
+<span class="fc" id="L48">                requestEntity,</span>
+<span class="fc" id="L49">                new ParameterizedTypeReference&lt;Response&lt;List&lt;User&gt;&gt;&gt;() {</span>
+                });
+<span class="pc bpc" id="L51" title="2 of 4 branches missed.">        if (re.getBody() == null || re.getBody().getStatus() != 1) {</span>
+<span class="nc" id="L52">            AdminUserServiceImpl.LOGGER.error(&quot;[getAllUsers][receive response][Get All Users error]&quot;);</span>
+<span class="nc" id="L53">            return new Response&lt;&gt;(0, &quot;get all users error&quot;, null);</span>
+        }
+<span class="fc" id="L55">        AdminUserServiceImpl.LOGGER.info(&quot;[getAllUsers][Get All Users][success]&quot;);</span>
+<span class="fc" id="L56">        return re.getBody();</span>
+    }
+
+
+    @Override
+    public Response deleteUser(String userId, HttpHeaders headers) {
+<span class="fc" id="L62">        HttpHeaders newHeaders = new HttpHeaders();</span>
+<span class="fc" id="L63">        String token = headers.getFirst(HttpHeaders.AUTHORIZATION);</span>
+<span class="fc" id="L64">        newHeaders.set(HttpHeaders.AUTHORIZATION, token);</span>
+
+<span class="fc" id="L66">        HttpEntity&lt;Response&gt; requestEntity = new HttpEntity&lt;&gt;(newHeaders);</span>
+
+<span class="fc" id="L68">        String user_service_url = getServiceUrl(&quot;ts-user-service&quot;);</span>
+<span class="fc" id="L69">        String USER_SERVICE_IP_URI = user_service_url + &quot;/api/v1/userservice/users&quot;;</span>
+<span class="fc" id="L70">        ResponseEntity&lt;Response&gt; re = restTemplate.exchange(</span>
+<span class="fc" id="L71">                USER_SERVICE_IP_URI + &quot;/&quot; + userId,</span>
+<span class="fc" id="L72">                HttpMethod.DELETE,</span>
+<span class="fc" id="L73">                requestEntity,</span>
+<span class="fc" id="L74">                Response.class);</span>
+<span class="pc bpc" id="L75" title="2 of 4 branches missed.">        if (re.getBody() == null || re.getBody().getStatus() != 1) {</span>
+<span class="nc" id="L76">            AdminUserServiceImpl.LOGGER.error(&quot;[deleteUser][receive response][Delete user error][userId: {}]&quot;, userId);</span>
+<span class="nc" id="L77">            return new Response&lt;&gt;(0, &quot;delete user error&quot;, null);</span>
+        }
+<span class="fc" id="L79">        AdminUserServiceImpl.LOGGER.info(&quot;[deleteUser][Delete user success][userId: {}]&quot;, userId);</span>
+<span class="fc" id="L80">        return re.getBody();</span>
+    }
+
+    @Override
+    public Response updateUser(UserDto userDto, HttpHeaders headers) {
+<span class="fc" id="L85">        LOGGER.info(&quot;UPDATE USER: &quot; + userDto.toString());</span>
+
+<span class="fc" id="L87">        HttpHeaders newHeaders = new HttpHeaders();</span>
+<span class="fc" id="L88">        String token = headers.getFirst(HttpHeaders.AUTHORIZATION);</span>
+<span class="fc" id="L89">        newHeaders.set(HttpHeaders.AUTHORIZATION, token);</span>
+
+<span class="fc" id="L91">        HttpEntity requestEntity = new HttpEntity(userDto, newHeaders);</span>
+<span class="fc" id="L92">        String user_service_url = getServiceUrl(&quot;ts-user-service&quot;);</span>
+<span class="fc" id="L93">        String USER_SERVICE_IP_URI = user_service_url + &quot;/api/v1/userservice/users&quot;;</span>
+<span class="fc" id="L94">        ResponseEntity&lt;Response&gt; re = restTemplate.exchange(</span>
+<span class="fc" id="L95">                USER_SERVICE_IP_URI,</span>
+<span class="fc" id="L96">                HttpMethod.PUT,</span>
+<span class="fc" id="L97">                requestEntity,</span>
+<span class="fc" id="L98">                Response.class);</span>
+
+<span class="fc" id="L100">        String userName = userDto.getUserName();</span>
+<span class="pc bpc" id="L101" title="2 of 4 branches missed.">        if (re.getBody() == null || re.getBody().getStatus() != 1) {</span>
+<span class="nc" id="L102">            AdminUserServiceImpl.LOGGER.error(&quot;[updateUser][receive response][Update user error][userName: {}]&quot;, userName);</span>
+<span class="nc" id="L103">            return new Response&lt;&gt;(0, &quot;Update user error&quot;, null);</span>
+        }
+<span class="fc" id="L105">        AdminUserServiceImpl.LOGGER.info(&quot;[updateUser][Update user success][userName: {}]&quot;, userName);</span>
+<span class="fc" id="L106">        return re.getBody();</span>
+    }
+
+    @Override
+    public Response addUser(UserDto userDto, HttpHeaders headers) {
+<span class="fc" id="L111">        LOGGER.info(&quot;[addUser][ADD USER INFO][UserDto: {}]&quot;, userDto.toString());</span>
+<span class="fc" id="L112">        HttpEntity requestEntity = new HttpEntity(userDto, null);</span>
+<span class="fc" id="L113">        String user_service_url = getServiceUrl(&quot;ts-user-service&quot;);</span>
+<span class="fc" id="L114">        String USER_SERVICE_IP_URI = user_service_url + &quot;/api/v1/userservice/users&quot;;</span>
+<span class="fc" id="L115">        ResponseEntity&lt;Response&lt;User&gt;&gt; re = restTemplate.exchange(</span>
+<span class="fc" id="L116">                USER_SERVICE_IP_URI + &quot;/register&quot;,</span>
+<span class="fc" id="L117">                HttpMethod.POST,</span>
+<span class="fc" id="L118">                requestEntity,</span>
+<span class="fc" id="L119">                new ParameterizedTypeReference&lt;Response&lt;User&gt;&gt;() {</span>
+                });
+
+<span class="fc" id="L122">        String userName = userDto.getUserName();</span>
+<span class="pc bpc" id="L123" title="2 of 4 branches missed.">        if (re.getBody() == null || re.getBody().getStatus() != 1) {</span>
+<span class="nc" id="L124">            AdminUserServiceImpl.LOGGER.error(&quot;[addUser][receive response][Add user error][userName: {}]&quot;, userName);</span>
+<span class="nc" id="L125">            return new Response&lt;&gt;(0, &quot;Add user error&quot;, null);</span>
+        }
+<span class="fc" id="L127">        AdminUserServiceImpl.LOGGER.info(&quot;[addUser][Add user success][userName: {}]&quot;, userName);</span>
+<span class="fc" id="L128">        return re.getBody();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
