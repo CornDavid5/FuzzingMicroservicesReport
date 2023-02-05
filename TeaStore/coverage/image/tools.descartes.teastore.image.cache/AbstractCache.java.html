@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractCache.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeaStore Image Provider</a> &gt; <a href="index.source.html" class="el_package">tools.descartes.teastore.image.cache</a> &gt; <span class="el_source">AbstractCache.java</span></div><h1>AbstractCache.java</h1><pre class="source lang-java linenums">/**
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package tools.descartes.teastore.image.cache;
+
+import java.util.Collection;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Predicate;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import tools.descartes.teastore.image.cache.entry.ICachable;
+import tools.descartes.teastore.image.cache.entry.ICacheEntry;
+import tools.descartes.teastore.image.storage.IDataStorage;
+import tools.descartes.teastore.image.storage.NoStorage;
+
+/**
+ * Abstract base class for all cache implementations.
+ * @author Norbert Schmitt
+ *
+ * @param &lt;S&gt; Internal Storage Type.
+ * @param &lt;T&gt; Entry Type implementing ICachable.
+ * @param &lt;F&gt; Entry Wrapper Type.
+ */
+public abstract class AbstractCache&lt;S extends Collection&lt;F&gt;, T extends ICachable&lt;T&gt;, F extends ICacheEntry&lt;T&gt;&gt;
+    implements IDataCache&lt;T&gt; {
+
+  private IDataStorage&lt;T&gt; cachedStorage;
+  private S entries;
+  private long maxCacheSize;
+  private long currentCacheSize;
+  private Predicate&lt;T&gt; cachingRule;
+<span class="fc" id="L45">  private Logger log = LoggerFactory.getLogger(AbstractCache.class);</span>
+<span class="fc" id="L46">  private final ReadWriteLock lock = new ReentrantReadWriteLock();</span>
+
+  /**
+   * Basic abstract cache constructor for subclasses.  
+   * @param entries Collection to store entries.
+   * @param cachedStorage Storage object to query if an entry is not found in the cache.
+   * @param maxCacheSize Maximum memory used by the cache in bytes.
+   * @param cachingRule Caching rule determining if data should be cached.
+   */
+  public AbstractCache(S entries, IDataStorage&lt;T&gt; cachedStorage, long maxCacheSize,
+<span class="fc" id="L56">      Predicate&lt;T&gt; cachingRule) {</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">    if (entries == null) {</span>
+<span class="fc" id="L58">      log.error(&quot;The provided internal storage object is null.&quot;);</span>
+<span class="fc" id="L59">      throw new NullPointerException(&quot;The provided internal storage object is null.&quot;);</span>
+    }
+<span class="fc bfc" id="L61" title="All 2 branches covered.">    if (cachingRule == null) {</span>
+<span class="fc" id="L62">      log.error(&quot;The provided caching rule is null.&quot;);</span>
+<span class="fc" id="L63">      throw new NullPointerException(&quot;The provided caching rule is null.&quot;);</span>
+    }
+
+<span class="fc bfc" id="L66" title="All 2 branches covered.">    if (cachedStorage == null) {</span>
+<span class="fc" id="L67">      log.info(&quot;No underlying disk storage supplied, assuming no data is stored on disk.&quot;);</span>
+<span class="fc" id="L68">      this.cachedStorage = new NoStorage&lt;T&gt;();</span>
+    } else {
+<span class="fc" id="L70">      this.cachedStorage = cachedStorage;</span>
+    }
+<span class="fc" id="L72">    this.entries = entries;</span>
+<span class="fc" id="L73">    this.cachingRule = cachingRule;</span>
+<span class="fc" id="L74">    setMaxCacheSize(maxCacheSize);</span>
+<span class="fc" id="L75">  }</span>
+  
+  /**
+   * Returns the storage object queried if entry cannot be found in the cache.
+   * @return Storage object.
+   */
+  protected IDataStorage&lt;T&gt; getCachedStorage() {
+<span class="nc" id="L82">	  return cachedStorage;</span>
+  }
+  
+  /**
+   * Returns the collection containing all cached entries.
+   * @return Entry collection.
+   */
+  protected S getEntries() {
+<span class="fc" id="L90">	  return entries;</span>
+  }
+
+  private F findInEntries(long id) {
+<span class="fc bfc" id="L94" title="All 2 branches covered.">    return entries.stream().filter(entry -&gt; entry.getId() == id).findFirst().orElse(null);</span>
+  }
+
+  private T getData(long id, boolean markUsed) {
+<span class="fc" id="L98">    F data = null;</span>
+<span class="fc bfc" id="L99" title="All 2 branches covered.">    if (markUsed) {</span>
+<span class="fc" id="L100">      lock.writeLock().lock();</span>
+      try {
+<span class="fc" id="L102">        data = findInEntries(id);</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">        if (data != null) {</span>
+          // Set entries must be reordered. A change in the object itself will not trigger
+          // a reordering
+<span class="fc" id="L106">          reorderAndTag(data);</span>
+        }
+      } finally {
+<span class="fc" id="L109">        lock.writeLock().unlock();</span>
+<span class="fc" id="L110">      }</span>
+    } else {
+<span class="fc" id="L112">      lock.readLock().lock();</span>
+      try {
+<span class="fc" id="L114">        data = findInEntries(id);</span>
+      } finally {
+<span class="fc" id="L116">        lock.readLock().unlock();</span>
+      }
+    }
+<span class="fc bfc" id="L119" title="All 2 branches covered.">    if (data != null) {</span>
+<span class="fc" id="L120">      return data.getData();</span>
+    }
+<span class="fc" id="L122">    return null;</span>
+  }
+
+  /*
+   * Implementations for interface IDataCache
+   */
+
+  @Override
+  public long getMaxCacheSize() {
+<span class="fc" id="L131">    return maxCacheSize;</span>
+  }
+
+  @Override
+  public boolean setMaxCacheSize(long maxCacheSize) {
+<span class="fc bfc" id="L136" title="All 2 branches covered.">    if (maxCacheSize &lt;= 0) {</span>
+<span class="fc" id="L137">      log.error(&quot;The provided cache size is negative. Must be positive.&quot;);</span>
+<span class="fc" id="L138">      throw new IllegalArgumentException(&quot;The provided cache size is negative. Must be positive.&quot;);</span>
+    }
+
+<span class="fc" id="L141">    lock.writeLock().lock();</span>
+    try {
+<span class="fc" id="L143">      this.maxCacheSize = maxCacheSize;</span>
+      // If the new cache size is smaller than the old one, we might need to evict
+      // entries
+<span class="fc bfc" id="L146" title="All 2 branches covered.">      while (getFreeSpace() &lt; 0) {</span>
+<span class="fc" id="L147">        removeEntryByCachingStrategy();</span>
+      }
+    } finally {
+<span class="fc" id="L150">      lock.writeLock().unlock();</span>
+    }
+<span class="fc" id="L152">    return true;</span>
+  }
+
+  @Override
+  public long getCurrentCacheSize() {
+<span class="fc" id="L157">    long size = 0;</span>
+<span class="fc" id="L158">    lock.readLock().lock();</span>
+    try {
+<span class="fc" id="L160">      size = currentCacheSize;</span>
+    } finally {
+<span class="fc" id="L162">      lock.readLock().unlock();</span>
+    }
+<span class="fc" id="L164">    return size;</span>
+  }
+
+  @Override
+  public long getFreeSpace() {
+<span class="fc" id="L169">    return maxCacheSize - getCurrentCacheSize();</span>
+  }
+
+  @Override
+  public boolean hasStorageFor(long size) {
+<span class="fc bfc" id="L174" title="All 2 branches covered.">    return size &lt;= getFreeSpace();</span>
+  }
+
+  @Override
+  public void cacheData(T data) {
+<span class="fc bfc" id="L179" title="All 4 branches covered.">    if (!dataIsCachable(data) || dataIsInCache(data.getId())) {</span>
+<span class="fc" id="L180">      return;</span>
+    }
+
+<span class="fc bfc" id="L183" title="All 2 branches covered.">    if (data.getByteSize() &gt; maxCacheSize) {</span>
+<span class="fc" id="L184">      return;</span>
+    }
+
+<span class="fc" id="L187">    lock.writeLock().lock();</span>
+    try {
+<span class="fc bfc" id="L189" title="All 2 branches covered.">      while (!hasStorageFor(data.getByteSize())) {</span>
+<span class="fc" id="L190">        removeEntryByCachingStrategy();</span>
+      }
+<span class="fc" id="L192">      addEntry(createEntry(data));</span>
+    } finally {
+<span class="fc" id="L194">      lock.writeLock().unlock();</span>
+    }
+<span class="fc" id="L196">  }</span>
+
+  @Override
+  public void uncacheData(T data) {
+<span class="fc" id="L200">    lock.writeLock().lock();</span>
+    try {
+<span class="fc bfc" id="L202" title="All 2 branches covered.">      if (entries.remove(createEntry(data))) {</span>
+<span class="fc" id="L203">        dataRemovedFromCache(data.getByteSize());</span>
+      }
+    } finally {
+<span class="fc" id="L206">      lock.writeLock().unlock();</span>
+    }
+<span class="fc" id="L208">  }</span>
+
+  @Override
+  public boolean dataIsCachable(T data) {
+<span class="fc" id="L212">    return cachingRule.test(data);</span>
+  }
+
+  @Override
+  public boolean dataIsInCache(long id) {
+<span class="fc bfc" id="L217" title="All 2 branches covered.">    return getData(id, false) != null;</span>
+  }
+
+  @Override
+  public void clearCache() {
+<span class="fc" id="L222">    lock.writeLock().lock();</span>
+    try {
+<span class="fc" id="L224">      entries.clear();</span>
+<span class="fc" id="L225">      currentCacheSize = 0;</span>
+    } finally {
+<span class="fc" id="L227">      lock.writeLock().unlock();</span>
+    }
+<span class="fc" id="L229">  }</span>
+
+  /*
+   * Implementations for interface IDataStorage
+   */
+
+  @Override
+  public boolean dataExists(long id) {
+<span class="fc" id="L237">    boolean result = false;</span>
+<span class="fc" id="L238">    lock.readLock().lock();</span>
+    try {
+<span class="fc bfc" id="L240" title="All 2 branches covered.">      if (dataIsInCache(id)) {</span>
+<span class="fc" id="L241">        result = true;</span>
+      } else {
+<span class="fc" id="L243">        result = cachedStorage.dataExists(id);</span>
+      }
+    } finally {
+<span class="fc" id="L246">      lock.readLock().unlock();</span>
+    }
+<span class="fc" id="L248">    return result;</span>
+  }
+
+  @Override
+  public T loadData(long id) {
+    // Search entry in cache
+<span class="fc" id="L254">    T entry = getData(id, true);</span>
+<span class="fc bfc" id="L255" title="All 2 branches covered.">    if (entry == null) {</span>
+      // No entry in cache found, search in underlying storage
+<span class="fc" id="L257">      entry = cachedStorage.loadData(id);</span>
+<span class="fc bfc" id="L258" title="All 2 branches covered.">      if (entry == null) {</span>
+<span class="fc" id="L259">        return null;</span>
+      }
+      // Data found, cache it and return
+<span class="fc" id="L262">      cacheData(entry);</span>
+    }
+<span class="fc" id="L264">    return entry;</span>
+  }
+
+  @Override
+  public boolean saveData(T data) {
+<span class="fc bfc" id="L269" title="All 2 branches covered.">    if (data == null) {</span>
+<span class="fc" id="L270">      return false;</span>
+    }
+
+<span class="fc" id="L273">    cacheData(data);</span>
+<span class="fc" id="L274">    return cachedStorage.saveData(data);</span>
+  }
+
+  @Override
+  public boolean dataIsStorable(T data) {
+<span class="fc" id="L279">    return cachedStorage.dataIsStorable(data);</span>
+  }
+
+  @Override
+  public boolean deleteData(T data) {
+<span class="fc" id="L284">    uncacheData(data);</span>
+<span class="fc" id="L285">    return cachedStorage.deleteData(data);</span>
+  }
+
+  /*
+   * Modifier for current cache size
+   */
+
+  /**
+   * Changes the current memory size of this cache by subtracting the given byte size from the current size.
+   * @param size Bytes removed from cache.
+   */
+  protected void dataRemovedFromCache(long size) {
+<span class="fc" id="L297">    lock.writeLock().lock();</span>
+    try {
+<span class="fc bfc" id="L299" title="All 2 branches covered.">      if (size &gt; currentCacheSize) {</span>
+<span class="fc" id="L300">        currentCacheSize = 0;</span>
+      } else {
+<span class="fc" id="L302">        currentCacheSize -= size;</span>
+      }
+    } finally {
+<span class="fc" id="L305">      lock.writeLock().unlock();</span>
+    }
+<span class="fc" id="L307">  }</span>
+
+  /**
+   * Changes the current memory size of this cache by adding the given byte size to the current size.
+   * @param size Bytes added to cache.
+   */
+  protected void dataAddedToCache(long size) {
+<span class="fc" id="L314">    lock.writeLock().lock();</span>
+    try {
+<span class="fc" id="L316">      currentCacheSize += size;</span>
+    } finally {
+<span class="fc" id="L318">      lock.writeLock().unlock();</span>
+    }
+<span class="fc" id="L320">  }</span>
+
+  /*
+   * Abstract methods to store data that is implementation specific
+   */
+
+  /**
+   * Creates a wrapper object that can be stored in the cache, containing the given data.
+   * @param data Data to wrap in cache entry wrapper object.
+   * @return Wrapped cache entry.
+   */
+  protected abstract F createEntry(T data);
+
+  /**
+   * Inserts a given entry wrapper object into the cache.
+   * @param data Wrapper object to insert into internal collection.
+   */
+  protected void addEntry(F data) {
+<span class="pc bpc" id="L338" title="1 of 2 branches missed.">    if (entries.add(data)) {</span>
+<span class="fc" id="L339">      dataAddedToCache(data.getByteSize());</span>
+    }
+<span class="fc" id="L341">  }</span>
+
+  /**
+   * Evicts one entry in the cache according to the caching strategy of a specific implementation.
+   */
+  protected abstract void removeEntryByCachingStrategy();
+
+  /**
+   * Tags an element as used and restores order in the entry collection as the wrapper object has changed.
+   * @param data Wrapper object to tag as used.
+   */
+  protected void reorderAndTag(F data) {
+    // In the best case, we only have to tag the data as used
+<span class="fc" id="L354">    data.wasUsed();</span>
+<span class="fc" id="L355">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

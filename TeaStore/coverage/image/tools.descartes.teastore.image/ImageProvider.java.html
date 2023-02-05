@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ImageProvider.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeaStore Image Provider</a> &gt; <a href="index.source.html" class="el_package">tools.descartes.teastore.image</a> &gt; <span class="el_source">ImageProvider.java</span></div><h1>ImageProvider.java</h1><pre class="source lang-java linenums">/**
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package tools.descartes.teastore.image;
+
+import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import tools.descartes.teastore.entities.ImageSize;
+import tools.descartes.teastore.entities.ImageSizePreset;
+import tools.descartes.teastore.image.setup.ImageIDFactory;
+import tools.descartes.teastore.image.storage.IDataStorage;
+
+/**
+ * The actual image provider class containing the mapping between products, web interface static images, the 
+ * cache and underlying storage. Only one instance of an image provider can exist.
+ * @author Norbert Schmitt
+ */
+<span class="nc" id="L33">public enum ImageProvider {</span>
+
+  /**
+   * Instance of the image provider.
+   */
+<span class="nc" id="L38">  IP;</span>
+
+  /**
+   * Standard image identifier if a product or web interface image cannot be found in the cache and storage.
+   */
+  public static final String IMAGE_NOT_FOUND = &quot;notFound&quot;;
+
+  private ImageDB db;
+  private IDataStorage&lt;StoreImage&gt; storage;
+<span class="nc" id="L47">  private Logger log = LoggerFactory.getLogger(ImageProvider.class);</span>
+
+<span class="nc" id="L49">  private ImageProvider() {</span>
+
+<span class="nc" id="L51">  }</span>
+
+  /**
+   * Assign the image provider the mapping between products and web interface static images.
+   * @param imgDB Image database, mapping between products and web interface static images.
+   */
+  public void setImageDB(ImageDB imgDB) {
+<span class="nc bnc" id="L58" title="All 2 branches missed.">	if (imgDB != null) {</span>
+<span class="nc" id="L59">	  db = imgDB;</span>
+	}
+<span class="nc" id="L61">  }</span>
+
+  /**
+   * Assign the storage containing all available images. This can either be a cache or the actual hard drive storage.
+   * @param imgStorage Image storage containing all available images.
+   */
+  public void setStorage(IDataStorage&lt;StoreImage&gt; imgStorage) {
+<span class="nc bnc" id="L68" title="All 2 branches missed.">	if (imgStorage != null) {</span>
+<span class="nc" id="L69">      storage = imgStorage;</span>
+	}
+<span class="nc" id="L71">  }</span>
+
+  /**
+   * Searches and returns the requested product images in the requested sizes. If an image can not be found, the 
+   * standard &quot;not found&quot; image is returned. If an image is found in the incorrect size, the largest size of this image 
+   * will be scaled and the scaled version will be moved to storage and returned.
+   * @param images Map of product IDs and image sizes to search for.
+   * @return Map between product IDs and base64 encoded image data as string.
+   */
+  public Map&lt;Long, String&gt; getProductImages(Map&lt;Long, ImageSize&gt; images) {
+<span class="nc" id="L81">    Map&lt;Long, String&gt; result = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">    for (Map.Entry&lt;Long, ImageSize&gt; entry : images.entrySet()) {</span>
+<span class="nc" id="L83">      String imgStr = getImageFor(new ImageDBKey(entry.getKey()), entry.getValue());</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">      if (imgStr == null) {</span>
+<span class="nc" id="L85">        continue;</span>
+      }
+<span class="nc" id="L87">      result.put(entry.getKey(), imgStr);</span>
+<span class="nc" id="L88">    }</span>
+<span class="nc" id="L89">    return result;</span>
+  }
+
+  /**
+   * Searches and returns the requested web interface images in the requested sizes. If an image can not be found, the 
+   * standard &quot;not found&quot; image is returned. If an image is found in the incorrect size, the largest size of this image 
+   * will be scaled and the scaled version will be moved to storage and returned.
+   * @param images Map of product IDs and image sizes to search for.
+   * @return Map between product IDs and base64 encoded image data as string.
+   */
+  public Map&lt;String, String&gt; getWebUIImages(Map&lt;String, ImageSize&gt; images) {
+<span class="nc" id="L100">    Map&lt;String, String&gt; result = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">    for (Map.Entry&lt;String, ImageSize&gt; entry : images.entrySet()) {</span>
+<span class="nc" id="L102">      String imgStr = getImageFor(new ImageDBKey(entry.getKey()), entry.getValue());</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">      if (imgStr == null) {</span>
+<span class="nc" id="L104">        continue;</span>
+      }
+<span class="nc" id="L106">      result.put(entry.getKey(), imgStr);</span>
+<span class="nc" id="L107">    }</span>
+<span class="nc" id="L108">    return result;</span>
+  }
+
+  private StoreImage scaleAndRegisterImg(BufferedImage image, ImageDBKey key, ImageSize size) {
+<span class="nc" id="L112">    StoreImage storedImg = new StoreImage(ImageIDFactory.ID.getNextImageID(),</span>
+<span class="nc" id="L113">        ImageScaler.scale(image, size), size);</span>
+<span class="nc" id="L114">    db.setImageMapping(key, storedImg.getId(), size);</span>
+<span class="nc" id="L115">    storage.saveData(storedImg);</span>
+<span class="nc" id="L116">    return storedImg;</span>
+  }
+
+  private String getImageFor(ImageDBKey key, ImageSize size) {
+<span class="nc bnc" id="L120" title="All 4 branches missed.">    if (db == null || storage == null) {</span>
+<span class="nc" id="L121">      log.warn(&quot;Image provider not correctly initialized. Missing image database and storage.&quot;);</span>
+<span class="nc" id="L122">      return null;</span>
+    }
+<span class="nc bnc" id="L124" title="All 4 branches missed.">    if (key == null || size == null) {</span>
+<span class="nc" id="L125">      log.info(&quot;Supplied image key or size are null.&quot;);</span>
+<span class="nc" id="L126">      return null;</span>
+    }
+<span class="nc bnc" id="L128" title="All 6 branches missed.">    if (!key.isProductKey() &amp;&amp; (key.getWebUIName() == null || key.getWebUIName().isEmpty())) {</span>
+<span class="nc" id="L129">      log.info(&quot;Supplied image key invalid. Is neither web image nor product image.&quot;);</span>
+<span class="nc" id="L130">      return null;</span>
+    }
+
+<span class="nc" id="L133">    ImageSize stdSize = ImageSizePreset.STD_IMAGE_SIZE;</span>
+<span class="nc" id="L134">    StoreImage storedImg = null;</span>
+
+    // Try to retrieve image from disk or from cache
+<span class="nc" id="L137">    long imgID = db.getImageID(key, size);</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">    if (imgID != 0) {</span>
+<span class="nc" id="L139">      storedImg = storage.loadData(imgID);</span>
+    }
+
+    // If we dont have the image in the right size, get the biggest one and scale it
+<span class="nc bnc" id="L143" title="All 2 branches missed.">    if (storedImg == null) {</span>
+<span class="nc" id="L144">      storedImg = storage.loadData(db.getImageID(key, stdSize));</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">      if (storedImg != null) {</span>
+<span class="nc" id="L146">        storedImg = scaleAndRegisterImg(storedImg.getImage(), key, size);</span>
+      } else {
+<span class="nc" id="L148">        storedImg = storage.loadData(db.getImageID(IMAGE_NOT_FOUND, size));</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">        if (storedImg == null) {</span>
+<span class="nc" id="L150">          storedImg = storage.loadData(db.getImageID(IMAGE_NOT_FOUND, stdSize));</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">          if (storedImg == null) {</span>
+<span class="nc" id="L152">            return null;</span>
+          }
+<span class="nc" id="L154">          storedImg = scaleAndRegisterImg(storedImg.getImage(), new ImageDBKey(IMAGE_NOT_FOUND),</span>
+              size);
+        }
+      }
+    }
+
+<span class="nc" id="L160">    return storedImg.toString();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

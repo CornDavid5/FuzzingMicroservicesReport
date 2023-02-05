@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderBasedRecommender.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeaStore Recommender</a> &gt; <a href="index.source.html" class="el_package">tools.descartes.teastore.recommender.algorithm.impl.orderbased</a> &gt; <span class="el_source">OrderBasedRecommender.java</span></div><h1>OrderBasedRecommender.java</h1><pre class="source lang-java linenums">/**
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package tools.descartes.teastore.recommender.algorithm.impl.orderbased;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
+
+import tools.descartes.teastore.recommender.algorithm.AbstractRecommender;
+import tools.descartes.teastore.recommender.algorithm.OrderItemSet;
+import tools.descartes.teastore.recommender.algorithm.impl.UseFallBackException;
+
+/**
+ * A simple Recommender that makes recommendations based on an order-based
+ * nearest-neighbor heuristic.
+ * 
+ * @author Johannes Grohmann
+ *
+ */
+<span class="fc" id="L31">public class OrderBasedRecommender extends AbstractRecommender {</span>
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * tools.descartes.teastore.recommender.algorithm.AbstractRecommender#
+	 * execute( java.util.List)
+	 */
+	@Override
+	protected List&lt;Long&gt; execute(Long userid, List&lt;Long&gt; currentItems) {
+		// Map with all product IDs and how often they have been bought in the same cart
+		// with one of the items in the current cart
+<span class="fc" id="L44">		HashMap&lt;Long, Double&gt; counts = new HashMap&lt;&gt;();</span>
+		// treat all products in the current cart equally, and sum all the occurrences
+<span class="fc bfc" id="L46" title="All 2 branches covered.">		for (Long product : currentItems) {</span>
+<span class="fc" id="L47">			addAllCountsOfProduct(counts, product);</span>
+<span class="fc" id="L48">		}</span>
+
+<span class="fc bfc" id="L50" title="All 2 branches covered.">		if (counts.isEmpty()) {</span>
+<span class="fc" id="L51">			throw new UseFallBackException(</span>
+					&quot;No item was bought together with the current cart. Therefore, all counts are 0.&quot;);
+		}
+
+		// the count list contains all items in the current cart
+		// however, this is fine, as it is filtered
+<span class="fc" id="L57">		return filterRecommendations(counts, currentItems);</span>
+	}
+
+	/**
+	 * Adds the counts of the given product to the given count list.
+	 * 
+	 * @param counts
+	 *            The count list, assinging each product id, how often it was bought
+	 *            with the given product.
+	 * @param product
+	 *            The product id of the specific product.
+	 */
+	private void addAllCountsOfProduct(HashMap&lt;Long, Double&gt; counts, Long product) {
+<span class="fc bfc" id="L70" title="All 2 branches covered.">		for (Set&lt;OrderItemSet&gt; set : getUserItemSets().values()) {</span>
+			// ignore which user bought which set
+<span class="fc bfc" id="L72" title="All 2 branches covered.">			for (OrderItemSet orderset : set) {</span>
+				// look through all orders bought
+<span class="fc bfc" id="L74" title="All 2 branches covered.">				if (orderset.getOrderset().keySet().contains(product)) {</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">					for (Long o : orderset.getOrderset().keySet()) {</span>
+						// we count all order of the set (including the product we are currently looking
+						// at)
+<span class="fc bfc" id="L78" title="All 2 branches covered.">						if (counts.containsKey(o)) {</span>
+							// we do not count the NUMBER of items, just if the item occurred in the order
+<span class="fc" id="L80">							counts.put(o, counts.get(o) + 1);</span>
+						} else {
+<span class="fc" id="L82">							counts.put(o, 1.0);</span>
+						}
+<span class="fc" id="L84">					}</span>
+				}
+<span class="fc" id="L86">			}</span>
+<span class="fc" id="L87">		}</span>
+<span class="fc" id="L88">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

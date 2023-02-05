@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractPersistenceRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeaStore Persistence</a> &gt; <a href="index.source.html" class="el_package">tools.descartes.teastore.persistence.repository</a> &gt; <span class="el_source">AbstractPersistenceRepository.java</span></div><h1>AbstractPersistenceRepository.java</h1><pre class="source lang-java linenums">/**
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package tools.descartes.teastore.persistence.repository;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.TypedQuery;
+
+/**
+ * Abstract Repository for CRUD Operations for persistence Entities.
+ * Already provides lookup and delete operations.
+ * @author Joakim von Kistowski
+ *
+ * @param &lt;E&gt; The class type of the Interface entity
+ * 		(i.e., the entity type that is parsed and sent out to clients using REST).
+ * @param &lt;P&gt; The class type of the Persistence entity
+ * 		(i.e., the entity that is stored in the database).
+ */
+<span class="fc" id="L33">public abstract class AbstractPersistenceRepository&lt;E, P extends E&gt; {</span>
+	
+	/**
+	 * Gets the ID of a persistence entity.
+	 * @param p The persistence entity for which the ID is to be retreived.
+	 * @return The id of persistence entity p.
+	 */
+	protected abstract long getId(P p);
+	
+	/**
+	 * Get the Java Class of the persistence entity objects for this repository.
+	 * @return The Java Class of the persistence entity objects.
+	 */
+	protected abstract Class&lt;P&gt; getEntityClass();
+	
+	/**
+	 * Get the entity manager factory of the persistence context.
+	 * @return The entity manager factory.
+	 */
+	public EntityManagerFactory getEMF() {
+<span class="fc" id="L53">		return EMFManager.getEMF();</span>
+	}
+	
+	/**
+	 * Creates a new entity manager and returns it.
+	 * Don't forget to close!
+	 * @return A new entity manager.
+	 */
+	protected EntityManager getEM() {
+<span class="fc" id="L62">		return getEMF().createEntityManager();</span>
+	}
+	
+	/**
+	 * Create a new persistence entity from an interface entity
+	 * (usually received via REST).
+	 * @param entity The entity template for the entity to create.
+	 * @return The new ID of the newly created entity.
+	 */
+	public abstract long createEntity(E entity);
+	
+	/**
+	 * Updates the entity with the values from the provided interface
+	 * entity (usually received via REST).
+	 * @param id The id of the entity to update (ignore the id in the passed entity).
+	 * @param entity The values of the entity to update. Ignore the id of the entity.
+	 * 		You may also choose to ignore additional values, if you do not support updating them.
+	 * @return True, if update succeded. False otherwise.
+	 */
+	public abstract boolean updateEntity(long id, E entity);
+	
+	/**
+	 * Retrieve the entity with the given ID.
+	 * @param id ID of the entity to retrieve.
+	 * @return The entity. Null, if none was found.
+	 */
+	public P getEntity(long id) {
+<span class="fc" id="L89">		P instance = null;</span>
+<span class="fc" id="L90">		EntityManager em = getEM();</span>
+	    try {
+<span class="fc" id="L92">	        instance = em.find(getEntityClass(), id);</span>
+	    } finally {
+<span class="fc" id="L94">	        em.close();</span>
+	    }
+<span class="fc" id="L96">		return instance;</span>
+	}
+	
+	/**
+	 * Get all entities of the generic types of entities managed in this repository.
+	 * @return All entities in a list.
+	 */
+	public List&lt;P&gt; getAllEntities() {
+<span class="fc" id="L104">		return getAllEntities(-1, -1);</span>
+	}
+	
+	/**
+	 * Get all entities of the generic types of entities managed in this repository.
+	 * Starts with the &quot;start&quot; entity and returns at maximum &quot;limit&quot; entities.
+	 * @param start The index of the entity to start with. Set to negative value to start at the beginning.
+	 * @param limit The maximum number of entites to return. Set to negative value to return all.
+	 * @return List of entities.
+	 */
+	public List&lt;P&gt; getAllEntities(int start, int limit) {
+<span class="fc" id="L115">		EntityManager em = getEM();</span>
+<span class="fc" id="L116">		List&lt;P&gt; entities = null;</span>
+		try {
+<span class="fc" id="L118">			TypedQuery&lt;P&gt; allMatchesQuery =</span>
+<span class="fc" id="L119">					em.createQuery(&quot;SELECT u FROM &quot; + getEntityClass().getName() + &quot; u&quot;, getEntityClass());</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">			if (start &gt;= 0) {</span>
+<span class="fc" id="L121">				allMatchesQuery = allMatchesQuery.setFirstResult(start);</span>
+		    }
+<span class="fc bfc" id="L123" title="All 2 branches covered.">			if (limit &gt;= 0) {</span>
+<span class="fc" id="L124">				allMatchesQuery = allMatchesQuery.setMaxResults(limit);</span>
+			}
+<span class="fc" id="L126">			entities = allMatchesQuery.getResultList();</span>
+		} finally {
+<span class="fc" id="L128">			em.close();</span>
+		}
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">		if (entities == null) {</span>
+<span class="nc" id="L131">			entities = new ArrayList&lt;P&gt;();</span>
+		}
+<span class="fc" id="L133">		return entities;</span>
+	}
+	
+	/**
+	 * Removes the entity with the id from database.
+	 * @param id The id of the entity to remove.
+	 * @return True, if delete succeded. False, if it failed (entity with id not found).
+	 */
+	public boolean removeEntity(long id) {
+<span class="fc" id="L142">		boolean found = false;</span>
+<span class="fc" id="L143">		EntityManager em = getEM();</span>
+	    try {
+<span class="fc" id="L145">	        em.getTransaction().begin();</span>
+<span class="fc" id="L146">	        P entity = em.find(getEntityClass(), id);</span>
+<span class="pc bpc" id="L147" title="1 of 2 branches missed.">	        if (entity != null) {</span>
+<span class="fc" id="L148">	        	em.remove(entity);</span>
+<span class="fc" id="L149">	        	found = true;</span>
+	        }
+<span class="fc" id="L151">	        em.getTransaction().commit();</span>
+	    } finally {
+<span class="fc" id="L153">	        em.close();</span>
+	    }
+<span class="fc" id="L155">	    return found;</span>
+	}
+	
+	/**
+	 * Returns the query result for a query with a start and limit parameter.
+	 * Negative starts and limits are ignored.
+	 * @param em The currently open entity manager.
+	 * @param query The query. Parameters must all be bound.
+	 * @param start The start index. Negative values are ignored.
+	 * @param limit The limit. Negative values are ignored.
+	 * @return The query result.
+	 */
+	protected List&lt;P&gt; resultsWithStartAndLimit(EntityManager em, TypedQuery&lt;P&gt; query, int start, int limit) {
+<span class="fc bfc" id="L168" title="All 2 branches covered.">		if (start &gt;= 0) {</span>
+<span class="fc" id="L169">			query.setFirstResult(start);</span>
+	    }
+<span class="fc bfc" id="L171" title="All 2 branches covered.">		if (limit &gt;= 0) {</span>
+<span class="fc" id="L172">			query = query.setMaxResults(limit);</span>
+		}
+<span class="fc" id="L174">		return query.getResultList();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthCartRest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeaStore Auth</a> &gt; <a href="index.source.html" class="el_package">tools.descartes.teastore.auth.rest</a> &gt; <span class="el_source">AuthCartRest.java</span></div><h1>AuthCartRest.java</h1><pre class="source lang-java linenums">/**
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package tools.descartes.teastore.auth.rest;
+
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Response;
+
+import tools.descartes.teastore.auth.security.ShaSecurityProvider;
+import tools.descartes.teastore.entities.OrderItem;
+import tools.descartes.teastore.entities.Product;
+import tools.descartes.teastore.entities.message.SessionBlob;
+import tools.descartes.teastore.registryclient.Service;
+import tools.descartes.teastore.registryclient.rest.LoadBalancedCRUDOperations;
+import tools.descartes.teastore.registryclient.util.NotFoundException;
+import tools.descartes.teastore.registryclient.util.TimeoutException;
+
+/**
+ * Rest endpoint for the store cart.
+ * 
+ * @author Simon
+ */
+@Path(&quot;cart&quot;)
+@Produces({ &quot;application/json&quot; })
+@Consumes({ &quot;application/json&quot; })
+<span class="nc" id="L43">public class AuthCartRest {</span>
+
+  /**
+   * Adds product to cart. If the product is already in the cart the quantity is
+   * increased.
+   * 
+   * @param blob
+   *          Sessionblob
+   * @param pid
+   *          productid
+   * @return Response containing session blob with updated cart
+   */
+  @POST
+  @Path(&quot;add/{pid}&quot;)
+  public Response addProductToCart(SessionBlob blob, @PathParam(&quot;pid&quot;) final Long pid) {
+    Product product;
+    try {
+<span class="nc" id="L60">      product = LoadBalancedCRUDOperations.getEntity(Service.PERSISTENCE, &quot;products&quot;, Product.class,</span>
+<span class="nc" id="L61">          pid);</span>
+<span class="nc" id="L62">    } catch (TimeoutException e) {</span>
+<span class="nc" id="L63">      return Response.status(408).build();</span>
+<span class="nc" id="L64">    } catch (NotFoundException e) {</span>
+<span class="nc" id="L65">      return Response.status(404).build();</span>
+<span class="nc" id="L66">    }</span>
+
+<span class="nc bnc" id="L68" title="All 2 branches missed.">    for (OrderItem orderItem : blob.getOrderItems()) {</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">      if (orderItem.getProductId() == pid) {</span>
+<span class="nc" id="L70">        orderItem.setQuantity(orderItem.getQuantity() + 1);</span>
+<span class="nc" id="L71">        blob = new ShaSecurityProvider().secure(blob);</span>
+<span class="nc" id="L72">        return Response.status(Response.Status.OK).entity(blob).build();</span>
+      }
+<span class="nc" id="L74">    }</span>
+<span class="nc" id="L75">    OrderItem item = new OrderItem();</span>
+<span class="nc" id="L76">    item.setProductId(pid);</span>
+<span class="nc" id="L77">    item.setQuantity(1);</span>
+<span class="nc" id="L78">    item.setUnitPriceInCents(product.getListPriceInCents());</span>
+<span class="nc" id="L79">    blob.getOrderItems().add(item);</span>
+<span class="nc" id="L80">    blob = new ShaSecurityProvider().secure(blob);</span>
+<span class="nc" id="L81">    return Response.status(Response.Status.OK).entity(blob).build();</span>
+  }
+
+  /**
+   * Remove product from cart.
+   * 
+   * @param blob
+   *          Sessionblob
+   * @param pid
+   *          product id
+   * @return Response containing Sessionblob with updated cart
+   */
+  @POST
+  @Path(&quot;remove/{pid}&quot;)
+  public Response removeProductFromCart(SessionBlob blob, @PathParam(&quot;pid&quot;) final Long pid) {
+<span class="nc" id="L96">    OrderItem toRemove = null;</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">    for (OrderItem item : blob.getOrderItems()) {</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">      if (item.getProductId() == pid) {</span>
+<span class="nc" id="L99">        toRemove = item;</span>
+      }
+<span class="nc" id="L101">    }</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">    if (toRemove != null) {</span>
+<span class="nc" id="L103">      blob.getOrderItems().remove(toRemove);</span>
+<span class="nc" id="L104">      blob = new ShaSecurityProvider().secure(blob);</span>
+<span class="nc" id="L105">      return Response.status(Response.Status.OK).entity(blob).build();</span>
+    } else {
+<span class="nc" id="L107">      return Response.status(Response.Status.NOT_FOUND).build();</span>
+    }
+  }
+
+  /**
+   * Updates quantity of product in cart.
+   * 
+   * @param blob
+   *          Sessionblob
+   * @param pid
+   *          Productid
+   * @param quantity
+   *          New quantity
+   * @return Response containing Sessionblob with updated cart
+   */
+  @PUT
+  @Path(&quot;{pid}&quot;)
+  public Response updateQuantity(SessionBlob blob, @PathParam(&quot;pid&quot;) final Long pid,
+      @QueryParam(&quot;quantity&quot;) int quantity) {
+<span class="nc bnc" id="L126" title="All 2 branches missed.">    for (OrderItem item : blob.getOrderItems()) {</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">      if (item.getProductId() == pid) {</span>
+<span class="nc" id="L128">        item.setQuantity(quantity);</span>
+<span class="nc" id="L129">        blob = new ShaSecurityProvider().secure(blob);</span>
+<span class="nc" id="L130">        return Response.status(Response.Status.OK).entity(blob).build();</span>
+      }
+<span class="nc" id="L132">    }</span>
+<span class="nc" id="L133">    return Response.status(Response.Status.NOT_FOUND).build();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

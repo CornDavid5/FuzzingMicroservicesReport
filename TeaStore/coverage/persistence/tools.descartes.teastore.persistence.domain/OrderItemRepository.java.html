@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderItemRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeaStore Persistence</a> &gt; <a href="index.source.html" class="el_package">tools.descartes.teastore.persistence.domain</a> &gt; <span class="el_source">OrderItemRepository.java</span></div><h1>OrderItemRepository.java</h1><pre class="source lang-java linenums">/**
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package tools.descartes.teastore.persistence.domain;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+
+import tools.descartes.teastore.persistence.repository.AbstractPersistenceRepository;
+import tools.descartes.teastore.entities.OrderItem;
+
+/**
+ * Repository that performs transactional CRUD operations for order items on database.
+ * @author Joakim von Kistowski
+ *
+ */
+public final class OrderItemRepository extends AbstractPersistenceRepository&lt;OrderItem, PersistenceOrderItem&gt; {
+
+	/**
+	 * Singleton for the ProductRepository.
+	 */
+<span class="fc" id="L35">	public static final OrderItemRepository REPOSITORY = new OrderItemRepository();</span>
+	
+	//Private constructor.
+	private OrderItemRepository() {
+		
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public long createEntity(OrderItem entity) {
+<span class="fc" id="L47">		PersistenceOrderItem item = new PersistenceOrderItem();</span>
+<span class="fc" id="L48">		item.setQuantity(entity.getQuantity());</span>
+<span class="fc" id="L49">		item.setUnitPriceInCents(entity.getUnitPriceInCents());</span>
+<span class="fc" id="L50">		EntityManager em = getEM();</span>
+	    try {
+<span class="fc" id="L52">	        em.getTransaction().begin();</span>
+<span class="fc" id="L53">	        PersistenceProduct prod = em.find(PersistenceProduct.class, entity.getProductId());</span>
+<span class="fc" id="L54">	        PersistenceOrder order = em.find(PersistenceOrder.class, entity.getOrderId());</span>
+<span class="pc bpc" id="L55" title="2 of 4 branches missed.">	        if (prod != null &amp;&amp; order != null) {</span>
+<span class="fc" id="L56">	        	item.setProduct(prod);</span>
+<span class="fc" id="L57">	        	item.setOrder(order);</span>
+<span class="fc" id="L58">	        	em.persist(item);</span>
+	        } else {
+<span class="nc" id="L60">	        	item.setId(-1L);</span>
+	        }
+<span class="fc" id="L62">	        em.getTransaction().commit();</span>
+	    } finally {
+<span class="fc" id="L64">	        em.close();</span>
+	    }
+<span class="fc" id="L66">	    return item.getId();</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean updateEntity(long id, OrderItem entity) {
+<span class="fc" id="L74">		boolean found = false;</span>
+<span class="fc" id="L75">		EntityManager em = getEM();</span>
+	    try {
+<span class="fc" id="L77">	        em.getTransaction().begin();</span>
+<span class="fc" id="L78">	        PersistenceOrderItem item = em.find(getEntityClass(), id);</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">	        if (item != null) {</span>
+<span class="fc" id="L80">	        	item.setQuantity(entity.getQuantity());</span>
+<span class="fc" id="L81">	    		item.setUnitPriceInCents(entity.getUnitPriceInCents());</span>
+<span class="fc" id="L82">	        	found = true;</span>
+	        }
+<span class="fc" id="L84">	        em.getTransaction().commit();</span>
+	    } finally {
+<span class="fc" id="L86">	        em.close();</span>
+	    }
+<span class="fc" id="L88">	    return found;</span>
+	}
+	
+	/**
+	 * Gets all order items for the given productId.
+	 * @param productId The id of the product ordered.
+	 * @param start The index of the first orderItem to return. Negative value to start at the beginning.
+	 * @param limit The maximum number of orderItem to return. Negative value to return all.
+	 * @return List of order items with the specified product.
+	 */
+	public List&lt;PersistenceOrderItem&gt; getAllEntitiesWithProduct(long productId, int start, int limit) {
+<span class="fc" id="L99">		List&lt;PersistenceOrderItem&gt; entities = null;</span>
+<span class="fc" id="L100">		EntityManager em = getEM();</span>
+	    try {
+<span class="fc" id="L102">	        em.getTransaction().begin();</span>
+<span class="fc" id="L103">	        PersistenceProduct prod = em.find(PersistenceProduct.class, productId);</span>
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">	        if (prod != null) {</span>
+<span class="fc" id="L105">	        	TypedQuery&lt;PersistenceOrderItem&gt; allMatchesQuery =</span>
+<span class="fc" id="L106">	        			em.createQuery(&quot;SELECT u FROM &quot; + getEntityClass().getName()</span>
+<span class="fc" id="L107">	        					+ &quot; u WHERE u.product = :prod&quot;, getEntityClass());</span>
+<span class="fc" id="L108">	        	allMatchesQuery.setParameter(&quot;prod&quot;, prod);</span>
+<span class="fc" id="L109">	    		entities = resultsWithStartAndLimit(em, allMatchesQuery, start, limit);</span>
+	        }
+<span class="fc" id="L111">	        em.getTransaction().commit();</span>
+	    } finally {
+<span class="fc" id="L113">	        em.close();</span>
+	    }
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">		if (entities == null) {</span>
+<span class="nc" id="L116">			return new ArrayList&lt;PersistenceOrderItem&gt;();</span>
+		}
+<span class="fc" id="L118">		return entities;</span>
+	}
+
+	/**
+	 * Gets all order items in the specified order.
+	 * @param orderId The id of the order.
+	 * @param start The index of the first orderItem to return. Negative value to start at the beginning.
+	 * @param limit The maximum number of orderItem to return. Negative value to return all.
+	 * @return List of order items in the specified order.
+	 */
+	public List&lt;PersistenceOrderItem&gt; getAllEntitiesWithOrder(long orderId, int start, int limit) {
+<span class="nc" id="L129">		List&lt;PersistenceOrderItem&gt; entities = null;</span>
+<span class="nc" id="L130">		EntityManager em = getEM();</span>
+	    try {
+<span class="nc" id="L132">	        em.getTransaction().begin();</span>
+<span class="nc" id="L133">	        PersistenceOrder order = em.find(PersistenceOrder.class, orderId);</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">	        if (order != null) {</span>
+<span class="nc" id="L135">	        	TypedQuery&lt;PersistenceOrderItem&gt; allMatchesQuery =</span>
+<span class="nc" id="L136">	        			em.createQuery(&quot;SELECT u FROM &quot; + getEntityClass().getName()</span>
+<span class="nc" id="L137">	        					+ &quot; u WHERE u.order = :order&quot;, getEntityClass());</span>
+<span class="nc" id="L138">	        	allMatchesQuery.setParameter(&quot;order&quot;, order);</span>
+<span class="nc" id="L139">	        	entities = resultsWithStartAndLimit(em, allMatchesQuery, start, limit);</span>
+	        }
+<span class="nc" id="L141">	        em.getTransaction().commit();</span>
+	    } finally {
+<span class="nc" id="L143">	        em.close();</span>
+	    }
+<span class="nc bnc" id="L145" title="All 2 branches missed.">		if (entities == null) {</span>
+<span class="nc" id="L146">			return new ArrayList&lt;PersistenceOrderItem&gt;();</span>
+		}
+<span class="nc" id="L148">		return entities;</span>
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected long getId(PersistenceOrderItem v) {
+<span class="nc" id="L156">		return v.getId();</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected Class&lt;PersistenceOrderItem&gt; getEntityClass() {
+<span class="fc" id="L164">		return PersistenceOrderItem.class;</span>
+	}
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,40 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+TeaStore Image Provider,tools.descartes.teastore.image.cache.rules,CacheAll,0,5,0,0,0,2,0,2,0,2
+TeaStore Image Provider,tools.descartes.teastore.image.setup,ImageProviderStartup.new StartupCallback() {...},18,0,0,0,4,0,2,0,2,0
+TeaStore Image Provider,tools.descartes.teastore.image.setup,ImageCreator,319,0,22,0,78,0,24,0,9,0
+TeaStore Image Provider,tools.descartes.teastore.image.setup,SetupController.SetupControllerConstants,43,0,0,0,4,0,1,0,1,0
+TeaStore Image Provider,tools.descartes.teastore.image.setup,SetupController.new Thread() {...},46,0,0,0,12,0,2,0,2,0
+TeaStore Image Provider,tools.descartes.teastore.image.setup,ImageProviderStartup,32,0,0,0,9,0,3,0,3,0
+TeaStore Image Provider,tools.descartes.teastore.image.setup,SetupController,1467,0,113,0,339,0,95,0,35,0
+TeaStore Image Provider,tools.descartes.teastore.image.setup,SetupController.new GenericType() {...},6,0,0,0,1,0,1,0,1,0
+TeaStore Image Provider,tools.descartes.teastore.image.setup,SetupController.new GenericType() {...},6,0,0,0,1,0,1,0,1,0
+TeaStore Image Provider,tools.descartes.teastore.image.setup,CreatorRunner,125,0,4,0,29,0,4,0,2,0
+TeaStore Image Provider,tools.descartes.teastore.image.setup,StorageMode,44,0,0,0,10,0,5,0,5,0
+TeaStore Image Provider,tools.descartes.teastore.image.setup,CachingMode,110,0,0,0,16,0,5,0,5,0
+TeaStore Image Provider,tools.descartes.teastore.image.setup,CachingRule,44,0,0,0,10,0,5,0,5,0
+TeaStore Image Provider,tools.descartes.teastore.image.setup,ImageIDFactory,34,0,0,0,8,0,4,0,4,0
+TeaStore Image Provider,tools.descartes.teastore.image.setup,StorageRule,55,0,0,0,11,0,5,0,5,0
+TeaStore Image Provider,tools.descartes.teastore.image.setup,CreatorFactory,167,0,14,0,36,0,12,0,5,0
+TeaStore Image Provider,tools.descartes.teastore.image.rest,ImageProviderEndpoint,82,0,2,0,16,0,12,0,11,0
+TeaStore Image Provider,tools.descartes.teastore.image.cache.entry,CountedEntry,0,18,0,0,0,6,0,3,0,3
+TeaStore Image Provider,tools.descartes.teastore.image.cache.entry,SimpleEntry,0,5,0,0,0,3,0,2,0,2
+TeaStore Image Provider,tools.descartes.teastore.image.cache.entry,AbstractEntry,31,62,6,10,9,20,5,9,1,5
+TeaStore Image Provider,tools.descartes.teastore.image.cache.entry,TimedEntry,0,20,0,0,0,7,0,3,0,3
+TeaStore Image Provider,tools.descartes.teastore.image,ImageDBKey,0,33,0,0,0,13,0,5,0,5
+TeaStore Image Provider,tools.descartes.teastore.image,ImageDB,53,349,2,26,11,70,4,28,3,15
+TeaStore Image Provider,tools.descartes.teastore.image,StoreImage,14,213,1,15,5,59,1,21,0,14
+TeaStore Image Provider,tools.descartes.teastore.image,ImageScaler,0,161,0,20,0,41,0,16,0,6
+TeaStore Image Provider,tools.descartes.teastore.image,ImageProvider,259,0,36,0,57,0,26,0,8,0
+TeaStore Image Provider,tools.descartes.teastore.image.cache,RandomReplacement,0,63,0,0,0,16,0,7,0,7
+TeaStore Image Provider,tools.descartes.teastore.image.cache,MostRecentlyUsed,4,63,2,6,2,16,2,8,0,6
+TeaStore Image Provider,tools.descartes.teastore.image.cache,LeastFrequentlyUsed,0,59,0,6,0,16,0,9,0,6
+TeaStore Image Provider,tools.descartes.teastore.image.cache,LeastRecentlyUsed,6,61,3,5,3,15,3,7,0,6
+TeaStore Image Provider,tools.descartes.teastore.image.cache,AbstractCache,3,400,1,43,1,108,2,45,1,24
+TeaStore Image Provider,tools.descartes.teastore.image.cache,AbstractTreeCache,0,34,0,0,0,8,0,3,0,3
+TeaStore Image Provider,tools.descartes.teastore.image.cache,AbstractQueueCache,0,14,0,0,0,3,0,2,0,2
+TeaStore Image Provider,tools.descartes.teastore.image.cache,FirstInFirstOut,0,33,0,0,0,10,0,5,0,5
+TeaStore Image Provider,tools.descartes.teastore.image.cache,LastInFirstOut,0,33,0,0,0,10,0,5,0,5
+TeaStore Image Provider,tools.descartes.teastore.image.storage.rules,StoreLargeImages,0,13,0,2,0,4,0,3,0,2
+TeaStore Image Provider,tools.descartes.teastore.image.storage.rules,StoreAll,0,5,0,0,0,2,0,2,0,2
+TeaStore Image Provider,tools.descartes.teastore.image.storage,DriveStorage,265,0,20,0,66,0,18,0,8,0
+TeaStore Image Provider,tools.descartes.teastore.image.storage,NoStorage,0,13,0,0,0,6,0,6,0,6

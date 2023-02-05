@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeaStore Persistence</a> &gt; <a href="index.source.html" class="el_package">tools.descartes.teastore.persistence.domain</a> &gt; <span class="el_source">OrderRepository.java</span></div><h1>OrderRepository.java</h1><pre class="source lang-java linenums">/**
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package tools.descartes.teastore.persistence.domain;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+
+import tools.descartes.teastore.persistence.repository.AbstractPersistenceRepository;
+import tools.descartes.teastore.entities.Order;
+
+/**
+ * Repository that performs transactional CRUD operations for orders on database.
+ * @author Joakim von Kistowski
+ *
+ */
+public final class OrderRepository extends AbstractPersistenceRepository&lt;Order, PersistenceOrder&gt; {
+
+	/**
+	 * Singleton for the ProductRepository.
+	 */
+<span class="fc" id="L35">	public static final OrderRepository REPOSITORY = new OrderRepository();</span>
+	
+	//Private constructor.
+	private OrderRepository() {
+		
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public long createEntity(Order entity) {
+<span class="fc" id="L47">		PersistenceOrder order = new PersistenceOrder();</span>
+<span class="fc" id="L48">		order.setTime(entity.getTime());</span>
+<span class="fc" id="L49">		order.setTotalPriceInCents(entity.getTotalPriceInCents());</span>
+<span class="fc" id="L50">		order.setAddressName(entity.getAddressName());</span>
+<span class="fc" id="L51">		order.setAddress1(entity.getAddress1());</span>
+<span class="fc" id="L52">		order.setAddress2(entity.getAddress2());</span>
+<span class="fc" id="L53">		order.setCreditCardCompany(entity.getCreditCardCompany());</span>
+<span class="fc" id="L54">		order.setCreditCardNumber(entity.getCreditCardNumber());</span>
+<span class="fc" id="L55">		order.setCreditCardExpiryDate(entity.getCreditCardExpiryDate());</span>
+<span class="fc" id="L56">		EntityManager em = getEM();</span>
+	    try {
+<span class="fc" id="L58">	        em.getTransaction().begin();</span>
+<span class="fc" id="L59">	        PersistenceUser user = em.find(PersistenceUser.class, entity.getUserId());</span>
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">	        if (user != null) {</span>
+<span class="fc" id="L61">	        	order.setUser(user);</span>
+<span class="fc" id="L62">	        	em.persist(order);</span>
+	        } else {
+<span class="nc" id="L64">	        	order.setId(-1L);</span>
+	        }
+<span class="fc" id="L66">	        em.getTransaction().commit();</span>
+	    } finally {
+<span class="fc" id="L68">	        em.close();</span>
+	    }
+<span class="fc" id="L70">	    return order.getId();</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean updateEntity(long id, Order entity) {
+<span class="fc" id="L78">		boolean found = false;</span>
+<span class="fc" id="L79">		EntityManager em = getEM();</span>
+	    try {
+<span class="fc" id="L81">	        em.getTransaction().begin();</span>
+<span class="fc" id="L82">	        PersistenceOrder order = em.find(getEntityClass(), id);</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">	        if (order != null) {</span>
+<span class="fc" id="L84">	        	order.setTime(entity.getTime());</span>
+<span class="fc" id="L85">	    		order.setTotalPriceInCents(entity.getTotalPriceInCents());</span>
+<span class="fc" id="L86">	    		order.setAddressName(entity.getAddressName());</span>
+<span class="fc" id="L87">	    		order.setAddress1(entity.getAddress1());</span>
+<span class="fc" id="L88">	    		order.setAddress2(entity.getAddress2());</span>
+<span class="fc" id="L89">	    		order.setCreditCardCompany(entity.getCreditCardCompany());</span>
+<span class="fc" id="L90">	    		order.setCreditCardNumber(entity.getCreditCardNumber());</span>
+<span class="fc" id="L91">	    		order.setCreditCardExpiryDate(entity.getCreditCardExpiryDate());</span>
+<span class="fc" id="L92">	        	found = true;</span>
+	        }
+<span class="fc" id="L94">	        em.getTransaction().commit();</span>
+	    } finally {
+<span class="fc" id="L96">	        em.close();</span>
+	    }
+<span class="fc" id="L98">	    return found;</span>
+	}
+	
+	/**
+	 * Gets all Orders for the user with the specified userId.
+	 * @param userId The id of the ordering user.
+	 * @param start The index of the first order to return. Negative value to start at the beginning.
+	 * @param limit The maximum number of order to return. Negative value to return all.
+	 * @return List of orders with the specified user.
+	 */
+	public List&lt;PersistenceOrder&gt; getAllEntitiesWithUser(long userId, int start, int limit) {
+<span class="nc" id="L109">		List&lt;PersistenceOrder&gt; entities = null;</span>
+<span class="nc" id="L110">		EntityManager em = getEM();</span>
+	    try {
+<span class="nc" id="L112">	        em.getTransaction().begin();</span>
+<span class="nc" id="L113">	        PersistenceUser user = em.find(PersistenceUser.class, userId);</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">	        if (user != null) {</span>
+<span class="nc" id="L115">	        	TypedQuery&lt;PersistenceOrder&gt; allMatchesQuery =</span>
+<span class="nc" id="L116">	        			em.createQuery(&quot;SELECT u FROM &quot; + getEntityClass().getName()</span>
+<span class="nc" id="L117">	        					+ &quot; u WHERE u.user = :user&quot;, getEntityClass());</span>
+<span class="nc" id="L118">	        	allMatchesQuery.setParameter(&quot;user&quot;, user);</span>
+<span class="nc" id="L119">	    		entities = resultsWithStartAndLimit(em, allMatchesQuery, start, limit);</span>
+	        }
+<span class="nc" id="L121">	        em.getTransaction().commit();</span>
+	    } finally {
+<span class="nc" id="L123">	        em.close();</span>
+	    }
+<span class="nc bnc" id="L125" title="All 2 branches missed.">		if (entities == null) {</span>
+<span class="nc" id="L126">			return new ArrayList&lt;PersistenceOrder&gt;();</span>
+		}
+<span class="nc" id="L128">		return entities;</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected long getId(PersistenceOrder v) {
+<span class="nc" id="L136">		return v.getId();</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected Class&lt;PersistenceOrder&gt; getEntityClass() {
+<span class="fc" id="L144">		return PersistenceOrder.class;</span>
+	}
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

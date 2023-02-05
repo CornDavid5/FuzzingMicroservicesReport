@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractEntry.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeaStore Image Provider</a> &gt; <a href="index.source.html" class="el_package">tools.descartes.teastore.image.cache.entry</a> &gt; <span class="el_source">AbstractEntry.java</span></div><h1>AbstractEntry.java</h1><pre class="source lang-java linenums">/**
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package tools.descartes.teastore.image.cache.entry;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Base wrapper class for cachable data types.
+ * 
+ * @author Norbert Schmitt
+ *
+ * @param &lt;D&gt;
+ *          Cachable data that must implement
+ *          {@link tools.descartes.teastore.image.cache.entry.ICachable}
+ */
+public abstract class AbstractEntry&lt;D extends ICachable&lt;D&gt;&gt; implements ICacheEntry&lt;D&gt; {
+
+  private D data;
+<span class="fc" id="L31">  private Logger log = LoggerFactory.getLogger(AbstractEntry.class);</span>
+
+  /**
+   * Basic constructor storing the cachable data. If the cachable data supplied is
+   * null, a {@link java.lang.NullPointerException} is thrown.
+   * 
+   * @param data
+   *          Cachable data
+   */
+<span class="fc" id="L40">  public AbstractEntry(D data) {</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">    if (data == null) {</span>
+<span class="fc" id="L42">      log.error(&quot;The supplied data is null.&quot;);</span>
+<span class="fc" id="L43">      throw new NullPointerException(&quot;Supplied data is null.&quot;);</span>
+    }
+
+<span class="fc" id="L46">    this.data = data;</span>
+<span class="fc" id="L47">  }</span>
+
+  @Override
+  public D getData() {
+<span class="fc" id="L51">    return data;</span>
+  }
+
+  @Override
+  public abstract void wasUsed();
+
+  @Override
+  public long getId() {
+<span class="fc" id="L59">    return data.getId();</span>
+  }
+
+  @Override
+  public long getByteSize() {
+<span class="fc" id="L64">    return data.getByteSize();</span>
+  }
+
+  @Override
+  public int hashCode() {
+<span class="nc" id="L69">    final int prime = 31;</span>
+<span class="nc" id="L70">    int result = 1;</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">    if (data == null) {</span>
+<span class="nc" id="L72">      result = prime * result + 0;</span>
+    } else {
+<span class="nc" id="L74">      result = prime * result + data.hashCode();</span>
+    }
+<span class="nc" id="L76">    return result;</span>
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+<span class="fc bfc" id="L81" title="All 2 branches covered.">    if (this == obj) {</span>
+<span class="fc" id="L82">      return true;</span>
+    }
+<span class="fc bfc" id="L84" title="All 2 branches covered.">    if (obj == null) {</span>
+<span class="fc" id="L85">      return false;</span>
+    }
+<span class="fc bfc" id="L87" title="All 2 branches covered.">    if (getClass() != obj.getClass()) {</span>
+<span class="fc" id="L88">      return false;</span>
+    }
+<span class="fc" id="L90">    AbstractEntry&lt;?&gt; other = (AbstractEntry&lt;?&gt;) obj;</span>
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">    if (data == null) {</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">      if (other.data != null) {</span>
+<span class="nc" id="L93">        return false;</span>
+      }
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">    } else if (!data.equals(other.data)) {</span>
+<span class="fc" id="L96">      return false;</span>
+    }
+<span class="nc" id="L98">    return true;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ImageDB.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeaStore Image Provider</a> &gt; <a href="index.source.html" class="el_package">tools.descartes.teastore.image</a> &gt; <span class="el_source">ImageDB.java</span></div><h1>ImageDB.java</h1><pre class="source lang-java linenums">/**
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package tools.descartes.teastore.image;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import tools.descartes.teastore.entities.ImageSize;
+
+/**
+ * Image database storing the relation between image names, product IDs and
+ * image IDs as well as the available image size.
+ * 
+ * @author Norbert Schmitt
+ */
+public class ImageDB {
+
+  // Internal storage container to allow mapping product IDs and image names (for
+  // non-generated images) to images
+  // with different sizes
+<span class="fc" id="L38">  private HashMap&lt;Long, Map&lt;Long, ImageSize&gt;&gt; products = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L39">  private HashMap&lt;String, Map&lt;Long, ImageSize&gt;&gt; webui = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L40">  private HashMap&lt;Long, ImageSize&gt; sizes = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L41">  private final Logger log = LoggerFactory.getLogger(ImageDB.class);</span>
+
+  // Locking
+<span class="fc" id="L44">  private final ReadWriteLock lock = new ReentrantReadWriteLock();</span>
+
+  /**
+   * Standard constructor creating a new and empty image database.
+   */
+<span class="fc" id="L49">  public ImageDB() {</span>
+
+<span class="fc" id="L51">  }</span>
+
+  /**
+   * Copy constructor making a shallow copy of the given image database. If the
+   * database to copy is null, a {@link java.lang.NullPointerException} will be
+   * thrown.
+   * 
+   * @param copy
+   *          Image database to copy.
+   */
+<span class="fc" id="L61">  public ImageDB(ImageDB copy) {</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">    if (copy == null) {</span>
+<span class="fc" id="L63">      log.error(&quot;The supplied image database to copy is null.&quot;);</span>
+<span class="fc" id="L64">      throw new NullPointerException(&quot;The supplied image database to copy is null.&quot;);</span>
+    }
+
+<span class="fc" id="L67">    this.products = new HashMap&lt;&gt;(copy.products);</span>
+<span class="fc" id="L68">    this.webui = new HashMap&lt;&gt;(copy.webui);</span>
+<span class="fc" id="L69">    this.sizes = new HashMap&lt;&gt;(copy.sizes);</span>
+<span class="fc" id="L70">  }</span>
+
+  /**
+   * Checks whether a given image key (product ID or name) is available in the
+   * given size. If the given image key is null, a
+   * {@link java.lang.NullPointerException} will be thrown.
+   * 
+   * @param imageKey
+   *          Image key to check for
+   * @param imageSize
+   *          Image size to check for
+   * @return True if the image was found in the correct size, otherwise false
+   */
+  public boolean hasImageID(ImageDBKey imageKey, ImageSize imageSize) {
+<span class="fc bfc" id="L84" title="All 2 branches covered.">    if (imageKey == null) {</span>
+<span class="fc" id="L85">      log.error(&quot;The supplied image key is null.&quot;);</span>
+<span class="fc" id="L86">      throw new NullPointerException(&quot;The supplied image key is null.&quot;);</span>
+    }
+
+<span class="fc bfc" id="L89" title="All 2 branches covered.">    if (imageKey.isProductKey()) {</span>
+<span class="fc" id="L90">      return hasImageID(imageKey.getProductID(), imageSize);</span>
+    }
+<span class="fc" id="L92">    return hasImageID(imageKey.getWebUIName(), imageSize);</span>
+  }
+
+  /**
+   * Checks whether a given product ID is available in the given size.
+   * 
+   * @param productID
+   *          Product ID to check for
+   * @param imageSize
+   *          Image size to check for
+   * @return True if the image was found in the correct size, otherwise false
+   */
+  public boolean hasImageID(long productID, ImageSize imageSize) {
+<span class="fc bfc" id="L105" title="All 2 branches covered.">    return findImageID(productID, imageSize, products) != 0;</span>
+  }
+
+  /**
+   * Checks whether a given image name is available in the given size.
+   * 
+   * @param name
+   *          Image name to check for
+   * @param imageSize
+   *          Image size to check for
+   * @return True if the image was found in the correct size, otherwise false
+   */
+  public boolean hasImageID(String name, ImageSize imageSize) {
+<span class="fc bfc" id="L118" title="All 2 branches covered.">    return findImageID(name, imageSize, webui) != 0;</span>
+  }
+
+  /**
+   * Finds and returns the image ID for the given image key (product ID or name)
+   * and size. If the image key cannot be found or is not available in the given
+   * size, 0 will be returned. If the image key is null, a
+   * {@link java.lang.NullPointerException} will be thrown.
+   * 
+   * @param imageKey
+   *          Image key to find
+   * @param imageSize
+   *          Image size to find
+   * @return The image ID if the image with the size was found, otherwise 0
+   */
+  public long getImageID(ImageDBKey imageKey, ImageSize imageSize) {
+<span class="fc bfc" id="L134" title="All 2 branches covered.">    if (imageKey == null) {</span>
+<span class="fc" id="L135">      log.error(&quot;The supplied image key is null.&quot;);</span>
+<span class="fc" id="L136">      throw new NullPointerException(&quot;The supplied image key is null.&quot;);</span>
+    }
+
+<span class="fc bfc" id="L139" title="All 2 branches covered.">    if (imageKey.isProductKey()) {</span>
+<span class="fc" id="L140">      return getImageID(imageKey.getProductID(), imageSize);</span>
+    }
+<span class="fc" id="L142">    return getImageID(imageKey.getWebUIName(), imageSize);</span>
+  }
+
+  /**
+   * Finds and returns the image ID for the given product ID and size. If the
+   * product ID cannot be found or is not available in the given size, 0 will be
+   * returned.
+   * 
+   * @param productID
+   *          Product ID to find
+   * @param imageSize
+   *          Image size to find
+   * @return The image ID if the image with the size was found, otherwise 0
+   */
+  public long getImageID(long productID, ImageSize imageSize) {
+<span class="fc" id="L157">    return findImageID(productID, imageSize, products);</span>
+  }
+
+  /**
+   * Finds and returns the image ID for the given image name and size. If the name
+   * cannot be found or is not available in the given size, 0 will be returned.
+   * 
+   * @param name
+   *          Image name to find
+   * @param imageSize
+   *          Image size to find
+   * @return The image ID if the image with the size was found, otherwise 0
+   */
+  public long getImageID(String name, ImageSize imageSize) {
+<span class="fc" id="L171">    return findImageID(name, imageSize, webui);</span>
+  }
+
+  // Does actually all the heavy lifting for the getImageID methods
+  private &lt;K&gt; long findImageID(K key, ImageSize imageSize, HashMap&lt;K, Map&lt;Long, ImageSize&gt;&gt; db) {
+<span class="fc" id="L176">    Optional&lt;Map.Entry&lt;Long, ImageSize&gt;&gt; img = null;</span>
+<span class="fc" id="L177">    lock.readLock().lock();</span>
+    try {
+<span class="fc" id="L179">      img = db.getOrDefault(key, new HashMap&lt;&gt;()).entrySet().stream()</span>
+<span class="fc" id="L180">          .filter(t -&gt; t.getValue().equals(imageSize)).findFirst();</span>
+    } finally {
+<span class="fc" id="L182">      lock.readLock().unlock();</span>
+    }
+
+<span class="fc bfc" id="L185" title="All 2 branches covered.">    if (img.isPresent()) {</span>
+<span class="fc" id="L186">      return img.get().getKey();</span>
+    }
+
+<span class="fc" id="L189">    return 0;</span>
+  }
+
+  /**
+   * Returns the image size for a given image ID or null if it could not be found.
+   * 
+   * @param imageID
+   *          The image ID to get the image size for
+   * @return The image size or null if the ID could not be found
+   */
+  public ImageSize getImageSize(long imageID) {
+<span class="fc" id="L200">    ImageSize result = null;</span>
+<span class="fc" id="L201">    lock.readLock().lock();</span>
+    try {
+<span class="fc" id="L203">      result = sizes.getOrDefault(imageID, null);</span>
+    } finally {
+<span class="fc" id="L205">      lock.readLock().unlock();</span>
+    }
+<span class="fc" id="L207">    return result;</span>
+  }
+
+  /**
+   * Creates a new mapping between, an image key (either product ID or name), the
+   * unique image ID and the size of the image. If the image key or image size is
+   * null, a {@link java.lang.NullPointerException} will be thrown.
+   * 
+   * @param imageKey
+   *          The image key, either product ID or image name
+   * @param imageID
+   *          The unique image ID
+   * @param imageSize
+   *          The size of the image
+   */
+  public void setImageMapping(ImageDBKey imageKey, long imageID, ImageSize imageSize) {
+<span class="fc bfc" id="L223" title="All 2 branches covered.">    if (imageKey == null) {</span>
+<span class="fc" id="L224">      log.error(&quot;The supplied image key is null.&quot;);</span>
+<span class="fc" id="L225">      throw new NullPointerException(&quot;The supplied image key is null.&quot;);</span>
+    }
+
+<span class="fc bfc" id="L228" title="All 2 branches covered.">    if (imageKey.isProductKey()) {</span>
+<span class="fc" id="L229">      setImageMapping(imageKey.getProductID(), imageID, imageSize);</span>
+    } else {
+<span class="fc" id="L231">      setImageMapping(imageKey.getWebUIName(), imageID, imageSize);</span>
+    }
+<span class="fc" id="L233">  }</span>
+
+  /**
+   * Creates a new mapping between, a product ID, the unique image ID and the size
+   * of the image. If the image size is null, a
+   * {@link java.lang.NullPointerException} will be thrown.
+   * 
+   * @param productID
+   *          The product ID
+   * @param imageID
+   *          The unique image ID
+   * @param imageSize
+   *          The size of the image
+   */
+  public void setImageMapping(long productID, long imageID, ImageSize imageSize) {
+<span class="fc" id="L248">    map(productID, imageID, imageSize, products);</span>
+<span class="fc" id="L249">  }</span>
+
+  /**
+   * Creates a new mapping between, an image name, the unique image ID and the
+   * size of the image. If the image name or size is null, a
+   * {@link java.lang.NullPointerExcpetion} will be thrown.
+   * 
+   * @param name
+   *          The image name
+   * @param imageID
+   *          The unique image ID
+   * @param imageSize
+   *          The size of the image
+   */
+  public void setImageMapping(String name, long imageID, ImageSize imageSize) {
+<span class="fc bfc" id="L264" title="All 2 branches covered.">    if (name == null) {</span>
+<span class="fc" id="L265">      log.error(&quot;The supplied image name is null.&quot;);</span>
+<span class="fc" id="L266">      throw new NullPointerException(&quot;The supplied image name is null.&quot;);</span>
+    }
+
+<span class="fc" id="L269">    map(name, imageID, imageSize, webui);</span>
+<span class="fc" id="L270">  }</span>
+
+  // Actually creates the image mapping
+  private &lt;K&gt; void map(K key, long imageID, ImageSize imageSize,
+      HashMap&lt;K, Map&lt;Long, ImageSize&gt;&gt; db) {
+<span class="fc bfc" id="L275" title="All 2 branches covered.">    if (imageSize == null) {</span>
+<span class="fc" id="L276">      log.error(&quot;Supplied image size is null.&quot;);</span>
+<span class="fc" id="L277">      throw new NullPointerException(&quot;Supplied image size is null.&quot;);</span>
+    }
+
+    // In case the product ID or image name is not known, we create a new map to
+    // store the mapping
+<span class="fc" id="L282">    Map&lt;Long, ImageSize&gt; images = new HashMap&lt;&gt;();</span>
+
+<span class="fc" id="L284">    lock.writeLock().lock();</span>
+    try {
+<span class="fc bfc" id="L286" title="All 2 branches covered.">      if (db.containsKey(key)) {</span>
+<span class="fc" id="L287">        images = db.get(key);</span>
+      }
+
+      // Add the new mapping to the internal map and put it back into the correct
+      // database (map)
+<span class="fc" id="L292">      images.put(imageID, imageSize);</span>
+<span class="fc" id="L293">      db.put(key, images);</span>
+<span class="fc" id="L294">      sizes.put(imageID, imageSize);</span>
+    } finally {
+<span class="fc" id="L296">      lock.writeLock().unlock();</span>
+    }
+<span class="fc" id="L298">  }</span>
+
+  /**
+   * Removes an image id from the database. This will not delete an image but just remove all connections between a 
+   * product or WebUI id and the given image id.
+   * @param imageID Image ID to remove from this database.
+   */
+  public void removeImageMapping(long imageID) {
+<span class="nc" id="L306">    lock.writeLock().lock();</span>
+    try {
+<span class="nc" id="L308">      unmap(imageID, webui);</span>
+<span class="nc" id="L309">      unmap(imageID, products);</span>
+<span class="nc" id="L310">      sizes.remove(imageID);</span>
+    } finally {
+<span class="nc" id="L312">      lock.writeLock().unlock();</span>
+    }
+<span class="nc" id="L314">  }</span>
+
+  private &lt;K&gt; void unmap(long imageID, HashMap&lt;K, Map&lt;Long, ImageSize&gt;&gt; db) {
+<span class="nc" id="L317">    Map.Entry&lt;String, Map&lt;Long, ImageSize&gt;&gt; img = webui.entrySet().stream()</span>
+<span class="nc" id="L318">        .filter(entry -&gt; entry.getValue().containsKey(imageID)).findFirst().orElse(null);</span>
+<span class="nc bnc" id="L319" title="All 2 branches missed.">    if (img != null) {</span>
+<span class="nc" id="L320">      webui.remove(img.getKey());</span>
+    }
+<span class="nc" id="L322">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ImageProviderEndpoint.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeaStore Image Provider</a> &gt; <a href="index.source.html" class="el_package">tools.descartes.teastore.image.rest</a> &gt; <span class="el_source">ImageProviderEndpoint.java</span></div><h1>ImageProviderEndpoint.java</h1><pre class="source lang-java linenums">/**
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package tools.descartes.teastore.image.rest;
+
+import java.util.HashMap;
+import java.util.stream.Collectors;
+
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Response;
+
+import tools.descartes.teastore.entities.ImageSize;
+import tools.descartes.teastore.image.ImageProvider;
+import tools.descartes.teastore.image.setup.SetupController;
+
+/**
+ * The image provider REST endpoints for querying and controlling the image provider service.
+ * @author Norbert Schmitt
+ */
+@Path(&quot;image&quot;)
+@Produces({ &quot;application/json&quot; })
+@Consumes({ &quot;application/json&quot; })
+<span class="nc" id="L37">public class ImageProviderEndpoint {</span>
+
+  /**
+   * Queries the image provider for the given product IDs in the given size, provided as strings.
+   * @param images Map of product IDs and the corresponding image size as string.
+   * @return Map of product IDs and the image data as base64 encoded string.
+   */
+  @POST
+  @Path(&quot;getProductImages&quot;)
+  public Response getProductImages(HashMap&lt;Long, String&gt; images) {
+<span class="nc" id="L47">    return Response.ok()</span>
+<span class="nc" id="L48">        .entity(ImageProvider.IP.getProductImages(images.entrySet().parallelStream().collect(</span>
+<span class="nc" id="L49">            Collectors.toMap(e -&gt; e.getKey(), e -&gt; ImageSize.parseImageSize(e.getValue())))))</span>
+<span class="nc" id="L50">        .build();</span>
+  }
+
+  /**
+   * Queries the image provider for the given web interface image names in the given size, provided as strings.
+   * @param images Map of web interface image names and the corresponding image size as string.
+   * @return Map of web interface image names and the image data as base64 encoded string.
+   */
+  @POST
+  @Path(&quot;getWebImages&quot;)
+  public Response getWebUIImages(HashMap&lt;String, String&gt; images) {
+<span class="nc" id="L61">    return Response.ok()</span>
+<span class="nc" id="L62">        .entity(ImageProvider.IP.getWebUIImages(images.entrySet().parallelStream().collect(</span>
+<span class="nc" id="L63">            Collectors.toMap(e -&gt; e.getKey(), e -&gt; ImageSize.parseImageSize(e.getValue())))))</span>
+<span class="nc" id="L64">        .build();</span>
+  }
+
+  /**
+   * Signals the image provider to regenerate all product images. This is usually necessary if the product database
+   * changed.
+   * @return Returns status code 200.
+   */
+  @GET
+  @Path(&quot;regenerateImages&quot;)
+  public Response regenerateImages() {
+<span class="nc" id="L75">    SetupController.SETUP.reconfiguration();</span>
+<span class="nc" id="L76">    return Response.ok().build();</span>
+  }
+
+  /**
+   * Checks if the setup of the image provider and image generation has finished.
+   * @return Returns true if the setup is finished.
+   */
+  @GET
+  @Path(&quot;finished&quot;)
+  public Response isFinished() {
+<span class="nc bnc" id="L86" title="All 2 branches missed.">    if (SetupController.SETUP.isFinished()) {</span>
+<span class="nc" id="L87">      return Response.ok(true).build();</span>
+    } else {
+<span class="nc" id="L89">      return Response.serverError().entity(false).build();</span>
+    }
+  }
+
+  /**
+   * Checks the current state, configuration settings, number of images, cache size, etc., of the image provider.
+   * @return Returns a string containing the current state and configuration.
+   */
+  @GET
+  @Path(&quot;state&quot;)
+  @Produces({ &quot;text/plain&quot; })
+  public Response getState() {
+<span class="nc" id="L101">    return Response.ok().entity(SetupController.SETUP.getState()).build();</span>
+  }
+
+  /**
+   * Sets the cache size to the given value.
+   * @param cacheSize The new cache size in bytes. Cache size must be positive.
+   * @return True if the cache size was set successfully, otherwise false.
+   */
+  @POST
+  @Path(&quot;setCacheSize&quot;)
+  public Response setCacheSize(long cacheSize) {
+<span class="nc" id="L112">    return Response.ok().entity(SetupController.SETUP.setCacheSize(cacheSize)).build();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

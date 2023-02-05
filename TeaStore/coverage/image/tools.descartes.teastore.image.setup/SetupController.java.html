@@ -1,0 +1,784 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SetupController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeaStore Image Provider</a> &gt; <a href="index.source.html" class="el_package">tools.descartes.teastore.image.setup</a> &gt; <span class="el_source">SetupController.java</span></div><h1>SetupController.java</h1><pre class="source lang-java linenums">/**
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package tools.descartes.teastore.image.setup;
+
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import javax.imageio.ImageIO;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.Response;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import tools.descartes.teastore.registryclient.RegistryClient;
+import tools.descartes.teastore.registryclient.Service;
+import tools.descartes.teastore.registryclient.loadbalancers.LoadBalancerTimeoutException;
+import tools.descartes.teastore.registryclient.loadbalancers.ServiceLoadBalancer;
+import tools.descartes.teastore.registryclient.rest.HttpWrapper;
+import tools.descartes.teastore.registryclient.rest.ResponseWrapper;
+import tools.descartes.teastore.registryclient.util.NotFoundException;
+import tools.descartes.teastore.entities.Category;
+import tools.descartes.teastore.entities.ImageSize;
+import tools.descartes.teastore.entities.ImageSizePreset;
+import tools.descartes.teastore.entities.Product;
+import tools.descartes.teastore.image.ImageDB;
+import tools.descartes.teastore.image.ImageProvider;
+import tools.descartes.teastore.image.StoreImage;
+import tools.descartes.teastore.image.cache.FirstInFirstOut;
+import tools.descartes.teastore.image.cache.IDataCache;
+import tools.descartes.teastore.image.cache.LastInFirstOut;
+import tools.descartes.teastore.image.cache.LeastFrequentlyUsed;
+import tools.descartes.teastore.image.cache.LeastRecentlyUsed;
+import tools.descartes.teastore.image.cache.MostRecentlyUsed;
+import tools.descartes.teastore.image.cache.RandomReplacement;
+import tools.descartes.teastore.image.cache.rules.CacheAll;
+import tools.descartes.teastore.image.storage.DriveStorage;
+import tools.descartes.teastore.image.storage.IDataStorage;
+import tools.descartes.teastore.image.storage.rules.StoreAll;
+import tools.descartes.teastore.image.storage.rules.StoreLargeImages;
+
+/**
+ * Image provider setup class. Connects to the persistence service to collect all available products and generates
+ * images from the received products and their category. Searches for existing images to be used in the web interface
+ * and adds them to the storage / cache.
+ * @author Norbert Schmitt
+ */
+<span class="nc" id="L79">public enum SetupController {</span>
+
+  /**
+   * Instance of the setup controller.
+   */
+<span class="nc" id="L84">  SETUP;</span>
+
+  /**
+   * Constants used during image provider setup.
+   * @author Norbert Schmitt
+   */
+  private interface SetupControllerConstants {
+
+	/**
+	 * Standard working directory in which the images are stored.
+	 */
+<span class="nc" id="L95">    public static final Path STD_WORKING_DIR = Paths.get(&quot;images&quot;);</span>
+
+    /**
+     * Longest wait period before querying the persistence again if it is finished creating entries.
+     */
+    public final int PERSISTENCE_CREATION_MAX_WAIT_TIME = 120000;
+
+    /**
+     * Wait time in ms before checking again for an existing persistence service.
+     */
+<span class="nc" id="L105">    public static final List&lt;Integer&gt; PERSISTENCE_CREATION_WAIT_TIME = Arrays.asList(1000, 2000,</span>
+<span class="nc" id="L106">        5000, 10000, 30000, 60000);</span>
+
+    /**
+     * Number of available logical cpus for image creation.
+     */
+<span class="nc" id="L111">    public static final int CREATION_THREAD_POOL_SIZE = Runtime.getRuntime().availableProcessors();</span>
+
+    /**
+     * Wait time in ms for the image creation thread pool to terminate all threads.
+     */
+    public static final long CREATION_THREAD_POOL_WAIT = 500;
+
+    /**
+     * Wait time in ms (per image to generate) before an image provider service is registered if there is another
+     * image provider service registered.
+     */
+    public static final long CREATION_THREAD_POOL_WAIT_PER_IMG_NR = 70;
+  }
+
+<span class="nc" id="L125">  private StorageRule storageRule = StorageRule.STD_STORAGE_RULE;</span>
+<span class="nc" id="L126">  private CachingRule cachingRule = CachingRule.STD_CACHING_RULE;</span>
+<span class="nc" id="L127">  private Path workingDir = SetupControllerConstants.STD_WORKING_DIR;</span>
+<span class="nc" id="L128">  private long cacheSize = IDataCache.STD_MAX_CACHE_SIZE;</span>
+<span class="nc" id="L129">  private StorageMode storageMode = StorageMode.STD_STORAGE_MODE;</span>
+<span class="nc" id="L130">  private CachingMode cachingMode = CachingMode.STD_CACHING_MODE;</span>
+<span class="nc" id="L131">  private long nrOfImagesToGenerate = 0;</span>
+<span class="nc" id="L132">  private long nrOfImagesExisting = 0;</span>
+<span class="nc" id="L133">  private long nrOfImagesForCategory = 0;</span>
+<span class="nc" id="L134">  private AtomicLong nrOfImagesGenerated = new AtomicLong();</span>
+<span class="nc" id="L135">  private HashMap&lt;String, BufferedImage&gt; categoryImages = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L136">  private ImageDB imgDB = new ImageDB();</span>
+<span class="nc" id="L137">  private IDataStorage&lt;StoreImage&gt; storage = null;</span>
+<span class="nc" id="L138">  private IDataCache&lt;StoreImage&gt; cache = null;</span>
+<span class="nc" id="L139">  private ScheduledThreadPoolExecutor imgCreationPool = new ScheduledThreadPoolExecutor(</span>
+      SetupControllerConstants.CREATION_THREAD_POOL_SIZE);
+<span class="nc" id="L141">  private Logger log = LoggerFactory.getLogger(SetupController.class);</span>
+<span class="nc" id="L142">  private AtomicBoolean isFinished = new AtomicBoolean();</span>
+
+<span class="nc" id="L144">  private SetupController() {</span>
+
+<span class="nc" id="L146">  }</span>
+
+  private void waitForPersistence() {
+    // We have to wait for the database that all entries are created before
+    // generating images (which queries persistence). Yes we want to wait forever in
+    // case the persistence is
+    // not answering.
+<span class="nc" id="L153">    Iterator&lt;Integer&gt; waitTimes = SetupControllerConstants.PERSISTENCE_CREATION_WAIT_TIME</span>
+<span class="nc" id="L154">        .iterator();</span>
+    while (true) {
+<span class="nc" id="L156">      Response result = null;</span>
+      try {
+<span class="nc" id="L158">        result = ServiceLoadBalancer.loadBalanceRESTOperation(Service.PERSISTENCE, &quot;generatedb&quot;,</span>
+            String.class,
+<span class="nc" id="L160">            client -&gt; ResponseWrapper</span>
+<span class="nc" id="L161">                .wrap(HttpWrapper.wrap(client.getService().path(client.getApplicationURI())</span>
+<span class="nc" id="L162">                    .path(client.getEndpointURI()).path(&quot;finished&quot;)).get()));</span>
+<span class="nc" id="L163">      } catch (NotFoundException notFound) {</span>
+<span class="nc" id="L164">        log.info(&quot;No persistence found.&quot;, notFound);</span>
+<span class="nc" id="L165">      } catch (LoadBalancerTimeoutException timeout) {</span>
+<span class="nc" id="L166">        log.info(&quot;Persistence call timed out.&quot;, timeout);</span>
+<span class="nc" id="L167">      } catch (NullPointerException npe) {</span>
+<span class="nc" id="L168">        log.info(&quot;ServiceLoadBalancerResult was null!&quot;);</span>
+<span class="nc" id="L169">      }</span>
+
+<span class="nc bnc" id="L171" title="All 4 branches missed.">      if (result != null &amp;&amp; Boolean.parseBoolean(result.readEntity(String.class))) {</span>
+<span class="nc" id="L172">    		result.close();</span>
+<span class="nc" id="L173">    	  break;</span>
+      }
+
+      try {
+<span class="nc" id="L177">    	int nextWaitTime = SetupControllerConstants.PERSISTENCE_CREATION_MAX_WAIT_TIME;</span>
+<span class="nc bnc" id="L178" title="All 2 branches missed.">    	if (waitTimes.hasNext()) {</span>
+<span class="nc" id="L179">    		nextWaitTime = waitTimes.next();</span>
+    	}
+<span class="nc" id="L181">        log.info(&quot;Persistence not reachable. Waiting for {}ms.&quot;, nextWaitTime);</span>
+<span class="nc" id="L182">        Thread.sleep(nextWaitTime);</span>
+<span class="nc" id="L183">      } catch (InterruptedException interrupted) {</span>
+<span class="nc" id="L184">        log.warn(&quot;Thread interrupted while waiting for persistence to be available.&quot;, interrupted);</span>
+<span class="nc" id="L185">      }</span>
+<span class="nc" id="L186">    }</span>
+<span class="nc" id="L187">  }</span>
+
+  private void fetchProductsForCategory(Category category, HashMap&lt;Category, List&lt;Long&gt;&gt; products) {
+<span class="nc" id="L190">    waitForPersistence();</span>
+
+<span class="nc" id="L192">    Response result = null;</span>
+    try {
+<span class="nc" id="L194">      result = ServiceLoadBalancer.loadBalanceRESTOperation(Service.PERSISTENCE, &quot;products&quot;,</span>
+          Product.class,
+<span class="nc" id="L196">          client -&gt; ResponseWrapper.wrap(HttpWrapper.wrap(client.getService()</span>
+<span class="nc" id="L197">              .path(client.getApplicationURI()).path(client.getEndpointURI()).path(&quot;category&quot;)</span>
+<span class="nc" id="L198">              .path(String.valueOf(category.getId())).queryParam(&quot;start&quot;, 0).queryParam(&quot;max&quot;, -1))</span>
+<span class="nc" id="L199">              .get()));</span>
+<span class="nc" id="L200">    } catch (NotFoundException notFound) {</span>
+<span class="nc" id="L201">      log.error(&quot;No persistence found but should be online.&quot;, notFound);</span>
+<span class="nc" id="L202">      throw notFound;</span>
+<span class="nc" id="L203">    } catch (LoadBalancerTimeoutException timeout) {</span>
+<span class="nc" id="L204">      log.error(&quot;Persistence call timed out but should be reachable.&quot;, timeout);</span>
+<span class="nc" id="L205">      throw timeout;</span>
+<span class="nc" id="L206">    }</span>
+
+<span class="nc bnc" id="L208" title="All 2 branches missed.">    if (result == null) {</span>
+<span class="nc" id="L209">      products.put(category, new ArrayList&lt;&gt;());</span>
+<span class="nc" id="L210">      log.info(&quot;No products for category {} ({}) found.&quot;, category.getName(), category.getId());</span>
+    } else {
+<span class="nc" id="L212">      List&lt;Long&gt; tmp = convertToIDs(result.readEntity(new GenericType&lt;List&lt;Product&gt;&gt;() {</span>
+      }));
+<span class="nc" id="L214">      products.put(category, tmp);</span>
+<span class="nc" id="L215">      result.close();</span>
+<span class="nc" id="L216">      log.info(&quot;Category {} ({}) contains {} products.&quot;, category.getName(), category.getId(),</span>
+<span class="nc" id="L217">          tmp.size());</span>
+    }
+<span class="nc" id="L219">  }</span>
+
+  private List&lt;Category&gt; fetchCategories() {
+<span class="nc" id="L222">    waitForPersistence();</span>
+
+<span class="nc" id="L224">    List&lt;Category&gt; categories = null;</span>
+<span class="nc" id="L225">    Response result = null;</span>
+    try {
+<span class="nc" id="L227">      result = ServiceLoadBalancer.loadBalanceRESTOperation(Service.PERSISTENCE, &quot;categories&quot;,</span>
+          Category.class,
+<span class="nc" id="L229">          client -&gt; ResponseWrapper.wrap(HttpWrapper.wrap(</span>
+<span class="nc" id="L230">              client.getService().path(client.getApplicationURI()).path(client.getEndpointURI()))</span>
+<span class="nc" id="L231">              .get()));</span>
+<span class="nc" id="L232">    } catch (NotFoundException notFound) {</span>
+<span class="nc" id="L233">      log.error(&quot;No persistence found but should be online.&quot;, notFound);</span>
+<span class="nc" id="L234">      throw notFound;</span>
+<span class="nc" id="L235">    } catch (LoadBalancerTimeoutException timeout) {</span>
+<span class="nc" id="L236">      log.error(&quot;Persistence call timed out but should be reachable.&quot;, timeout);</span>
+<span class="nc" id="L237">      throw timeout;</span>
+<span class="nc" id="L238">    }</span>
+
+<span class="nc bnc" id="L240" title="All 2 branches missed.">    if (result == null) {</span>
+<span class="nc" id="L241">      log.warn(&quot;No categories found.&quot;);</span>
+    } else {
+<span class="nc" id="L243">      categories = result.readEntity(new GenericType&lt;List&lt;Category&gt;&gt;() {</span>
+      });
+<span class="nc" id="L245">      result.close();</span>
+<span class="nc" id="L246">      log.info(&quot;{} categories found.&quot;, categories.size());</span>
+    }
+
+<span class="nc bnc" id="L249" title="All 2 branches missed.">    if (categories == null) {</span>
+<span class="nc" id="L250">      return new ArrayList&lt;Category&gt;();</span>
+    }
+<span class="nc" id="L252">    return categories;</span>
+  }
+
+  private List&lt;Long&gt; convertToIDs(List&lt;Product&gt; products) {
+<span class="nc bnc" id="L256" title="All 2 branches missed.">    if (products == null) {</span>
+<span class="nc" id="L257">      return new ArrayList&lt;&gt;();</span>
+    }
+<span class="nc" id="L259">    return products.stream().map(product -&gt; product.getId()).collect(Collectors.toList());</span>
+  }
+
+  private HashMap&lt;Category, BufferedImage&gt; matchCategoriesToImage(List&lt;Category&gt; categories) {
+<span class="nc" id="L263">    HashMap&lt;Category, BufferedImage&gt; result = new HashMap&lt;&gt;();</span>
+
+<span class="nc" id="L265">    List&lt;String&gt; imageNames = categoryImages.entrySet().stream().map(e -&gt; e.getKey())</span>
+<span class="nc" id="L266">        .collect(Collectors.toList());</span>
+<span class="nc bnc" id="L267" title="All 2 branches missed.">    for (String name : imageNames) {</span>
+<span class="nc bnc" id="L268" title="All 2 branches missed.">      for (Category category : categories) {</span>
+<span class="nc" id="L269">        String[] tmp = category.getName().split(&quot;,&quot;);</span>
+<span class="nc bnc" id="L270" title="All 2 branches missed.">        if (tmp[0].toLowerCase().replace(&quot; &quot;, &quot;-&quot;).equals(name)) {</span>
+<span class="nc" id="L271">          log.info(&quot;Found matching category {} ({}) for image {}.&quot;, category.getName(),</span>
+<span class="nc" id="L272">              category.getId(), name + &quot;.&quot; + StoreImage.STORE_IMAGE_FORMAT);</span>
+<span class="nc" id="L273">          result.put(category, categoryImages.get(name));</span>
+        }
+<span class="nc" id="L275">      }</span>
+<span class="nc" id="L276">    }</span>
+<span class="nc" id="L277">    return result;</span>
+  }
+
+  /**
+   * Generates images for the product IDs and categories received from the persistence service.
+   */
+  public void generateImages() {
+<span class="nc" id="L284">    List&lt;Category&gt; categories = fetchCategories();</span>
+<span class="nc" id="L285">    HashMap&lt;Category, List&lt;Long&gt;&gt; products = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L286">    categories.forEach(cat -&gt; fetchProductsForCategory(cat, products));</span>
+
+<span class="nc" id="L288">    generateImages(products, matchCategoriesToImage(categories));</span>
+<span class="nc" id="L289">  }</span>
+
+  /**
+   * Generates images for the given product IDs and categories.
+   * @param products Map of categories and the corresponding products.
+   * @param categoryImages Category image representing a specific category.
+   */
+  public void generateImages(Map&lt;Category, List&lt;Long&gt;&gt; products,
+      Map&lt;Category, BufferedImage&gt; categoryImages) {
+<span class="nc" id="L298">    nrOfImagesToGenerate = products.entrySet().stream().flatMap(e -&gt; e.getValue().stream()).count();</span>
+
+<span class="nc" id="L300">    CreatorFactory factory = new CreatorFactory(ImageCreator.STD_NR_OF_SHAPES_PER_IMAGE, imgDB,</span>
+        ImageSizePreset.STD_IMAGE_SIZE, workingDir, products, categoryImages, nrOfImagesGenerated);
+
+    // Schedule all image creation tasks
+<span class="nc bnc" id="L304" title="All 2 branches missed.">    for (long i = 0; i &lt; nrOfImagesToGenerate; i++) {</span>
+<span class="nc" id="L305">      imgCreationPool.execute(factory.newRunnable());</span>
+    }
+
+<span class="nc" id="L308">    log.info(&quot;Image creator thread started. {} {} sized images to generate using {} threads.&quot;,</span>
+<span class="nc" id="L309">        nrOfImagesToGenerate, ImageSizePreset.STD_IMAGE_SIZE.toString(),</span>
+<span class="nc" id="L310">        SetupControllerConstants.CREATION_THREAD_POOL_SIZE);</span>
+<span class="nc" id="L311">  }</span>
+
+  /**
+   * Search for category images in the resource folder.
+   */
+  public void detectCategoryImages() {
+<span class="nc" id="L317">    log.info(&quot;Trying to find images that indicate categories in generated images.&quot;);</span>
+
+<span class="nc" id="L319">    String resPath = &quot;categoryimg&quot; + File.separator + &quot;black-tea.png&quot;;</span>
+<span class="nc" id="L320">    File dir = getPathToResource(resPath).toFile();</span>
+
+<span class="nc bnc" id="L322" title="All 2 branches missed.">    if (dir != null) {</span>
+<span class="nc" id="L323">      log.info(&quot;Found resource directory with category images at {}.&quot;,</span>
+<span class="nc" id="L324">          dir.toPath().toAbsolutePath().toString());</span>
+    } else {
+<span class="nc" id="L326">      log.info(&quot;Resource path {} not found.&quot;, resPath);</span>
+<span class="nc" id="L327">      return;</span>
+    }
+
+<span class="nc" id="L330">    nrOfImagesForCategory = 0;</span>
+<span class="nc bnc" id="L331" title="All 4 branches missed.">    if (dir.exists() &amp;&amp; dir.isDirectory()) {</span>
+<span class="nc" id="L332">      File[] fileList = dir.listFiles();</span>
+<span class="nc bnc" id="L333" title="All 2 branches missed.">      if (fileList == null) {</span>
+<span class="nc" id="L334">    	  return;</span>
+      }
+<span class="nc bnc" id="L336" title="All 2 branches missed.">      for (File file : fileList) {</span>
+<span class="nc bnc" id="L337" title="All 4 branches missed.">        if (file.isFile() &amp;&amp; file.getName().endsWith(StoreImage.STORE_IMAGE_FORMAT)) {</span>
+          try {
+<span class="nc" id="L339">            categoryImages.put(file.getName().substring(0, file.getName().length() - 4),</span>
+<span class="nc" id="L340">                ImageIO.read(file));</span>
+<span class="nc" id="L341">            nrOfImagesForCategory++;</span>
+<span class="nc" id="L342">          } catch (IOException ioException) {</span>
+<span class="nc" id="L343">            log.warn(</span>
+<span class="nc" id="L344">                &quot;An IOException occured while reading image file &quot; + file.getAbsolutePath() + &quot;.&quot;,</span>
+                ioException);
+<span class="nc" id="L346">          }</span>
+        }
+      }
+    }
+<span class="nc" id="L350">    log.info(&quot;Found {} images for categories.&quot;, nrOfImagesForCategory);</span>
+<span class="nc" id="L351">  }</span>
+
+  /**
+   * Create the working directory in which all generated images are stored if it is not existing.
+   */
+  public void createWorkingDir() {
+<span class="nc bnc" id="L357" title="All 2 branches missed.">    if (!workingDir.toFile().exists()) {</span>
+<span class="nc bnc" id="L358" title="All 2 branches missed.">      if (!workingDir.toFile().mkdir()) {</span>
+<span class="nc" id="L359">        log.error(&quot;Standard working directory \&quot;&quot; + workingDir.toAbsolutePath()</span>
+            + &quot;\&quot; could not be created.&quot;);
+<span class="nc" id="L361">        throw new IllegalArgumentException(&quot;Standard working directory \&quot;&quot;</span>
+<span class="nc" id="L362">            + workingDir.toAbsolutePath() + &quot;\&quot; could not be created.&quot;);</span>
+      } else {
+<span class="nc" id="L364">        log.info(&quot;Working directory {} created.&quot;, workingDir.toAbsolutePath().toString());</span>
+      }
+    } else {
+<span class="nc" id="L367">      log.info(&quot;Working directory {} already existed.&quot;, workingDir.toAbsolutePath().toString());</span>
+    }
+<span class="nc" id="L369">  }</span>
+
+  /**
+   * Returns the path to a given resource, category image or web interface image.
+   * @param resource Resource to find path.
+   * @return Path to the given resource or NULL if the resource could not be found.
+   */
+  public Path getPathToResource(String resource) {
+    // Rework the code piece fetching the existing images until the next
+    // comment
+<span class="nc" id="L379">    URL url = this.getClass().getResource(resource);</span>
+<span class="nc" id="L380">    Path dir = null;</span>
+<span class="nc" id="L381">    String path = &quot;&quot;;</span>
+    try {
+<span class="nc" id="L383">      path = URLDecoder.decode(url.getPath(), &quot;UTF-8&quot;);</span>
+<span class="nc bnc" id="L384" title="All 2 branches missed.">      if (path.contains(&quot;:&quot;)) {</span>
+<span class="nc" id="L385">        path = path.substring(3);</span>
+      }
+<span class="nc" id="L387">      dir = Paths.get(path).getParent();</span>
+<span class="nc" id="L388">    } catch (UnsupportedEncodingException e) {</span>
+<span class="nc" id="L389">      log.warn(&quot;The resource path \&quot;&quot; + path + &quot;\&quot; could not be decoded with UTF-8.&quot;);</span>
+<span class="nc" id="L390">    }</span>
+    // End of rework
+<span class="nc" id="L392">    return dir;</span>
+  }
+
+  /**
+   * Search for web interface images and add them to the existing image database.
+   */
+  public void detectExistingImages() {
+<span class="nc" id="L399">    detectExistingImages(imgDB);</span>
+<span class="nc" id="L400">  }</span>
+
+  /**
+   * Search for web interface images and add them to the given image database.
+   * @param db Image database found web interface images will be added to.
+   */
+  public void detectExistingImages(ImageDB db) {
+<span class="nc bnc" id="L407" title="All 2 branches missed.">    if (db == null) {</span>
+<span class="nc" id="L408">      log.error(&quot;The supplied image database is null.&quot;);</span>
+<span class="nc" id="L409">      throw new NullPointerException(&quot;The supplied image database is null.&quot;);</span>
+    }
+
+<span class="nc" id="L412">    String resPath = &quot;existingimg&quot; + File.separator + &quot;front.png&quot;;</span>
+<span class="nc" id="L413">    Path dir = getPathToResource(resPath);</span>
+
+<span class="nc bnc" id="L415" title="All 2 branches missed.">    if (dir != null) {</span>
+<span class="nc" id="L416">      log.info(&quot;Found resource directory with existing images at {}.&quot;,</span>
+<span class="nc" id="L417">          dir.toAbsolutePath().toString());</span>
+    } else {
+<span class="nc" id="L419">      log.info(&quot;Resource path {} not found.&quot;, resPath);</span>
+<span class="nc" id="L420">      return;</span>
+    }
+
+<span class="nc" id="L423">    File currentDir = dir.toFile();</span>
+
+<span class="nc bnc" id="L425" title="All 4 branches missed.">    if (currentDir.exists() &amp;&amp; currentDir.isDirectory()) {</span>
+<span class="nc" id="L426">      File[] fileList = currentDir.listFiles();</span>
+<span class="nc bnc" id="L427" title="All 2 branches missed.">      if (fileList == null) {</span>
+<span class="nc" id="L428">    	  return;</span>
+      }
+<span class="nc bnc" id="L430" title="All 2 branches missed.">      for (File file : fileList) {</span>
+<span class="nc bnc" id="L431" title="All 4 branches missed.">        if (file.isFile() &amp;&amp; file.getName().endsWith(StoreImage.STORE_IMAGE_FORMAT)) {</span>
+<span class="nc" id="L432">          long imageID = ImageIDFactory.ID.getNextImageID();</span>
+
+<span class="nc" id="L434">          BufferedImage buffImg = null;</span>
+          // Copy files to correct file with the image id number
+          try {
+<span class="nc" id="L437">            buffImg = ImageIO.read(file);</span>
+
+<span class="nc" id="L439">          } catch (IOException ioException) {</span>
+<span class="nc" id="L440">            log.warn(&quot;An IOException occured while reading the file &quot; + file.getAbsolutePath()</span>
+<span class="nc" id="L441">                + &quot; from disk.&quot;, ioException.getMessage());</span>
+          } finally {
+<span class="nc bnc" id="L443" title="All 2 branches missed.">            if (buffImg == null) {</span>
+<span class="nc" id="L444">              log.warn(&quot;The file \&quot;&quot; + file.toPath().toAbsolutePath() + &quot;\&quot; could not be read.&quot;);</span>
+<span class="nc" id="L445">              continue;</span>
+            }
+          }
+
+<span class="nc" id="L449">          db.setImageMapping(</span>
+<span class="nc" id="L450">              file.getName().substring(0,</span>
+<span class="nc" id="L451">                  file.getName().length() - StoreImage.STORE_IMAGE_FORMAT.length() - 1),</span>
+<span class="nc" id="L452">              imageID, new ImageSize(buffImg.getWidth(), buffImg.getHeight()));</span>
+<span class="nc" id="L453">          StoreImage img = new StoreImage(imageID, buffImg, ImageSizePreset.FULL.getSize());</span>
+
+          try {
+<span class="nc" id="L456">            Files.write(workingDir.resolve(String.valueOf(imageID)), img.getByteArray(),</span>
+                StandardOpenOption.CREATE, StandardOpenOption.WRITE,
+                StandardOpenOption.TRUNCATE_EXISTING);
+<span class="nc" id="L459">          } catch (IOException ioException) {</span>
+<span class="nc" id="L460">            log.warn(&quot;An IOException occured while writing the image with ID &quot;</span>
+<span class="nc" id="L461">                + String.valueOf(imageID) + &quot; to the file &quot;</span>
+<span class="nc" id="L462">                + workingDir.resolve(String.valueOf(imageID)).toAbsolutePath() + &quot;.&quot;,</span>
+<span class="nc" id="L463">                ioException.getMessage());</span>
+<span class="nc" id="L464">          }</span>
+          // Increment to have correct number of images for the limited drive storage
+<span class="nc" id="L466">          nrOfImagesExisting++;</span>
+        }
+      }
+    }
+
+<span class="nc" id="L471">    log.info(&quot;Scanned path {} for existing images. {} images found.&quot;,</span>
+<span class="nc" id="L472">        dir.toAbsolutePath().toString(), nrOfImagesExisting);</span>
+<span class="nc" id="L473">  }</span>
+
+  /**
+   * Sets the cache size of the specific implementation.
+   * @param cacheSize Positive cache size in bytes.
+   * @return True if the cache size was set successfully, otherwise false.
+   */
+  public boolean setCacheSize(long cacheSize) {
+<span class="nc bnc" id="L481" title="All 2 branches missed.">    if (cacheSize &lt; 0) {</span>
+<span class="nc" id="L482">      log.info(&quot;Tried to set cache size to a value below zero. Keeping old value&quot;);</span>
+<span class="nc" id="L483">      return false;</span>
+    }
+<span class="nc bnc" id="L485" title="All 2 branches missed.">    if (cache == null) {</span>
+<span class="nc" id="L486">      log.info(&quot;No cache defined.&quot;);</span>
+<span class="nc" id="L487">      return false;</span>
+    }
+<span class="nc" id="L489">    return cache.setMaxCacheSize(cacheSize);</span>
+  }
+
+  /**
+   * Delete all images from the current working directory.
+   */
+  public void deleteImages() {
+<span class="nc" id="L496">    deleteUnusedImages(new ArrayList&lt;&gt;());</span>
+<span class="nc" id="L497">  }</span>
+
+  /**
+   * Delete all images from the current working directory, except the images with the IDs given.
+   * @param imagesToKeep List of images to keep.
+   */
+  public void deleteUnusedImages(List&lt;Long&gt; imagesToKeep) {
+<span class="nc" id="L504">    File currentDir = workingDir.toFile();</span>
+<span class="nc" id="L505">    int nrOfImagesDeleted = 0;</span>
+
+<span class="nc bnc" id="L507" title="All 4 branches missed.">    if (currentDir.exists() &amp;&amp; currentDir.isDirectory()) {</span>
+<span class="nc" id="L508">      File[] fileList = currentDir.listFiles();</span>
+<span class="nc bnc" id="L509" title="All 2 branches missed.">      if (fileList == null) {</span>
+<span class="nc" id="L510">        return;</span>
+      }
+<span class="nc bnc" id="L512" title="All 2 branches missed.">      for (File file : fileList) {</span>
+<span class="nc bnc" id="L513" title="All 4 branches missed.">        if (file.isFile() &amp;&amp; !imagesToKeep.contains(Long.parseLong(file.getName()))) {</span>
+<span class="nc" id="L514">          boolean isDeleted = file.delete();</span>
+<span class="nc bnc" id="L515" title="All 2 branches missed.">          if (isDeleted) {</span>
+<span class="nc" id="L516">            nrOfImagesDeleted++;</span>
+          }
+        }
+      }
+    }
+
+<span class="nc" id="L522">    log.info(&quot;Deleted images in working directory {}. {} images deleted.&quot;,</span>
+<span class="nc" id="L523">        workingDir.toAbsolutePath().toString(), nrOfImagesDeleted);</span>
+<span class="nc" id="L524">  }</span>
+
+  /**
+   * Deletes the current working directory.
+   */
+  public void deleteWorkingDir() {
+<span class="nc" id="L530">    File currentDir = workingDir.toFile();</span>
+<span class="nc" id="L531">    boolean isDeleted = false;</span>
+
+<span class="nc bnc" id="L533" title="All 4 branches missed.">    if (currentDir.exists() &amp;&amp; currentDir.isDirectory()) {</span>
+<span class="nc" id="L534">      isDeleted = currentDir.delete();</span>
+    }
+
+<span class="nc bnc" id="L537" title="All 2 branches missed.">    if (isDeleted) {</span>
+<span class="nc" id="L538">      log.info(&quot;Deleted working directory {}.&quot;, workingDir.toAbsolutePath().toString());</span>
+    } else {
+<span class="nc" id="L540">      log.info(&quot;Working directory {} not deleted.&quot;, workingDir.toAbsolutePath().toString());</span>
+    }
+<span class="nc" id="L542">  }</span>
+
+  /**
+   * Sets up the storage, storage rule, cache implementation and caching rule according to the configuration.
+   */
+  public void setupStorage() {
+<span class="nc" id="L548">    Predicate&lt;StoreImage&gt; storagePredicate = new StoreAll&lt;StoreImage&gt;();</span>
+<span class="nc bnc" id="L549" title="All 3 branches missed.">    switch (storageRule) {</span>
+    case ALL:
+<span class="nc" id="L551">      break;</span>
+    case FULL_SIZE_IMG:
+<span class="nc" id="L553">      storagePredicate = new StoreLargeImages();</span>
+<span class="nc" id="L554">      break;</span>
+    default:
+      break;
+    }
+
+    // We only support Drive Storage at this moment
+<span class="nc" id="L560">    storage = new DriveStorage(workingDir, imgDB, storagePredicate);</span>
+    /*
+    switch (storageMode) {
+    case DRIVE:
+      storage = new DriveStorage(workingDir, imgDB, storagePredicate);
+      break;
+    default:
+      storage = new DriveStorage(workingDir, imgDB, storagePredicate);
+      break;
+    }
+    */
+
+<span class="nc" id="L572">    Predicate&lt;StoreImage&gt; cachePredicate = null;</span>
+<span class="nc bnc" id="L573" title="All 2 branches missed.">    switch (cachingRule) {</span>
+    case ALL:
+<span class="nc" id="L575">      cachePredicate = new CacheAll&lt;StoreImage&gt;();</span>
+<span class="nc" id="L576">      break;</span>
+    default:
+<span class="nc" id="L578">      cachePredicate = new CacheAll&lt;StoreImage&gt;();</span>
+      break;
+    }
+
+<span class="nc" id="L582">    cache = null;</span>
+<span class="nc bnc" id="L583" title="All 8 branches missed.">    switch (cachingMode) {</span>
+    case FIFO:
+<span class="nc" id="L585">      cache = new FirstInFirstOut&lt;StoreImage&gt;(storage, cacheSize, cachePredicate);</span>
+<span class="nc" id="L586">      break;</span>
+    case LIFO:
+<span class="nc" id="L588">      cache = new LastInFirstOut&lt;StoreImage&gt;(storage, cacheSize, cachePredicate);</span>
+<span class="nc" id="L589">      break;</span>
+    case RR:
+<span class="nc" id="L591">      cache = new RandomReplacement&lt;StoreImage&gt;(storage, cacheSize, cachePredicate);</span>
+<span class="nc" id="L592">      break;</span>
+    case LFU:
+<span class="nc" id="L594">      cache = new LeastFrequentlyUsed&lt;StoreImage&gt;(storage, cacheSize, cachePredicate);</span>
+<span class="nc" id="L595">      break;</span>
+    case LRU:
+<span class="nc" id="L597">      cache = new LeastRecentlyUsed&lt;StoreImage&gt;(storage, cacheSize, cachePredicate);</span>
+<span class="nc" id="L598">      break;</span>
+    case MRU:
+<span class="nc" id="L600">      cache = new MostRecentlyUsed&lt;StoreImage&gt;(storage, cacheSize, cachePredicate);</span>
+<span class="nc" id="L601">      break;</span>
+    case NONE:
+<span class="nc" id="L603">      break;</span>
+    default:
+      break;
+    }
+
+<span class="nc" id="L608">    log.info(&quot;Storage setup done.&quot;);</span>
+<span class="nc" id="L609">  }</span>
+
+  /**
+   * Give the image provider the configured image database and cache / storage object containing all images referenced
+   * in the image database.
+   */
+  public void configureImageProvider() {
+<span class="nc" id="L616">    ImageProvider.IP.setImageDB(imgDB);</span>
+<span class="nc bnc" id="L617" title="All 2 branches missed.">    if (cache == null) {</span>
+<span class="nc" id="L618">    	ImageProvider.IP.setStorage(storage);</span>
+    } else {
+<span class="nc" id="L620">    	ImageProvider.IP.setStorage(cache);</span>
+    }
+
+<span class="nc" id="L623">    log.info(&quot;Storage and image database handed over to image provider&quot;);</span>
+<span class="nc" id="L624">  }</span>
+
+  /**
+   * Returns the current working directory.
+   * @return Current working directory.
+   */
+  public Path getWorkingDir() {
+<span class="nc" id="L631">    return workingDir;</span>
+  }
+
+  /**
+   * Checks whether the setup is finished and complete or not.
+   * @return True if the setup is finished and complete, otherwise false.
+   */
+  public boolean isFinished() {
+<span class="nc bnc" id="L639" title="All 2 branches missed.">    if (storage == null) {</span>
+<span class="nc" id="L640">      return false;</span>
+    }
+<span class="nc bnc" id="L642" title="All 2 branches missed.">    if (imgCreationPool.getQueue().size() != 0) {</span>
+<span class="nc" id="L643">      return false;</span>
+    }
+<span class="nc" id="L645">    return isFinished.get();</span>
+  }
+
+  /**
+   * Returns a string containing the current state of the image provider setup and configuration settings.
+   * @return A string containing the current state of the image provider setup and configuration settings.
+   */
+  public String getState() {
+<span class="nc" id="L653">    StringBuilder sb = new StringBuilder();</span>
+
+<span class="nc" id="L655">    sb.append(&quot;Image Provider State:&quot;).append(System.lineSeparator());</span>
+<span class="nc" id="L656">    sb.append(&quot;---------------------&quot;).append(System.lineSeparator());</span>
+<span class="nc" id="L657">    sb.append(&quot;Working Directory: &quot;).append(workingDir.toAbsolutePath().toString())</span>
+<span class="nc" id="L658">        .append(System.lineSeparator());</span>
+<span class="nc" id="L659">    sb.append(&quot;Storage Mode: &quot;).append(storageMode.getStrRepresentation())</span>
+<span class="nc" id="L660">        .append(System.lineSeparator());</span>
+<span class="nc" id="L661">    sb.append(&quot;Storage Rule: &quot;).append(storageRule.getStrRepresentation())</span>
+<span class="nc" id="L662">        .append(System.lineSeparator());</span>
+<span class="nc" id="L663">    sb.append(&quot;Caching Mode: &quot;).append(cachingMode.getStrRepresentation())</span>
+<span class="nc" id="L664">        .append(System.lineSeparator());</span>
+<span class="nc" id="L665">    sb.append(&quot;Caching Rule: &quot;).append(cachingRule.getStrRepresentation())</span>
+<span class="nc" id="L666">        .append(System.lineSeparator());</span>
+<span class="nc" id="L667">    String poolState = &quot;Running&quot;;</span>
+<span class="nc bnc" id="L668" title="All 2 branches missed.">    if (imgCreationPool.getQueue().size() == 0) {</span>
+<span class="nc" id="L669">    	poolState = &quot;Finished&quot;;</span>
+    }
+<span class="nc" id="L671">    sb.append(&quot;Creator Thread: &quot;).append(poolState)</span>
+<span class="nc" id="L672">        .append(System.lineSeparator());</span>
+<span class="nc" id="L673">    sb.append(&quot;Images Created: &quot;).append(String.valueOf(nrOfImagesGenerated.get())).append(&quot; / &quot;)</span>
+<span class="nc" id="L674">        .append(String.valueOf(nrOfImagesToGenerate)).append(System.lineSeparator());</span>
+<span class="nc" id="L675">    sb.append(&quot;Pre-Existing Images Found: &quot;).append(String.valueOf(nrOfImagesExisting))</span>
+<span class="nc" id="L676">        .append(System.lineSeparator());</span>
+<span class="nc" id="L677">    sb.append(&quot;Category Images Found: &quot;).append(String.valueOf(nrOfImagesForCategory))</span>
+<span class="nc" id="L678">        .append(System.lineSeparator());</span>
+
+<span class="nc" id="L680">    return sb.toString();</span>
+  }
+
+  private void waitAndStopImageCreation(boolean terminate, long waitTime) {
+    // Stop image creation to have sort of a steady state to work on
+    // Shutdown now will finish all running tasks and not schedule new threads
+    // Shutdown does allow the thread pool to finish all available tasks but no new
+    // ones
+<span class="nc bnc" id="L688" title="All 2 branches missed.">    if (terminate) {</span>
+<span class="nc" id="L689">      imgCreationPool.shutdownNow();</span>
+<span class="nc" id="L690">      log.info(&quot;Send termination signal to image creation thread pool.&quot;);</span>
+    } else {
+<span class="nc" id="L692">      imgCreationPool.shutdown();</span>
+<span class="nc" id="L693">      log.info(&quot;Send shutdown signal to image creation thread pool.&quot;);</span>
+    }
+    try {
+<span class="nc bnc" id="L696" title="All 2 branches missed.">      if (imgCreationPool.awaitTermination(waitTime, TimeUnit.MILLISECONDS)) {</span>
+<span class="nc" id="L697">        log.info(&quot;Image creation stopped.&quot;);</span>
+      } else {
+<span class="nc" id="L699">        log.warn(&quot;Image creation thread pool not terminating after {}ms. Stop waiting.&quot;, waitTime);</span>
+      }
+<span class="nc" id="L701">    } catch (InterruptedException interruptedException) {</span>
+<span class="nc" id="L702">      log.warn(&quot;Waiting for image creation thread pool termination interrupted by exception.&quot;,</span>
+          interruptedException);
+<span class="nc" id="L704">    }</span>
+    // Maybe we need to keep a reference to the old thread pool if it has not
+    // finished properly yet.
+<span class="nc" id="L707">    imgCreationPool = new ScheduledThreadPoolExecutor(</span>
+        SetupControllerConstants.CREATION_THREAD_POOL_SIZE);
+<span class="nc" id="L709">  }</span>
+
+  private boolean isFirstImageProvider() {
+<span class="nc bnc" id="L712" title="All 2 branches missed.">    return RegistryClient.getClient().getServersForService(Service.IMAGE).size() == 0;</span>
+  }
+
+  /*
+   * Convenience methods
+   */
+
+  /**
+   * Deletes all images and the current working directory.
+   */
+  public void teardown() {
+<span class="nc" id="L723">    deleteImages();</span>
+<span class="nc" id="L724">    deleteWorkingDir();</span>
+<span class="nc" id="L725">  }</span>
+
+  /**
+   * Deletes all images and the current working directory and starts the setup by generating product images and
+   * adding web interface images to the image database. The final cache / storage and image database is then handed
+   * over to the image provider instance. If this image provider service is the not the first image provider and other
+   * image provider services are registered, the registration is delayed until all images are generated.
+   */
+  public void startup() {
+    // Delete all images in case the image provider was not shutdown gracefully last
+    // time, leaving images on disk
+<span class="nc" id="L736">    isFinished.set(false);</span>
+<span class="nc" id="L737">    deleteImages();</span>
+<span class="nc" id="L738">    deleteWorkingDir();</span>
+<span class="nc" id="L739">    createWorkingDir();</span>
+<span class="nc" id="L740">    detectExistingImages();</span>
+<span class="nc" id="L741">    detectCategoryImages();</span>
+<span class="nc" id="L742">    generateImages();</span>
+<span class="nc" id="L743">    setupStorage();</span>
+<span class="nc" id="L744">    configureImageProvider();</span>
+    // Check if this is the first image provider. If not, wait for termination of
+    // the image creation before registering
+<span class="nc bnc" id="L747" title="All 2 branches missed.">    if (!isFirstImageProvider()) {</span>
+<span class="nc" id="L748">      waitAndStopImageCreation(false,</span>
+<span class="nc" id="L749">          ((nrOfImagesToGenerate - nrOfImagesGenerated.get())</span>
+              / SetupControllerConstants.CREATION_THREAD_POOL_SIZE)
+              * SetupControllerConstants.CREATION_THREAD_POOL_WAIT_PER_IMG_NR);
+    }
+<span class="nc" id="L753">    isFinished.set(true);</span>
+<span class="nc" id="L754">  }</span>
+
+  /**
+   * Deletes all images and the current working directory and starts the setup by generating product images and
+   * adding web interface images to the image database. The final cache / storage and image database is then handed
+   * over to the image provider instance. The reconfiguration and image generation takes place in a background thread.
+   * This service remains registered and might receive request from other services.
+   */
+  public void reconfiguration() {
+<span class="nc" id="L763">    Thread x = new Thread() {</span>
+
+      @Override
+      public void run() {
+<span class="nc" id="L767">        waitAndStopImageCreation(true, SetupControllerConstants.CREATION_THREAD_POOL_WAIT);</span>
+<span class="nc" id="L768">        imgDB = new ImageDB();</span>
+
+<span class="nc" id="L770">        isFinished.set(false);</span>
+<span class="nc" id="L771">        deleteImages();</span>
+<span class="nc" id="L772">        detectExistingImages();</span>
+<span class="nc" id="L773">        detectCategoryImages();</span>
+<span class="nc" id="L774">        generateImages();</span>
+<span class="nc" id="L775">        setupStorage();</span>
+<span class="nc" id="L776">        configureImageProvider();</span>
+<span class="nc" id="L777">        isFinished.set(true);</span>
+<span class="nc" id="L778">      }</span>
+    };
+<span class="nc" id="L780">    x.start();</span>
+<span class="nc" id="L781">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

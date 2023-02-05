@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TrainingSynchronizer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeaStore Recommender</a> &gt; <a href="index.source.html" class="el_package">tools.descartes.teastore.recommender.servlet</a> &gt; <span class="el_source">TrainingSynchronizer.java</span></div><h1>TrainingSynchronizer.java</h1><pre class="source lang-java linenums">/**
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package tools.descartes.teastore.recommender.servlet;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import tools.descartes.teastore.recommender.algorithm.RecommenderSelector;
+import tools.descartes.teastore.registryclient.Service;
+import tools.descartes.teastore.registryclient.loadbalancers.LoadBalancerTimeoutException;
+import tools.descartes.teastore.registryclient.loadbalancers.ServiceLoadBalancer;
+import tools.descartes.teastore.registryclient.rest.LoadBalancedCRUDOperations;
+import tools.descartes.teastore.registryclient.util.NotFoundException;
+import tools.descartes.teastore.entities.Order;
+import tools.descartes.teastore.entities.OrderItem;
+
+/**
+ * This class organizes the communication with the other services and
+ * synchronizes on startup and training.
+ *
+ * @author Johannes Grohmann
+ *
+ */
+public final class TrainingSynchronizer {
+
+	/**
+	 * This value signals that the maximum training time is not known.
+	 */
+	public static final long DEFAULT_MAX_TIME_VALUE = Long.MIN_VALUE;
+
+	// Longest wait period before querying the persistence again if it is finished
+	// creating entries
+	private static final int PERSISTENCE_CREATION_MAX_WAIT_TIME = 120000;
+	// Wait time in ms before checking again for an existing persistence service
+<span class="nc" id="L60">	private static final List&lt;Integer&gt; PERSISTENCE_CREATION_WAIT_TIME = Arrays.asList(1000, 2000, 5000, 10000, 30000,</span>
+<span class="nc" id="L61">			60000);</span>
+
+	private static TrainingSynchronizer instance;
+
+<span class="nc" id="L65">	private boolean isReady = false;</span>
+
+	/**
+	 * @return the isReady
+	 */
+	public boolean isReady() {
+<span class="nc" id="L71">		return isReady;</span>
+	}
+
+	/**
+	 * @param isReady
+	 *            the isReady to set
+	 */
+	public void setReady(boolean isReady) {
+<span class="nc" id="L79">		this.isReady = isReady;</span>
+<span class="nc" id="L80">	}</span>
+
+<span class="nc" id="L82">	private TrainingSynchronizer() {</span>
+
+<span class="nc" id="L84">	}</span>
+
+	/**
+	 * Returns the instance for this singleton.
+	 *
+	 * @return An instance of {@link TrainingSynchronizer}
+	 */
+	public static synchronized TrainingSynchronizer getInstance() {
+<span class="nc bnc" id="L92" title="All 2 branches missed.">		if (instance == null) {</span>
+<span class="nc" id="L93">			instance = new TrainingSynchronizer();</span>
+		}
+<span class="nc" id="L95">		return instance;</span>
+	}
+
+<span class="nc" id="L98">	private static final Logger LOG = LoggerFactory.getLogger(TrainingSynchronizer.class);</span>
+
+	/**
+	 * The maximum considered time in milliseconds. DEFAULT_MAX_TIME_VALUE signals
+	 * no entry, e.g. all orders are used for training.
+	 */
+<span class="nc" id="L104">	private long maxTime = DEFAULT_MAX_TIME_VALUE;</span>
+
+	/**
+	 * @return the maxTime
+	 */
+	public long getMaxTime() {
+<span class="nc" id="L110">		return maxTime;</span>
+	}
+
+	/**
+	 * @param maxTime
+	 *            the maxTime to set
+	 */
+	public void setMaxTime(String maxTime) {
+<span class="nc" id="L118">		setMaxTime(toMillis(maxTime));</span>
+<span class="nc" id="L119">	}</span>
+
+	/**
+	 * @param maxTime
+	 *            the maxTime to set
+	 */
+	public void setMaxTime(long maxTime) {
+<span class="nc" id="L126">		this.maxTime = maxTime;</span>
+<span class="nc" id="L127">	}</span>
+
+	private void waitForPersistence() {
+		// We have to wait for the database that all entries are created before
+		// generating images (which queries persistence). Yes we want to wait forever in
+		// case the persistence is
+		// not answering.
+<span class="nc" id="L134">		Iterator&lt;Integer&gt; waitTimes = PERSISTENCE_CREATION_WAIT_TIME.iterator();</span>
+		while (true) {
+<span class="nc" id="L136">			Response result = null;</span>
+			try {
+<span class="nc" id="L138">				result = ServiceLoadBalancer.loadBalanceRESTOperation(Service.PERSISTENCE, &quot;generatedb&quot;, String.class,</span>
+<span class="nc" id="L139">						client -&gt; client.getService().path(client.getApplicationURI()).path(client.getEndpointURI())</span>
+<span class="nc" id="L140">								.path(&quot;finished&quot;).request().get());</span>
+
+<span class="nc bnc" id="L142" title="All 4 branches missed.">								if (result != null &amp;&amp; Boolean.parseBoolean(result.readEntity(String.class))) {</span>
+									break;
+				}
+<span class="nc" id="L145">			} catch (NullPointerException | NotFoundException | LoadBalancerTimeoutException e) {</span>
+				// continue waiting as usual
+			} finally {
+<span class="nc bnc" id="L148" title="All 2 branches missed.">				if (result != null) {</span>
+<span class="nc" id="L149">					result.close();</span>
+				}
+			}
+			try {
+				int nextWaitTime;
+<span class="nc bnc" id="L154" title="All 2 branches missed.">				if (waitTimes.hasNext()) {</span>
+<span class="nc" id="L155">					nextWaitTime = waitTimes.next();</span>
+				} else {
+<span class="nc" id="L157">					nextWaitTime = PERSISTENCE_CREATION_MAX_WAIT_TIME;</span>
+				}
+<span class="nc" id="L159">				LOG.info(&quot;Persistence not reachable. Waiting for {}ms.&quot;, nextWaitTime);</span>
+<span class="nc" id="L160">				Thread.sleep(nextWaitTime);</span>
+<span class="nc" id="L161">			} catch (InterruptedException interrupted) {</span>
+<span class="nc" id="L162">				LOG.warn(&quot;Thread interrupted while waiting for persistence to be available.&quot;, interrupted);</span>
+<span class="nc" id="L163">			}</span>
+<span class="nc" id="L164">		}</span>
+<span class="nc" id="L165">	}</span>
+
+	/**
+	 * Connects via REST to the database and retrieves all {@link OrderItem}s and
+	 * all {@link Order}s. Then, it triggers the training of the recommender.
+	 *
+	 * @return The number of elements retrieved from the database or -1 if the
+	 *         process failed.
+	 */
+	public long retrieveDataAndRetrain() {
+<span class="nc" id="L175">		setReady(false);</span>
+<span class="nc" id="L176">		LOG.trace(&quot;Retrieving data objects from database...&quot;);</span>
+
+<span class="nc" id="L178">		waitForPersistence();</span>
+
+<span class="nc" id="L180">		List&lt;OrderItem&gt; items = null;</span>
+<span class="nc" id="L181">		List&lt;Order&gt; orders = null;</span>
+		// retrieve
+		try {
+<span class="nc" id="L184">			items = LoadBalancedCRUDOperations.getEntities(Service.PERSISTENCE, &quot;orderitems&quot;, OrderItem.class, -1, -1);</span>
+<span class="nc" id="L185">			long noItems = items.size();</span>
+<span class="nc" id="L186">			LOG.trace(&quot;Retrieved &quot; + noItems + &quot; orderItems, starting retrieving of orders now.&quot;);</span>
+<span class="nc" id="L187">		} catch (NotFoundException | LoadBalancerTimeoutException e) {</span>
+			// set ready anyway to avoid deadlocks
+<span class="nc" id="L189">			setReady(true);</span>
+<span class="nc" id="L190">			LOG.error(&quot;Database retrieving failed.&quot;);</span>
+<span class="nc" id="L191">			return -1;</span>
+<span class="nc" id="L192">		}</span>
+		try {
+<span class="nc" id="L194">			orders = LoadBalancedCRUDOperations.getEntities(Service.PERSISTENCE, &quot;orders&quot;, Order.class, -1, -1);</span>
+<span class="nc" id="L195">			long noOrders = orders.size();</span>
+<span class="nc" id="L196">			LOG.trace(&quot;Retrieved &quot; + noOrders + &quot; orders, starting training now.&quot;);</span>
+<span class="nc" id="L197">		} catch (NotFoundException | LoadBalancerTimeoutException e) {</span>
+			// set ready anyway to avoid deadlocks
+<span class="nc" id="L199">			setReady(true);</span>
+<span class="nc" id="L200">			LOG.error(&quot;Database retrieving failed.&quot;);</span>
+<span class="nc" id="L201">			return -1;</span>
+<span class="nc" id="L202">		}</span>
+		// filter lists
+<span class="nc" id="L204">		filterLists(items, orders);</span>
+		// train instance
+<span class="nc" id="L206">		RecommenderSelector.getInstance().train(items, orders);</span>
+<span class="nc" id="L207">		LOG.trace(&quot;Finished training, ready for recommendation.&quot;);</span>
+<span class="nc" id="L208">		setReady(true);</span>
+<span class="nc" id="L209">		return items.size() + orders.size();</span>
+	}
+
+	private void filterLists(List&lt;OrderItem&gt; orderItems, List&lt;Order&gt; orders) {
+		// since we are not registered ourselves, we can multicast to all services
+<span class="nc" id="L214">		List&lt;Response&gt; maxTimeResponses = ServiceLoadBalancer.multicastRESTOperation(Service.RECOMMENDER,</span>
+				&quot;train/timestamp&quot;, Response.class,
+<span class="nc" id="L216">				client -&gt; client.getService().path(client.getApplicationURI()).path(client.getEndpointURI())</span>
+<span class="nc" id="L217">						.request(MediaType.TEXT_PLAIN).accept(MediaType.TEXT_PLAIN).get());</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">		for (Response response : maxTimeResponses) {</span>
+<span class="nc bnc" id="L219" title="All 2 branches missed.">			if (response == null) {</span>
+<span class="nc" id="L220">				LOG.warn(&quot;One service response was null and is therefore not available for time-check.&quot;);</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">			} else if (response.getStatus() == Response.Status.OK.getStatusCode()) {</span>
+				// only consider if status was fine
+<span class="nc" id="L223">				long milliTS = response.readEntity(Long.class);</span>
+<span class="nc bnc" id="L224" title="All 4 branches missed.">				if (maxTime != TrainingSynchronizer.DEFAULT_MAX_TIME_VALUE &amp;&amp; maxTime != milliTS) {</span>
+<span class="nc" id="L225">					LOG.warn(&quot;Services disagree about timestamp: &quot; + maxTime + &quot; vs &quot; + milliTS</span>
+							+ &quot;. Therfore using the minimum.&quot;);
+				}
+<span class="nc" id="L228">				maxTime = Math.min(maxTime, milliTS);</span>
+<span class="nc" id="L229">			} else {</span>
+				// release connection by buffering entity
+<span class="nc" id="L231">				response.bufferEntity();</span>
+<span class="nc" id="L232">				LOG.warn(&quot;Service &quot; + response + &quot;was not available for time-check.&quot;);</span>
+			}
+<span class="nc" id="L234">		}</span>
+<span class="nc bnc" id="L235" title="All 2 branches missed.">		if (maxTime == Long.MIN_VALUE) {</span>
+			// we are the only known service
+			// therefore we find max and set it
+<span class="nc bnc" id="L238" title="All 2 branches missed.">			for (Order or : orders) {</span>
+<span class="nc" id="L239">				maxTime = Math.max(maxTime, toMillis(or.getTime()));</span>
+<span class="nc" id="L240">			}</span>
+		}
+<span class="nc" id="L242">		filterForMaxtimeStamp(orderItems, orders);</span>
+<span class="nc" id="L243">	}</span>
+
+	private void filterForMaxtimeStamp(List&lt;OrderItem&gt; orderItems, List&lt;Order&gt; orders) {
+		// filter orderItems and orders and ignore newer entries.
+<span class="nc" id="L247">		List&lt;Order&gt; remove = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L248" title="All 2 branches missed.">		for (Order or : orders) {</span>
+<span class="nc bnc" id="L249" title="All 2 branches missed.">			if (toMillis(or.getTime()) &gt; maxTime) {</span>
+<span class="nc" id="L250">				remove.add(or);</span>
+			}
+<span class="nc" id="L252">		}</span>
+<span class="nc" id="L253">		orders.removeAll(remove);</span>
+
+<span class="nc" id="L255">		List&lt;OrderItem&gt; removeItems = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L256" title="All 2 branches missed.">		for (OrderItem orderItem : orderItems) {</span>
+<span class="nc" id="L257">			boolean contained = false;</span>
+<span class="nc bnc" id="L258" title="All 2 branches missed.">			for (Order or : orders) {</span>
+<span class="nc bnc" id="L259" title="All 2 branches missed.">				if (or.getId() == orderItem.getOrderId()) {</span>
+<span class="nc" id="L260">					contained = true;</span>
+				}
+<span class="nc" id="L262">			}</span>
+<span class="nc bnc" id="L263" title="All 2 branches missed.">			if (!contained) {</span>
+<span class="nc" id="L264">				removeItems.add(orderItem);</span>
+			}
+<span class="nc" id="L266">		}</span>
+<span class="nc" id="L267">		orderItems.removeAll(removeItems);</span>
+<span class="nc" id="L268">	}</span>
+
+	private long toMillis(String date) {
+<span class="nc" id="L271">		TemporalAccessor temporalAccessor = DateTimeFormatter.ISO_LOCAL_DATE_TIME.parse(date);</span>
+<span class="nc" id="L272">		LocalDateTime localDateTime = LocalDateTime.from(temporalAccessor);</span>
+<span class="nc" id="L273">		ZonedDateTime zonedDateTime = ZonedDateTime.of(localDateTime, ZoneId.systemDefault());</span>
+<span class="nc" id="L274">		Instant instant = Instant.from(zonedDateTime);</span>
+<span class="nc" id="L275">		return instant.toEpochMilli();</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

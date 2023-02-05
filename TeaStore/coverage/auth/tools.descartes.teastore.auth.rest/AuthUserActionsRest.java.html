@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthUserActionsRest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeaStore Auth</a> &gt; <a href="index.source.html" class="el_package">tools.descartes.teastore.auth.rest</a> &gt; <span class="el_source">AuthUserActionsRest.java</span></div><h1>AuthUserActionsRest.java</h1><pre class="source lang-java linenums">/**
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package tools.descartes.teastore.auth.rest;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Response;
+
+import tools.descartes.teastore.auth.security.BCryptProvider;
+import tools.descartes.teastore.auth.security.RandomSessionIdGenerator;
+import tools.descartes.teastore.auth.security.ShaSecurityProvider;
+import tools.descartes.teastore.entities.Order;
+import tools.descartes.teastore.entities.OrderItem;
+import tools.descartes.teastore.entities.User;
+import tools.descartes.teastore.entities.message.SessionBlob;
+import tools.descartes.teastore.registryclient.Service;
+import tools.descartes.teastore.registryclient.loadbalancers.LoadBalancerTimeoutException;
+import tools.descartes.teastore.registryclient.rest.LoadBalancedCRUDOperations;
+import tools.descartes.teastore.registryclient.util.NotFoundException;
+import tools.descartes.teastore.registryclient.util.TimeoutException;
+
+/**
+ * Rest endpoint for the store user actions.
+ * 
+ * @author Simon
+ */
+@Path(&quot;useractions&quot;)
+@Produces({ &quot;application/json&quot; })
+@Consumes({ &quot;application/json&quot; })
+<span class="nc" id="L48">public class AuthUserActionsRest {</span>
+
+  /**
+   * Persists order in database.
+   * 
+   * @param blob
+   *          SessionBlob
+   * @param totalPriceInCents
+   *          totalPrice
+   * @param addressName
+   *          address
+   * @param address1
+   *          address
+   * @param address2
+   *          address
+   * @param creditCardCompany
+   *          creditcard
+   * @param creditCardNumber
+   *          creditcard
+   * @param creditCardExpiryDate
+   *          creditcard
+   * @return Response containing SessionBlob
+   */
+  @POST
+  @Path(&quot;placeorder&quot;)
+  public Response placeOrder(SessionBlob blob,
+      @QueryParam(&quot;totalPriceInCents&quot;) long totalPriceInCents,
+      @QueryParam(&quot;addressName&quot;) String addressName, @QueryParam(&quot;address1&quot;) String address1,
+      @QueryParam(&quot;address2&quot;) String address2,
+      @QueryParam(&quot;creditCardCompany&quot;) String creditCardCompany,
+      @QueryParam(&quot;creditCardNumber&quot;) String creditCardNumber,
+      @QueryParam(&quot;creditCardExpiryDate&quot;) String creditCardExpiryDate) {
+<span class="nc bnc" id="L80" title="All 4 branches missed.">    if (new ShaSecurityProvider().validate(blob) == null || blob.getOrderItems().isEmpty()) {</span>
+<span class="nc" id="L81">      return Response.status(Response.Status.NOT_FOUND).build();</span>
+    }
+
+<span class="nc" id="L84">    blob.getOrder().setUserId(blob.getUID());</span>
+<span class="nc" id="L85">    blob.getOrder().setTotalPriceInCents(totalPriceInCents);</span>
+<span class="nc" id="L86">    blob.getOrder().setAddressName(addressName);</span>
+<span class="nc" id="L87">    blob.getOrder().setAddress1(address1);</span>
+<span class="nc" id="L88">    blob.getOrder().setAddress2(address2);</span>
+<span class="nc" id="L89">    blob.getOrder().setCreditCardCompany(creditCardCompany);</span>
+<span class="nc" id="L90">    blob.getOrder().setCreditCardExpiryDate(creditCardExpiryDate);</span>
+<span class="nc" id="L91">    blob.getOrder().setCreditCardNumber(creditCardNumber);</span>
+<span class="nc" id="L92">    blob.getOrder().setTime(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));</span>
+
+    long orderId;
+    try {
+<span class="nc" id="L96">      orderId = LoadBalancedCRUDOperations.sendEntityForCreation(Service.PERSISTENCE, &quot;orders&quot;,</span>
+<span class="nc" id="L97">          Order.class, blob.getOrder());</span>
+<span class="nc" id="L98">    } catch (LoadBalancerTimeoutException e) {</span>
+<span class="nc" id="L99">      return Response.status(408).build();</span>
+<span class="nc" id="L100">    } catch (NotFoundException e) {</span>
+<span class="nc" id="L101">      return Response.status(404).build();</span>
+<span class="nc" id="L102">    }</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">    for (OrderItem item : blob.getOrderItems()) {</span>
+      try {
+<span class="nc" id="L105">        item.setOrderId(orderId);</span>
+<span class="nc" id="L106">        LoadBalancedCRUDOperations.sendEntityForCreation(Service.PERSISTENCE, &quot;orderitems&quot;,</span>
+            OrderItem.class, item);
+<span class="nc" id="L108">      } catch (TimeoutException e) {</span>
+<span class="nc" id="L109">        return Response.status(408).build();</span>
+<span class="nc" id="L110">      } catch (NotFoundException e) {</span>
+<span class="nc" id="L111">        return Response.status(404).build();</span>
+<span class="nc" id="L112">      }</span>
+<span class="nc" id="L113">    }</span>
+<span class="nc" id="L114">    blob.setOrder(new Order());</span>
+<span class="nc" id="L115">    blob.getOrderItems().clear();</span>
+<span class="nc" id="L116">    blob = new ShaSecurityProvider().secure(blob);</span>
+<span class="nc" id="L117">    return Response.status(Response.Status.OK).entity(blob).build();</span>
+  }
+
+  /**
+   * User login.
+   * 
+   * @param blob
+   *          SessionBlob
+   * @param name
+   *          Username
+   * @param password
+   *          password
+   * @return Response with SessionBlob containing login information.
+   */
+  @POST
+  @Path(&quot;login&quot;)
+  public Response login(SessionBlob blob, @QueryParam(&quot;name&quot;) String name,
+      @QueryParam(&quot;password&quot;) String password) {
+    User user;
+    try {
+<span class="nc" id="L137">      user = LoadBalancedCRUDOperations.getEntityWithProperties(Service.PERSISTENCE, &quot;users&quot;,</span>
+          User.class, &quot;name&quot;, name);
+<span class="nc" id="L139">    } catch (TimeoutException e) {</span>
+<span class="nc" id="L140">      return Response.status(408).build();</span>
+<span class="nc" id="L141">    } catch (NotFoundException e) {</span>
+<span class="nc" id="L142">      return Response.status(Response.Status.OK).entity(blob).build();</span>
+<span class="nc" id="L143">    }</span>
+
+<span class="nc bnc" id="L145" title="All 4 branches missed.">    if (user != null &amp;&amp; BCryptProvider.checkPassword(password, user.getPassword())</span>
+    ) {
+<span class="nc" id="L147">      blob.setUID(user.getId());</span>
+<span class="nc" id="L148">      blob.setSID(new RandomSessionIdGenerator().getSessionId());</span>
+<span class="nc" id="L149">      blob = new ShaSecurityProvider().secure(blob);</span>
+<span class="nc" id="L150">      return Response.status(Response.Status.OK).entity(blob).build();</span>
+    }
+<span class="nc" id="L152">    return Response.status(Response.Status.OK).entity(blob).build();</span>
+  }
+
+  /**
+   * User logout.
+   * 
+   * @param blob
+   *          SessionBlob
+   * @return Response with SessionBlob
+   */
+  @POST
+  @Path(&quot;logout&quot;)
+  public Response logout(SessionBlob blob) {
+<span class="nc" id="L165">    blob.setUID(null);</span>
+<span class="nc" id="L166">    blob.setSID(null);</span>
+<span class="nc" id="L167">    blob.setOrder(new Order());</span>
+<span class="nc" id="L168">    blob.getOrderItems().clear();</span>
+<span class="nc" id="L169">    return Response.status(Response.Status.OK).entity(blob).build();</span>
+  }
+
+  /**
+   * Checks if user is logged in.
+   * 
+   * @param blob
+   *          Sessionblob
+   * @return Response with true if logged in
+   */
+  @POST
+  @Path(&quot;isloggedin&quot;)
+  public Response isLoggedIn(SessionBlob blob) {
+<span class="nc" id="L182">    return Response.status(Response.Status.OK).entity(new ShaSecurityProvider().validate(blob))</span>
+<span class="nc" id="L183">        .build();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

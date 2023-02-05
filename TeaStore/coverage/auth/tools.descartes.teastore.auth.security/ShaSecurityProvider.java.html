@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ShaSecurityProvider.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeaStore Auth</a> &gt; <a href="index.source.html" class="el_package">tools.descartes.teastore.auth.security</a> &gt; <span class="el_source">ShaSecurityProvider.java</span></div><h1>ShaSecurityProvider.java</h1><pre class="source lang-java linenums">package tools.descartes.teastore.auth.security;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+import tools.descartes.teastore.entities.message.SessionBlob;
+
+/**
+ * Secruity provider using AES.
+ * 
+ * @author Simon
+ *
+ */
+<span class="fc" id="L18">public class ShaSecurityProvider implements ISecurityProvider {</span>
+
+  @Override
+  public IKeyProvider getKeyProvider() {
+<span class="fc" id="L22">    return new ConstantKeyProvider();</span>
+  }
+
+  @Override
+  public SessionBlob secure(SessionBlob blob) {
+<span class="pc bpc" id="L27" title="2 of 4 branches missed.">    if (blob.getUID() == null || blob.getSID() == null) {</span>
+<span class="nc" id="L28">      return blob;</span>
+    }
+<span class="fc" id="L30">    blob.setToken(null);</span>
+<span class="fc" id="L31">    String blobString = blobToString(blob);</span>
+<span class="fc" id="L32">    blob.setToken(getSha512(blobString));</span>
+<span class="fc" id="L33">    return blob;</span>
+  }
+
+  private String blobToString(SessionBlob blob) {
+<span class="fc" id="L37">    ObjectMapper o = new ObjectMapper();</span>
+    try {
+<span class="fc" id="L39">      return URLEncoder.encode(o.writeValueAsString(blob), &quot;UTF-8&quot;);</span>
+<span class="nc" id="L40">    } catch (JsonProcessingException | UnsupportedEncodingException e) {</span>
+<span class="nc" id="L41">      throw new IllegalStateException(&quot;Could not save blob!&quot;);</span>
+    }
+  }
+
+  @Override
+  public SessionBlob validate(SessionBlob blob) {
+<span class="fc bfc" id="L47" title="All 2 branches covered.">    if (blob.getToken() == null) {</span>
+<span class="fc" id="L48">      return null;</span>
+    }
+
+<span class="fc" id="L51">    String token = blob.getToken();</span>
+<span class="fc" id="L52">    blob.setToken(null);</span>
+<span class="fc" id="L53">    String blobString = blobToString(blob);</span>
+<span class="fc" id="L54">    String validationToken = getSha512(blobString);</span>
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">    if (validationToken.equals(token)) {</span>
+<span class="fc" id="L56">      return blob;</span>
+    }
+<span class="nc" id="L58">    return null;</span>
+  }
+
+  private String getSha512(String passwordToHash) {
+<span class="fc" id="L62">    String generatedPassword = null;</span>
+    try {
+<span class="fc" id="L64">      String salt = getKeyProvider().getKey(null);</span>
+<span class="fc" id="L65">      MessageDigest md = MessageDigest.getInstance(&quot;SHA-512&quot;);</span>
+<span class="fc" id="L66">      md.update(salt.getBytes(&quot;UTF-8&quot;));</span>
+<span class="fc" id="L67">      byte[] bytes = md.digest(passwordToHash.getBytes(&quot;UTF-8&quot;));</span>
+<span class="fc" id="L68">      StringBuilder sb = new StringBuilder();</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">      for (int i = 0; i &lt; bytes.length; i++) {</span>
+<span class="fc" id="L70">        sb.append(Integer.toString((bytes[i] &amp; 0xff) + 0x100, 16).substring(1));</span>
+      }
+<span class="fc" id="L72">      generatedPassword = sb.toString();</span>
+<span class="nc" id="L73">    } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {</span>
+<span class="nc" id="L74">      e.printStackTrace();</span>
+<span class="fc" id="L75">    }</span>
+<span class="fc" id="L76">    return generatedPassword;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

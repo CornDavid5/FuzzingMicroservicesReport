@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PersistenceProduct.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeaStore Persistence</a> &gt; <a href="index.source.html" class="el_package">tools.descartes.teastore.persistence.domain</a> &gt; <span class="el_source">PersistenceProduct.java</span></div><h1>PersistenceProduct.java</h1><pre class="source lang-java linenums">/**
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package tools.descartes.teastore.persistence.domain;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PostRemove;
+
+import tools.descartes.teastore.persistence.repository.CacheManager;
+import tools.descartes.teastore.entities.Product;
+
+/**
+ * Persistence entity for products.
+ * @author Joakim von Kistowski
+ *
+ */
+@Entity
+public class PersistenceProduct extends Product {
+
+	@Id
+	@GeneratedValue
+	private long id;
+	
+	@Column(length = 100)
+	private String name;
+	@Lob
+	private String description;
+	private long listPriceInCents;
+	
+	@ManyToOne
+	private PersistenceCategory category;
+	
+	@OneToMany(mappedBy = &quot;product&quot;, orphanRemoval = true, cascade = {CascadeType.ALL})
+	private List&lt;PersistenceOrderItem&gt; orderItems;
+	
+	/**
+	 * Clear categories and order items from cache post remove.
+	 */
+	@PostRemove
+	private void clearCaches() {
+<span class="fc" id="L61">		CacheManager.MANAGER.clearCache(PersistenceCategory.class);</span>
+<span class="fc" id="L62">		CacheManager.MANAGER.clearRemoteCache(PersistenceProduct.class);</span>
+<span class="fc" id="L63">	}</span>
+	
+	/**
+	 * Create a new and empty product.
+	 */
+	PersistenceProduct() {
+<span class="fc" id="L69">		super();</span>
+<span class="fc" id="L70">		orderItems = new ArrayList&lt;PersistenceOrderItem&gt;();</span>
+<span class="fc" id="L71">	}</span>
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setId(long id) {
+<span class="fc" id="L78">		this.id = id;</span>
+<span class="fc" id="L79">	}</span>
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public long getId() {
+<span class="fc" id="L86">		return id;</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public long getCategoryId() {
+<span class="nc" id="L94">		return category.getId();</span>
+	}
+	
+	/**
+	 * Unsupported operation. Does nothing.
+	 * @param categoryId Unsupported parameter.
+	 */
+	@Override
+	public void setCategoryId(long categoryId) {
+		// unsupported operation
+<span class="nc" id="L104">	}</span>
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getName() {
+<span class="fc" id="L111">		return name;</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setName(String name) {
+<span class="fc" id="L119">		this.name = name;</span>
+<span class="fc" id="L120">	}</span>
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getDescription() {
+<span class="fc" id="L127">		return description;</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setDescription(String description) {
+<span class="fc" id="L135">		this.description = description;</span>
+<span class="fc" id="L136">	}</span>
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public long getListPriceInCents() {
+<span class="fc" id="L143">		return listPriceInCents;</span>
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setListPriceInCents(long listPriceInCents) {
+<span class="fc" id="L151">		this.listPriceInCents = listPriceInCents;</span>
+<span class="fc" id="L152">	}</span>
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public PersistenceCategory getCategory() {
+<span class="nc" id="L158">		return category;</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setCategory(PersistenceCategory category) {
+<span class="fc" id="L165">		this.category = category;</span>
+<span class="fc" id="L166">	}</span>
+
+	/**
+	 * @return the orderItems
+	 */
+	public List&lt;PersistenceOrderItem&gt; getOrderItems() {
+<span class="nc" id="L172">		return orderItems;</span>
+	}
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

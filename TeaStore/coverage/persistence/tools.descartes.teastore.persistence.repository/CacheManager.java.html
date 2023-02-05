@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CacheManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeaStore Persistence</a> &gt; <a href="index.source.html" class="el_package">tools.descartes.teastore.persistence.repository</a> &gt; <span class="el_source">CacheManager.java</span></div><h1>CacheManager.java</h1><pre class="source lang-java linenums">/**
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package tools.descartes.teastore.persistence.repository;
+
+import java.util.List;
+
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+
+import tools.descartes.teastore.persistence.domain.CategoryRepository;
+import tools.descartes.teastore.registryclient.loadbalancers.ServiceLoadBalancer;
+import tools.descartes.teastore.registryclient.util.RESTClient;
+
+/**
+ * Class for managing (mostly clearing) the persistence cache.
+ * Sends cache clears to other persistence contexts for cache coherence.
+ * @author Joakim von Kistowski
+ *
+ */
+public final class CacheManager {
+
+	private static final String ENDPOINTURI = &quot;cache&quot;;
+	
+	/**
+	 * The cache manager singleton.
+	 */
+<span class="fc" id="L39">	public static final CacheManager MANAGER = new CacheManager();</span>
+	
+	private CacheManager() {
+		
+	}
+	
+	/**
+	 * Clears the entire cache in all persistence services,
+	 * including this one.
+	 */
+	public void clearAllCaches() {
+<span class="fc" id="L50">		CategoryRepository.REPOSITORY.getEMF().getCache().evictAll();</span>
+		try {
+<span class="nc" id="L52">			ServiceLoadBalancer.multicastRESTToOtherServiceInstances(ENDPOINTURI, String.class,</span>
+<span class="nc" id="L53">					client -&gt; clearRemoteCacheREST(client, null));</span>
+<span class="fc" id="L54">		} catch (Exception e) {</span>
+			
+<span class="nc" id="L56">		}</span>
+<span class="fc" id="L57">	}</span>
+	
+	/**
+	 * Clears the cache for the entity class in all
+	 * persistence services, including this one.
+	 * @param entityClass The class to clear.
+	 */
+	public void clearCache(Class&lt;?&gt; entityClass) {
+<span class="fc" id="L65">		clearLocalCacheOnly(entityClass);</span>
+<span class="fc" id="L66">		clearRemoteCache(entityClass);</span>
+<span class="fc" id="L67">	}</span>
+	
+	/**
+	 * Clears the cache in all remote persistence services
+	 * (all, except the calling one).
+	 * 
+	 * Example usage scenario: Update on entity is automatically
+	 * cached in local cache but remains unknown to remote services.
+	 * @param entityClass The class to clear.
+	 * @return List of all responses. Contain the class names or &quot;null&quot; if errors occured.
+	 */
+	public List&lt;String&gt; clearRemoteCache(Class&lt;?&gt; entityClass) {
+<span class="fc" id="L79">		List&lt;String&gt; responses = null;</span>
+		try {
+<span class="nc" id="L81">			responses = ServiceLoadBalancer.multicastRESTToOtherServiceInstances(ENDPOINTURI, String.class,</span>
+<span class="nc" id="L82">					client -&gt; clearRemoteCacheREST(client, entityClass));</span>
+<span class="fc" id="L83">		} catch (Exception e) {</span>
+			
+<span class="nc" id="L85">		}</span>
+<span class="fc" id="L86">		return responses;</span>
+	}
+	
+	/**
+	 * Clear only the local Cache for the entity class in question.
+	 * @param entityClass The class to clear.
+	 */
+	public void clearLocalCacheOnly(Class&lt;?&gt; entityClass) {
+<span class="fc" id="L94">		CategoryRepository.REPOSITORY.getEMF().getCache().evict(entityClass);</span>
+<span class="fc" id="L95">	}</span>
+	
+	/**
+	 * Clear only the entire local Cache for all classes.
+	 */
+	public void clearLocalCacheOnly() {
+<span class="fc" id="L101">		CategoryRepository.REPOSITORY.getEMF().getCache().evictAll();</span>
+<span class="fc" id="L102">	}</span>
+	
+	private String clearRemoteCacheREST(RESTClient&lt;String&gt; client, Class&lt;?&gt; entityClass) {
+<span class="nc" id="L105">		WebTarget target = client.getService().path(client.getApplicationURI())</span>
+<span class="nc" id="L106">				.path(client.getEndpointURI());</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">		if (entityClass != null) {</span>
+<span class="nc" id="L108">			target = target.path(&quot;class&quot;).path(entityClass.getName());</span>
+		} else {
+<span class="nc" id="L110">			target = target.path(&quot;cache&quot;);</span>
+		}
+<span class="nc" id="L112">		Response response = target.request(MediaType.TEXT_PLAIN).delete();</span>
+<span class="nc" id="L113">		String message = null;</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">		if (response.getStatus() == 200) {</span>
+<span class="nc" id="L115">			message = response.readEntity(String.class);</span>
+		}
+<span class="nc" id="L117">		response.close();</span>
+<span class="nc" id="L118">		return message;</span>
+	}
+	
+	/**
+	 * Reset the local and all remote EMFs.
+	 * @return List of all responses. Contain the &quot;clearedEMF&quot;, or &quot;null&quot; if errors occured.
+	 */
+	public List&lt;String&gt; resetAllEMFs() {
+<span class="nc" id="L126">		resetLocalEMF();</span>
+<span class="nc" id="L127">		return resetRemoteEMFs();</span>
+	}
+	
+	/**
+	 * Reset all remote EMFs.
+	 * @return List of all responses. Contain the &quot;clearedEMF&quot;, or &quot;null&quot; if errors occured.
+	 */
+	public List&lt;String&gt; resetRemoteEMFs() {
+<span class="nc" id="L135">		List&lt;String&gt; responses = null;</span>
+		try {
+<span class="nc" id="L137">			responses = ServiceLoadBalancer.multicastRESTToOtherServiceInstances(ENDPOINTURI, String.class,</span>
+<span class="nc" id="L138">					client -&gt; resetRemoteEMF(client));</span>
+<span class="nc" id="L139">		} catch (Exception e) {</span>
+			
+<span class="nc" id="L141">		}</span>
+<span class="nc" id="L142">		return responses;</span>
+	}
+	
+	/**
+	 * Reset the local EMF.
+	 */
+	public void resetLocalEMF() {
+<span class="fc" id="L149">		EMFManager.clearEMF();</span>
+<span class="fc" id="L150">	}</span>
+	
+	private String resetRemoteEMF(RESTClient&lt;String&gt; client) {
+<span class="nc" id="L153">		WebTarget target = client.getEndpointTarget().path(&quot;emf&quot;);</span>
+<span class="nc" id="L154">		Response response = target.request(MediaType.TEXT_PLAIN).delete();</span>
+<span class="nc" id="L155">		String message = null;</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">		if (response.getStatus() == 200) {</span>
+<span class="nc" id="L157">			message = response.readEntity(String.class);</span>
+		}
+<span class="nc" id="L159">		response.close();</span>
+<span class="nc" id="L160">		return message;</span>
+	}
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

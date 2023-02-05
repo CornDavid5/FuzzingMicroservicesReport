@@ -1,0 +1,18 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+TeaStore Recommender,tools.descartes.teastore.recommender.servlet,RecommenderStartup,72,0,2,0,21,0,6,0,5,0
+TeaStore Recommender,tools.descartes.teastore.recommender.servlet,RetrainDaemon.new StartupCallback() {...},10,0,0,0,3,0,2,0,2,0
+TeaStore Recommender,tools.descartes.teastore.recommender.servlet,TrainingSynchronizer,436,0,36,0,107,0,33,0,15,0
+TeaStore Recommender,tools.descartes.teastore.recommender.servlet,RetrainDaemon,27,0,0,0,10,0,2,0,2,0
+TeaStore Recommender,tools.descartes.teastore.recommender.servlet,IndexServlet,21,0,0,0,7,0,3,0,3,0
+TeaStore Recommender,tools.descartes.teastore.recommender.algorithm.impl.orderbased,OrderBasedRecommender,0,102,0,14,0,19,0,10,0,3
+TeaStore Recommender,tools.descartes.teastore.recommender.algorithm.impl.pop,PopularityBasedRecommender,0,77,0,6,0,11,0,6,0,3
+TeaStore Recommender,tools.descartes.teastore.recommender.rest,RecommendSingleEndpoint,28,0,2,0,7,0,3,0,2,0
+TeaStore Recommender,tools.descartes.teastore.recommender.rest,TrainEndpoint,65,0,6,0,19,0,7,0,4,0
+TeaStore Recommender,tools.descartes.teastore.recommender.rest,RecommendEndpoint,13,0,0,0,3,0,2,0,2,0
+TeaStore Recommender,tools.descartes.teastore.recommender.algorithm.impl.cf,PreprocessedSlopeOneRecommender,4,43,0,2,2,10,1,5,1,4
+TeaStore Recommender,tools.descartes.teastore.recommender.algorithm.impl.cf,SlopeOneRecommender,8,372,0,26,4,60,2,21,2,8
+TeaStore Recommender,tools.descartes.teastore.recommender.algorithm.impl,DummyRecommender,0,14,0,0,0,4,0,2,0,2
+TeaStore Recommender,tools.descartes.teastore.recommender.algorithm.impl,UseFallBackException,0,4,0,0,0,2,0,1,0,1
+TeaStore Recommender,tools.descartes.teastore.recommender.algorithm,AbstractRecommender,16,447,2,40,8,82,5,31,3,12
+TeaStore Recommender,tools.descartes.teastore.recommender.algorithm,OrderItemSet,10,19,0,0,4,8,3,4,3,4
+TeaStore Recommender,tools.descartes.teastore.recommender.algorithm,RecommenderSelector,235,0,4,0,74,0,7,0,5,0

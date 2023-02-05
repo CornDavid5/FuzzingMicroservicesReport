@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderItemEndpoint.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeaStore Persistence</a> &gt; <a href="index.source.html" class="el_package">tools.descartes.teastore.persistence.rest</a> &gt; <span class="el_source">OrderItemEndpoint.java</span></div><h1>OrderItemEndpoint.java</h1><pre class="source lang-java linenums">/**
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package tools.descartes.teastore.persistence.rest;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.QueryParam;
+
+import tools.descartes.teastore.persistence.domain.OrderItemRepository;
+import tools.descartes.teastore.persistence.repository.DataGenerator;
+import tools.descartes.teastore.registryclient.util.AbstractCRUDEndpoint;
+import tools.descartes.teastore.entities.OrderItem;
+
+/**
+ * Persistence endpoint for for CRUD operations on orders.
+ * @author Joakim von Kistowski
+ *
+ */
+@Path(&quot;orderitems&quot;)
+<span class="nc" id="L35">public class OrderItemEndpoint extends AbstractCRUDEndpoint&lt;OrderItem&gt; {</span>
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected long createEntity(final OrderItem orderItem) {
+<span class="nc bnc" id="L42" title="All 2 branches missed.">		if (DataGenerator.GENERATOR.isMaintenanceMode()) {</span>
+<span class="nc" id="L43">			return -1L;</span>
+		}
+<span class="nc" id="L45">		return OrderItemRepository.REPOSITORY.createEntity(orderItem);</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected OrderItem findEntityById(final long id) {
+<span class="nc" id="L53">		OrderItem item = OrderItemRepository.REPOSITORY.getEntity(id);</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">		if (item == null) {</span>
+<span class="nc" id="L55">			return null;</span>
+		}
+<span class="nc" id="L57">		return new OrderItem(item);</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected List&lt;OrderItem&gt; listAllEntities(final int startIndex, final int maxResultCount) {
+<span class="nc" id="L65">		List&lt;OrderItem&gt; orderItems = new ArrayList&lt;OrderItem&gt;();</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">		for (OrderItem oi : OrderItemRepository.REPOSITORY.getAllEntities(startIndex, maxResultCount)) {</span>
+<span class="nc" id="L67">			orderItems.add(new OrderItem(oi));</span>
+<span class="nc" id="L68">		}</span>
+<span class="nc" id="L69">		return orderItems;</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected boolean updateEntity(long id, OrderItem orderItem) {
+<span class="nc" id="L77">		return OrderItemRepository.REPOSITORY.updateEntity(id, orderItem);</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected boolean deleteEntity(long id) {
+<span class="nc bnc" id="L85" title="All 2 branches missed.">		if (DataGenerator.GENERATOR.isMaintenanceMode()) {</span>
+<span class="nc" id="L86">			return false;</span>
+		}
+<span class="nc" id="L88">		return OrderItemRepository.REPOSITORY.removeEntity(id);</span>
+	}
+	
+	/**
+	 * Returns all order items with the given product Id (all order items for that product).
+	 * @param productId The id of the product.
+	 * @param startPosition The index (NOT ID) of the first order item with the product to return.
+	 * @param maxResult The max number of order items to return.
+	 * @return list of order items with the product.
+	 */
+	@GET
+	@Path(&quot;product/{product:[0-9][0-9]*}&quot;)
+	public List&lt;OrderItem&gt; listAllForProduct(@PathParam(&quot;product&quot;) final Long productId,
+			@QueryParam(&quot;start&quot;) final Integer startPosition,
+			@QueryParam(&quot;max&quot;) final Integer maxResult) {
+<span class="nc bnc" id="L103" title="All 2 branches missed.">		if (productId == null) {</span>
+<span class="nc" id="L104">			return listAll(startPosition, maxResult);</span>
+		}
+<span class="nc" id="L106">		List&lt;OrderItem&gt; orderItems = new ArrayList&lt;OrderItem&gt;();</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">		for (OrderItem oi : OrderItemRepository.REPOSITORY.getAllEntitiesWithProduct(productId,</span>
+<span class="nc" id="L108">				parseIntQueryParam(startPosition), parseIntQueryParam(maxResult))) {</span>
+<span class="nc" id="L109">			orderItems.add(new OrderItem(oi));</span>
+<span class="nc" id="L110">		}</span>
+<span class="nc" id="L111">		return orderItems;</span>
+	}
+	
+	/**
+	 * Returns all order items with the given order Id (all order items for that order).
+	 * @param orderId The id of the product.
+	 * @param startPosition The index (NOT ID) of the first order item with the product to return.
+	 * @param maxResult The max number of order items to return.
+	 * @return list of order items with the product.
+	 */
+	@GET
+	@Path(&quot;order/{order:[0-9][0-9]*}&quot;)
+	public List&lt;OrderItem&gt; listAllForOrder(@PathParam(&quot;order&quot;) final Long orderId,
+			@QueryParam(&quot;start&quot;) final Integer startPosition,
+			@QueryParam(&quot;max&quot;) final Integer maxResult) {
+<span class="nc bnc" id="L126" title="All 2 branches missed.">		if (orderId == null) {</span>
+<span class="nc" id="L127">			return listAll(startPosition, maxResult);</span>
+		}
+<span class="nc" id="L129">		List&lt;OrderItem&gt; orderItems = new ArrayList&lt;OrderItem&gt;();</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">		for (OrderItem oi : OrderItemRepository.REPOSITORY.getAllEntitiesWithOrder(orderId,</span>
+<span class="nc" id="L131">				parseIntQueryParam(startPosition), parseIntQueryParam(maxResult))) {</span>
+<span class="nc" id="L132">			orderItems.add(new OrderItem(oi));</span>
+<span class="nc" id="L133">		}</span>
+<span class="nc" id="L134">		return orderItems;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

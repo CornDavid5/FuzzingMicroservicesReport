@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SlopeOneRecommender.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeaStore Recommender</a> &gt; <a href="index.source.html" class="el_package">tools.descartes.teastore.recommender.algorithm.impl.cf</a> &gt; <span class="el_source">SlopeOneRecommender.java</span></div><h1>SlopeOneRecommender.java</h1><pre class="source lang-java linenums">/**
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package tools.descartes.teastore.recommender.algorithm.impl.cf;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import tools.descartes.teastore.recommender.algorithm.AbstractRecommender;
+import tools.descartes.teastore.recommender.algorithm.impl.UseFallBackException;
+
+/**
+ * Recommender based on item-based collaborative filtering with the slope one
+ * algorithm.
+ * 
+ * @author Johannes Grohmann
+ *
+ */
+<span class="fc" id="L31">public class SlopeOneRecommender extends AbstractRecommender {</span>
+
+	/**
+	 * Represents a matrix, assigning each itemid an average difference (in
+	 * rating/buying) to any other itemid.
+	 */
+<span class="fc" id="L37">	private Map&lt;Long, Map&lt;Long, Double&gt;&gt; differences = new HashMap&lt;&gt;();</span>
+
+	/**
+	 * Represents a matrix, counting the frequencies of each combination (i.e. users
+	 * rating/buying both items).
+	 */
+<span class="fc" id="L43">	private Map&lt;Long, Map&lt;Long, Integer&gt;&gt; frequencies = new HashMap&lt;&gt;();</span>
+
+	/**
+	 * @return the differences
+	 */
+	public Map&lt;Long, Map&lt;Long, Double&gt;&gt; getDifferences() {
+<span class="fc" id="L49">		return differences;</span>
+	}
+
+	/**
+	 * @param differences
+	 *            the differences to set
+	 */
+	public void setDifferences(Map&lt;Long, Map&lt;Long, Double&gt;&gt; differences) {
+<span class="nc" id="L57">		this.differences = differences;</span>
+<span class="nc" id="L58">	}</span>
+
+	/**
+	 * @return the frequencies
+	 */
+	public Map&lt;Long, Map&lt;Long, Integer&gt;&gt; getFrequencies() {
+<span class="fc" id="L64">		return frequencies;</span>
+	}
+
+	/**
+	 * @param frequencies
+	 *            the frequencies to set
+	 */
+	public void setFrequencies(Map&lt;Long, Map&lt;Long, Integer&gt;&gt; frequencies) {
+<span class="nc" id="L72">		this.frequencies = frequencies;</span>
+<span class="nc" id="L73">	}</span>
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * tools.descartes.teastore.recommender.algorithm.AbstractRecommender#
+	 * execute(java.util.List)
+	 */
+	@Override
+	protected List&lt;Long&gt; execute(Long userid, List&lt;Long&gt; currentItems) {
+<span class="fc bfc" id="L84" title="All 2 branches covered.">		if (userid == null) {</span>
+<span class="fc" id="L85">			throw new UseFallBackException(this.getClass().getName()</span>
+					+ &quot; does not support null userids. Use a pseudouser or switch to another approach.&quot;);
+		}
+<span class="fc bfc" id="L88" title="All 2 branches covered.">		if (getUserBuyingMatrix().get(userid) == null) {</span>
+			// this user has not bought anything yet, so we do not have any information
+<span class="fc" id="L90">			throw new UseFallBackException(&quot;No user information.&quot;);</span>
+		}
+<span class="fc" id="L92">		Map&lt;Long, Double&gt; importances = getUserVector(userid);</span>
+<span class="fc" id="L93">		return filterRecommendations(importances, currentItems);</span>
+
+	}
+
+	/**
+	 * Generates one row of the matrix for the given user. (Predicts the user score
+	 * for each product ID.)
+	 * 
+	 * @param userid
+	 *            The user to predict for
+	 * @return A Map assigning each product ID a (predicted) score (for the given
+	 *         user)
+	 */
+	protected Map&lt;Long, Double&gt; getUserVector(Long userid) {
+		// This could be further optimized by moving this part into the pre-processing
+		// step, but we want to have nicer performance behavior
+<span class="fc" id="L109">		HashMap&lt;Long, Double&gt; importances = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L110" title="All 2 branches covered.">		for (Long productid : getTotalProducts()) {</span>
+			try {
+<span class="fc" id="L112">				importances.put(productid, calculateScoreForItem(userid, productid));</span>
+<span class="fc" id="L113">			} catch (NullPointerException e) {</span>
+				// this exception can be thrown if we have not enough information
+<span class="fc" id="L115">				importances.put(productid, -1.0);</span>
+<span class="fc" id="L116">			}</span>
+<span class="fc" id="L117">		}</span>
+<span class="fc" id="L118">		return importances;</span>
+	}
+
+	private double calculateScoreForItem(long userid, long itemid) {
+<span class="fc" id="L122">		double score = 0;</span>
+<span class="fc" id="L123">		double cumWeights = 0;</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">		for (Entry&lt;Long, Double&gt; useritem : getUserBuyingMatrix().get(userid).entrySet()) {</span>
+			// if we find that the user actually bought this item before, we can return this
+			// value
+			// (considering it is his rating, we can directly return this rating)
+<span class="fc bfc" id="L128" title="All 2 branches covered.">			if (useritem.getKey() == itemid) {</span>
+<span class="fc" id="L129">				return useritem.getValue();</span>
+			}
+			// if not, we can calculate the (expected) rating for that user based on item i
+<span class="fc" id="L132">			int frequency = frequencies.get(useritem.getKey()).get(itemid);</span>
+<span class="fc" id="L133">			score += useritem.getValue() * frequency;</span>
+<span class="fc" id="L134">			score += differences.get(useritem.getKey()).get(itemid) * frequency;</span>
+<span class="fc" id="L135">			cumWeights += frequency;</span>
+<span class="fc" id="L136">		}</span>
+		// normalize
+<span class="fc" id="L138">		return score / cumWeights;</span>
+	}
+
+	@Override
+	protected void executePreprocessing() {
+		// The buying matrix is considered to be the rating
+		// i.e. the more buys, the higher the rating
+<span class="fc" id="L145">		buildDifferencesMatrices(getUserBuyingMatrix());</span>
+<span class="fc" id="L146">	}</span>
+
+	/**
+	 * Based on the available data, calculate the relationships between the items
+	 * and number of occurrences. Fill the difference and frequencies matrix.
+	 * 
+	 * @param data
+	 *            The user rating matrix
+	 */
+	private void buildDifferencesMatrices(Map&lt;Long, Map&lt;Long, Double&gt;&gt; userRatingMatrix) {
+<span class="fc bfc" id="L156" title="All 2 branches covered.">		for (Map&lt;Long, Double&gt; uservalues : userRatingMatrix.values()) {</span>
+<span class="fc bfc" id="L157" title="All 2 branches covered.">			for (Entry&lt;Long, Double&gt; singleRating : uservalues.entrySet()) {</span>
+				// if not present -&gt; create
+<span class="fc bfc" id="L159" title="All 2 branches covered.">				if (!frequencies.containsKey(singleRating.getKey())) {</span>
+<span class="fc" id="L160">					frequencies.put(singleRating.getKey(), new HashMap&lt;Long, Integer&gt;());</span>
+<span class="fc" id="L161">					differences.put(singleRating.getKey(), new HashMap&lt;Long, Double&gt;());</span>
+				}
+				// for all other ratings of that user
+<span class="fc bfc" id="L164" title="All 2 branches covered.">				for (Entry&lt;Long, Double&gt; otherRating : uservalues.entrySet()) {</span>
+<span class="fc" id="L165">					int currCount = 0;</span>
+<span class="fc" id="L166">					Integer count = frequencies.get(singleRating.getKey()).get(otherRating.getKey());</span>
+<span class="fc bfc" id="L167" title="All 2 branches covered.">					if (count != null) {</span>
+						// count is != null, if the key is actually found
+						// if so, we use the known count value as count, otherwise the count until now
+						// is 0
+<span class="fc" id="L171">						currCount = count.intValue();</span>
+					}
+
+<span class="fc" id="L174">					double currDiff = 0;</span>
+<span class="fc" id="L175">					Double diff = differences.get(singleRating.getKey()).get(otherRating.getKey());</span>
+<span class="fc bfc" id="L176" title="All 2 branches covered.">					if (diff != null) {</span>
+						// diff is != null, if the key is actually found
+						// if so, we use the known difference value as currDiff, otherwise the diff
+						// until now is 0.0
+<span class="fc" id="L180">						currDiff = diff.doubleValue();</span>
+					}
+
+					// get the diff value of this user
+<span class="fc" id="L184">					double userdiff = singleRating.getValue() - otherRating.getValue();</span>
+<span class="fc" id="L185">					frequencies.get(singleRating.getKey()).put(otherRating.getKey(), currCount + 1);</span>
+<span class="fc" id="L186">					differences.get(singleRating.getKey()).put(otherRating.getKey(), currDiff + userdiff);</span>
+<span class="fc" id="L187">				}</span>
+<span class="fc" id="L188">			}</span>
+<span class="fc" id="L189">		}</span>
+
+		// now, transform the differences matrix into real differences (not just the sum
+		// of all found differences)
+<span class="fc bfc" id="L193" title="All 2 branches covered.">		for (Long i : differences.keySet()) {</span>
+<span class="fc bfc" id="L194" title="All 2 branches covered.">			for (Long j : differences.get(i).keySet()) {</span>
+				// for all matrix entries divide the differences by the sum of occurences
+<span class="fc" id="L196">				double diffval = differences.get(i).get(j);</span>
+<span class="fc" id="L197">				double freq = frequencies.get(i).get(j);</span>
+<span class="fc" id="L198">				differences.get(i).put(j, diffval / freq);</span>
+<span class="fc" id="L199">			}</span>
+<span class="fc" id="L200">		}</span>
+<span class="fc" id="L201">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

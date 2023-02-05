@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProductEndpoint.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeaStore Persistence</a> &gt; <a href="index.source.html" class="el_package">tools.descartes.teastore.persistence.rest</a> &gt; <span class="el_source">ProductEndpoint.java</span></div><h1>ProductEndpoint.java</h1><pre class="source lang-java linenums">/**
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package tools.descartes.teastore.persistence.rest;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Response;
+
+import tools.descartes.teastore.persistence.domain.ProductRepository;
+import tools.descartes.teastore.persistence.repository.DataGenerator;
+import tools.descartes.teastore.registryclient.util.AbstractCRUDEndpoint;
+import tools.descartes.teastore.entities.Product;
+
+/**
+ * Persistence endpoint for for CRUD operations on products.
+ * @author Joakim von Kistowski
+ *
+ */
+@Path(&quot;products&quot;)
+<span class="nc" id="L36">public class ProductEndpoint extends AbstractCRUDEndpoint&lt;Product&gt; {</span>
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected long createEntity(final Product product) {
+<span class="nc bnc" id="L43" title="All 2 branches missed.">		if (DataGenerator.GENERATOR.isMaintenanceMode()) {</span>
+<span class="nc" id="L44">			return -1L;</span>
+		}
+<span class="nc" id="L46">		return ProductRepository.REPOSITORY.createEntity(product);</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected Product findEntityById(final long id) {
+<span class="nc" id="L54">		Product product = ProductRepository.REPOSITORY.getEntity(id);</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">		if (product == null) {</span>
+<span class="nc" id="L56">			return null;</span>
+		}
+<span class="nc" id="L58">		return new Product(product);</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected List&lt;Product&gt; listAllEntities(final int startIndex, final int maxResultCount) {
+<span class="nc" id="L66">		List&lt;Product&gt; products = new ArrayList&lt;Product&gt;();</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">		for (Product p : ProductRepository.REPOSITORY.getAllEntities(startIndex, maxResultCount)) {</span>
+<span class="nc" id="L68">			products.add(new Product(p));</span>
+<span class="nc" id="L69">		}</span>
+<span class="nc" id="L70">		return products;</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected boolean updateEntity(long id, Product product) {
+<span class="nc" id="L78">		return ProductRepository.REPOSITORY.updateEntity(id, product);</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected boolean deleteEntity(long id) {
+<span class="nc bnc" id="L86" title="All 2 branches missed.">		if (DataGenerator.GENERATOR.isMaintenanceMode()) {</span>
+<span class="nc" id="L87">			return false;</span>
+		}
+<span class="nc" id="L89">		return ProductRepository.REPOSITORY.removeEntity(id);</span>
+	}
+	
+	/**
+	 * Returns all products with the given category Id (all products in that category).
+	 * @param categoryId The id of the Category.
+	 * @param startPosition The index (NOT ID) of the first product in the category to return.
+	 * @param maxResult The max number of products to return.
+	 * @return list of products in the category.
+	 */
+	@GET
+	@Path(&quot;category/{category:[0-9][0-9]*}&quot;)
+	public List&lt;Product&gt; listAllForCategory(@PathParam(&quot;category&quot;) final Long categoryId,
+			@QueryParam(&quot;start&quot;) final Integer startPosition,
+			@QueryParam(&quot;max&quot;) final Integer maxResult) {
+<span class="nc bnc" id="L104" title="All 2 branches missed.">		if (categoryId == null) {</span>
+<span class="nc" id="L105">			return listAll(startPosition, maxResult);</span>
+		}
+<span class="nc" id="L107">		List&lt;Product&gt; products = new ArrayList&lt;Product&gt;();</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">		for (Product p : ProductRepository.REPOSITORY.getAllEntities(categoryId,</span>
+<span class="nc" id="L109">				parseIntQueryParam(startPosition), parseIntQueryParam(maxResult))) {</span>
+<span class="nc" id="L110">			products.add(new Product(p));</span>
+<span class="nc" id="L111">		}</span>
+<span class="nc" id="L112">		return products;</span>
+	}
+	
+	/**
+	 * Returns the count of produts with the given category Id (products in that category).
+	 * @param categoryId The id of the Category.
+	 * @return list of products in the category.
+	 */
+	@GET
+	@Path(&quot;count/{category:[0-9][0-9]*}&quot;)
+	public Response countForCategory(@PathParam(&quot;category&quot;) final Long categoryId) {
+<span class="nc bnc" id="L123" title="All 2 branches missed.">		if (categoryId == null) {</span>
+<span class="nc" id="L124">			return Response.status(404).build();</span>
+		}
+<span class="nc" id="L126">		long count = ProductRepository.REPOSITORY.getProductCount(categoryId);</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">		if (count &gt;= 0) {</span>
+<span class="nc" id="L128">			return Response.ok(String.valueOf(count)).build();</span>
+		}
+<span class="nc" id="L130">		return Response.status(404).build();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

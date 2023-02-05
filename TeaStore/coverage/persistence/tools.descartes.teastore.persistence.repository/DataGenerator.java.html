@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DataGenerator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeaStore Persistence</a> &gt; <a href="index.source.html" class="el_package">tools.descartes.teastore.persistence.repository</a> &gt; <span class="el_source">DataGenerator.java</span></div><h1>DataGenerator.java</h1><pre class="source lang-java linenums">/**
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package tools.descartes.teastore.persistence.repository;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.IntStream;
+
+import jakarta.persistence.EntityManager;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+
+import org.eclipse.persistence.sessions.server.ServerSession;
+import org.eclipse.persistence.tools.schemaframework.SchemaManager;
+import org.mindrot.jbcrypt.BCrypt;
+
+import tools.descartes.teastore.persistence.domain.CategoryRepository;
+import tools.descartes.teastore.persistence.domain.OrderItemRepository;
+import tools.descartes.teastore.persistence.domain.OrderRepository;
+import tools.descartes.teastore.persistence.domain.PersistenceCategory;
+import tools.descartes.teastore.persistence.domain.PersistenceOrder;
+import tools.descartes.teastore.persistence.domain.ProductRepository;
+import tools.descartes.teastore.persistence.domain.UserRepository;
+import tools.descartes.teastore.registryclient.loadbalancers.ServiceLoadBalancer;
+import tools.descartes.teastore.registryclient.util.RESTClient;
+import tools.descartes.teastore.entities.Category;
+import tools.descartes.teastore.entities.Order;
+import tools.descartes.teastore.entities.OrderItem;
+import tools.descartes.teastore.entities.Product;
+import tools.descartes.teastore.entities.User;
+
+/**
+ * Class for generating data in the database.
+ *
+ * @author Joakim von Kistowski
+ *
+ */
+public final class DataGenerator {
+
+	/**
+	 * Status code for maintenance mode.
+	 */
+	public static final int MAINTENANCE_STATUS_CODE = 503;
+
+	/**
+	 * Default category count for small database.
+	 */
+	public static final int SMALL_DB_CATEGORIES = 5;
+	/**
+	 * Default product count per category for small database.
+	 */
+	public static final int SMALL_DB_PRODUCTS_PER_CATEGORY = 100;
+	/**
+	 * Default user count for small database.
+	 */
+	public static final int SMALL_DB_USERS = 100;
+	/**
+	 * Default max order per user for small database.
+	 */
+	public static final int SMALL_DB_MAX_ORDERS_PER_USER = 5;
+
+	/**
+	 * Default category count for tiny database.
+	 */
+	public static final int TINY_DB_CATEGORIES = 2;
+	/**
+	 * Default product count per category for tiny database.
+	 */
+	public static final int TINY_DB_PRODUCTS_PER_CATEGORY = 20;
+	/**
+	 * Default user count for tiny database.
+	 */
+	public static final int TINY_DB_USERS = 5;
+	/**
+	 * Default max order per user for tiny database.
+	 */
+	public static final int TINY_DB_MAX_ORDERS_PER_USER = 2;
+
+<span class="fc" id="L94">	private Random random = new Random(5);</span>
+
+	private static final String PASSWORD = &quot;password&quot;;
+<span class="fc" id="L97">	private static final String[] CATEGORYNAMES = { &quot;Black Tea&quot;, &quot;Green Tea&quot;, &quot;Herbal Tea&quot;, &quot;Rooibos&quot;, &quot;White Tea&quot;,</span>
+			&quot;Tea Cups&quot;, &quot;Tea Pots&quot;, &quot;Filters&quot;, &quot;Infusers&quot; };
+<span class="fc" id="L99">	private static final String[] CATEGORYDESCRIPTIONS = { &quot;Pure black tea and blends&quot;, &quot;From China and Japan&quot;,</span>
+			&quot;Helps when you feel sick&quot;, &quot;In many variations&quot;, &quot;If green tea doesn't agree with you&quot;,
+			&quot;Cups and glasses&quot;, &quot;Classy and useful&quot;, &quot;For extremely fine grained tea&quot;,
+			&quot;No metal for green tea&quot; };
+
+<span class="fc" id="L104">	private static final String[][] PRODUCTNAMES = {</span>
+			{ &quot;Earl Grey (loose)&quot;, &quot;Assam (loose)&quot;, &quot;Darjeeling (loose)&quot;, &quot;Frisian Black Tee (loose)&quot;,
+				&quot;Anatolian Assam (loose)&quot;, &quot;Earl Grey (20 bags)&quot;, &quot;Assam (20 bags)&quot;, &quot;Darjeeling (20 bags)&quot;,
+				&quot;Ceylon (loose)&quot;, &quot;Ceylon (20 bags)&quot;, &quot;House blend (20 bags)&quot;, &quot;Assam with Ginger (20 bags)&quot;},
+			{ &quot;Sencha (loose)&quot;, &quot;Sencha (15 bags)&quot;, &quot;Sencha (25 bags)&quot;, &quot;Earl Grey Green (loose)&quot;,
+					&quot;Earl Grey Green (15 bags)&quot;, &quot;Earl Grey Green (25 bags)&quot;, &quot;Matcha 30 g&quot;, &quot;Matcha 50 g&quot;,
+					&quot;Matcha 100 g&quot;, &quot;Gunpowder Tea (loose)&quot;, &quot;Gunpowder Tea (15 bags)&quot;, &quot;Gunpowder Tea (25 bags)&quot; },
+			{ &quot;Camomile (loose)&quot;, &quot;Camomile (15 bags)&quot;, &quot;Peepermint (loose)&quot;, &quot;Peppermint (15 bags)&quot;,
+					&quot;Peppermint (15 bags)&quot;, &quot;Sweet Mint (loose)&quot;, &quot;Sweet Mint (15 bags)&quot;, &quot;Sweet Mint (25 bags)&quot;,
+					&quot;Lemongrass (loose)&quot;, &quot;Lemongrass (20 bags)&quot;, &quot;Chai Mate (15 bags)&quot;, &quot;Chai Mate (25 bags)&quot;,
+					&quot;Stomach Soothing Tea (15 bags)&quot;, &quot;Headache Soothing Tea (15 bags)&quot; },
+			{ &quot;Rooibos Pure (loose)&quot;, &quot;Rooibos Pure (20 bags)&quot;, &quot;Rooibos Orange (loose)&quot;, &quot;Rooibos Orange (20 bags)&quot;,
+					&quot;Rooibos Coconut (loose)&quot;, &quot;Rooibos Coconut (20 bags)&quot;, &quot;Rooibos Vanilla (loose)&quot;,
+					&quot;Rooibos Pure (20 bags)&quot;, &quot;Rooibos Ginger (loose)&quot;, &quot;Rooibos Pure (20 bags)&quot;,
+					&quot;Rooibos Grapefruit (loose)&quot;, &quot;Rooibos Pure (20 bags)&quot; },
+			{ &quot;White Tea (loose)&quot;, &quot;White Tea (15 bags)&quot;, &quot;White Tea (25 bags)&quot;, &quot;White Chai (loose)&quot;,
+					&quot;White Chai (15 bags)&quot;, &quot;White Chai (25 bags)&quot;, &quot;Pai Mu Tan White (loose)&quot;,
+					&quot;Pai Mu Tan White (15 bags)&quot;, &quot;Pai Mu Tan White (25 bags)&quot;, &quot;White Apricot (loose)&quot;,
+					&quot;White Apricot (15 bags)&quot;, &quot;White Apricot (25 bags)&quot; },
+			{ &quot;Ceramic Cup White&quot;, &quot;Ceramic Cup Blue&quot;, &quot;Ceramic Cup Green&quot;, &quot;Ceramic Cup Black&quot;,
+					&quot;Percelain Cup White&quot;, &quot;Porcelain Cup with Flowers&quot;, &quot;Poercelain Cup with Dog Picture&quot;,
+					&quot;Small Glass Cup&quot;, &quot;Large Glass Cup&quot;, &quot;Small Glass Cup with Glass Infuser&quot;,
+					&quot;Large Glass Cup with Glass Infuser&quot;, &quot;Small Glass Cup with Plastic Infuser&quot;,
+					&quot;Large Glass Cup with Plastic Infuser&quot; },
+			{ &quot;Porcelain Teapot White, 2 Cups&quot;, &quot;Porcelain Teapot White, 5 Cups&quot;,
+					&quot;Porcelain Teapot with Flowers, 2 Cups&quot;, &quot;Porcelain Teapot with Flowers, 5 Cups&quot;,
+					&quot;Persian Teapot, 3 Cups&quot;, &quot;Large Teapot with Glass Infuser, 7 Cups&quot;,
+					&quot;Small Teapot with Glass Infuser, 3 Cups&quot;, &quot;Medium Teapot with Glass Infuser, 5 Cups&quot;,
+					&quot;Large Glass Teapot with Steel Infuser, 7 Cups&quot;, &quot;Small Glass Teapot with Steel Infuser, 3 Cups&quot;,
+					&quot;Medium Glass Teapot with Steel Infuser, 5 Cups&quot;, &quot;Glass Teapot Warmer&quot; },
+			{ &quot;Filters with Drawstring, 100 pcs.&quot;, &quot;Filters with Drawstring, 250 pcs.&quot;,
+					&quot;Filters with Drawstring, 500 pcs.&quot;, &quot;Tea Sack, 50 pcs.&quot;, &quot;Tea Sack, 125 pcs.&quot;,
+					&quot;Tea Sack, 500 pcs.&quot;, &quot;Reusible Cotton Tea Sack, 10 pcs.&quot;, &quot;Reusible Cotton Tea Sack, 35 pcs.&quot;,
+					&quot;Reusable Cotton Tea Sack, 50 pcs.&quot;, &quot;Pyramid-shaped Tea Filter, 10 pcs.&quot;,
+					&quot;Pyramid-shaped Tea Filter, 25 pcs.&quot;, &quot;Mr. Tea Filter, 10 pcs.&quot; },
+			{ &quot;Medium Mesh Ball with Chain&quot;, &quot;Medium Snap Mesh Ball&quot;, &quot;Large Ball with Chain&quot;,
+						&quot;Small Mesh Ball with Chain&quot;, &quot;Small Snap Mesh Ball&quot;, &quot;Large Snap Mesh Ball&quot;,
+						&quot;Medium Silicone Ball Infuser&quot;, &quot;Small Silicone Ball Infuser&quot;,
+					&quot;Large Silicone Ball Infuser&quot;, &quot;Small Mesh Ball with Panda Look&quot;, &quot;Heart-shaped Infuser&quot; } };
+
+<span class="fc" id="L144">	private static final String[] FIRSTNAMES = {&quot;James&quot;, &quot;John&quot;, &quot;Robert&quot;, &quot;Michael&quot;, &quot;William&quot;, &quot;David&quot;,</span>
+			&quot;Richard&quot;, &quot;Charles&quot;, &quot;Jospeph&quot;, &quot;Thomas&quot;, &quot;Christopher&quot;, &quot;Daniel&quot;, &quot;Paul&quot;, &quot;Mark&quot;, &quot;Donald&quot;,
+			&quot;George&quot;, &quot;Kenneth&quot;, &quot;Steven&quot;, &quot;Edward&quot;, &quot;Brian&quot;, &quot;Ronald&quot;, &quot;Anthony&quot;, &quot;Kevin&quot;, &quot;Jason&quot;,
+			&quot;Matthew&quot;, &quot;Gary&quot;, &quot;Timothy&quot;, &quot;Jose&quot;, &quot;Larry&quot;, &quot;Jeffrey&quot;, &quot;Frank&quot;, &quot;Scott&quot;, &quot;Eric&quot;, &quot;Stephen&quot;,
+			&quot;Andrew&quot;, &quot;Raymond&quot;, &quot;Gregory&quot;, &quot;Joshua&quot;, &quot;Jerry&quot;, &quot;Dennis&quot;, &quot;Walter&quot;, &quot;Patrick&quot;, &quot;Peter&quot;,
+			&quot;Mary&quot;, &quot;Patricia&quot;, &quot;Barbara&quot;, &quot;Elizabeth&quot;, &quot;Jennifer&quot;, &quot;Maria&quot;, &quot;Susan&quot;, &quot;Margaret&quot;, &quot;Dorothy&quot;,
+			&quot;Lisa&quot;, &quot;Nancy&quot;, &quot;Karen&quot;, &quot;Betty&quot;, &quot;Helen&quot;, &quot;Sandra&quot;, &quot;Donna&quot;, &quot;Carol&quot;, &quot;Ruth&quot;, &quot;Sharon&quot;,
+			&quot;Michelle&quot;, &quot;Laura&quot;, &quot;Sarah&quot;, &quot;Kimberly&quot;, &quot;Deborah&quot;, &quot;Jessica&quot;, &quot;Shirley&quot;, &quot;Cynthia&quot;};
+<span class="fc" id="L152">	private static final String[] LASTNAMES = {&quot;Smith&quot;, &quot;Johnson&quot;, &quot;Williams&quot;, &quot;Jones&quot;, &quot;Brown&quot;, &quot;Davis&quot;,</span>
+			&quot;Miller&quot;, &quot;Wilson&quot;, &quot;Moorse&quot;, &quot;Taylor&quot;, &quot;Anderson&quot;, &quot;Thomas&quot;, &quot;Jackson&quot;, &quot;White&quot;, &quot;Harris&quot;,
+			&quot;Martin&quot;, &quot;Thompson&quot;, &quot;Garcia&quot;, &quot;Martinez&quot;, &quot;Robinson&quot;, &quot;Clark&quot;, &quot;Rodriguez&quot;, &quot;Lewis&quot;, &quot;Lee&quot;,
+			&quot;Walker&quot;, &quot;Hall&quot;, &quot;Allen&quot;, &quot;Young&quot;, &quot;Hernandez&quot;, &quot;King&quot;, &quot;Wright&quot;, &quot;Lopez&quot;, &quot;Hill&quot;, &quot;Scoot&quot;};
+
+	private static final int MAX_ITEMS_PER_ORDER = 10;
+	private static final double PREFFERED_CATEGORY_CHANCE = 0.825;
+
+
+	/**
+	 * The data generator singleton.
+	 */
+<span class="fc" id="L164">	public static final DataGenerator GENERATOR = new DataGenerator();</span>
+
+<span class="fc" id="L166">	private boolean maintenanceMode = false;</span>
+
+<span class="fc" id="L168">	private DataGenerator() {</span>
+
+<span class="fc" id="L170">	}</span>
+
+	/**
+	 * Checks if the database is empty.
+	 *
+	 * @return True if the database is empty.
+	 */
+	public boolean isDatabaseEmpty() {
+		// every other entity requires a valid category or user
+<span class="nc bnc" id="L179" title="All 2 branches missed.">		return (CategoryRepository.REPOSITORY.getAllEntities(-1, 1).size() == 0</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">				&amp;&amp; UserRepository.REPOSITORY.getAllEntities(-1, 1).size() == 0);</span>
+	}
+
+	/**
+	 * Generates data for the database. Uses a fixed random seed.
+	 *
+	 * @param categories
+	 *            Number of categories.
+	 * @param productsPerCategory
+	 *            Number of products per category.
+	 * @param users
+	 *            Number of users. Password is always &quot;password&quot;.
+	 * @param maxOrdersPerUser
+	 *            Maximum order per user.
+	 */
+	public void generateDatabaseContent(int categories, int productsPerCategory,
+			int users, int maxOrdersPerUser) {
+<span class="fc" id="L197">		setGenerationFinishedFlag(false);</span>
+<span class="fc" id="L198">		CacheManager.MANAGER.clearAllCaches();</span>
+<span class="fc" id="L199">		random = new Random(5);</span>
+<span class="fc" id="L200">		generateCategories(categories);</span>
+<span class="fc" id="L201">		generateProducts(productsPerCategory);</span>
+<span class="fc" id="L202">		generateUsers(users);</span>
+<span class="fc" id="L203">		generateOrders(maxOrdersPerUser, productsPerCategory);</span>
+<span class="fc" id="L204">		setGenerationFinishedFlag(true);</span>
+<span class="fc" id="L205">		CacheManager.MANAGER.clearAllCaches();</span>
+<span class="fc" id="L206">	}</span>
+
+	private void generateCategories(int categories) {
+<span class="fc bfc" id="L209" title="All 2 branches covered.">		for (int i = 0; i &lt; categories; i++) {</span>
+<span class="fc" id="L210">			Category category = new Category();</span>
+<span class="fc bfc" id="L211" title="All 2 branches covered.">			if (i &lt; CATEGORYDESCRIPTIONS.length) {</span>
+<span class="fc" id="L212">				category.setDescription(CATEGORYDESCRIPTIONS[i]);</span>
+			} else {
+<span class="fc" id="L214">				int version = i / CATEGORYDESCRIPTIONS.length;</span>
+<span class="fc" id="L215">				category.setDescription(CATEGORYDESCRIPTIONS[i % CATEGORYDESCRIPTIONS.length] + &quot;, v&quot; + version);</span>
+			}
+<span class="fc bfc" id="L217" title="All 2 branches covered.">			if (i &lt; CATEGORYNAMES.length) {</span>
+<span class="fc" id="L218">				category.setName(CATEGORYNAMES[i]);</span>
+			} else {
+<span class="fc" id="L220">				int version = i / CATEGORYNAMES.length;</span>
+<span class="fc" id="L221">				category.setName(CATEGORYNAMES[i % CATEGORYNAMES.length] + &quot;, v&quot; + version);</span>
+			}
+<span class="fc" id="L223">			CategoryRepository.REPOSITORY.createEntity(category);</span>
+		}
+<span class="fc" id="L225">	}</span>
+
+	private void generateProducts(int productsPerCategory) {
+<span class="fc" id="L228">		int categoryIndex = 0;</span>
+<span class="fc bfc" id="L229" title="All 2 branches covered.">		for (PersistenceCategory category : CategoryRepository.REPOSITORY.getAllEntities()) {</span>
+<span class="fc" id="L230">			int productTypeIndex = categoryIndex % PRODUCTNAMES.length;</span>
+<span class="fc bfc" id="L231" title="All 2 branches covered.">			for (int i = 0; i &lt; productsPerCategory; i++) {</span>
+<span class="fc" id="L232">				int productIndex = i % PRODUCTNAMES[productTypeIndex].length;</span>
+<span class="fc" id="L233">				int version = i / PRODUCTNAMES[productTypeIndex].length;</span>
+<span class="fc" id="L234">				Product product = new Product();</span>
+<span class="fc bfc" id="L235" title="All 2 branches covered.">				if (version == 0) {</span>
+<span class="fc" id="L236">					product.setName(PRODUCTNAMES[productTypeIndex][productIndex]);</span>
+				} else {
+<span class="fc" id="L238">					product.setName(PRODUCTNAMES[productTypeIndex][productIndex] + &quot;, v&quot; + version);</span>
+				}
+<span class="fc" id="L240">				product.setDescription(</span>
+<span class="fc" id="L241">						&quot;Great &quot; + category.getName() + &quot;: &quot; + PRODUCTNAMES[productTypeIndex][productIndex]);</span>
+<span class="fc" id="L242">				product.setListPriceInCents(95 + random.nextInt(12000));</span>
+<span class="fc" id="L243">				product.setCategoryId(category.getId());</span>
+<span class="fc" id="L244">				ProductRepository.REPOSITORY.createEntity(product);</span>
+			}
+<span class="fc" id="L246">			categoryIndex++;</span>
+<span class="fc" id="L247">		}</span>
+<span class="fc" id="L248">	}</span>
+
+	private void generateUsers(int users) {
+<span class="fc" id="L251">		IntStream.range(0, users).parallel().forEach(i -&gt; {</span>
+<span class="fc" id="L252">			User user = new User();</span>
+<span class="fc" id="L253">			user.setUserName(&quot;user&quot; + i);</span>
+<span class="fc" id="L254">			user.setEmail(&quot;user&quot; + i + &quot;@teastore.com&quot;);</span>
+<span class="fc" id="L255">			user.setRealName(FIRSTNAMES[random.nextInt(FIRSTNAMES.length)]</span>
+<span class="fc" id="L256">					+ &quot; &quot; + LASTNAMES[random.nextInt(LASTNAMES.length)]);</span>
+<span class="fc" id="L257">			user.setPassword(BCrypt.hashpw(PASSWORD, BCrypt.gensalt(6)));</span>
+<span class="fc" id="L258">			UserRepository.REPOSITORY.createEntity(user);</span>
+<span class="fc" id="L259">		});</span>
+<span class="fc" id="L260">	}</span>
+
+	private void generateOrders(int maxOrdersPerUser, int productsPerCategory) {
+<span class="fc" id="L263">		UserRepository.REPOSITORY.getAllEntities().parallelStream().forEach(user -&gt; {</span>
+<span class="fc bfc" id="L264" title="All 2 branches covered.">			for (int i = 0; i &lt; random.nextInt(maxOrdersPerUser + 1); i++) {</span>
+<span class="fc" id="L265">				Order order = new Order();</span>
+<span class="fc" id="L266">				order.setAddressName(user.getRealName());</span>
+<span class="fc" id="L267">				String eastWest = &quot; East &quot;;</span>
+<span class="fc bfc" id="L268" title="All 2 branches covered.">				if (random.nextDouble() &gt; 0.5) {</span>
+<span class="fc" id="L269">					eastWest = &quot; West &quot;;</span>
+				}
+<span class="fc" id="L271">				String northSouth = &quot; North&quot;;</span>
+<span class="fc bfc" id="L272" title="All 2 branches covered.">				if (random.nextDouble() &gt; 0.5) {</span>
+<span class="fc" id="L273">					northSouth = &quot; South&quot;;</span>
+				}
+<span class="fc" id="L275">				order.setAddress1(random.nextInt(9000) + eastWest + random.nextInt(9000) + northSouth);</span>
+<span class="fc" id="L276">				order.setAddress2(&quot;District &quot; + random.nextInt(500) + &quot;, Utopia, &quot; + (10000 + random.nextInt(40000)));</span>
+<span class="fc" id="L277">				order.setCreditCardCompany(&quot;MasterCard&quot;);</span>
+<span class="fc bfc" id="L278" title="All 2 branches covered.">				if (random.nextDouble() &gt; 0.5) {</span>
+<span class="fc" id="L279">					order.setCreditCardCompany(&quot;Visa&quot;);</span>
+				}
+<span class="fc" id="L281">				order.setCreditCardExpiryDate(LocalDate.ofYearDay(LocalDateTime.now().getYear()</span>
+<span class="fc" id="L282">						+ 1 + random.nextInt(10), 1 + random.nextInt(363)).format(DateTimeFormatter.ISO_LOCAL_DATE));</span>
+<span class="fc" id="L283">				order.setTime(LocalDateTime.of(LocalDateTime.now().getYear() - random.nextInt(10),</span>
+<span class="fc" id="L284">						1 + random.nextInt(10), 1 + random.nextInt(24), random.nextInt(23), random.nextInt(59))</span>
+<span class="fc" id="L285">						.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));</span>
+<span class="fc" id="L286">				order.setUserId(user.getId());</span>
+<span class="fc" id="L287">				order.setCreditCardNumber(fourDigits() + &quot; &quot; + fourDigits() + &quot; &quot; + fourDigits() + &quot; &quot; + fourDigits());</span>
+<span class="fc" id="L288">				long orderId = OrderRepository.REPOSITORY.createEntity(order);</span>
+<span class="fc" id="L289">				PersistenceOrder createdOrder = OrderRepository.REPOSITORY.getEntity(orderId);</span>
+<span class="fc" id="L290">				long price = 0;</span>
+<span class="fc" id="L291">				List&lt;PersistenceCategory&gt; categories = CategoryRepository.REPOSITORY.getAllEntities();</span>
+<span class="fc" id="L292">				Category preferred = categories.get(random.nextInt(categories.size()));</span>
+<span class="fc bfc" id="L293" title="All 2 branches covered.">				for (int j = 0; j &lt; 1 + random.nextInt(MAX_ITEMS_PER_ORDER); j++) {</span>
+<span class="fc" id="L294">					OrderItem item = generateOrderItem(createdOrder, preferred, productsPerCategory);</span>
+<span class="fc" id="L295">					price += item.getQuantity() * item.getUnitPriceInCents();</span>
+<span class="fc" id="L296">					OrderItemRepository.REPOSITORY.createEntity(item);</span>
+				}
+<span class="fc" id="L298">				createdOrder.setTotalPriceInCents(price);</span>
+<span class="fc" id="L299">				OrderRepository.REPOSITORY.updateEntity(orderId, createdOrder);</span>
+			}
+<span class="fc" id="L301">		});</span>
+<span class="fc" id="L302">	}</span>
+
+	//Order and preferred category must have a valid id!
+	private OrderItem generateOrderItem(Order order, Category preferred, int productsPerCategory) {
+<span class="fc" id="L306">		OrderItem item = new OrderItem();</span>
+<span class="fc" id="L307">		item.setOrderId(order.getId());</span>
+<span class="fc" id="L308">		item.setQuantity(random.nextInt(7));</span>
+<span class="fc" id="L309">		Category itemCategory = preferred;</span>
+<span class="fc bfc" id="L310" title="All 2 branches covered.">		if (random.nextDouble() &gt; PREFFERED_CATEGORY_CHANCE) {</span>
+<span class="fc" id="L311">			List&lt;PersistenceCategory&gt; categories = CategoryRepository.REPOSITORY.getAllEntities();</span>
+<span class="fc" id="L312">			itemCategory = categories.get(random.nextInt(categories.size()));</span>
+		}
+<span class="fc" id="L314">		Product product = ProductRepository.REPOSITORY.getAllEntities(</span>
+<span class="fc" id="L315">				itemCategory.getId(), random.nextInt(productsPerCategory), 1).get(0);</span>
+<span class="fc" id="L316">		item.setProductId(product.getId());</span>
+<span class="fc" id="L317">		item.setUnitPriceInCents(product.getListPriceInCents());</span>
+<span class="fc" id="L318">		return item;</span>
+	}
+
+	private String fourDigits() {
+<span class="fc" id="L322">		return String.valueOf(1000 + random.nextInt(8999));</span>
+	}
+
+	/**
+	 * Drops database and recreates all tables.&lt;br/&gt;
+	 * Attention: Does not reset foreign persistence contexts.
+	 * Best practice is to call CacheManager.MANAGER.resetAllEMFs() after dropping and then recreating the DB.
+	 */
+	public void dropAndCreateTables() {
+<span class="fc" id="L331">		CacheManager.MANAGER.clearLocalCacheOnly();</span>
+<span class="fc" id="L332">		ServerSession session = CategoryRepository.REPOSITORY.getEM().unwrap(ServerSession.class);</span>
+<span class="fc" id="L333">		SchemaManager schemaManager = new SchemaManager(session);</span>
+<span class="fc" id="L334">		schemaManager.replaceDefaultTables(true, true);</span>
+<span class="fc" id="L335">		CacheManager.MANAGER.clearLocalCacheOnly();</span>
+<span class="fc" id="L336">		CacheManager.MANAGER.resetLocalEMF();</span>
+<span class="fc" id="L337">		setGenerationFinishedFlag(false);</span>
+<span class="fc" id="L338">		CacheManager.MANAGER.clearAllCaches();</span>
+<span class="fc" id="L339">	}</span>
+
+	private void setGenerationFinishedFlag(boolean flag) {
+<span class="fc" id="L342">		EntityManager em = CategoryRepository.REPOSITORY.getEM();</span>
+		try {
+<span class="fc" id="L344">			em.getTransaction().begin();</span>
+<span class="fc" id="L345">			List&lt;DatabaseManagementEntity&gt; entities =</span>
+<span class="fc" id="L346">					em.createQuery(&quot;SELECT u FROM &quot;</span>
+<span class="fc" id="L347">							+ DatabaseManagementEntity.class.getName()</span>
+							+ &quot; u&quot;, DatabaseManagementEntity.class)
+<span class="fc" id="L349">					.getResultList();</span>
+<span class="pc bpc" id="L350" title="1 of 4 branches missed.">			if (entities == null || entities.isEmpty()) {</span>
+<span class="fc" id="L351">				DatabaseManagementEntity entity = new DatabaseManagementEntity();</span>
+<span class="fc" id="L352">				entity.setFinishedGenerating(flag);</span>
+<span class="fc" id="L353">				em.persist(entity);</span>
+<span class="fc" id="L354">			} else {</span>
+<span class="fc" id="L355">				DatabaseManagementEntity entity = entities.get(0);</span>
+<span class="fc" id="L356">				entity.setFinishedGenerating(flag);</span>
+			}
+<span class="fc" id="L358">			em.getTransaction().commit();</span>
+		} finally {
+<span class="fc" id="L360">			em.close();</span>
+		}
+<span class="fc" id="L362">	}</span>
+
+	/**
+	 * Returns true if the database has finished generating.
+	 * False if it is currently generating.
+	 * @return False if the database is generating.
+	 */
+	public boolean getGenerationFinishedFlag() {
+<span class="nc bnc" id="L370" title="All 2 branches missed.">		if (isMaintenanceMode()) {</span>
+<span class="nc" id="L371">			return false;</span>
+		}
+<span class="nc" id="L373">		boolean finishedGenerating = false;</span>
+<span class="nc" id="L374">		EntityManager em = CategoryRepository.REPOSITORY.getEM();</span>
+		try {
+<span class="nc" id="L376">			List&lt;DatabaseManagementEntity&gt; entities =</span>
+<span class="nc" id="L377">					em.createQuery(&quot;SELECT u FROM &quot;</span>
+<span class="nc" id="L378">							+ DatabaseManagementEntity.class.getName()</span>
+							+ &quot; u&quot;, DatabaseManagementEntity.class)
+<span class="nc" id="L380">					.getResultList();</span>
+<span class="nc bnc" id="L381" title="All 4 branches missed.">			if (entities != null &amp;&amp; !entities.isEmpty()) {</span>
+<span class="nc" id="L382">				finishedGenerating = entities.get(0).isFinishedGenerating();</span>
+			}
+		} finally {
+<span class="nc" id="L385">			em.close();</span>
+		}
+<span class="nc" id="L387">		return finishedGenerating;</span>
+	}
+
+	/**
+	 * Returns if the current persistence is in maintenance mode.
+	 * Will return 503 on pretty much every external call in this mode.
+	 * @return True if in maintenance, false otherwise.
+	 */
+	public boolean isMaintenanceMode() {
+<span class="nc" id="L396">		return maintenanceMode;</span>
+	}
+
+	/**
+	 * Put the current persistence into maintenance mode.
+	 * Will return 503 on pretty much every external call in this mode.
+	 * @param maintenanceMode The maintenance flag.
+	 */
+	public synchronized void setMaintenanceModeInternal(boolean maintenanceMode) {
+<span class="nc" id="L405">		this.maintenanceMode = maintenanceMode;</span>
+<span class="nc" id="L406">	}</span>
+
+	/**
+	 * Puts all persistences into maintenance mode.
+	 * Will return 503 on pretty much every external call once in this mode.
+	 * @param maintenanceMode The maintenance flag.
+	 */
+	public void setMaintenanceModeGlobal(boolean maintenanceMode) {
+<span class="nc" id="L414">		setMaintenanceModeInternal(maintenanceMode);</span>
+<span class="nc" id="L415">		List&lt;Response&gt; rs = ServiceLoadBalancer.multicastRESTToOtherServiceInstances(</span>
+<span class="nc" id="L416">				&quot;generatedb&quot;, String.class, client -&gt; setMaintenanceModeExternal(client, maintenanceMode));</span>
+<span class="nc" id="L417">		rs.forEach(r -&gt; {</span>
+<span class="nc bnc" id="L418" title="All 2 branches missed.">				if (r != null) {</span>
+<span class="nc" id="L419">					r.bufferEntity();</span>
+<span class="nc" id="L420">					r.close();</span>
+				}
+<span class="nc" id="L422">			});</span>
+<span class="nc" id="L423">	}</span>
+
+	private Response setMaintenanceModeExternal(RESTClient&lt;String&gt; client, final Boolean maintenanceMode) {
+<span class="nc" id="L426">		Response r = client.getEndpointTarget().path(&quot;maintenance&quot;)</span>
+<span class="nc" id="L427">		.request(MediaType.TEXT_PLAIN).post(Entity.entity(String.valueOf(maintenanceMode), MediaType.TEXT_PLAIN));</span>
+<span class="nc" id="L428">		return r;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

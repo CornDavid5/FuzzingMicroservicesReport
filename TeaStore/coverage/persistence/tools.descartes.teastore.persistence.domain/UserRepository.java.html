@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeaStore Persistence</a> &gt; <a href="index.source.html" class="el_package">tools.descartes.teastore.persistence.domain</a> &gt; <span class="el_source">UserRepository.java</span></div><h1>UserRepository.java</h1><pre class="source lang-java linenums">/**
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package tools.descartes.teastore.persistence.domain;
+
+import java.util.List;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+
+import tools.descartes.teastore.persistence.repository.AbstractPersistenceRepository;
+import tools.descartes.teastore.entities.User;
+
+/**
+ * Repository that performs transactional CRUD operations for users on database.
+ * @author Joakim von Kistowski
+ *
+ */
+public final class UserRepository extends AbstractPersistenceRepository&lt;User, PersistenceUser&gt; {
+
+	/**
+	 * Singleton for the ProductRepository.
+	 */
+<span class="fc" id="L34">	public static final UserRepository REPOSITORY = new UserRepository();</span>
+	
+	//Private constructor.
+	private UserRepository() {
+		
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public long createEntity(User entity) {
+<span class="fc" id="L46">		PersistenceUser user = new PersistenceUser();</span>
+<span class="fc" id="L47">		user.setUserName(entity.getUserName());</span>
+<span class="fc" id="L48">		user.setPassword(entity.getPassword());</span>
+<span class="fc" id="L49">		user.setRealName(entity.getRealName());</span>
+<span class="fc" id="L50">		user.setEmail(entity.getEmail());</span>
+<span class="fc" id="L51">		EntityManager em = getEM();</span>
+	    try {
+<span class="fc" id="L53">	        em.getTransaction().begin();</span>
+<span class="fc" id="L54">	        PersistenceUser existing = getUserByName(entity.getUserName());</span>
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">	        if (existing == null) {</span>
+<span class="fc" id="L56">	        	em.persist(user);</span>
+	        } else {
+<span class="nc" id="L58">	        	user.setId(-1L);</span>
+	        }
+<span class="fc" id="L60">	        em.getTransaction().commit();</span>
+	    } finally {
+<span class="fc" id="L62">	        em.close();</span>
+	    }
+<span class="fc" id="L64">	    return user.getId();</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean updateEntity(long id, User entity) {
+<span class="fc" id="L72">		boolean found = false;</span>
+<span class="fc" id="L73">		EntityManager em = getEM();</span>
+	    try {
+<span class="fc" id="L75">	        em.getTransaction().begin();</span>
+<span class="fc" id="L76">	        PersistenceUser user = em.find(getEntityClass(), id);</span>
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">	        if (user != null) {</span>
+<span class="fc" id="L78">	        	user.setUserName(entity.getUserName());</span>
+<span class="fc" id="L79">	    		user.setPassword(entity.getPassword());</span>
+<span class="fc" id="L80">	    		user.setRealName(entity.getRealName());</span>
+<span class="fc" id="L81">	    		user.setEmail(entity.getEmail());</span>
+<span class="fc" id="L82">	        	found = true;</span>
+	        }
+<span class="fc" id="L84">	        em.getTransaction().commit();</span>
+	    } finally {
+<span class="fc" id="L86">	        em.close();</span>
+	    }
+<span class="fc" id="L88">	    return found;</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected long getId(PersistenceUser v) {
+<span class="nc" id="L96">		return v.getId();</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected Class&lt;PersistenceUser&gt; getEntityClass() {
+<span class="fc" id="L104">		return PersistenceUser.class;</span>
+	}
+	
+	/**
+	 * Return the user with the name.
+	 * @param userName The user name.
+	 * @return User or null if the user doesn't exist.
+	 */
+	public PersistenceUser getUserByName(String userName) {
+<span class="fc" id="L113">		EntityManager em = getEM();</span>
+<span class="fc" id="L114">		TypedQuery&lt;PersistenceUser&gt; allMatchesQuery =</span>
+<span class="fc" id="L115">				em.createQuery(&quot;SELECT u FROM &quot; + getEntityClass().getName()</span>
+<span class="fc" id="L116">						+ &quot; u WHERE u.userName = :name&quot;, getEntityClass())</span>
+<span class="fc" id="L117">				.setMaxResults(1);</span>
+<span class="fc" id="L118">		allMatchesQuery.setParameter(&quot;name&quot;, userName);</span>
+<span class="fc" id="L119">		List&lt;PersistenceUser&gt; entities = allMatchesQuery.getResultList();</span>
+<span class="pc bpc" id="L120" title="2 of 4 branches missed.">		if (entities == null || entities.isEmpty()) {</span>
+<span class="fc" id="L121">			return null;</span>
+		}
+<span class="nc" id="L123">		return entities.get(0);</span>
+	}
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

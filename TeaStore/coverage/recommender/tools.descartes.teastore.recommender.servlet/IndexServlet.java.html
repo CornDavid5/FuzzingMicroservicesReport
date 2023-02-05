@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IndexServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeaStore Recommender</a> &gt; <a href="index.source.html" class="el_package">tools.descartes.teastore.recommender.servlet</a> &gt; <span class="el_source">IndexServlet.java</span></div><h1>IndexServlet.java</h1><pre class="source lang-java linenums">/**
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package tools.descartes.teastore.recommender.servlet;
+
+import java.io.IOException;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+/**
+ * Index Servlet for the Recommender Component. Provides some basic debug
+ * information for deployers and testers.
+ * 
+ * @author Johannes Grohmann
+ */
+@WebServlet(&quot;/index&quot;)
+public class IndexServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * @see HttpServlet#HttpServlet()
+	 */
+	public IndexServlet() {
+<span class="nc" id="L38">		super();</span>
+<span class="nc" id="L39">	}</span>
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+	 *      response)
+	 * @param request
+	 *            The request.
+	 * @param response
+	 *            The response.
+	 * @throws ServletException
+	 *             In case of servlet Exception.
+	 * @throws IOException
+	 *             In case of IOException.
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+<span class="nc" id="L55">		response.getWriter().println(&quot;This is the recommender module running at &quot; + request.getProtocol() + &quot;://&quot;</span>
+<span class="nc" id="L56">				+ request.getLocalAddr() + &quot;:&quot; + request.getLocalPort() + &quot;/&quot; + request.getContextPath());</span>
+<span class="nc" id="L57">	}</span>
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+	 *      response)
+	 * @param request
+	 *            The request.
+	 * @param response
+	 *            The response.
+	 * @throws ServletException
+	 *             In case of servlet Exception.
+	 * @throws IOException
+	 *             In case of IOException.
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+<span class="nc" id="L73">		doGet(request, response);</span>
+<span class="nc" id="L74">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

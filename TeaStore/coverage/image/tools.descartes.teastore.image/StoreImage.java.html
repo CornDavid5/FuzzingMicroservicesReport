@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StoreImage.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeaStore Image Provider</a> &gt; <a href="index.source.html" class="el_package">tools.descartes.teastore.image</a> &gt; <span class="el_source">StoreImage.java</span></div><h1>StoreImage.java</h1><pre class="source lang-java linenums">/**
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package tools.descartes.teastore.image;
+
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Base64;
+
+import javax.imageio.ImageIO;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import tools.descartes.teastore.entities.ImageSize;
+import tools.descartes.teastore.image.cache.entry.ICachable;
+
+/**
+ * Entity for images provided by the image-provider service.
+ * 
+ * @author Norbert Schmitt
+ *
+ */
+public class StoreImage implements ICachable&lt;StoreImage&gt; {
+
+  /**
+   * Standard image format for storage (reading and writing).
+   */
+  public static final String STORE_IMAGE_FORMAT = &quot;png&quot;;
+
+  /**
+   * String prepended in the
+   * 
+   * &lt;pre&gt;
+   * src
+   * &lt;/pre&gt;
+   * 
+   * attribute of an image tag for embedding the image data.
+   */
+  public static final String STORE_IMAGE_DATA_STRING = &quot;data:image/&quot; + STORE_IMAGE_FORMAT
+      + &quot;;base64,&quot;;
+
+  private final long id;
+  private byte[] data;
+  private ImageSize size;
+<span class="fc" id="L59">  private Logger log = LoggerFactory.getLogger(StoreImage.class);</span>
+
+  /**
+   * Creates a new store image with a given id and size. The image is converted
+   * from the Java internal representation to a base64 encoded byte array.
+   * 
+   * @param id
+   *          The unique image id.
+   * @param image
+   *          The image data itself.
+   * @param size
+   *          The image size.
+   */
+<span class="fc" id="L72">  public StoreImage(final long id, BufferedImage image, ImageSize size) {</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">    if (image == null) {</span>
+<span class="fc" id="L74">      log.error(&quot;Supplied image is null.&quot;);</span>
+<span class="fc" id="L75">      throw new NullPointerException(&quot;Supplied image is null.&quot;);</span>
+    }
+
+<span class="fc" id="L78">    this.id = id;</span>
+<span class="fc" id="L79">    setImage(image);</span>
+<span class="fc" id="L80">    setImageSize(size);</span>
+<span class="fc" id="L81">  }</span>
+
+  /**
+   * Constructor.
+   * @param id imageId
+   * @param base64 base64 encoded byte array
+   * @param size Imagesize object
+   */
+<span class="fc" id="L89">  public StoreImage(final long id, byte[] base64, ImageSize size) {</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">    if (base64 == null) {</span>
+<span class="fc" id="L91">      log.error(&quot;Supplied base64 encoded byte array is null.&quot;);</span>
+<span class="fc" id="L92">      throw new NullPointerException(&quot;Supplied base64 encoded byte array is null.&quot;);</span>
+    }
+
+<span class="fc" id="L95">    this.id = id;</span>
+<span class="fc" id="L96">    data = Arrays.copyOf(base64, base64.length);</span>
+<span class="fc" id="L97">    setImageSize(size);</span>
+<span class="fc" id="L98">  }</span>
+
+  private void setImageSize(ImageSize size) {
+<span class="fc bfc" id="L101" title="All 2 branches covered.">    if (size == null) {</span>
+<span class="fc" id="L102">      log.error(&quot;Supplied image size is null.&quot;);</span>
+<span class="fc" id="L103">      throw new NullPointerException(&quot;Supplied image size is null.&quot;);</span>
+    }
+<span class="fc" id="L105">    this.size = size;</span>
+<span class="fc" id="L106">  }</span>
+
+  /**
+   * Copy constructor for StoreImage.
+   * 
+   * @param image
+   *          Image to copy.
+   */
+<span class="fc" id="L114">  public StoreImage(StoreImage image) {</span>
+<span class="fc bfc" id="L115" title="All 2 branches covered.">    if (image == null) {</span>
+<span class="fc" id="L116">      log.error(&quot;Supplied store image is null.&quot;);</span>
+<span class="fc" id="L117">      throw new NullPointerException(&quot;Store image is null.&quot;);</span>
+    }
+
+<span class="fc" id="L120">    this.id = image.getId();</span>
+<span class="fc" id="L121">    this.data = Arrays.copyOf(image.getByteArray(), image.getByteArray().length);</span>
+<span class="fc" id="L122">    this.size = image.getSize();</span>
+<span class="fc" id="L123">  }</span>
+
+  /**
+   * Returns the unique image identifier.
+   * 
+   * @return Unique image id.
+   */
+  public long getId() {
+<span class="fc" id="L131">    return id;</span>
+  }
+
+  // Converts the Java internal image representation to a byte array and encodes
+  // it in base64 for embedding.
+  private void setImage(BufferedImage image) {
+<span class="fc" id="L137">    ByteArrayOutputStream stream = new ByteArrayOutputStream();</span>
+    try {
+<span class="fc" id="L139">      ImageIO.write(image, STORE_IMAGE_FORMAT, stream);</span>
+<span class="nc" id="L140">    } catch (IOException ioException) {</span>
+<span class="nc" id="L141">      log.warn(&quot;An IOException occured while trying to write image to a stream.&quot;, ioException);</span>
+<span class="fc" id="L142">    }</span>
+<span class="fc" id="L143">    data = Base64.getEncoder().encode(stream.toByteArray());</span>
+<span class="fc" id="L144">  }</span>
+
+  /**
+   * Returns the image as the Java internal representation.
+   * 
+   * @return The image itself.
+   */
+  public BufferedImage getImage() {
+<span class="fc" id="L152">    BufferedImage image = null;</span>
+<span class="fc" id="L153">    ByteArrayInputStream stream = new ByteArrayInputStream(Base64.getDecoder().decode(data));</span>
+    try {
+<span class="fc" id="L155">      image = ImageIO.read(stream);</span>
+<span class="nc" id="L156">    } catch (IOException ioException) {</span>
+<span class="nc" id="L157">      log.warn(&quot;An IOException occured while trying to read image from stream.&quot;, ioException);</span>
+<span class="fc" id="L158">    }</span>
+<span class="fc" id="L159">    return image;</span>
+  }
+
+  /**
+   * Returns the image size.
+   * 
+   * @return The image size.
+   */
+  public ImageSize getSize() {
+<span class="fc" id="L168">    return size;</span>
+  }
+
+  /**
+   * Returns the number of bytes stored in the internal data structure.
+   * 
+   * @return Number of bytes stored for this image.
+   */
+  @Override
+  public long getByteSize() {
+<span class="fc" id="L178">    return data.length;</span>
+  }
+
+  /**
+   * Returns the base64 encoded byte array as string.
+   * 
+   * @return Base64 encoded data as string.
+   */
+  public String getBase64() {
+<span class="fc" id="L187">    return new String(data);</span>
+  }
+
+  /**
+   * Getter for bytearray.
+   * @return bytearray
+   */
+  public byte[] getByteArray() {
+<span class="fc" id="L195">    return Arrays.copyOf(data, data.length);</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="fc" id="L200">    return STORE_IMAGE_DATA_STRING + getBase64();</span>
+  }
+
+  // Auto-generated
+  @Override
+  public int hashCode() {
+<span class="fc" id="L206">    final int prime = 31;</span>
+<span class="fc" id="L207">    int result = 1;</span>
+<span class="fc" id="L208">    result = prime * result + (int) (id ^ (id &gt;&gt;&gt; 32));</span>
+<span class="fc" id="L209">    return result;</span>
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+<span class="fc bfc" id="L214" title="All 2 branches covered.">    if (this == obj) {</span>
+<span class="fc" id="L215">      return true;</span>
+    }
+<span class="fc bfc" id="L217" title="All 2 branches covered.">    if (obj == null) {</span>
+<span class="fc" id="L218">      return false;</span>
+    }
+<span class="fc bfc" id="L220" title="All 2 branches covered.">    if (getClass() != obj.getClass()) {</span>
+<span class="fc" id="L221">      return false;</span>
+    }
+<span class="fc" id="L223">    StoreImage other = (StoreImage) obj;</span>
+<span class="pc bpc" id="L224" title="1 of 2 branches missed.">    if (id != other.getId()) {</span>
+<span class="nc" id="L225">      return false;</span>
+    }
+<span class="fc" id="L227">    return true;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

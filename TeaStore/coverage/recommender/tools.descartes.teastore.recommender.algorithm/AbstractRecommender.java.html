@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractRecommender.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TeaStore Recommender</a> &gt; <a href="index.source.html" class="el_package">tools.descartes.teastore.recommender.algorithm</a> &gt; <span class="el_source">AbstractRecommender.java</span></div><h1>AbstractRecommender.java</h1><pre class="source lang-java linenums">/**
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package tools.descartes.teastore.recommender.algorithm;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.Map.Entry;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import tools.descartes.teastore.entities.Order;
+import tools.descartes.teastore.entities.OrderItem;
+import tools.descartes.teastore.entities.Product;
+import tools.descartes.teastore.entities.User;
+
+/**
+ * Abstract class for basic recommendation functionality.
+ * 
+ * @author Johannes Grohmann
+ *
+ */
+<span class="fc" id="L40">public abstract class AbstractRecommender implements IRecommender {</span>
+
+<span class="fc" id="L42">	private boolean trainingFinished = false;</span>
+
+	/**
+	 * Defines the maximum number of recommendations different implementations
+	 * should return. Is NOT mandatory for any of the algorithms.
+	 */
+	public static final int MAX_NUMBER_OF_RECOMMENDATIONS = 10;
+
+<span class="fc" id="L50">	private static final Logger LOG = LoggerFactory.getLogger(AbstractRecommender.class);</span>
+
+	/**
+	 * This represents the matrix assigning each user a frequency for each product
+	 * ID. The frequency resembles the number of times, a user has bought that item.
+	 */
+	private Map&lt;Long, Map&lt;Long, Double&gt;&gt; userBuyingMatrix;
+
+	/**
+	 * This set maps a userId to a set, containing the corresponding OrderItemSets,
+	 * i.e. all orders that were done by the user.
+	 */
+	private Map&lt;Long, Set&lt;OrderItemSet&gt;&gt; userItemSets;
+
+	/**
+	 * This is an enumeration of all available products seen during the training
+	 * phase.
+	 */
+	private Set&lt;Long&gt; totalProducts;
+
+	@Override
+	public void train(List&lt;OrderItem&gt; orderItems, List&lt;Order&gt; orders) {
+<span class="fc" id="L72">		long tic = System.currentTimeMillis();</span>
+<span class="fc" id="L73">		totalProducts = new HashSet&lt;&gt;();</span>
+		// first create order mapping unorderized
+<span class="fc" id="L75">		Map&lt;Long, OrderItemSet&gt; unOrderizeditemSets = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">		for (OrderItem orderItem : orderItems) {</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">			if (!unOrderizeditemSets.containsKey(orderItem.getOrderId())) {</span>
+<span class="fc" id="L78">				unOrderizeditemSets.put(orderItem.getOrderId(), new OrderItemSet());</span>
+<span class="fc" id="L79">				unOrderizeditemSets.get(orderItem.getOrderId()).setOrderId(orderItem.getOrderId());</span>
+			}
+<span class="fc" id="L81">			unOrderizeditemSets.get(orderItem.getOrderId()).getOrderset().put(orderItem.getProductId(),</span>
+<span class="fc" id="L82">					orderItem.getQuantity());</span>
+			// see, if we already have our item
+<span class="fc bfc" id="L84" title="All 2 branches covered.">			if (!totalProducts.contains(orderItem.getProductId())) {</span>
+				// if not known yet -&gt; add
+<span class="fc" id="L86">				totalProducts.add(orderItem.getProductId());</span>
+			}
+<span class="fc" id="L88">		}</span>
+		// now map each id with the corresponding order
+<span class="fc" id="L90">		Map&lt;Order, OrderItemSet&gt; itemSets = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">		for (Long orderid : unOrderizeditemSets.keySet()) {</span>
+<span class="fc" id="L92">			Order realOrder = findOrder(orders, orderid);</span>
+<span class="fc" id="L93">			itemSets.put(realOrder, unOrderizeditemSets.get(orderid));</span>
+<span class="fc" id="L94">		}</span>
+<span class="fc" id="L95">		userItemSets = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">		for (Order order : itemSets.keySet()) {</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">			if (!userItemSets.containsKey(order.getUserId())) {</span>
+<span class="fc" id="L98">				userItemSets.put(order.getUserId(), new HashSet&lt;OrderItemSet&gt;());</span>
+			}
+<span class="fc" id="L100">			itemSets.get(order).setUserId(order.getUserId());</span>
+<span class="fc" id="L101">			userItemSets.get(order.getUserId()).add(itemSets.get(order));</span>
+<span class="fc" id="L102">		}</span>
+<span class="fc" id="L103">		userBuyingMatrix = createUserBuyingMatrix(userItemSets);</span>
+<span class="fc" id="L104">		executePreprocessing();</span>
+<span class="fc" id="L105">		LOG.info(&quot;Training recommender finished. Training took: &quot; + (System.currentTimeMillis() - tic) + &quot;ms.&quot;);</span>
+<span class="fc" id="L106">		trainingFinished = true;</span>
+<span class="fc" id="L107">	}</span>
+
+	/**
+	 * Triggers implementing classes if they want to execute a pre-processing step
+	 * during {@link AbstractRecommender#train(List, List)}.
+	 */
+	protected void executePreprocessing() {
+		// do nothing
+<span class="fc" id="L115">	}</span>
+
+	@Override
+	public List&lt;Long&gt; recommendProducts(Long userid, List&lt;OrderItem&gt; currentItems)
+			throws UnsupportedOperationException {
+<span class="fc bfc" id="L120" title="All 2 branches covered.">		if (!trainingFinished) {</span>
+<span class="fc" id="L121">			throw new UnsupportedOperationException(&quot;This instance is not fully trained yet.&quot;);</span>
+		}
+<span class="fc bfc" id="L123" title="All 2 branches covered.">		if (currentItems.isEmpty()) {</span>
+			// if input is empty return empty list
+<span class="fc" id="L125">			return new LinkedList&lt;&gt;();</span>
+		}
+<span class="fc" id="L127">		List&lt;Long&gt; items = new ArrayList&lt;&gt;(currentItems.size());</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">		for (OrderItem item : currentItems) {</span>
+<span class="fc" id="L129">			items.add(item.getProductId());</span>
+<span class="fc" id="L130">		}</span>
+<span class="fc" id="L131">		return execute(userid, items);</span>
+	}
+
+	/**
+	 * Filters the given ranking of recommendations and deletes items that already
+	 * are in the cart. Furthermore caps the recommendations and only uses the
+	 * {@link AbstractRecommender#MAX_NUMBER_OF_RECOMMENDATIONS} highest rated
+	 * recommendations.
+	 * 
+	 * @param priorityList
+	 *            The unfiltered ranking assigning each recommended product ID a
+	 *            score or an importance. Does not need to be sorted.
+	 * @param currentItems
+	 *            The list of item IDs that must NOT be contained in the returned
+	 *            list.
+	 * @return A sorted list of recommendations with a size not greater than
+	 *         {@link AbstractRecommender#MAX_NUMBER_OF_RECOMMENDATIONS}
+	 */
+	protected List&lt;Long&gt; filterRecommendations(Map&lt;Long, Double&gt; priorityList, List&lt;Long&gt; currentItems) {
+<span class="fc" id="L150">		TreeMap&lt;Double, List&lt;Long&gt;&gt; ranking = createRanking(priorityList);</span>
+<span class="fc" id="L151">		List&lt;Long&gt; reco = new ArrayList&lt;&gt;(MAX_NUMBER_OF_RECOMMENDATIONS);</span>
+<span class="fc bfc" id="L152" title="All 2 branches covered.">		for (Double score : ranking.descendingKeySet()) {</span>
+<span class="fc" id="L153">			List&lt;Long&gt; productIds = ranking.get(score);</span>
+<span class="fc bfc" id="L154" title="All 2 branches covered.">			for (long productId : productIds) {</span>
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">				if (reco.size() &lt; MAX_NUMBER_OF_RECOMMENDATIONS) {</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">					if (!currentItems.contains(productId)) {</span>
+<span class="fc" id="L157">						reco.add(productId);</span>
+					}
+				} else {
+<span class="nc" id="L160">					return reco;</span>
+				}
+<span class="fc" id="L162">			}</span>
+<span class="fc" id="L163">		}</span>
+<span class="fc" id="L164">		return reco;</span>
+	}
+
+	private TreeMap&lt;Double, List&lt;Long&gt;&gt; createRanking(Map&lt;Long, Double&gt; map) {
+		// transforming the map into a treemap (for efficient access)
+<span class="fc" id="L169">		TreeMap&lt;Double, List&lt;Long&gt;&gt; ranking = new TreeMap&lt;Double, List&lt;Long&gt;&gt;();</span>
+<span class="fc bfc" id="L170" title="All 2 branches covered.">		for (Entry&lt;Long, Double&gt; entry : map.entrySet()) {</span>
+<span class="fc" id="L171">			List&lt;Long&gt; productIds = ranking.get(entry.getValue());</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">			if (productIds == null) {</span>
+<span class="fc" id="L173">				productIds = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L174">				ranking.put(entry.getValue(), productIds);</span>
+			}
+<span class="fc" id="L176">			productIds.add(entry.getKey());</span>
+<span class="fc" id="L177">		}</span>
+<span class="fc" id="L178">		return ranking;</span>
+	}
+
+	/**
+	 * Has to be implemented by subclasses in order to perform actual
+	 * recommendation.
+	 * 
+	 * @param userid
+	 *            The id of the {@link User} to recommend for. May be null.
+	 * @param currentItems
+	 *            A list containing all ids of {@link OrderItem}s.
+	 * @return List of all IDs of the {@link Product} entities that are recommended
+	 *         to add to the cart. Does not contain any {@link Product} that is
+	 *         already part of the given list of {@link OrderItem}s. Might be empty.
+	 */
+	protected abstract List&lt;Long&gt; execute(Long userid, List&lt;Long&gt; currentItems);
+
+	private Order findOrder(List&lt;Order&gt; orders, long orderid) {
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">		for (Order order : orders) {</span>
+<span class="fc bfc" id="L197" title="All 2 branches covered.">			if (order.getId() == orderid) {</span>
+<span class="fc" id="L198">				return order;</span>
+			}
+<span class="fc" id="L200">		}</span>
+<span class="nc" id="L201">		return null;</span>
+	}
+
+	/**
+	 * @return the userBuyingMatrix
+	 */
+	public Map&lt;Long, Map&lt;Long, Double&gt;&gt; getUserBuyingMatrix() {
+<span class="fc" id="L208">		return userBuyingMatrix;</span>
+	}
+
+	/**
+	 * @param userBuyingMatrix
+	 *            the userBuyingMatrix to set
+	 */
+	public void setUserBuyingMatrix(Map&lt;Long, Map&lt;Long, Double&gt;&gt; userBuyingMatrix) {
+<span class="nc" id="L216">		this.userBuyingMatrix = userBuyingMatrix;</span>
+<span class="nc" id="L217">	}</span>
+
+	/**
+	 * @return the totalProducts
+	 */
+	public Set&lt;Long&gt; getTotalProducts() {
+<span class="fc" id="L223">		return totalProducts;</span>
+	}
+
+	/**
+	 * @param totalProducts
+	 *            the totalProducts to set
+	 */
+	public void setTotalProducts(Set&lt;Long&gt; totalProducts) {
+<span class="nc" id="L231">		this.totalProducts = totalProducts;</span>
+<span class="nc" id="L232">	}</span>
+
+	/**
+	 * @return the userItemSets
+	 */
+	public Map&lt;Long, Set&lt;OrderItemSet&gt;&gt; getUserItemSets() {
+<span class="fc" id="L238">		return userItemSets;</span>
+	}
+
+	/**
+	 * @param userItemSets
+	 *            the userItemSets to set
+	 */
+	public void setUserItemSets(Map&lt;Long, Set&lt;OrderItemSet&gt;&gt; userItemSets) {
+<span class="nc" id="L246">		this.userItemSets = userItemSets;</span>
+<span class="nc" id="L247">	}</span>
+
+	/**
+	 * Transforms the list of orders into one matrix containing all user-IDs and
+	 * their number of buys (i.e., their rating) of all product-IDs. A
+	 * quantity/rating of a user is null, if the user did not buy that item. If the
+	 * user bought one item at least once, the contained value (rating) is the
+	 * number of times, he bought one given item.
+	 * 
+	 * @param useritemsets
+	 *            A map assigning each user-ID all its OrderItemSets
+	 * @return A Map representing a matrix of each user-ID assigning each item-ID
+	 *         its number of buys (as double value)
+	 */
+	private static Map&lt;Long, Map&lt;Long, Double&gt;&gt; createUserBuyingMatrix(Map&lt;Long, Set&lt;OrderItemSet&gt;&gt; useritemsets) {
+<span class="fc" id="L262">		Map&lt;Long, Map&lt;Long, Double&gt;&gt; matrix = new HashMap&lt;&gt;();</span>
+		// for each user
+<span class="fc bfc" id="L264" title="All 2 branches covered.">		for (Entry&lt;Long, Set&lt;OrderItemSet&gt;&gt; entry : useritemsets.entrySet()) {</span>
+			// create a new line for this user-ID
+<span class="fc" id="L266">			Map&lt;Long, Double&gt; line = new HashMap&lt;&gt;();</span>
+			// for all orders of that user
+<span class="fc bfc" id="L268" title="All 2 branches covered.">			for (OrderItemSet orderset : entry.getValue()) {</span>
+				// for all orderitems of that orderset
+<span class="fc bfc" id="L270" title="All 2 branches covered.">				for (Entry&lt;Long, Integer&gt; product : orderset.getOrderset().entrySet()) {</span>
+					// if key was not known before -&gt; first occurence
+<span class="fc bfc" id="L272" title="All 2 branches covered.">					if (!line.containsKey(product.getKey())) {</span>
+<span class="fc" id="L273">						line.put(product.getKey(), Double.valueOf(product.getValue()));</span>
+					} else {
+						// if key was known before -&gt; increase counter
+<span class="fc" id="L276">						line.put(product.getKey(), Double.valueOf(line.get(product.getKey()) + product.getValue()));</span>
+					}
+<span class="fc" id="L278">				}</span>
+<span class="fc" id="L279">			}</span>
+			// add this user-ID to the matrix
+<span class="fc" id="L281">			matrix.put(entry.getKey(), line);</span>
+<span class="fc" id="L282">		}</span>
+<span class="fc" id="L283">		return matrix;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
