@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DeliveryService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-delivery-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.deliveryservice.domain</a> &gt; <span class="el_source">DeliveryService.java</span></div><h1>DeliveryService.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.deliveryservice.domain;
+
+import net.chrisrichardson.ftgo.common.Address;
+import net.chrisrichardson.ftgo.deliveryservice.api.web.ActionInfo;
+import net.chrisrichardson.ftgo.deliveryservice.api.web.DeliveryInfo;
+import net.chrisrichardson.ftgo.deliveryservice.api.web.DeliveryStatus;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
+import java.util.stream.Collectors;
+
+public class DeliveryService {
+
+  private RestaurantRepository restaurantRepository;
+  private DeliveryRepository deliveryRepository;
+  private CourierRepository courierRepository;
+<span class="fc" id="L22">  private Random random = new Random();</span>
+
+<span class="fc" id="L24">  public DeliveryService(RestaurantRepository restaurantRepository, DeliveryRepository deliveryRepository, CourierRepository courierRepository) {</span>
+<span class="fc" id="L25">    this.restaurantRepository = restaurantRepository;</span>
+<span class="fc" id="L26">    this.deliveryRepository = deliveryRepository;</span>
+<span class="fc" id="L27">    this.courierRepository = courierRepository;</span>
+<span class="fc" id="L28">  }</span>
+
+  public void createRestaurant(long restaurantId, String restaurantName, Address address) {
+<span class="nc" id="L31">    restaurantRepository.save(Restaurant.create(restaurantId, restaurantName, address));</span>
+<span class="nc" id="L32">  }</span>
+
+  public void createDelivery(long orderId, long restaurantId, Address deliveryAddress) {
+<span class="fc" id="L35">    Restaurant restaurant = restaurantRepository.findById(restaurantId).get();</span>
+<span class="fc" id="L36">    deliveryRepository.save(Delivery.create(orderId, restaurantId, restaurant.getAddress(), deliveryAddress));</span>
+<span class="fc" id="L37">  }</span>
+
+  public void scheduleDelivery(long orderId, LocalDateTime readyBy) {
+<span class="fc" id="L40">    Delivery delivery = deliveryRepository.findById(orderId).get();</span>
+
+    // Stupid implementation
+
+<span class="fc" id="L44">    List&lt;Courier&gt; couriers = courierRepository.findAllAvailable();</span>
+<span class="fc" id="L45">    Courier courier = couriers.get(random.nextInt(couriers.size()));</span>
+<span class="fc" id="L46">    courier.addAction(Action.makePickup(delivery.getId(), delivery.getPickupAddress(), readyBy));</span>
+<span class="fc" id="L47">    courier.addAction(Action.makeDropoff(delivery.getId(), delivery.getDeliveryAddress(), readyBy.plusMinutes(30)));</span>
+
+<span class="fc" id="L49">    delivery.schedule(readyBy, courier.getId());</span>
+
+<span class="fc" id="L51">  }</span>
+
+  public void cancelDelivery(long orderId) {
+<span class="nc" id="L54">    Delivery delivery = deliveryRepository.findById(orderId).get();</span>
+<span class="nc" id="L55">    Long assignedCourierId = delivery.getAssignedCourier();</span>
+<span class="nc" id="L56">    delivery.cancel();</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">    if (assignedCourierId != null) {</span>
+<span class="nc" id="L58">      Courier courier = courierRepository.findById(assignedCourierId).get();</span>
+<span class="nc" id="L59">      courier.cancelDelivery(delivery.getId());</span>
+    }
+
+<span class="nc" id="L62">  }</span>
+
+
+
+  // notePickedUp
+  // noteDelivered
+  // noteLocation
+
+  void noteAvailable(long courierId) {
+<span class="fc" id="L71">    courierRepository.findOrCreateCourier(courierId).noteAvailable();</span>
+<span class="fc" id="L72">  }</span>
+
+  void noteUnavailable(long courierId) {
+<span class="nc" id="L75">    courierRepository.findOrCreateCourier(courierId).noteUnavailable();</span>
+<span class="nc" id="L76">  }</span>
+
+  private Courier findOrCreateCourier(long courierId) {
+<span class="nc" id="L79">    Courier courier = Courier.create(courierId);</span>
+    try {
+<span class="nc" id="L81">      return courierRepository.save(courier);</span>
+<span class="nc" id="L82">    } catch (DuplicateKeyException e) {</span>
+<span class="nc" id="L83">      return courierRepository.findById(courierId).get();</span>
+    }
+  }
+
+  @Transactional
+  public void updateAvailability(long courierId, boolean available) {
+<span class="nc bnc" id="L89" title="All 2 branches missed.">    if (available)</span>
+<span class="nc" id="L90">      noteAvailable(courierId);</span>
+    else
+<span class="nc" id="L92">      noteUnavailable(courierId);</span>
+<span class="nc" id="L93">  }</span>
+
+
+  // getCourierRoute()
+
+  @Transactional
+  public Optional&lt;DeliveryStatus&gt; getDeliveryInfo(long deliveryId) {
+<span class="nc" id="L100">    return deliveryRepository.findById(deliveryId).map(delivery -&gt; {</span>
+<span class="nc" id="L101">      Long assignedCourier = delivery.getAssignedCourier();</span>
+<span class="nc" id="L102">      List&lt;Action&gt; courierActions = Collections.EMPTY_LIST;</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">      if (assignedCourier != null) {</span>
+<span class="nc" id="L104">        Courier courier = courierRepository.findById(assignedCourier).get();</span>
+<span class="nc" id="L105">        courierActions = courier.actionsForDelivery(deliveryId);</span>
+      }
+<span class="nc" id="L107">      return makeDeliveryStatus(delivery, assignedCourier, courierActions);</span>
+    });
+  }
+
+  private DeliveryStatus makeDeliveryStatus(Delivery delivery, Long assignedCourier, List&lt;Action&gt; courierActions) {
+<span class="nc" id="L112">    return new DeliveryStatus(makeDeliveryInfo(delivery), assignedCourier, courierActions.stream().map(action -&gt; makeActionInfo(action)).collect(Collectors.toList()));</span>
+  }
+
+  private DeliveryInfo makeDeliveryInfo(Delivery delivery) {
+<span class="nc" id="L116">    return new DeliveryInfo(delivery.getId(), delivery.getState());</span>
+  }
+
+  private ActionInfo makeActionInfo(Action action) {
+<span class="nc" id="L120">    return new ActionInfo(action.getType());</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

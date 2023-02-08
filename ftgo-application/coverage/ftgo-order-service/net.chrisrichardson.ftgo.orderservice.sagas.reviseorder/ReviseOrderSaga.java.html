@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReviseOrderSaga.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-order-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.orderservice.sagas.reviseorder</a> &gt; <span class="el_source">ReviseOrderSaga.java</span></div><h1>ReviseOrderSaga.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.orderservice.sagas.reviseorder;
+
+import io.eventuate.tram.commands.consumer.CommandWithDestination;
+import io.eventuate.tram.sagas.simpledsl.SimpleSaga;
+import net.chrisrichardson.ftgo.accountservice.api.AccountingServiceChannels;
+import net.chrisrichardson.ftgo.orderservice.api.OrderServiceChannels;
+import net.chrisrichardson.ftgo.orderservice.sagaparticipants.BeginReviseOrderCommand;
+import net.chrisrichardson.ftgo.orderservice.sagaparticipants.BeginReviseOrderReply;
+import net.chrisrichardson.ftgo.kitchenservice.api.BeginReviseTicketCommand;
+import net.chrisrichardson.ftgo.orderservice.sagaparticipants.ConfirmReviseOrderCommand;
+import net.chrisrichardson.ftgo.accountservice.api.ReviseAuthorization;
+import net.chrisrichardson.ftgo.orderservice.sagaparticipants.UndoBeginReviseOrderCommand;
+import net.chrisrichardson.ftgo.kitchenservice.api.ConfirmReviseTicketCommand;
+import net.chrisrichardson.ftgo.kitchenservice.api.KitchenServiceChannels;
+import net.chrisrichardson.ftgo.kitchenservice.api.UndoBeginReviseTicketCommand;
+import io.eventuate.tram.sagas.orchestration.SagaDefinition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.PostConstruct;
+
+import static io.eventuate.tram.commands.consumer.CommandWithDestinationBuilder.send;
+
+<span class="nc" id="L24">public class ReviseOrderSaga implements SimpleSaga&lt;ReviseOrderSagaData&gt; {</span>
+
+<span class="nc" id="L26">  private Logger logger = LoggerFactory.getLogger(getClass());</span>
+
+  private SagaDefinition&lt;ReviseOrderSagaData&gt; sagaDefinition;
+
+  @PostConstruct
+  public void initializeSagaDefinition() {
+<span class="nc" id="L32">    sagaDefinition = step()</span>
+<span class="nc" id="L33">            .invokeParticipant(this::beginReviseOrder)</span>
+<span class="nc" id="L34">            .onReply(BeginReviseOrderReply.class, this::handleBeginReviseOrderReply)</span>
+<span class="nc" id="L35">            .withCompensation(this::undoBeginReviseOrder)</span>
+<span class="nc" id="L36">            .step()</span>
+<span class="nc" id="L37">            .invokeParticipant(this::beginReviseTicket)</span>
+<span class="nc" id="L38">            .withCompensation(this::undoBeginReviseTicket)</span>
+<span class="nc" id="L39">            .step()</span>
+<span class="nc" id="L40">            .invokeParticipant(this::reviseAuthorization)</span>
+<span class="nc" id="L41">            .step()</span>
+<span class="nc" id="L42">            .invokeParticipant(this::confirmTicketRevision)</span>
+<span class="nc" id="L43">            .step()</span>
+<span class="nc" id="L44">            .invokeParticipant(this::confirmOrderRevision)</span>
+<span class="nc" id="L45">            .build();</span>
+<span class="nc" id="L46">  }</span>
+
+  private void handleBeginReviseOrderReply(ReviseOrderSagaData data, BeginReviseOrderReply reply) {
+<span class="nc" id="L49">    logger.info(&quot;ƒ order total: {}&quot;, reply.getRevisedOrderTotal());</span>
+<span class="nc" id="L50">    data.setRevisedOrderTotal(reply.getRevisedOrderTotal());</span>
+<span class="nc" id="L51">  }</span>
+
+  @Override
+  public SagaDefinition&lt;ReviseOrderSagaData&gt; getSagaDefinition() {
+<span class="nc" id="L55">    return sagaDefinition;</span>
+  }
+
+  private CommandWithDestination confirmOrderRevision(ReviseOrderSagaData data) {
+<span class="nc" id="L59">    return send(new ConfirmReviseOrderCommand(data.getOrderId(), data.getOrderRevision()))</span>
+<span class="nc" id="L60">            .to(OrderServiceChannels.COMMAND_CHANNEL)</span>
+<span class="nc" id="L61">            .build();</span>
+
+  }
+
+  private CommandWithDestination confirmTicketRevision(ReviseOrderSagaData data) {
+<span class="nc" id="L66">    return send(new ConfirmReviseTicketCommand(data.getRestaurantId(), data.getOrderId(), data.getOrderRevision().getRevisedOrderLineItems()))</span>
+<span class="nc" id="L67">            .to(KitchenServiceChannels.COMMAND_CHANNEL)</span>
+<span class="nc" id="L68">            .build();</span>
+
+  }
+
+  private CommandWithDestination reviseAuthorization(ReviseOrderSagaData data) {
+<span class="nc" id="L73">    return send(new ReviseAuthorization(data.getConsumerId(), data.getOrderId(), data.getRevisedOrderTotal()))</span>
+<span class="nc" id="L74">            .to(AccountingServiceChannels.accountingServiceChannel)</span>
+<span class="nc" id="L75">            .build();</span>
+
+  }
+
+  private CommandWithDestination undoBeginReviseTicket(ReviseOrderSagaData data) {
+<span class="nc" id="L80">    return send(new UndoBeginReviseTicketCommand(data.getRestaurantId(), data.getOrderId()))</span>
+<span class="nc" id="L81">            .to(KitchenServiceChannels.COMMAND_CHANNEL)</span>
+<span class="nc" id="L82">            .build();</span>
+
+  }
+
+  private CommandWithDestination beginReviseTicket(ReviseOrderSagaData data) {
+<span class="nc" id="L87">    return send(new BeginReviseTicketCommand(data.getRestaurantId(), data.getOrderId(), data.getOrderRevision().getRevisedOrderLineItems()))</span>
+<span class="nc" id="L88">            .to(KitchenServiceChannels.COMMAND_CHANNEL)</span>
+<span class="nc" id="L89">            .build();</span>
+
+  }
+
+  private CommandWithDestination undoBeginReviseOrder(ReviseOrderSagaData data) {
+<span class="nc" id="L94">    return send(new UndoBeginReviseOrderCommand(data.getOrderId()))</span>
+<span class="nc" id="L95">            .to(OrderServiceChannels.COMMAND_CHANNEL)</span>
+<span class="nc" id="L96">            .build();</span>
+  }
+
+  private CommandWithDestination beginReviseOrder(ReviseOrderSagaData data) {
+<span class="nc" id="L100">    return send(new BeginReviseOrderCommand(data.getOrderId(), data.getOrderRevision()))</span>
+<span class="nc" id="L101">            .to(OrderServiceChannels.COMMAND_CHANNEL)</span>
+<span class="nc" id="L102">            .build();</span>
+
+  }
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

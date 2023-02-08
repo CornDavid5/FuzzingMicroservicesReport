@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CreateOrderSagaState.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-order-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.orderservice.sagas.createorder</a> &gt; <span class="el_source">CreateOrderSagaState.java</span></div><h1>CreateOrderSagaState.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.orderservice.sagas.createorder;
+
+import net.chrisrichardson.ftgo.accountservice.api.AuthorizeCommand;
+import net.chrisrichardson.ftgo.consumerservice.api.ValidateOrderByConsumer;
+import net.chrisrichardson.ftgo.orderservice.api.events.OrderDetails;
+import net.chrisrichardson.ftgo.orderservice.api.events.OrderLineItem;
+import net.chrisrichardson.ftgo.orderservice.sagaparticipants.ApproveOrderCommand;
+import net.chrisrichardson.ftgo.orderservice.sagaparticipants.RejectOrderCommand;
+import net.chrisrichardson.ftgo.kitchenservice.api.*;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
+
+public class CreateOrderSagaState {
+
+<span class="fc" id="L21">  private Logger logger = LoggerFactory.getLogger(getClass());</span>
+
+  private Long orderId;
+
+  private OrderDetails orderDetails;
+  private long ticketId;
+
+  public Long getOrderId() {
+<span class="fc" id="L29">    return orderId;</span>
+  }
+
+<span class="fc" id="L32">  private CreateOrderSagaState() {</span>
+<span class="fc" id="L33">  }</span>
+
+<span class="fc" id="L35">  public CreateOrderSagaState(Long orderId, OrderDetails orderDetails) {</span>
+<span class="fc" id="L36">    this.orderId = orderId;</span>
+<span class="fc" id="L37">    this.orderDetails = orderDetails;</span>
+<span class="fc" id="L38">  }</span>
+
+  @Override
+  public boolean equals(Object o) {
+<span class="fc" id="L42">    return EqualsBuilder.reflectionEquals(this, o);</span>
+  }
+
+  @Override
+  public int hashCode() {
+<span class="nc" id="L47">    return HashCodeBuilder.reflectionHashCode(this);</span>
+  }
+
+  public OrderDetails getOrderDetails() {
+<span class="fc" id="L51">    return orderDetails;</span>
+  }
+
+  public void setOrderId(Long orderId) {
+<span class="fc" id="L55">    this.orderId = orderId;</span>
+<span class="fc" id="L56">  }</span>
+
+  public void setTicketId(long ticketId) {
+<span class="fc" id="L59">    this.ticketId = ticketId;</span>
+<span class="fc" id="L60">  }</span>
+
+  public long getTicketId() {
+<span class="fc" id="L63">    return ticketId;</span>
+  }
+
+  CreateTicket makeCreateTicketCommand() {
+<span class="fc" id="L67">    return new CreateTicket(getOrderDetails().getRestaurantId(), getOrderId(), makeTicketDetails(getOrderDetails()));</span>
+  }
+
+  private TicketDetails makeTicketDetails(OrderDetails orderDetails) {
+    // TODO FIXME
+<span class="fc" id="L72">    return new TicketDetails(makeTicketLineItems(orderDetails.getLineItems()));</span>
+  }
+
+  private List&lt;TicketLineItem&gt; makeTicketLineItems(List&lt;OrderLineItem&gt; lineItems) {
+<span class="fc" id="L76">    return lineItems.stream().map(this::makeTicketLineItem).collect(toList());</span>
+  }
+
+  private TicketLineItem makeTicketLineItem(OrderLineItem orderLineItem) {
+<span class="fc" id="L80">    return new TicketLineItem(orderLineItem.getMenuItemId(), orderLineItem.getName(), orderLineItem.getQuantity());</span>
+  }
+
+  void handleCreateTicketReply(CreateTicketReply reply) {
+<span class="nc" id="L84">    logger.debug(&quot;getTicketId {}&quot;, reply.getTicketId());</span>
+<span class="nc" id="L85">    setTicketId(reply.getTicketId());</span>
+<span class="nc" id="L86">  }</span>
+
+  CancelCreateTicket makeCancelCreateTicketCommand() {
+<span class="fc" id="L89">    return new CancelCreateTicket(getOrderId());</span>
+  }
+
+  RejectOrderCommand makeRejectOrderCommand() {
+<span class="fc" id="L93">    return new RejectOrderCommand(getOrderId());</span>
+  }
+
+  ValidateOrderByConsumer makeValidateOrderByConsumerCommand() {
+<span class="fc" id="L97">    ValidateOrderByConsumer x = new ValidateOrderByConsumer();</span>
+<span class="fc" id="L98">    x.setConsumerId(getOrderDetails().getConsumerId());</span>
+<span class="fc" id="L99">    x.setOrderId(getOrderId());</span>
+<span class="fc" id="L100">    x.setOrderTotal(getOrderDetails().getOrderTotal().asString());</span>
+<span class="fc" id="L101">    return x;</span>
+  }
+
+  AuthorizeCommand makeAuthorizeCommand() {
+<span class="fc" id="L105">    return new AuthorizeCommand().withConsumerId(getOrderDetails().getConsumerId()).withOrderId(getOrderId()).withOrderTotal(getOrderDetails().getOrderTotal().asString());</span>
+  }
+
+  ApproveOrderCommand makeApproveOrderCommand() {
+<span class="fc" id="L109">    return new ApproveOrderCommand(getOrderId());</span>
+  }
+
+  ConfirmCreateTicket makeConfirmCreateTicketCommand() {
+<span class="fc" id="L113">    return new ConfirmCreateTicket(getTicketId());</span>
+
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

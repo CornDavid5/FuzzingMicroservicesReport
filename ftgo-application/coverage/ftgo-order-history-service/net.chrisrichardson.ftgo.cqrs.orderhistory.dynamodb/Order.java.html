@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Order.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-order-history-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.cqrs.orderhistory.dynamodb</a> &gt; <span class="el_source">Order.java</span></div><h1>Order.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.cqrs.orderhistory.dynamodb;
+
+import net.chrisrichardson.ftgo.common.Money;
+import net.chrisrichardson.ftgo.orderservice.api.events.OrderLineItem;
+import net.chrisrichardson.ftgo.orderservice.api.events.OrderState;
+import org.joda.time.DateTime;
+
+import java.util.List;
+
+public class Order {
+  private String consumerId;
+<span class="fc" id="L12">  private DateTime creationDate = DateTime.now();</span>
+  private OrderState status;
+  private String orderId;
+  private List&lt;OrderLineItem&gt; lineItems;
+  private Money orderTotal;
+  private long restaurantId;
+  private String restaurantName;
+
+<span class="fc" id="L20">  public Order(String orderId, String consumerId, OrderState status, List&lt;OrderLineItem&gt; lineItems, Money orderTotal, long restaurantId, String restaurantName) {</span>
+<span class="fc" id="L21">    this.orderId = orderId;</span>
+<span class="fc" id="L22">    this.consumerId = consumerId;</span>
+<span class="fc" id="L23">    this.status = status;</span>
+<span class="fc" id="L24">    this.lineItems = lineItems;</span>
+<span class="fc" id="L25">    this.orderTotal = orderTotal;</span>
+<span class="fc" id="L26">    this.restaurantId = restaurantId;</span>
+<span class="fc" id="L27">    this.restaurantName = restaurantName;</span>
+<span class="fc" id="L28">  }</span>
+
+  public String getRestaurantName() {
+<span class="fc" id="L31">    return restaurantName;</span>
+  }
+
+  public String getOrderId() {
+<span class="fc" id="L35">    return orderId;</span>
+  }
+
+  public long getRestaurantId() {
+<span class="fc" id="L39">    return restaurantId;</span>
+  }
+  
+  public List&lt;OrderLineItem&gt; getLineItems() {
+<span class="nc" id="L43">    return lineItems;</span>
+  }
+
+  public Money getOrderTotal() {
+<span class="nc" id="L47">    return orderTotal;</span>
+  }
+
+  public void setCreationDate(DateTime creationDate) {
+<span class="nc" id="L51">    this.creationDate = creationDate;</span>
+<span class="nc" id="L52">  }</span>
+
+  public String getConsumerId() {
+<span class="nc" id="L55">    return consumerId;</span>
+  }
+
+  public DateTime getCreationDate() {
+<span class="nc" id="L59">    return creationDate;</span>
+  }
+
+  public OrderState getStatus() {
+<span class="fc" id="L63">    return status;</span>
+  }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

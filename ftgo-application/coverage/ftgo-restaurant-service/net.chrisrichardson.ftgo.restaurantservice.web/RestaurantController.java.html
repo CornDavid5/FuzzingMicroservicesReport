@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RestaurantController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-restaurant-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.restaurantservice.web</a> &gt; <span class="el_source">RestaurantController.java</span></div><h1>RestaurantController.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.restaurantservice.web;
+
+import net.chrisrichardson.ftgo.restaurantservice.domain.Restaurant;
+import net.chrisrichardson.ftgo.restaurantservice.domain.RestaurantService;
+import net.chrisrichardson.ftgo.restaurantservice.domain.CreateRestaurantRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping(path = &quot;/restaurants&quot;)
+<span class="nc" id="L13">public class RestaurantController {</span>
+
+  @Autowired
+  private RestaurantService restaurantService;
+
+  @RequestMapping(method = RequestMethod.POST)
+  public CreateRestaurantResponse create(@RequestBody CreateRestaurantRequest request) {
+<span class="nc" id="L20">    Restaurant r = restaurantService.create(request);</span>
+<span class="nc" id="L21">    return new CreateRestaurantResponse(r.getId());</span>
+  }
+
+  @RequestMapping(method = RequestMethod.GET, path = &quot;/{restaurantId}&quot;)
+  public ResponseEntity&lt;GetRestaurantResponse&gt; get(@PathVariable long restaurantId) {
+<span class="nc" id="L26">    return restaurantService.findById(restaurantId)</span>
+<span class="nc" id="L27">            .map(r -&gt; new ResponseEntity&lt;&gt;(makeGetRestaurantResponse(r), HttpStatus.OK))</span>
+<span class="nc" id="L28">            .orElseGet(() -&gt; new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND));</span>
+  }
+
+  private GetRestaurantResponse makeGetRestaurantResponse(Restaurant r) {
+<span class="nc" id="L32">    return new GetRestaurantResponse(r.getId(), r.getName());</span>
+  }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

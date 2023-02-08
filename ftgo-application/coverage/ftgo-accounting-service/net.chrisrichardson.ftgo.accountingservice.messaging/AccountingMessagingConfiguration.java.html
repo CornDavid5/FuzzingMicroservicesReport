@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AccountingMessagingConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-accounting-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.accountingservice.messaging</a> &gt; <span class="el_source">AccountingMessagingConfiguration.java</span></div><h1>AccountingMessagingConfiguration.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.accountingservice.messaging;
+
+import io.eventuate.javaclient.spring.EnableEventHandlers;
+import io.eventuate.tram.commands.consumer.CommandDispatcher;
+import io.eventuate.tram.commands.consumer.CommandDispatcherFactory;
+import io.eventuate.tram.spring.commands.consumer.TramCommandConsumerConfiguration;
+import io.eventuate.tram.spring.consumer.jdbc.TransactionalNoopDuplicateMessageDetectorConfiguration;
+import io.eventuate.tram.spring.events.subscriber.TramEventSubscriberConfiguration;
+import io.eventuate.tram.events.subscriber.DomainEventDispatcher;
+import io.eventuate.tram.events.subscriber.DomainEventDispatcherFactory;
+import io.eventuate.tram.sagas.eventsourcingsupport.SagaReplyRequestedEventSubscriber;
+import net.chrisrichardson.ftgo.accountingservice.domain.Account;
+import net.chrisrichardson.ftgo.accountingservice.domain.AccountServiceConfiguration;
+import net.chrisrichardson.ftgo.common.CommonConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+
+import java.util.Collections;
+
+@Configuration
+@EnableEventHandlers
+@Import({AccountServiceConfiguration.class, CommonConfiguration.class, TramEventSubscriberConfiguration.class, TramCommandConsumerConfiguration.class, TransactionalNoopDuplicateMessageDetectorConfiguration.class})
+<span class="fc" id="L24">public class AccountingMessagingConfiguration {</span>
+
+  @Bean
+  public AccountingEventConsumer accountingEventConsumer() {
+<span class="fc" id="L28">    return new AccountingEventConsumer();</span>
+  }
+
+  @Bean
+  public DomainEventDispatcher domainEventDispatcher(AccountingEventConsumer accountingEventConsumer, DomainEventDispatcherFactory domainEventDispatcherFactory) {
+<span class="fc" id="L33">    return domainEventDispatcherFactory.make(&quot;accountingServiceDomainEventDispatcher&quot;, accountingEventConsumer.domainEventHandlers());</span>
+  }
+
+  @Bean
+  public AccountingServiceCommandHandler accountCommandHandler() {
+<span class="fc" id="L38">    return new AccountingServiceCommandHandler();</span>
+  }
+
+
+  @Bean
+  public CommandDispatcher commandDispatcher(AccountingServiceCommandHandler target,
+                                             AccountServiceChannelConfiguration data, CommandDispatcherFactory commandDispatcherFactory) {
+<span class="fc" id="L45">    return commandDispatcherFactory.make(data.getCommandDispatcherId(), target.commandHandlers());</span>
+  }
+
+  @Bean
+  public AccountServiceChannelConfiguration accountServiceChannelConfiguration() {
+<span class="fc" id="L50">    return new AccountServiceChannelConfiguration(&quot;accountCommandDispatcher&quot;, &quot;accountCommandChannel&quot;);</span>
+  }
+
+  @Bean
+  public SagaReplyRequestedEventSubscriber sagaReplyRequestedEventSubscriber() {
+<span class="fc" id="L55">    return new SagaReplyRequestedEventSubscriber(&quot;accountingServiceSagaReplyRequestedEventSubscriber&quot;, Collections.singleton(Account.class.getName()));</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

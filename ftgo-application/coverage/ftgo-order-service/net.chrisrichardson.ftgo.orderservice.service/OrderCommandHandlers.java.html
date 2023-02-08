@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderCommandHandlers.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-order-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.orderservice.service</a> &gt; <span class="el_source">OrderCommandHandlers.java</span></div><h1>OrderCommandHandlers.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.orderservice.service;
+
+import io.eventuate.tram.commands.consumer.CommandHandlerReplyBuilder;
+import net.chrisrichardson.ftgo.orderservice.domain.OrderRepository;
+import net.chrisrichardson.ftgo.orderservice.domain.OrderRevision;
+import net.chrisrichardson.ftgo.orderservice.domain.OrderService;
+import net.chrisrichardson.ftgo.orderservice.domain.RevisedOrder;
+import net.chrisrichardson.ftgo.orderservice.sagaparticipants.*;
+import io.eventuate.tram.commands.consumer.CommandHandlers;
+import io.eventuate.tram.commands.consumer.CommandMessage;
+import io.eventuate.tram.events.publisher.DomainEventPublisher;
+import io.eventuate.tram.messaging.common.Message;
+import io.eventuate.tram.sagas.participant.SagaCommandHandlersBuilder;
+import net.chrisrichardson.ftgo.common.UnsupportedStateTransitionException;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Optional;
+
+import static io.eventuate.tram.commands.consumer.CommandHandlerReplyBuilder.withFailure;
+import static io.eventuate.tram.commands.consumer.CommandHandlerReplyBuilder.withSuccess;
+
+<span class="nc" id="L22">public class OrderCommandHandlers {</span>
+
+  @Autowired
+  private OrderService orderService;
+
+  public CommandHandlers commandHandlers() {
+<span class="nc" id="L28">    return SagaCommandHandlersBuilder</span>
+<span class="nc" id="L29">          .fromChannel(&quot;orderService&quot;)</span>
+<span class="nc" id="L30">          .onMessage(ApproveOrderCommand.class, this::approveOrder)</span>
+<span class="nc" id="L31">          .onMessage(RejectOrderCommand.class, this::rejectOrder)</span>
+
+<span class="nc" id="L33">          .onMessage(BeginCancelCommand.class, this::beginCancel)</span>
+<span class="nc" id="L34">          .onMessage(UndoBeginCancelCommand.class, this::undoCancel)</span>
+<span class="nc" id="L35">          .onMessage(ConfirmCancelOrderCommand.class, this::confirmCancel)</span>
+
+<span class="nc" id="L37">          .onMessage(BeginReviseOrderCommand.class, this::beginReviseOrder)</span>
+<span class="nc" id="L38">          .onMessage(UndoBeginReviseOrderCommand.class, this::undoPendingRevision)</span>
+<span class="nc" id="L39">          .onMessage(ConfirmReviseOrderCommand.class, this::confirmRevision)</span>
+<span class="nc" id="L40">          .build();</span>
+
+  }
+
+  public Message approveOrder(CommandMessage&lt;ApproveOrderCommand&gt; cm) {
+<span class="nc" id="L45">    long orderId = cm.getCommand().getOrderId();</span>
+<span class="nc" id="L46">    orderService.approveOrder(orderId);</span>
+<span class="nc" id="L47">    return withSuccess();</span>
+  }
+
+
+  public Message rejectOrder(CommandMessage&lt;RejectOrderCommand&gt; cm) {
+<span class="nc" id="L52">    long orderId = cm.getCommand().getOrderId();</span>
+<span class="nc" id="L53">    orderService.rejectOrder(orderId);</span>
+<span class="nc" id="L54">    return withSuccess();</span>
+  }
+
+
+  public Message beginCancel(CommandMessage&lt;BeginCancelCommand&gt; cm) {
+<span class="nc" id="L59">    long orderId = cm.getCommand().getOrderId();</span>
+    try {
+<span class="nc" id="L61">      orderService.beginCancel(orderId);</span>
+<span class="nc" id="L62">      return withSuccess();</span>
+<span class="nc" id="L63">    } catch (UnsupportedStateTransitionException e) {</span>
+<span class="nc" id="L64">      return withFailure();</span>
+    }
+  }
+
+
+  public Message undoCancel(CommandMessage&lt;UndoBeginCancelCommand&gt; cm) {
+<span class="nc" id="L70">    long orderId = cm.getCommand().getOrderId();</span>
+<span class="nc" id="L71">    orderService.undoCancel(orderId);</span>
+<span class="nc" id="L72">    return withSuccess();</span>
+  }
+
+  public Message confirmCancel(CommandMessage&lt;ConfirmCancelOrderCommand&gt; cm) {
+<span class="nc" id="L76">    long orderId = cm.getCommand().getOrderId();</span>
+<span class="nc" id="L77">    orderService.confirmCancelled(orderId);</span>
+<span class="nc" id="L78">    return withSuccess();</span>
+  }
+
+
+  public Message beginReviseOrder(CommandMessage&lt;BeginReviseOrderCommand&gt; cm) {
+<span class="nc" id="L83">    long orderId = cm.getCommand().getOrderId();</span>
+<span class="nc" id="L84">    OrderRevision revision = cm.getCommand().getRevision();</span>
+    try {
+<span class="nc" id="L86">      return orderService.beginReviseOrder(orderId, revision).map(result -&gt; withSuccess(new BeginReviseOrderReply(result.getChange().getNewOrderTotal()))).orElseGet(CommandHandlerReplyBuilder::withFailure);</span>
+<span class="nc" id="L87">    } catch (UnsupportedStateTransitionException e) {</span>
+<span class="nc" id="L88">      return withFailure();</span>
+    }
+  }
+
+  public Message undoPendingRevision(CommandMessage &lt;UndoBeginReviseOrderCommand&gt; cm) {
+<span class="nc" id="L93">    long orderId = cm.getCommand().getOrderId();</span>
+<span class="nc" id="L94">    orderService.undoPendingRevision(orderId);</span>
+<span class="nc" id="L95">    return withSuccess();</span>
+  }
+
+  public Message confirmRevision(CommandMessage&lt;ConfirmReviseOrderCommand&gt; cm) {
+<span class="nc" id="L99">    long orderId = cm.getCommand().getOrderId();</span>
+<span class="nc" id="L100">    OrderRevision revision = cm.getCommand().getRevision();</span>
+<span class="nc" id="L101">    orderService.confirmRevision(orderId, revision);</span>
+<span class="nc" id="L102">    return withSuccess();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

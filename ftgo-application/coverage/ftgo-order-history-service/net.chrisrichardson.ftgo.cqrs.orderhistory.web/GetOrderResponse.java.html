@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GetOrderResponse.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-order-history-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.cqrs.orderhistory.web</a> &gt; <span class="el_source">GetOrderResponse.java</span></div><h1>GetOrderResponse.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.cqrs.orderhistory.web;
+
+import net.chrisrichardson.ftgo.orderservice.api.events.OrderState;
+
+public class GetOrderResponse {
+  private String orderId;
+  private OrderState status;
+  private long restaurantId;
+  private String restaurantName;
+
+
+  private GetOrderResponse() {
+  }
+
+  public OrderState getStatus() {
+<span class="fc" id="L16">    return status;</span>
+  }
+
+  public void setStatus(OrderState status) {
+<span class="nc" id="L20">    this.status = status;</span>
+<span class="nc" id="L21">  }</span>
+
+  public long getRestaurantId() {
+<span class="fc" id="L24">    return restaurantId;</span>
+  }
+
+  public void setRestaurantId(long restaurantId) {
+<span class="nc" id="L28">    this.restaurantId = restaurantId;</span>
+<span class="nc" id="L29">  }</span>
+
+<span class="fc" id="L31">  public GetOrderResponse(String orderId, OrderState status, long restaurantId, String restaurantName) {</span>
+<span class="fc" id="L32">    this.orderId = orderId;</span>
+<span class="fc" id="L33">    this.status = status;</span>
+<span class="fc" id="L34">    this.restaurantId = restaurantId;</span>
+<span class="fc" id="L35">    this.restaurantName = restaurantName;</span>
+<span class="fc" id="L36">  }</span>
+
+
+  public String getOrderId() {
+<span class="fc" id="L40">    return orderId;</span>
+  }
+
+  public void setOrderId(String orderId) {
+<span class="nc" id="L44">    this.orderId = orderId;</span>
+<span class="nc" id="L45">  }</span>
+
+  public String getRestaurantName() {
+<span class="fc" id="L48">    return restaurantName;</span>
+  }
+
+  public void setRestaurantName(String restaurantName) {
+<span class="nc" id="L52">    this.restaurantName = restaurantName;</span>
+<span class="nc" id="L53">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

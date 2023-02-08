@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderHistoryEventHandlers.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-order-history-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.cqrs.orderhistory.messaging</a> &gt; <span class="el_source">OrderHistoryEventHandlers.java</span></div><h1>OrderHistoryEventHandlers.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.cqrs.orderhistory.messaging;
+
+import io.eventuate.tram.events.subscriber.DomainEventEnvelope;
+import io.eventuate.tram.events.subscriber.DomainEventHandlers;
+import io.eventuate.tram.events.subscriber.DomainEventHandlersBuilder;
+import net.chrisrichardson.ftgo.cqrs.orderhistory.DeliveryPickedUp;
+import net.chrisrichardson.ftgo.cqrs.orderhistory.Location;
+import net.chrisrichardson.ftgo.cqrs.orderhistory.OrderHistoryDao;
+import net.chrisrichardson.ftgo.cqrs.orderhistory.dynamodb.Order;
+import net.chrisrichardson.ftgo.cqrs.orderhistory.dynamodb.SourceEvent;
+import net.chrisrichardson.ftgo.orderservice.api.events.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
+
+public class OrderHistoryEventHandlers {
+
+  private OrderHistoryDao orderHistoryDao;
+
+<span class="fc" id="L21">  public OrderHistoryEventHandlers(OrderHistoryDao orderHistoryDao) {</span>
+<span class="fc" id="L22">    this.orderHistoryDao = orderHistoryDao;</span>
+<span class="fc" id="L23">  }</span>
+
+<span class="fc" id="L25">  private Logger logger = LoggerFactory.getLogger(getClass());</span>
+
+  // TODO - determine events
+
+  private String orderId;
+  private Order order;
+  private Location location; //
+
+  public DomainEventHandlers domainEventHandlers() {
+<span class="fc" id="L34">    return DomainEventHandlersBuilder</span>
+<span class="fc" id="L35">            .forAggregateType(&quot;net.chrisrichardson.ftgo.orderservice.domain.Order&quot;)</span>
+<span class="fc" id="L36">            .onEvent(OrderCreatedEvent.class, this::handleOrderCreated)</span>
+<span class="fc" id="L37">            .onEvent(OrderAuthorized.class, this::handleOrderAuthorized)</span>
+<span class="fc" id="L38">            .onEvent(OrderCancelled.class, this::handleOrderCancelled)</span>
+<span class="fc" id="L39">            .onEvent(OrderRejected.class, this::handleOrderRejected)</span>
+//            .onEvent(DeliveryPickedUp.class, this::handleDeliveryPickedUp)
+<span class="fc" id="L41">            .build();</span>
+  }
+
+  private Optional&lt;SourceEvent&gt; makeSourceEvent(DomainEventEnvelope&lt;?&gt; dee) {
+<span class="fc" id="L45">    return Optional.of(new SourceEvent(dee.getAggregateType(),</span>
+<span class="fc" id="L46">            dee.getAggregateId(), dee.getEventId()));</span>
+  }
+
+  public void handleOrderCreated(DomainEventEnvelope&lt;OrderCreatedEvent&gt; dee) {
+<span class="fc" id="L50">    logger.debug(&quot;handleOrderCreated called {}&quot;, dee);</span>
+<span class="fc" id="L51">    boolean result = orderHistoryDao.addOrder(makeOrder(dee.getAggregateId(), dee.getEvent()), makeSourceEvent(dee));</span>
+<span class="fc" id="L52">    logger.debug(&quot;handleOrderCreated result {} {}&quot;, dee, result);</span>
+<span class="fc" id="L53">  }</span>
+
+  public void handleOrderAuthorized(DomainEventEnvelope&lt;OrderAuthorized&gt; dee) {
+<span class="nc" id="L56">    logger.debug(&quot;handleOrderAuthorized called {}&quot;, dee);</span>
+<span class="nc" id="L57">    boolean result = orderHistoryDao.updateOrderState(dee.getAggregateId(), OrderState.APPROVED, makeSourceEvent(dee));</span>
+<span class="nc" id="L58">    logger.debug(&quot;handleOrderAuthorized result {} {}&quot;, dee, result);</span>
+<span class="nc" id="L59">  }</span>
+
+  public void handleOrderCancelled(DomainEventEnvelope&lt;OrderCancelled&gt; dee) {
+<span class="nc" id="L62">    logger.debug(&quot;handleOrderCancelled called {}&quot;, dee);</span>
+<span class="nc" id="L63">    boolean result = orderHistoryDao.updateOrderState(dee.getAggregateId(), OrderState.CANCELLED, makeSourceEvent(dee));</span>
+<span class="nc" id="L64">    logger.debug(&quot;handleOrderCancelled result {} {}&quot;, dee, result);</span>
+<span class="nc" id="L65">  }</span>
+
+  public void handleOrderRejected(DomainEventEnvelope&lt;OrderRejected&gt; dee) {
+<span class="nc" id="L68">    logger.debug(&quot;handleOrderRejected called {}&quot;, dee);</span>
+<span class="nc" id="L69">    boolean result = orderHistoryDao.updateOrderState(dee.getAggregateId(), OrderState.REJECTED, makeSourceEvent(dee));</span>
+<span class="nc" id="L70">    logger.debug(&quot;handleOrderRejected result {} {}&quot;, dee, result);</span>
+<span class="nc" id="L71">  }</span>
+
+  private Order makeOrder(String orderId, OrderCreatedEvent event) {
+<span class="fc" id="L74">    return new Order(orderId,</span>
+<span class="fc" id="L75">            Long.toString(event.getOrderDetails().getConsumerId()),</span>
+            OrderState.APPROVAL_PENDING,
+<span class="fc" id="L77">            event.getOrderDetails().getLineItems(),</span>
+<span class="fc" id="L78">            event.getOrderDetails().getOrderTotal(),</span>
+<span class="fc" id="L79">            event.getOrderDetails().getRestaurantId(),</span>
+<span class="fc" id="L80">            event.getRestaurantName());</span>
+  }
+
+  public void handleDeliveryPickedUp(DomainEventEnvelope&lt;DeliveryPickedUp&gt;
+                                             dee) {
+<span class="nc" id="L85">    orderHistoryDao.notePickedUp(dee.getEvent().getOrderId(),</span>
+<span class="nc" id="L86">            makeSourceEvent(dee));</span>
+<span class="nc" id="L87">  }</span>
+/*
+
+  // TODO - need a common API that abstracts message vs. event sourcing
+
+  public void handleOrderCancelled() {
+
+    orderHistoryDao.cancelOrder(orderId, null);
+  }
+
+  public void handleTicketPreparationStarted() {
+    orderHistoryDao.noteTicketPreparationStarted(orderId);
+  }
+
+  public void handleTicketPreparationCompleted() {
+    orderHistoryDao.noteTicketPreparationCompleted(orderId);
+  }
+
+  public void handleDeliveryLocationUpdated() {
+    orderHistoryDao.updateLocation(orderId, location);
+  }
+
+  public void handleDeliveryDelivered() {
+    orderHistoryDao.noteDelivered(orderId);
+  }
+  */
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderDestinations.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-api-gateway</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.apiagateway.orders</a> &gt; <span class="el_source">OrderDestinations.java</span></div><h1>OrderDestinations.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.apiagateway.orders;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import javax.validation.constraints.NotNull;
+
+@ConfigurationProperties(prefix = &quot;order.destinations&quot;)
+<span class="fc" id="L8">public class OrderDestinations {</span>
+
+  @NotNull
+  private String orderServiceUrl;
+
+  @NotNull
+  private String orderHistoryServiceUrl;
+
+  public String getOrderHistoryServiceUrl() {
+<span class="fc" id="L17">    return orderHistoryServiceUrl;</span>
+  }
+
+  public void setOrderHistoryServiceUrl(String orderHistoryServiceUrl) {
+<span class="fc" id="L21">    this.orderHistoryServiceUrl = orderHistoryServiceUrl;</span>
+<span class="fc" id="L22">  }</span>
+
+
+  public String getOrderServiceUrl() {
+<span class="fc" id="L26">    return orderServiceUrl;</span>
+  }
+
+  public void setOrderServiceUrl(String orderServiceUrl) {
+<span class="fc" id="L30">    this.orderServiceUrl = orderServiceUrl;</span>
+<span class="fc" id="L31">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

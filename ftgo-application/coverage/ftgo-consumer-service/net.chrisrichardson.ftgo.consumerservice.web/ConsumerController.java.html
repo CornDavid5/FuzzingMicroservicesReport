@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ConsumerController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-consumer-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.consumerservice.web</a> &gt; <span class="el_source">ConsumerController.java</span></div><h1>ConsumerController.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.consumerservice.web;
+
+import io.eventuate.tram.events.publisher.ResultWithEvents;
+import net.chrisrichardson.ftgo.consumerservice.domain.Consumer;
+import net.chrisrichardson.ftgo.consumerservice.domain.ConsumerService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping(path=&quot;/consumers&quot;)
+public class ConsumerController {
+
+  private ConsumerService consumerService;
+
+<span class="fc" id="L16">  public ConsumerController(ConsumerService consumerService) {</span>
+<span class="fc" id="L17">    this.consumerService = consumerService;</span>
+<span class="fc" id="L18">  }</span>
+
+  @RequestMapping(method= RequestMethod.POST)
+  public CreateConsumerResponse create(@RequestBody CreateConsumerRequest request) {
+<span class="fc" id="L22">    ResultWithEvents&lt;Consumer&gt; result = consumerService.create(request.getName());</span>
+<span class="fc" id="L23">    return new CreateConsumerResponse(result.result.getId());</span>
+  }
+
+  @RequestMapping(method= RequestMethod.GET,  path=&quot;/{consumerId}&quot;)
+  public ResponseEntity&lt;GetConsumerResponse&gt; get(@PathVariable long consumerId) {
+<span class="fc" id="L28">    return consumerService.findById(consumerId)</span>
+<span class="fc" id="L29">            .map(consumer -&gt; new ResponseEntity&lt;&gt;(new GetConsumerResponse(consumer.getName()), HttpStatus.OK))</span>
+<span class="pc" id="L30">            .orElseGet(() -&gt; new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND));</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

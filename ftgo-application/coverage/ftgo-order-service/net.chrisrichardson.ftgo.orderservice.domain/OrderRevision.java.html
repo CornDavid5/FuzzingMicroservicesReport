@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderRevision.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-order-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.orderservice.domain</a> &gt; <span class="el_source">OrderRevision.java</span></div><h1>OrderRevision.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.orderservice.domain;
+
+import net.chrisrichardson.ftgo.common.RevisedOrderLineItem;
+
+import java.util.List;
+import java.util.Optional;
+
+public class OrderRevision {
+
+<span class="pc" id="L10">  private Optional&lt;DeliveryInformation&gt; deliveryInformation = Optional.empty();</span>
+  private List&lt;RevisedOrderLineItem&gt; revisedOrderLineItems;
+
+<span class="nc" id="L13">  private OrderRevision() {</span>
+<span class="nc" id="L14">  }</span>
+
+<span class="fc" id="L16">  public OrderRevision(Optional&lt;DeliveryInformation&gt; deliveryInformation, List&lt;RevisedOrderLineItem&gt; revisedOrderLineItems) {</span>
+<span class="fc" id="L17">    this.deliveryInformation = deliveryInformation;</span>
+<span class="fc" id="L18">    this.revisedOrderLineItems = revisedOrderLineItems;</span>
+<span class="fc" id="L19">  }</span>
+
+  public void setDeliveryInformation(Optional&lt;DeliveryInformation&gt; deliveryInformation) {
+<span class="nc" id="L22">    this.deliveryInformation = deliveryInformation;</span>
+<span class="nc" id="L23">  }</span>
+
+  public Optional&lt;DeliveryInformation&gt; getDeliveryInformation() {
+<span class="fc" id="L26">    return deliveryInformation;</span>
+  }
+
+  public List&lt;RevisedOrderLineItem&gt; getRevisedOrderLineItems() {
+<span class="fc" id="L30">    return revisedOrderLineItems;</span>
+  }
+
+  public void setRevisedOrderLineItems(List&lt;RevisedOrderLineItem&gt; revisedOrderLineItems) {
+<span class="nc" id="L34">    this.revisedOrderLineItems = revisedOrderLineItems;</span>
+<span class="nc" id="L35">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

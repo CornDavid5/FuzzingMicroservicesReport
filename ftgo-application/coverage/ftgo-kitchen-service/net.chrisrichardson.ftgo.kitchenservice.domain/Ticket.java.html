@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Ticket.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-kitchen-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.kitchenservice.domain</a> &gt; <span class="el_source">Ticket.java</span></div><h1>Ticket.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.kitchenservice.domain;
+
+import io.eventuate.tram.events.aggregates.ResultWithDomainEvents;
+import net.chrisrichardson.ftgo.common.NotYetImplementedException;
+import net.chrisrichardson.ftgo.common.RevisedOrderLineItem;
+import net.chrisrichardson.ftgo.common.UnsupportedStateTransitionException;
+import net.chrisrichardson.ftgo.kitchenservice.api.TicketDetails;
+import net.chrisrichardson.ftgo.kitchenservice.api.TicketLineItem;
+import net.chrisrichardson.ftgo.kitchenservice.api.events.TicketAcceptedEvent;
+import net.chrisrichardson.ftgo.kitchenservice.api.events.TicketCancelled;
+import net.chrisrichardson.ftgo.kitchenservice.api.events.TicketDomainEvent;
+
+import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+
+@Entity
+@Table(name = &quot;tickets&quot;)
+@Access(AccessType.FIELD)
+public class Ticket {
+
+  @Id
+  private Long id;
+
+  @Enumerated(EnumType.STRING)
+  private TicketState state;
+
+  private TicketState previousState;
+
+  private Long restaurantId;
+
+  @ElementCollection
+  @CollectionTable(name = &quot;ticket_line_items&quot;)
+  private List&lt;TicketLineItem&gt; lineItems;
+
+  private LocalDateTime readyBy;
+  private LocalDateTime acceptTime;
+  private LocalDateTime preparingTime;
+  private LocalDateTime pickedUpTime;
+  private LocalDateTime readyForPickupTime;
+
+  public static ResultWithDomainEvents&lt;Ticket, TicketDomainEvent&gt; create(long restaurantId, Long id, TicketDetails details) {
+<span class="fc" id="L47">    return new ResultWithDomainEvents&lt;&gt;(new Ticket(restaurantId, id, details));</span>
+  }
+
+  private Ticket() {
+  }
+
+<span class="fc" id="L53">  public Ticket(long restaurantId, Long id, TicketDetails details) {</span>
+<span class="fc" id="L54">    this.restaurantId = restaurantId;</span>
+<span class="fc" id="L55">    this.id = id;</span>
+<span class="fc" id="L56">    this.state = TicketState.CREATE_PENDING;</span>
+<span class="fc" id="L57">    this.lineItems = details.getLineItems();</span>
+<span class="fc" id="L58">  }</span>
+
+  public List&lt;TicketDomainEvent&gt; confirmCreate() {
+<span class="nc bnc" id="L61" title="All 2 branches missed.">    switch (state) {</span>
+      case CREATE_PENDING:
+<span class="nc" id="L63">        state = TicketState.AWAITING_ACCEPTANCE;</span>
+<span class="nc" id="L64">        return singletonList(new TicketCreatedEvent(id, new TicketDetails()));</span>
+      default:
+<span class="nc" id="L66">        throw new UnsupportedStateTransitionException(state);</span>
+    }
+  }
+
+  public List&lt;TicketDomainEvent&gt; cancelCreate() {
+<span class="nc" id="L71">    throw new NotYetImplementedException();</span>
+  }
+
+
+  public List&lt;TicketDomainEvent&gt; accept(LocalDateTime readyBy) {
+<span class="nc bnc" id="L76" title="All 2 branches missed.">    switch (state) {</span>
+      case AWAITING_ACCEPTANCE:
+        // Verify that readyBy is in the futurestate = TicketState.ACCEPTED;
+<span class="nc" id="L79">        this.acceptTime = LocalDateTime.now();</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        if (!acceptTime.isBefore(readyBy))</span>
+<span class="nc" id="L81">          throw new IllegalArgumentException(String.format(&quot;readyBy %s is not after now %s&quot;, readyBy, acceptTime));</span>
+<span class="nc" id="L82">        this.readyBy = readyBy;</span>
+<span class="nc" id="L83">        return singletonList(new TicketAcceptedEvent(readyBy));</span>
+      default:
+<span class="nc" id="L85">        throw new UnsupportedStateTransitionException(state);</span>
+    }
+  }
+
+  // TODO reject()
+
+  // TODO cancel()
+
+  public List&lt;TicketDomainEvent&gt; preparing() {
+<span class="nc bnc" id="L94" title="All 2 branches missed.">    switch (state) {</span>
+      case ACCEPTED:
+<span class="nc" id="L96">        this.state = TicketState.PREPARING;</span>
+<span class="nc" id="L97">        this.preparingTime = LocalDateTime.now();</span>
+<span class="nc" id="L98">        return singletonList(new TicketPreparationStartedEvent());</span>
+      default:
+<span class="nc" id="L100">        throw new UnsupportedStateTransitionException(state);</span>
+    }
+  }
+
+  public List&lt;TicketDomainEvent&gt; readyForPickup() {
+<span class="nc bnc" id="L105" title="All 2 branches missed.">    switch (state) {</span>
+      case PREPARING:
+<span class="nc" id="L107">        this.state = TicketState.READY_FOR_PICKUP;</span>
+<span class="nc" id="L108">        this.readyForPickupTime = LocalDateTime.now();</span>
+<span class="nc" id="L109">        return singletonList(new TicketPreparationCompletedEvent());</span>
+      default:
+<span class="nc" id="L111">        throw new UnsupportedStateTransitionException(state);</span>
+    }
+  }
+
+  public List&lt;TicketDomainEvent&gt; pickedUp() {
+<span class="nc bnc" id="L116" title="All 2 branches missed.">    switch (state) {</span>
+      case READY_FOR_PICKUP:
+<span class="nc" id="L118">        this.state = TicketState.PICKED_UP;</span>
+<span class="nc" id="L119">        this.pickedUpTime = LocalDateTime.now();</span>
+<span class="nc" id="L120">        return singletonList(new TicketPickedUpEvent());</span>
+      default:
+<span class="nc" id="L122">        throw new UnsupportedStateTransitionException(state);</span>
+    }
+  }
+
+  public void changeLineItemQuantity() {
+<span class="nc bnc" id="L127" title="All 3 branches missed.">    switch (state) {</span>
+      case AWAITING_ACCEPTANCE:
+        // TODO
+<span class="nc" id="L130">        break;</span>
+      case PREPARING:
+        // TODO - too late
+<span class="nc" id="L133">        break;</span>
+      default:
+<span class="nc" id="L135">        throw new UnsupportedStateTransitionException(state);</span>
+    }
+
+<span class="nc" id="L138">  }</span>
+
+  public List&lt;TicketDomainEvent&gt; cancel() {
+<span class="nc bnc" id="L141" title="All 2 branches missed.">    switch (state) {</span>
+      case AWAITING_ACCEPTANCE:
+      case ACCEPTED:
+<span class="nc" id="L144">        this.previousState = state;</span>
+<span class="nc" id="L145">        this.state = TicketState.CANCEL_PENDING;</span>
+<span class="nc" id="L146">        return emptyList();</span>
+      default:
+<span class="nc" id="L148">        throw new UnsupportedStateTransitionException(state);</span>
+    }
+  }
+
+  public Long getId() {
+<span class="fc" id="L153">    return id;</span>
+  }
+
+  public List&lt;TicketDomainEvent&gt; confirmCancel() {
+<span class="nc bnc" id="L157" title="All 2 branches missed.">    switch (state) {</span>
+      case CANCEL_PENDING:
+<span class="nc" id="L159">        this.state = TicketState.CANCELLED;</span>
+<span class="nc" id="L160">        return singletonList(new TicketCancelled());</span>
+      default:
+<span class="nc" id="L162">        throw new UnsupportedStateTransitionException(state);</span>
+
+    }
+  }
+  public List&lt;TicketDomainEvent&gt; undoCancel() {
+<span class="nc bnc" id="L167" title="All 2 branches missed.">    switch (state) {</span>
+      case CANCEL_PENDING:
+<span class="nc" id="L169">        this.state = this.previousState;</span>
+<span class="nc" id="L170">        return emptyList();</span>
+      default:
+<span class="nc" id="L172">        throw new UnsupportedStateTransitionException(state);</span>
+
+    }
+  }
+
+  public List&lt;TicketDomainEvent&gt; beginReviseOrder(List&lt;RevisedOrderLineItem&gt; revisedOrderLineItems) {
+<span class="nc bnc" id="L178" title="All 2 branches missed.">    switch (state) {</span>
+      case AWAITING_ACCEPTANCE:
+      case ACCEPTED:
+<span class="nc" id="L181">        this.previousState = state;</span>
+<span class="nc" id="L182">        this.state = TicketState.REVISION_PENDING;</span>
+<span class="nc" id="L183">        return emptyList();</span>
+      default:
+<span class="nc" id="L185">        throw new UnsupportedStateTransitionException(state);</span>
+    }
+  }
+
+  public List&lt;TicketDomainEvent&gt; undoBeginReviseOrder() {
+<span class="nc bnc" id="L190" title="All 2 branches missed.">    switch (state) {</span>
+      case REVISION_PENDING:
+<span class="nc" id="L192">        this.state = this.previousState;</span>
+<span class="nc" id="L193">        return emptyList();</span>
+      default:
+<span class="nc" id="L195">        throw new UnsupportedStateTransitionException(state);</span>
+    }
+  }
+
+  public List&lt;TicketDomainEvent&gt; confirmReviseTicket(List&lt;RevisedOrderLineItem&gt; revisedOrderLineItems) {
+<span class="nc bnc" id="L200" title="All 2 branches missed.">    switch (state) {</span>
+      case REVISION_PENDING:
+<span class="nc" id="L202">        this.state = this.previousState;</span>
+<span class="nc" id="L203">        return singletonList(new TicketRevised());</span>
+      default:
+<span class="nc" id="L205">        throw new UnsupportedStateTransitionException(state);</span>
+
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MenuItem.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-order-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.restaurantservice.events</a> &gt; <span class="el_source">MenuItem.java</span></div><h1>MenuItem.java</h1><pre class="source lang-java linenums">
+package net.chrisrichardson.ftgo.restaurantservice.events;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({
+    &quot;id&quot;,
+    &quot;name&quot;,
+    &quot;price&quot;
+})
+<span class="fc" id="L14">public class MenuItem {</span>
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;id&quot;)
+    private String id;
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;name&quot;)
+    private String name;
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;price&quot;)
+    private String price;
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;id&quot;)
+    public String getId() {
+<span class="fc" id="L45">        return id;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;id&quot;)
+    public void setId(String id) {
+<span class="fc" id="L55">        this.id = id;</span>
+<span class="fc" id="L56">    }</span>
+
+    public MenuItem withId(String id) {
+<span class="fc" id="L59">        this.id = id;</span>
+<span class="fc" id="L60">        return this;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;name&quot;)
+    public String getName() {
+<span class="fc" id="L70">        return name;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;name&quot;)
+    public void setName(String name) {
+<span class="fc" id="L80">        this.name = name;</span>
+<span class="fc" id="L81">    }</span>
+
+    public MenuItem withName(String name) {
+<span class="fc" id="L84">        this.name = name;</span>
+<span class="fc" id="L85">        return this;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;price&quot;)
+    public String getPrice() {
+<span class="fc" id="L95">        return price;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;price&quot;)
+    public void setPrice(String price) {
+<span class="fc" id="L105">        this.price = price;</span>
+<span class="fc" id="L106">    }</span>
+
+    public MenuItem withPrice(String price) {
+<span class="fc" id="L109">        this.price = price;</span>
+<span class="fc" id="L110">        return this;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L115">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L116">        sb.append(MenuItem.class.getName()).append('@').append(Integer.toHexString(System.identityHashCode(this))).append('[');</span>
+<span class="nc" id="L117">        sb.append(&quot;id&quot;);</span>
+<span class="nc" id="L118">        sb.append('=');</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">        sb.append(((this.id == null)?&quot;&lt;null&gt;&quot;:this.id));</span>
+<span class="nc" id="L120">        sb.append(',');</span>
+<span class="nc" id="L121">        sb.append(&quot;name&quot;);</span>
+<span class="nc" id="L122">        sb.append('=');</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        sb.append(((this.name == null)?&quot;&lt;null&gt;&quot;:this.name));</span>
+<span class="nc" id="L124">        sb.append(',');</span>
+<span class="nc" id="L125">        sb.append(&quot;price&quot;);</span>
+<span class="nc" id="L126">        sb.append('=');</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">        sb.append(((this.price == null)?&quot;&lt;null&gt;&quot;:this.price));</span>
+<span class="nc" id="L128">        sb.append(',');</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (sb.charAt((sb.length()- 1)) == ',') {</span>
+<span class="nc" id="L130">            sb.setCharAt((sb.length()- 1), ']');</span>
+        } else {
+<span class="nc" id="L132">            sb.append(']');</span>
+        }
+<span class="nc" id="L134">        return sb.toString();</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L139">        int result = 1;</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        result = ((result* 31)+((this.name == null)? 0 :this.name.hashCode()));</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">        result = ((result* 31)+((this.id == null)? 0 :this.id.hashCode()));</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">        result = ((result* 31)+((this.price == null)? 0 :this.price.hashCode()));</span>
+<span class="nc" id="L143">        return result;</span>
+    }
+
+    @Override
+    public boolean equals(Object other) {
+<span class="nc bnc" id="L148" title="All 2 branches missed.">        if (other == this) {</span>
+<span class="nc" id="L149">            return true;</span>
+        }
+<span class="nc bnc" id="L151" title="All 2 branches missed.">        if ((other instanceof MenuItem) == false) {</span>
+<span class="nc" id="L152">            return false;</span>
+        }
+<span class="nc" id="L154">        MenuItem rhs = ((MenuItem) other);</span>
+<span class="nc bnc" id="L155" title="All 18 branches missed.">        return ((((this.name == rhs.name)||((this.name!= null)&amp;&amp;this.name.equals(rhs.name)))&amp;&amp;((this.id == rhs.id)||((this.id!= null)&amp;&amp;this.id.equals(rhs.id))))&amp;&amp;((this.price == rhs.price)||((this.price!= null)&amp;&amp;this.price.equals(rhs.price))));</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

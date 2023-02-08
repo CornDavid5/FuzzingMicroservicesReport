@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Delivery.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-delivery-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.deliveryservice.domain</a> &gt; <span class="el_source">Delivery.java</span></div><h1>Delivery.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.deliveryservice.domain;
+
+import net.chrisrichardson.ftgo.common.Address;
+import net.chrisrichardson.ftgo.deliveryservice.api.web.DeliveryState;
+
+import javax.persistence.*;
+import java.time.LocalDateTime;
+
+@Entity
+@Access(AccessType.FIELD)
+public class Delivery {
+
+  @Id
+  private Long id;
+
+  @Embedded
+  @AttributeOverrides({
+          @AttributeOverride(name=&quot;street1&quot;, column = @Column(name=&quot;pickup_street1&quot;)),
+          @AttributeOverride(name=&quot;street2&quot;, column = @Column(name=&quot;pickup_street2&quot;)),
+          @AttributeOverride(name=&quot;city&quot;, column = @Column(name=&quot;pickup_city&quot;)),
+          @AttributeOverride(name=&quot;state&quot;, column = @Column(name=&quot;pickup_state&quot;)),
+          @AttributeOverride(name=&quot;zip&quot;, column = @Column(name=&quot;pickup_zip&quot;)),
+  }
+  )
+  private Address pickupAddress;
+
+  @Enumerated(EnumType.STRING)
+  private DeliveryState state;
+
+  private long restaurantId;
+  private LocalDateTime pickUpTime;
+
+  @Embedded
+  @AttributeOverrides({
+          @AttributeOverride(name=&quot;street1&quot;, column = @Column(name=&quot;delivery_street1&quot;)),
+          @AttributeOverride(name=&quot;street2&quot;, column = @Column(name=&quot;delivery_street2&quot;)),
+          @AttributeOverride(name=&quot;city&quot;, column = @Column(name=&quot;delivery_city&quot;)),
+          @AttributeOverride(name=&quot;state&quot;, column = @Column(name=&quot;delivery_state&quot;)),
+          @AttributeOverride(name=&quot;zip&quot;, column = @Column(name=&quot;delivery_zip&quot;)),
+  }
+  )
+
+  private Address deliveryAddress;
+  private LocalDateTime deliveryTime;
+
+  private Long assignedCourier;
+  private LocalDateTime readyBy;
+
+  private Delivery() {
+  }
+
+<span class="fc" id="L52">  public Delivery(long orderId, long restaurantId, Address pickupAddress, Address deliveryAddress) {</span>
+<span class="fc" id="L53">    this.id = orderId;</span>
+<span class="fc" id="L54">    this.pickupAddress = pickupAddress;</span>
+<span class="fc" id="L55">    this.state = DeliveryState.PENDING;</span>
+<span class="fc" id="L56">    this.restaurantId = restaurantId;</span>
+<span class="fc" id="L57">    this.deliveryAddress = deliveryAddress;</span>
+<span class="fc" id="L58">  }</span>
+
+  public static Delivery create(long orderId, long restaurantId, Address pickupAddress, Address deliveryAddress) {
+<span class="fc" id="L61">    return new Delivery(orderId, restaurantId, pickupAddress, deliveryAddress);</span>
+  }
+
+  public void schedule(LocalDateTime readyBy, long assignedCourier) {
+<span class="fc" id="L65">    this.readyBy = readyBy;</span>
+<span class="fc" id="L66">    this.assignedCourier = assignedCourier;</span>
+<span class="fc" id="L67">    this.state = DeliveryState.SCHEDULED;</span>
+
+<span class="fc" id="L69">  }</span>
+
+  public void cancel() {
+<span class="nc" id="L72">    this.state = DeliveryState.CANCELLED;</span>
+<span class="nc" id="L73">    this.assignedCourier = null;</span>
+<span class="nc" id="L74">  }</span>
+
+
+  public long getId() {
+<span class="fc" id="L78">    return id;</span>
+  }
+
+  public long getRestaurantId() {
+<span class="fc" id="L82">    return restaurantId;</span>
+  }
+
+  public Address getDeliveryAddress() {
+<span class="fc" id="L86">    return deliveryAddress;</span>
+  }
+
+  public Address getPickupAddress() {
+<span class="fc" id="L90">    return pickupAddress;</span>
+  }
+
+  public DeliveryState getState() {
+<span class="fc" id="L94">    return state;</span>
+  }
+
+  public Long getAssignedCourier() {
+<span class="fc" id="L98">    return assignedCourier;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

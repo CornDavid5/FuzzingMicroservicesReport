@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MoneyModule.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-common</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.common</a> &gt; <span class="el_source">MoneyModule.java</span></div><h1>MoneyModule.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.common;
+
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
+
+import java.io.IOException;
+
+public class MoneyModule extends SimpleModule {
+
+  class MoneyDeserializer extends StdScalarDeserializer&lt;Money&gt; {
+
+<span class="fc" id="L19">    protected MoneyDeserializer() {</span>
+<span class="fc" id="L20">      super(Money.class);</span>
+<span class="fc" id="L21">    }</span>
+
+    @Override
+    public Money deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+<span class="fc" id="L25">      JsonToken token = jp.getCurrentToken();</span>
+<span class="fc bfc" id="L26" title="All 2 branches covered.">      if (token == JsonToken.VALUE_STRING) {</span>
+<span class="fc" id="L27">        String str = jp.getText().trim();</span>
+<span class="pc bpc" id="L28" title="1 of 2 branches missed.">        if (str.isEmpty())</span>
+<span class="nc" id="L29">          return null;</span>
+        else
+<span class="fc" id="L31">          return new Money(str);</span>
+      } else
+<span class="fc" id="L33">        throw ctxt.mappingException(getValueClass());</span>
+    }
+  }
+
+  class MoneySerializer extends StdScalarSerializer&lt;Money&gt; {
+<span class="fc" id="L38">    public MoneySerializer() {</span>
+<span class="fc" id="L39">      super(Money.class);</span>
+<span class="fc" id="L40">    }</span>
+
+    @Override
+    public void serialize(Money value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+<span class="fc" id="L44">      jgen.writeString(value.asString());</span>
+<span class="fc" id="L45">    }</span>
+  }
+
+    @Override
+  public String getModuleName() {
+<span class="fc" id="L50">    return &quot;FtgoCommonMOdule&quot;;</span>
+  }
+
+<span class="fc" id="L53">  public MoneyModule() {</span>
+<span class="fc" id="L54">    addDeserializer(Money.class, new MoneyDeserializer());</span>
+<span class="fc" id="L55">    addSerializer(Money.class, new MoneySerializer());</span>
+<span class="fc" id="L56">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

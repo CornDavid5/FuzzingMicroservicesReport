@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Restaurant.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-order-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.orderservice.domain</a> &gt; <span class="el_source">Restaurant.java</span></div><h1>Restaurant.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.orderservice.domain;
+
+import net.chrisrichardson.ftgo.kitchenservice.api.TicketDetails;
+import net.chrisrichardson.ftgo.orderservice.api.events.OrderDomainEvent;
+
+import javax.persistence.*;
+import java.util.List;
+import java.util.Optional;
+
+@Entity
+@Table(name = &quot;order_service_restaurants&quot;)
+@Access(AccessType.FIELD)
+public class Restaurant {
+
+  @Id
+  private Long id;
+
+  @Embedded
+  @ElementCollection
+  @CollectionTable(name = &quot;order_service_restaurant_menu_items&quot;)
+  private List&lt;MenuItem&gt; menuItems;
+  private String name;
+
+  private Restaurant() {
+  }
+
+<span class="fc" id="L27">  public Restaurant(long id, String name, List&lt;MenuItem&gt; menuItems) {</span>
+<span class="fc" id="L28">    this.id = id;</span>
+<span class="fc" id="L29">    this.name = name;</span>
+<span class="fc" id="L30">    this.menuItems = menuItems;</span>
+<span class="fc" id="L31">  }</span>
+
+  public List&lt;OrderDomainEvent&gt; reviseMenu(List&lt;MenuItem&gt; revisedMenu) {
+<span class="nc" id="L34">    throw new UnsupportedOperationException();</span>
+  }
+
+  public void verifyRestaurantDetails(TicketDetails ticketDetails) {
+    // TODO - implement me
+<span class="nc" id="L39">  }</span>
+
+  public Long getId() {
+<span class="fc" id="L42">    return id;</span>
+  }
+
+  public Optional&lt;MenuItem&gt; findMenuItem(String menuItemId) {
+<span class="fc" id="L46">    return menuItems.stream().filter(mi -&gt; mi.getId().equals(menuItemId)).findFirst();</span>
+  }
+
+  public List&lt;MenuItem&gt; getMenuItems() {
+<span class="nc" id="L50">    return menuItems;</span>
+  }
+
+  public String getName() {
+<span class="fc" id="L54">    return name;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

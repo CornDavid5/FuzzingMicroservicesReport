@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Order.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-order-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.orderservice.domain</a> &gt; <span class="el_source">Order.java</span></div><h1>Order.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.orderservice.domain;
+
+import io.eventuate.tram.events.aggregates.ResultWithDomainEvents;
+import net.chrisrichardson.ftgo.common.Address;
+import net.chrisrichardson.ftgo.common.Money;
+import net.chrisrichardson.ftgo.common.UnsupportedStateTransitionException;
+import net.chrisrichardson.ftgo.orderservice.api.events.*;
+
+import javax.persistence.*;
+import java.util.List;
+
+import static net.chrisrichardson.ftgo.orderservice.api.events.OrderState.APPROVED;
+import static net.chrisrichardson.ftgo.orderservice.api.events.OrderState.APPROVAL_PENDING;
+import static net.chrisrichardson.ftgo.orderservice.api.events.OrderState.REJECTED;
+import static net.chrisrichardson.ftgo.orderservice.api.events.OrderState.REVISION_PENDING;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+
+@Entity
+@Table(name = &quot;orders&quot;)
+@Access(AccessType.FIELD)
+public class Order {
+
+  public static ResultWithDomainEvents&lt;Order, OrderDomainEvent&gt;
+  createOrder(long consumerId, Restaurant restaurant, DeliveryInformation deliveryInformation, List&lt;OrderLineItem&gt; orderLineItems) {
+<span class="fc" id="L26">    Order order = new Order(consumerId, restaurant.getId(), deliveryInformation, orderLineItems);</span>
+<span class="fc" id="L27">    List&lt;OrderDomainEvent&gt; events = singletonList(new OrderCreatedEvent(</span>
+<span class="fc" id="L28">            new OrderDetails(consumerId, restaurant.getId(), orderLineItems,</span>
+<span class="fc" id="L29">                    order.getOrderTotal()),</span>
+<span class="fc" id="L30">            deliveryInformation.getDeliveryAddress(),</span>
+<span class="fc" id="L31">            restaurant.getName()));</span>
+<span class="fc" id="L32">    return new ResultWithDomainEvents&lt;&gt;(order, events);</span>
+  }
+
+  @Id
+  @GeneratedValue
+  private Long id;
+
+  @Version
+  private Long version;
+
+  @Enumerated(EnumType.STRING)
+  private OrderState state;
+
+  private Long consumerId;
+  private Long restaurantId;
+
+  @Embedded
+  private OrderLineItems orderLineItems;
+
+  @Embedded
+  private DeliveryInformation deliveryInformation;
+
+  @Embedded
+  private PaymentInformation paymentInformation;
+
+<span class="pc" id="L57">  @Embedded</span>
+  private Money orderMinimum = new Money(Integer.MAX_VALUE);
+
+<span class="nc" id="L60">  private Order() {</span>
+<span class="nc" id="L61">  }</span>
+
+<span class="fc" id="L63">  public Order(long consumerId, long restaurantId, DeliveryInformation deliveryInformation, List&lt;OrderLineItem&gt; orderLineItems) {</span>
+<span class="fc" id="L64">    this.consumerId = consumerId;</span>
+<span class="fc" id="L65">    this.restaurantId = restaurantId;</span>
+<span class="fc" id="L66">    this.deliveryInformation = deliveryInformation;</span>
+<span class="fc" id="L67">    this.orderLineItems = new OrderLineItems(orderLineItems);</span>
+<span class="fc" id="L68">    this.state = APPROVAL_PENDING;</span>
+<span class="fc" id="L69">  }</span>
+
+  public Long getId() {
+<span class="fc" id="L72">    return id;</span>
+  }
+
+  public void setId(Long id) {
+<span class="fc" id="L76">    this.id = id;</span>
+<span class="fc" id="L77">  }</span>
+
+  public DeliveryInformation getDeliveryInformation() {
+<span class="nc" id="L80">    return deliveryInformation;</span>
+  }
+
+  public Money getOrderTotal() {
+<span class="fc" id="L84">    return orderLineItems.orderTotal();</span>
+  }
+
+  public List&lt;OrderDomainEvent&gt; cancel() {
+<span class="nc bnc" id="L88" title="All 2 branches missed.">    switch (state) {</span>
+      case APPROVED:
+<span class="nc" id="L90">        this.state = OrderState.CANCEL_PENDING;</span>
+<span class="nc" id="L91">        return emptyList();</span>
+      default:
+<span class="nc" id="L93">        throw new UnsupportedStateTransitionException(state);</span>
+    }
+  }
+
+  public List&lt;OrderDomainEvent&gt; undoPendingCancel() {
+<span class="nc bnc" id="L98" title="All 2 branches missed.">    switch (state) {</span>
+      case CANCEL_PENDING:
+<span class="nc" id="L100">        this.state = OrderState.APPROVED;</span>
+<span class="nc" id="L101">        return emptyList();</span>
+      default:
+<span class="nc" id="L103">        throw new UnsupportedStateTransitionException(state);</span>
+    }
+  }
+
+  public List&lt;OrderDomainEvent&gt; noteCancelled() {
+<span class="nc bnc" id="L108" title="All 2 branches missed.">    switch (state) {</span>
+      case CANCEL_PENDING:
+<span class="nc" id="L110">        this.state = OrderState.CANCELLED;</span>
+<span class="nc" id="L111">        return singletonList(new OrderCancelled());</span>
+      default:
+<span class="nc" id="L113">        throw new UnsupportedStateTransitionException(state);</span>
+    }
+  }
+
+  public List&lt;OrderDomainEvent&gt; noteApproved() {
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">    switch (state) {</span>
+      case APPROVAL_PENDING:
+<span class="fc" id="L120">        this.state = APPROVED;</span>
+<span class="fc" id="L121">        return singletonList(new OrderAuthorized());</span>
+      default:
+<span class="nc" id="L123">        throw new UnsupportedStateTransitionException(state);</span>
+    }
+
+  }
+
+  public List&lt;OrderDomainEvent&gt; noteRejected() {
+<span class="nc bnc" id="L129" title="All 2 branches missed.">    switch (state) {</span>
+      case APPROVAL_PENDING:
+<span class="nc" id="L131">        this.state = REJECTED;</span>
+<span class="nc" id="L132">        return singletonList(new OrderRejected());</span>
+
+      default:
+<span class="nc" id="L135">        throw new UnsupportedStateTransitionException(state);</span>
+    }
+
+  }
+
+
+  public List&lt;OrderDomainEvent&gt; noteReversingAuthorization() {
+<span class="nc" id="L142">    return null;</span>
+  }
+
+  public ResultWithDomainEvents&lt;LineItemQuantityChange, OrderDomainEvent&gt; revise(OrderRevision orderRevision) {
+<span class="pc bpc" id="L146" title="1 of 2 branches missed.">    switch (state) {</span>
+
+      case APPROVED:
+<span class="fc" id="L149">        LineItemQuantityChange change = orderLineItems.lineItemQuantityChange(orderRevision);</span>
+<span class="pc bpc" id="L150" title="1 of 2 branches missed.">        if (change.newOrderTotal.isGreaterThanOrEqual(orderMinimum)) {</span>
+<span class="nc" id="L151">          throw new OrderMinimumNotMetException();</span>
+        }
+<span class="fc" id="L153">        this.state = REVISION_PENDING;</span>
+<span class="fc" id="L154">        return new ResultWithDomainEvents&lt;&gt;(change, singletonList(new OrderRevisionProposed(orderRevision, change.currentOrderTotal, change.newOrderTotal)));</span>
+
+      default:
+<span class="nc" id="L157">        throw new UnsupportedStateTransitionException(state);</span>
+    }
+  }
+
+  public List&lt;OrderDomainEvent&gt; rejectRevision() {
+<span class="nc bnc" id="L162" title="All 2 branches missed.">    switch (state) {</span>
+      case REVISION_PENDING:
+<span class="nc" id="L164">        this.state = APPROVED;</span>
+<span class="nc" id="L165">        return emptyList();</span>
+      default:
+<span class="nc" id="L167">        throw new UnsupportedStateTransitionException(state);</span>
+    }
+  }
+
+  public List&lt;OrderDomainEvent&gt; confirmRevision(OrderRevision orderRevision) {
+<span class="pc bpc" id="L172" title="1 of 2 branches missed.">    switch (state) {</span>
+      case REVISION_PENDING:
+<span class="fc" id="L174">        LineItemQuantityChange licd = orderLineItems.lineItemQuantityChange(orderRevision);</span>
+
+<span class="pc" id="L176">        orderRevision.getDeliveryInformation().ifPresent(newDi -&gt; this.deliveryInformation = newDi);</span>
+
+<span class="pc bpc" id="L178" title="2 of 4 branches missed.">        if (orderRevision.getRevisedOrderLineItems() != null &amp;&amp; orderRevision.getRevisedOrderLineItems().size() &gt; 0) {</span>
+<span class="fc" id="L179">          orderLineItems.updateLineItems(orderRevision);</span>
+        }
+
+<span class="fc" id="L182">        this.state = APPROVED;</span>
+<span class="fc" id="L183">        return singletonList(new OrderRevised(orderRevision, licd.currentOrderTotal, licd.newOrderTotal));</span>
+      default:
+<span class="nc" id="L185">        throw new UnsupportedStateTransitionException(state);</span>
+    }
+  }
+
+
+  public Long getVersion() {
+<span class="nc" id="L191">    return version;</span>
+  }
+
+  public List&lt;OrderLineItem&gt; getLineItems() {
+<span class="nc" id="L195">    return orderLineItems.getLineItems();</span>
+  }
+
+  public OrderState getState() {
+<span class="fc" id="L199">    return state;</span>
+  }
+
+  public long getRestaurantId() {
+<span class="nc" id="L203">    return restaurantId;</span>
+  }
+
+
+  public Long getConsumerId() {
+<span class="nc" id="L208">    return consumerId;</span>
+  }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

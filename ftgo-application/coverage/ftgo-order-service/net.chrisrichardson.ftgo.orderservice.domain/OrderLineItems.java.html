@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderLineItems.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-order-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.orderservice.domain</a> &gt; <span class="el_source">OrderLineItems.java</span></div><h1>OrderLineItems.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.orderservice.domain;
+
+import net.chrisrichardson.ftgo.common.Money;
+import net.chrisrichardson.ftgo.orderservice.api.events.OrderLineItem;
+import net.chrisrichardson.ftgo.common.RevisedOrderLineItem;
+
+import javax.persistence.CollectionTable;
+import javax.persistence.ElementCollection;
+import javax.persistence.Embeddable;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+@Embeddable
+public class OrderLineItems {
+
+  @ElementCollection
+  @CollectionTable(name = &quot;order_line_items&quot;)
+  private List&lt;OrderLineItem&gt; lineItems;
+
+  private OrderLineItems() {
+  }
+
+<span class="fc" id="L24">  public OrderLineItems(List&lt;OrderLineItem&gt; lineItems) {</span>
+<span class="fc" id="L25">    this.lineItems = lineItems;</span>
+<span class="fc" id="L26">  }</span>
+
+  public List&lt;OrderLineItem&gt; getLineItems() {
+<span class="fc" id="L29">    return lineItems;</span>
+  }
+
+  public void setLineItems(List&lt;OrderLineItem&gt; lineItems) {
+<span class="nc" id="L33">    this.lineItems = lineItems;</span>
+<span class="nc" id="L34">  }</span>
+
+  OrderLineItem findOrderLineItem(String lineItemId) {
+<span class="fc" id="L37">    return lineItems.stream().filter(li -&gt; li.getMenuItemId().equals(lineItemId)).findFirst().get();</span>
+  }
+
+  Money changeToOrderTotal(OrderRevision orderRevision) {
+<span class="fc" id="L41">    return orderRevision</span>
+<span class="fc" id="L42">            .getRevisedOrderLineItems()</span>
+<span class="fc" id="L43">            .stream()</span>
+<span class="fc" id="L44">            .map(item -&gt; {</span>
+<span class="fc" id="L45">              OrderLineItem lineItem = findOrderLineItem(item.getMenuItemId());</span>
+<span class="fc" id="L46">              return lineItem.deltaForChangedQuantity(item.getQuantity());</span>
+            })
+<span class="fc" id="L48">            .reduce(Money.ZERO, Money::add);</span>
+  }
+
+  void updateLineItems(OrderRevision orderRevision) {
+<span class="fc" id="L52">    getLineItems().stream().forEach(li -&gt; {</span>
+
+<span class="fc" id="L54">      Optional&lt;Integer&gt; revised = orderRevision.getRevisedOrderLineItems()</span>
+<span class="fc" id="L55">              .stream()</span>
+<span class="fc" id="L56">              .filter(item -&gt; Objects.equals(li.getMenuItemId(), item.getMenuItemId()))</span>
+<span class="fc" id="L57">              .map(RevisedOrderLineItem::getQuantity)</span>
+<span class="fc" id="L58">              .findFirst();</span>
+
+<span class="fc" id="L60">      li.setQuantity(revised.orElseThrow(() -&gt;</span>
+<span class="nc" id="L61">              new IllegalArgumentException(String.format(&quot;menu item id not found.&quot;, li.getMenuItemId()))));</span>
+<span class="fc" id="L62">    });</span>
+<span class="fc" id="L63">  }</span>
+
+  Money orderTotal() {
+<span class="fc" id="L66">    return lineItems.stream().map(OrderLineItem::getTotal).reduce(Money.ZERO, Money::add);</span>
+  }
+
+  LineItemQuantityChange lineItemQuantityChange(OrderRevision orderRevision) {
+<span class="fc" id="L70">    Money currentOrderTotal = orderTotal();</span>
+<span class="fc" id="L71">    Money delta = changeToOrderTotal(orderRevision);</span>
+<span class="fc" id="L72">    Money newOrderTotal = currentOrderTotal.add(delta);</span>
+<span class="fc" id="L73">    return new LineItemQuantityChange(currentOrderTotal, newOrderTotal, delta);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

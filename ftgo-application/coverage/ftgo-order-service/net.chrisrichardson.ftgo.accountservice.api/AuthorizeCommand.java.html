@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthorizeCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-order-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.accountservice.api</a> &gt; <span class="el_source">AuthorizeCommand.java</span></div><h1>AuthorizeCommand.java</h1><pre class="source lang-java linenums">
+package net.chrisrichardson.ftgo.accountservice.api;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import io.eventuate.tram.commands.common.Command;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({
+    &quot;consumerId&quot;,
+    &quot;orderId&quot;,
+    &quot;orderTotal&quot;
+})
+<span class="fc" id="L15">public class AuthorizeCommand implements Command</span>
+{
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;consumerId&quot;)
+    private Long consumerId;
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;orderId&quot;)
+    private Long orderId;
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;orderTotal&quot;)
+    private String orderTotal;
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;consumerId&quot;)
+    public Long getConsumerId() {
+<span class="fc" id="L47">        return consumerId;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;consumerId&quot;)
+    public void setConsumerId(Long consumerId) {
+<span class="nc" id="L57">        this.consumerId = consumerId;</span>
+<span class="nc" id="L58">    }</span>
+
+    public AuthorizeCommand withConsumerId(Long consumerId) {
+<span class="fc" id="L61">        this.consumerId = consumerId;</span>
+<span class="fc" id="L62">        return this;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;orderId&quot;)
+    public Long getOrderId() {
+<span class="fc" id="L72">        return orderId;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;orderId&quot;)
+    public void setOrderId(Long orderId) {
+<span class="nc" id="L82">        this.orderId = orderId;</span>
+<span class="nc" id="L83">    }</span>
+
+    public AuthorizeCommand withOrderId(Long orderId) {
+<span class="fc" id="L86">        this.orderId = orderId;</span>
+<span class="fc" id="L87">        return this;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;orderTotal&quot;)
+    public String getOrderTotal() {
+<span class="fc" id="L97">        return orderTotal;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;orderTotal&quot;)
+    public void setOrderTotal(String orderTotal) {
+<span class="nc" id="L107">        this.orderTotal = orderTotal;</span>
+<span class="nc" id="L108">    }</span>
+
+    public AuthorizeCommand withOrderTotal(String orderTotal) {
+<span class="fc" id="L111">        this.orderTotal = orderTotal;</span>
+<span class="fc" id="L112">        return this;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="fc" id="L117">        StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L118">        sb.append(AuthorizeCommand.class.getName()).append('@').append(Integer.toHexString(System.identityHashCode(this))).append('[');</span>
+<span class="fc" id="L119">        sb.append(&quot;consumerId&quot;);</span>
+<span class="fc" id="L120">        sb.append('=');</span>
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">        sb.append(((this.consumerId == null)?&quot;&lt;null&gt;&quot;:this.consumerId));</span>
+<span class="fc" id="L122">        sb.append(',');</span>
+<span class="fc" id="L123">        sb.append(&quot;orderId&quot;);</span>
+<span class="fc" id="L124">        sb.append('=');</span>
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">        sb.append(((this.orderId == null)?&quot;&lt;null&gt;&quot;:this.orderId));</span>
+<span class="fc" id="L126">        sb.append(',');</span>
+<span class="fc" id="L127">        sb.append(&quot;orderTotal&quot;);</span>
+<span class="fc" id="L128">        sb.append('=');</span>
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">        sb.append(((this.orderTotal == null)?&quot;&lt;null&gt;&quot;:this.orderTotal));</span>
+<span class="fc" id="L130">        sb.append(',');</span>
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">        if (sb.charAt((sb.length()- 1)) == ',') {</span>
+<span class="fc" id="L132">            sb.setCharAt((sb.length()- 1), ']');</span>
+        } else {
+<span class="nc" id="L134">            sb.append(']');</span>
+        }
+<span class="fc" id="L136">        return sb.toString();</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="fc" id="L141">        int result = 1;</span>
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">        result = ((result* 31)+((this.orderId == null)? 0 :this.orderId.hashCode()));</span>
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">        result = ((result* 31)+((this.consumerId == null)? 0 :this.consumerId.hashCode()));</span>
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">        result = ((result* 31)+((this.orderTotal == null)? 0 :this.orderTotal.hashCode()));</span>
+<span class="fc" id="L145">        return result;</span>
+    }
+
+    @Override
+    public boolean equals(Object other) {
+<span class="nc bnc" id="L150" title="All 2 branches missed.">        if (other == this) {</span>
+<span class="nc" id="L151">            return true;</span>
+        }
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        if ((other instanceof AuthorizeCommand) == false) {</span>
+<span class="nc" id="L154">            return false;</span>
+        }
+<span class="nc" id="L156">        AuthorizeCommand rhs = ((AuthorizeCommand) other);</span>
+<span class="nc bnc" id="L157" title="All 18 branches missed.">        return ((((this.orderId == rhs.orderId)||((this.orderId!= null)&amp;&amp;this.orderId.equals(rhs.orderId)))&amp;&amp;((this.consumerId == rhs.consumerId)||((this.consumerId!= null)&amp;&amp;this.consumerId.equals(rhs.consumerId))))&amp;&amp;((this.orderTotal == rhs.orderTotal)||((this.orderTotal!= null)&amp;&amp;this.orderTotal.equals(rhs.orderTotal))));</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReverseAuthorizationCommandInternal.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-accounting-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.accountingservice.domain</a> &gt; <span class="el_source">ReverseAuthorizationCommandInternal.java</span></div><h1>ReverseAuthorizationCommandInternal.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.accountingservice.domain;
+
+import io.eventuate.tram.commands.common.Command;
+import net.chrisrichardson.ftgo.common.Money;
+
+
+public class ReverseAuthorizationCommandInternal implements AccountCommand, Command {
+  private String consumerId;
+  private String orderId;
+  private Money orderTotal;
+
+  public String getOrderId() {
+<span class="nc" id="L13">    return orderId;</span>
+  }
+
+  public void setOrderId(String orderId) {
+<span class="nc" id="L17">    this.orderId = orderId;</span>
+<span class="nc" id="L18">  }</span>
+
+<span class="nc" id="L20">  public ReverseAuthorizationCommandInternal(String consumerId, String orderId, Money orderTotal) {</span>
+<span class="nc" id="L21">    this.consumerId = consumerId;</span>
+<span class="nc" id="L22">    this.orderId = orderId;</span>
+<span class="nc" id="L23">    this.orderTotal = orderTotal;</span>
+<span class="nc" id="L24">  }</span>
+
+  private ReverseAuthorizationCommandInternal() {
+  }
+
+  public String getConsumerId() {
+<span class="nc" id="L30">    return consumerId;</span>
+  }
+
+  public void setConsumerId(String consumerId) {
+<span class="nc" id="L34">    this.consumerId = consumerId;</span>
+<span class="nc" id="L35">  }</span>
+
+  public Money getOrderTotal() {
+<span class="nc" id="L38">    return orderTotal;</span>
+  }
+
+  public void setOrderTotal(Money orderTotal) {
+<span class="nc" id="L42">    this.orderTotal = orderTotal;</span>
+<span class="nc" id="L43">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

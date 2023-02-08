@@ -1,0 +1,10 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+spring-petclinic-api-gateway,org.springframework.samples.petclinic.api.dto,OwnerDetails,270,38,56,0,0,11,38,9,10,9
+spring-petclinic-api-gateway,org.springframework.samples.petclinic.api.dto,PetDetails,188,31,40,0,0,6,26,8,6,8
+spring-petclinic-api-gateway,org.springframework.samples.petclinic.api.dto,VisitDetails,164,43,38,0,0,6,23,9,4,9
+spring-petclinic-api-gateway,org.springframework.samples.petclinic.api.dto,PetType,75,0,14,0,2,0,14,0,7,0
+spring-petclinic-api-gateway,org.springframework.samples.petclinic.api.dto,Visits,56,11,12,0,0,2,9,2,3,2
+spring-petclinic-api-gateway,org.springframework.samples.petclinic.api.application,CustomersServiceClient,17,6,0,0,4,1,1,1,1,1
+spring-petclinic-api-gateway,org.springframework.samples.petclinic.api.application,VisitsServiceClient,0,42,0,0,0,10,0,4,0,4
+spring-petclinic-api-gateway,org.springframework.samples.petclinic.api,ApiGatewayApplication,12,43,0,0,3,10,2,7,2,7
+spring-petclinic-api-gateway,org.springframework.samples.petclinic.api.boundary.web,ApiGatewayController,1,85,1,1,0,16,1,10,0,10

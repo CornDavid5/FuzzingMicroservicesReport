@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderServiceProxy.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-api-gateway</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.apiagateway.proxies</a> &gt; <span class="el_source">OrderServiceProxy.java</span></div><h1>OrderServiceProxy.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.apiagateway.proxies;
+
+import net.chrisrichardson.ftgo.apiagateway.orders.OrderDestinations;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.ClientResponse;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+
+@Service
+public class OrderServiceProxy {
+
+
+  private OrderDestinations orderDestinations;
+
+  private WebClient client;
+
+<span class="fc" id="L17">  public OrderServiceProxy(OrderDestinations orderDestinations, WebClient client) {</span>
+<span class="fc" id="L18">    this.orderDestinations = orderDestinations;</span>
+<span class="fc" id="L19">    this.client = client;</span>
+<span class="fc" id="L20">  }</span>
+
+  public Mono&lt;OrderInfo&gt; findOrderById(String orderId) {
+<span class="fc" id="L23">    Mono&lt;ClientResponse&gt; response = client</span>
+<span class="fc" id="L24">            .get()</span>
+<span class="fc" id="L25">            .uri(orderDestinations.getOrderServiceUrl() + &quot;/orders/{orderId}&quot;, orderId)</span>
+<span class="fc" id="L26">            .exchange();</span>
+<span class="fc" id="L27">    return response.flatMap(resp -&gt; {</span>
+<span class="pc bpc" id="L28" title="1 of 3 branches missed.">      switch (resp.statusCode()) {</span>
+        case OK:
+<span class="fc" id="L30">          return resp.bodyToMono(OrderInfo.class);</span>
+        case NOT_FOUND:
+<span class="fc" id="L32">          return Mono.error(new OrderNotFoundException());</span>
+        default:
+<span class="nc" id="L34">          return Mono.error(new RuntimeException(&quot;Unknown&quot; + resp.statusCode()));</span>
+      }
+    });
+  }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

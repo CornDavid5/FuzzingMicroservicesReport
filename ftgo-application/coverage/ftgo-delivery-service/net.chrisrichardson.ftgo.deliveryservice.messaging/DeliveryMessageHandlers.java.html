@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DeliveryMessageHandlers.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-delivery-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.deliveryservice.messaging</a> &gt; <span class="el_source">DeliveryMessageHandlers.java</span></div><h1>DeliveryMessageHandlers.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.deliveryservice.messaging;
+
+import io.eventuate.tram.events.subscriber.DomainEventEnvelope;
+import io.eventuate.tram.events.subscriber.DomainEventHandlers;
+import io.eventuate.tram.events.subscriber.DomainEventHandlersBuilder;
+import net.chrisrichardson.ftgo.common.Address;
+import net.chrisrichardson.ftgo.deliveryservice.domain.DeliveryService;
+import net.chrisrichardson.ftgo.kitchenservice.api.KitchenServiceChannels;
+import net.chrisrichardson.ftgo.kitchenservice.api.events.TicketAcceptedEvent;
+import net.chrisrichardson.ftgo.kitchenservice.api.events.TicketCancelled;
+import net.chrisrichardson.ftgo.orderservice.api.OrderServiceChannels;
+import net.chrisrichardson.ftgo.orderservice.api.events.OrderCreatedEvent;
+import net.chrisrichardson.ftgo.restaurantservice.RestaurantServiceChannels;
+import net.chrisrichardson.ftgo.restaurantservice.events.RestaurantCreated;
+
+import java.time.LocalDateTime;
+
+public class DeliveryMessageHandlers {
+
+  private DeliveryService deliveryService;
+
+<span class="nc" id="L22">  public DeliveryMessageHandlers(DeliveryService deliveryService) {</span>
+<span class="nc" id="L23">    this.deliveryService = deliveryService;</span>
+<span class="nc" id="L24">  }</span>
+
+  public DomainEventHandlers domainEventHandlers() {
+<span class="nc" id="L27">    return DomainEventHandlersBuilder</span>
+<span class="nc" id="L28">            .forAggregateType(KitchenServiceChannels.TICKET_EVENT_CHANNEL)</span>
+<span class="nc" id="L29">            .onEvent(TicketAcceptedEvent.class, this::handleTicketAcceptedEvent)</span>
+<span class="nc" id="L30">            .onEvent(TicketCancelled.class, this::handleTicketCancelledEvent)</span>
+<span class="nc" id="L31">            .andForAggregateType(OrderServiceChannels.ORDER_EVENT_CHANNEL)</span>
+<span class="nc" id="L32">            .onEvent(OrderCreatedEvent.class, this::handleOrderCreatedEvent)</span>
+<span class="nc" id="L33">            .andForAggregateType(RestaurantServiceChannels.RESTAURANT_EVENT_CHANNEL)</span>
+<span class="nc" id="L34">            .onEvent(RestaurantCreated.class, this::handleRestaurantCreated)</span>
+<span class="nc" id="L35">            .build();</span>
+  }
+
+  public void handleRestaurantCreated(DomainEventEnvelope&lt;RestaurantCreated&gt; dee) {
+<span class="nc" id="L39">    Address address = RestaurantEventMapper.toAddress(dee.getEvent().getAddress());</span>
+<span class="nc" id="L40">    deliveryService.createRestaurant(Long.parseLong(dee.getAggregateId()), dee.getEvent().getName(), address);</span>
+<span class="nc" id="L41">  }</span>
+
+  public void handleOrderCreatedEvent(DomainEventEnvelope&lt;OrderCreatedEvent&gt; dee) {
+<span class="nc" id="L44">    Address address = dee.getEvent().getDeliveryAddress();</span>
+<span class="nc" id="L45">    deliveryService.createDelivery(Long.parseLong(dee.getAggregateId()),</span>
+<span class="nc" id="L46">            dee.getEvent().getOrderDetails().getRestaurantId(), address);</span>
+<span class="nc" id="L47">  }</span>
+
+  public void handleTicketAcceptedEvent(DomainEventEnvelope&lt;TicketAcceptedEvent&gt; dee) {
+<span class="nc" id="L50">    LocalDateTime readyBy = dee.getEvent().getReadyBy();</span>
+<span class="nc" id="L51">    deliveryService.scheduleDelivery(Long.parseLong(dee.getAggregateId()), readyBy);</span>
+<span class="nc" id="L52">  }</span>
+
+  public void handleTicketCancelledEvent(DomainEventEnvelope&lt;TicketCancelled&gt; dee) {
+<span class="nc" id="L55">    deliveryService.cancelDelivery(Long.parseLong(dee.getAggregateId()));</span>
+<span class="nc" id="L56">  }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

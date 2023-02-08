@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CancelOrderSaga.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-order-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.orderservice.sagas.cancelorder</a> &gt; <span class="el_source">CancelOrderSaga.java</span></div><h1>CancelOrderSaga.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.orderservice.sagas.cancelorder;
+
+import io.eventuate.tram.commands.consumer.CommandWithDestination;
+import io.eventuate.tram.sagas.orchestration.SagaDefinition;
+import io.eventuate.tram.sagas.simpledsl.SimpleSaga;
+import net.chrisrichardson.ftgo.accountservice.api.AccountingServiceChannels;
+import net.chrisrichardson.ftgo.accountservice.api.ReverseAuthorizationCommand;
+import net.chrisrichardson.ftgo.orderservice.api.OrderServiceChannels;
+import net.chrisrichardson.ftgo.orderservice.sagaparticipants.BeginCancelCommand;
+import net.chrisrichardson.ftgo.orderservice.sagaparticipants.ConfirmCancelOrderCommand;
+import net.chrisrichardson.ftgo.orderservice.sagaparticipants.UndoBeginCancelCommand;
+import net.chrisrichardson.ftgo.kitchenservice.api.BeginCancelTicketCommand;
+import net.chrisrichardson.ftgo.kitchenservice.api.ConfirmCancelTicketCommand;
+import net.chrisrichardson.ftgo.kitchenservice.api.KitchenServiceChannels;
+import net.chrisrichardson.ftgo.kitchenservice.api.UndoBeginCancelTicketCommand;
+import org.springframework.util.Assert;
+
+import javax.annotation.PostConstruct;
+
+import static io.eventuate.tram.commands.consumer.CommandWithDestinationBuilder.send;
+
+<span class="nc" id="L22">public class CancelOrderSaga implements SimpleSaga&lt;CancelOrderSagaData&gt; {</span>
+
+
+
+  private SagaDefinition&lt;CancelOrderSagaData&gt; sagaDefinition;
+
+
+  @PostConstruct
+  public void initializeSagaDefinition() {
+<span class="nc" id="L31">    sagaDefinition = step()</span>
+<span class="nc" id="L32">            .invokeParticipant(this::beginCancel)</span>
+<span class="nc" id="L33">            .withCompensation(this::undoBeginCancel)</span>
+<span class="nc" id="L34">            .step()</span>
+<span class="nc" id="L35">            .invokeParticipant(this::beginCancelTicket)</span>
+<span class="nc" id="L36">            .withCompensation(this::undoBeginCancelTicket)</span>
+<span class="nc" id="L37">            .step()</span>
+<span class="nc" id="L38">            .invokeParticipant(this::reverseAuthorization)</span>
+<span class="nc" id="L39">            .step()</span>
+<span class="nc" id="L40">            .invokeParticipant(this::confirmTicketCancel)</span>
+<span class="nc" id="L41">            .step()</span>
+<span class="nc" id="L42">            .invokeParticipant(this::confirmOrderCancel)</span>
+<span class="nc" id="L43">            .build();</span>
+
+<span class="nc" id="L45">  }</span>
+
+  private CommandWithDestination confirmOrderCancel(CancelOrderSagaData data) {
+<span class="nc" id="L48">    return send(new ConfirmCancelOrderCommand(data.getOrderId()))</span>
+<span class="nc" id="L49">            .to(OrderServiceChannels.COMMAND_CHANNEL)</span>
+<span class="nc" id="L50">            .build();</span>
+
+  }
+
+  private CommandWithDestination confirmTicketCancel(CancelOrderSagaData data) {
+<span class="nc" id="L55">    return send(new ConfirmCancelTicketCommand(data.getRestaurantId(), data.getOrderId()))</span>
+<span class="nc" id="L56">            .to(KitchenServiceChannels.COMMAND_CHANNEL)</span>
+<span class="nc" id="L57">            .build();</span>
+
+  }
+
+  private CommandWithDestination reverseAuthorization(CancelOrderSagaData data) {
+<span class="nc" id="L62">    return send(new ReverseAuthorizationCommand(data.getConsumerId(), data.getOrderId(), data.getOrderTotal()))</span>
+<span class="nc" id="L63">            .to(AccountingServiceChannels.accountingServiceChannel)</span>
+<span class="nc" id="L64">            .build();</span>
+
+  }
+
+  private CommandWithDestination undoBeginCancelTicket(CancelOrderSagaData data) {
+<span class="nc" id="L69">    return send(new UndoBeginCancelTicketCommand(data.getRestaurantId(), data.getOrderId()))</span>
+<span class="nc" id="L70">            .to(KitchenServiceChannels.COMMAND_CHANNEL)</span>
+<span class="nc" id="L71">            .build();</span>
+
+  }
+
+  private CommandWithDestination beginCancelTicket(CancelOrderSagaData data) {
+<span class="nc" id="L76">    return send(new BeginCancelTicketCommand(data.getRestaurantId(), (long) data.getOrderId()))</span>
+<span class="nc" id="L77">            .to(KitchenServiceChannels.COMMAND_CHANNEL)</span>
+<span class="nc" id="L78">            .build();</span>
+
+  }
+
+  private CommandWithDestination undoBeginCancel(CancelOrderSagaData data) {
+<span class="nc" id="L83">    return send(new UndoBeginCancelCommand(data.getOrderId()))</span>
+<span class="nc" id="L84">            .to(OrderServiceChannels.COMMAND_CHANNEL)</span>
+<span class="nc" id="L85">            .build();</span>
+  }
+
+  private CommandWithDestination beginCancel(CancelOrderSagaData data) {
+<span class="nc" id="L89">    return send(new BeginCancelCommand(data.getOrderId()))</span>
+<span class="nc" id="L90">            .to(OrderServiceChannels.COMMAND_CHANNEL)</span>
+<span class="nc" id="L91">            .build();</span>
+  }
+
+
+  @Override
+  public SagaDefinition&lt;CancelOrderSagaData&gt; getSagaDefinition() {
+<span class="nc" id="L97">    Assert.notNull(sagaDefinition);</span>
+<span class="nc" id="L98">    return sagaDefinition;</span>
+  }
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

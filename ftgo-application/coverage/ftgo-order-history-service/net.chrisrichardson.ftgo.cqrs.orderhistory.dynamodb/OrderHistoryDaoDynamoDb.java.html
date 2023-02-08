@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderHistoryDaoDynamoDb.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-order-history-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.cqrs.orderhistory.dynamodb</a> &gt; <span class="el_source">OrderHistoryDaoDynamoDb.java</span></div><h1>OrderHistoryDaoDynamoDb.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.cqrs.orderhistory.dynamodb;
+
+
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
+import com.amazonaws.services.dynamodbv2.document.Index;
+import com.amazonaws.services.dynamodbv2.document.Item;
+import com.amazonaws.services.dynamodbv2.document.ItemCollection;
+import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
+import com.amazonaws.services.dynamodbv2.document.QueryOutcome;
+import com.amazonaws.services.dynamodbv2.document.RangeKeyCondition;
+import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
+import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
+import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.ConditionalCheckFailedException;
+import com.amazonaws.services.dynamodbv2.model.ReturnValue;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.chrisrichardson.ftgo.common.Money;
+import net.chrisrichardson.ftgo.cqrs.orderhistory.Location;
+import net.chrisrichardson.ftgo.cqrs.orderhistory.OrderHistory;
+import net.chrisrichardson.ftgo.cqrs.orderhistory.OrderHistoryDao;
+import net.chrisrichardson.ftgo.cqrs.orderhistory.OrderHistoryFilter;
+import net.chrisrichardson.ftgo.orderservice.api.events.OrderLineItem;
+import net.chrisrichardson.ftgo.orderservice.api.events.OrderState;
+import org.apache.commons.lang.StringUtils;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.BreakIterator;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.StreamSupport;
+
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+
+public class OrderHistoryDaoDynamoDb implements OrderHistoryDao {
+
+<span class="nc" id="L51">  private Logger logger = LoggerFactory.getLogger(getClass());</span>
+
+  public static final String FTGO_ORDER_HISTORY_BY_ID = &quot;ftgo-order-history&quot;;
+  public static final String FTGO_ORDER_HISTORY_BY_CONSUMER_ID_AND_DATE =
+          &quot;ftgo-order-history-by-consumer-id-and-creation-time&quot;;
+  public static final String ORDER_STATUS_FIELD = &quot;orderStatus&quot;;
+  private static final String DELIVERY_STATUS_FIELD = &quot;deliveryStatus&quot;;
+
+  private final DynamoDB dynamoDB;
+
+  private Table table;
+  private Index index;
+
+<span class="nc" id="L64">  public OrderHistoryDaoDynamoDb(DynamoDB dynamoDB) {</span>
+<span class="nc" id="L65">    this.dynamoDB = dynamoDB;</span>
+<span class="nc" id="L66">    table = this.dynamoDB.getTable(FTGO_ORDER_HISTORY_BY_ID);</span>
+<span class="nc" id="L67">    index = table.getIndex(FTGO_ORDER_HISTORY_BY_CONSUMER_ID_AND_DATE);</span>
+<span class="nc" id="L68">  }</span>
+
+  @Override
+  public boolean addOrder(Order order, Optional&lt;SourceEvent&gt; eventSource) {
+<span class="nc" id="L72">    UpdateItemSpec spec = new UpdateItemSpec()</span>
+<span class="nc" id="L73">            .withPrimaryKey(&quot;orderId&quot;, order.getOrderId())</span>
+<span class="nc" id="L74">            .withUpdateExpression(&quot;SET orderStatus = :orderStatus, &quot; +</span>
+                    &quot;creationDate = :creationDate, consumerId = :consumerId, lineItems =&quot; +
+                    &quot; :lineItems, keywords = :keywords, restaurantId = :restaurantId, &quot; +
+                    &quot; restaurantName = :restaurantName&quot;
+            )
+<span class="nc" id="L79">            .withValueMap(new Maps()</span>
+<span class="nc" id="L80">                    .add(&quot;:orderStatus&quot;, order.getStatus().toString())</span>
+<span class="nc" id="L81">                    .add(&quot;:consumerId&quot;, order.getConsumerId())</span>
+<span class="nc" id="L82">                    .add(&quot;:creationDate&quot;, order.getCreationDate().getMillis())</span>
+<span class="nc" id="L83">                    .add(&quot;:lineItems&quot;, mapLineItems(order.getLineItems()))</span>
+<span class="nc" id="L84">                    .add(&quot;:keywords&quot;, mapKeywords(order))</span>
+<span class="nc" id="L85">                    .add(&quot;:restaurantId&quot;, order.getRestaurantId())</span>
+<span class="nc" id="L86">                    .add(&quot;:restaurantName&quot;, order.getRestaurantName())</span>
+<span class="nc" id="L87">                    .map())</span>
+<span class="nc" id="L88">            .withReturnValues(ReturnValue.NONE);</span>
+<span class="nc" id="L89">    return idempotentUpdate(spec, eventSource);</span>
+  }
+
+  private boolean idempotentUpdate(UpdateItemSpec spec, Optional&lt;SourceEvent&gt;
+          eventSource) {
+    try {
+<span class="nc" id="L95">      table.updateItem(eventSource.map(es -&gt; es.addDuplicateDetection(spec))</span>
+<span class="nc" id="L96">              .orElse(spec));</span>
+<span class="nc" id="L97">      return true;</span>
+<span class="nc" id="L98">    } catch (ConditionalCheckFailedException e) {</span>
+<span class="nc" id="L99">      logger.error(&quot;not updated {}&quot;, eventSource);</span>
+      // Do nothing
+<span class="nc" id="L101">      return false;</span>
+    }
+  }
+
+////  @Override
+//  public void addOrderV1(Order order, Optional&lt;SourceEvent&gt; eventSource) {
+//    Map&lt;String, AttributeValue&gt; keyMapBuilder = makeKey1(order.getOrderId());
+//    AvMapBuilder expressionAttrs = new AvMapBuilder(&quot;:orderStatus&quot;, new
+// AttributeValue(order.getStatus().toString()))
+//            .add(&quot;:cd&quot;, new AttributeValue().withN(Long.toString(order
+// .getCreationDate().getMillis())))
+//            .add(&quot;:consumerId&quot;, order.getConsumerId())
+//            .add(&quot;:lineItems&quot;, mapLineItems(order.getLineItems()))
+//            .add(&quot;:keywords&quot;, mapKeywords(order))
+//            .add(&quot;:restaurantName&quot;, order.getRestaurantId())
+//            ;
+//
+//
+//    UpdateItemRequest uir = new UpdateItemRequest()
+//            .withTableName(FTGO_ORDER_HISTORY_BY_ID)
+//            .withKey(keyMapBuilder)
+//            .withUpdateExpression(&quot;SET orderStatus = :orderStatus,
+// creationDate = :cd, consumerId = :consumerId, lineItems = :lineItems,
+// keywords = :keywords, restaurantName = :restaurantName&quot;)
+//            .withConditionExpression(&quot;attribute_not_exists(orderStatus)&quot;)
+//            .withExpressionAttributeValues(expressionAttrs.map());
+//    try {
+//      client.updateItem(uir);
+//    } catch (ConditionalCheckFailedException e) {
+//      // Do nothing
+//    }
+//  }
+
+  private Set mapKeywords(Order order) {
+<span class="nc" id="L135">    Set&lt;String&gt; keywords = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L136">    keywords.addAll(tokenize(order.getRestaurantName()));</span>
+<span class="nc" id="L137">    keywords.addAll(tokenize(order.getLineItems().stream().map</span>
+<span class="nc" id="L138">            (OrderLineItem::getName).collect(toList())));</span>
+<span class="nc" id="L139">    return keywords;</span>
+  }
+
+  private Set&lt;String&gt; tokenize(Collection&lt;String&gt; text) {
+<span class="nc" id="L143">    return text.stream().flatMap(t -&gt; tokenize(t).stream()).collect(toSet());</span>
+  }
+
+  private Set&lt;String&gt; tokenize(String text) {
+<span class="nc" id="L147">    Set&lt;String&gt; result = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L148">    BreakIterator bi = BreakIterator.getWordInstance();</span>
+<span class="nc" id="L149">    bi.setText(text);</span>
+<span class="nc" id="L150">    int lastIndex = bi.first();</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">    while (lastIndex != BreakIterator.DONE) {</span>
+<span class="nc" id="L152">      int firstIndex = lastIndex;</span>
+<span class="nc" id="L153">      lastIndex = bi.next();</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">      if (lastIndex != BreakIterator.DONE</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">              &amp;&amp; Character.isLetterOrDigit(text.charAt(firstIndex))) {</span>
+<span class="nc" id="L156">        String word = text.substring(firstIndex, lastIndex);</span>
+<span class="nc" id="L157">        result.add(word);</span>
+      }
+<span class="nc" id="L159">    }</span>
+<span class="nc" id="L160">    return result;</span>
+  }
+
+  private List mapLineItems(List&lt;OrderLineItem&gt; lineItems) {
+<span class="nc" id="L164">    return lineItems.stream().map(this::mapOrderLineItem).collect(toList());</span>
+  }
+//  private AttributeValue mapLineItems(List&lt;OrderLineItem&gt; lineItems) {
+//    AttributeValue result = new AttributeValue();
+//    result.withL(lineItems.stream().map(this::mapOrderLineItem).collect
+// (toList()));
+//    return result;
+//  }
+
+  private Map mapOrderLineItem(OrderLineItem orderLineItem) {
+<span class="nc" id="L174">    return new Maps()</span>
+<span class="nc" id="L175">            .add(&quot;menuItemName&quot;, orderLineItem.getName())</span>
+<span class="nc" id="L176">            .add(&quot;menuItemId&quot;, orderLineItem.getMenuItemId())</span>
+<span class="nc" id="L177">            .add(&quot;price&quot;, orderLineItem.getPrice().asString())</span>
+<span class="nc" id="L178">            .add(&quot;quantity&quot;, orderLineItem.getQuantity())</span>
+<span class="nc" id="L179">            .map();</span>
+  }
+//  private AttributeValue mapOrderLineItem(OrderLineItem orderLineItem) {
+//    AttributeValue result = new AttributeValue();
+//    result.addMEntry(&quot;menuItem&quot;, new AttributeValue(orderLineItem
+// .getName()));
+//    return result;
+//  }
+
+
+  private Map&lt;String, AttributeValue&gt; makeKey1(String orderId) {
+<span class="nc" id="L190">    return new AvMapBuilder(&quot;orderId&quot;, new AttributeValue(orderId)).map();</span>
+  }
+
+  @Override
+  public OrderHistory findOrderHistory(String consumerId, OrderHistoryFilter
+          filter) {
+
+<span class="nc" id="L197">    QuerySpec spec = new QuerySpec()</span>
+<span class="nc" id="L198">            .withScanIndexForward(false)</span>
+<span class="nc" id="L199">            .withHashKey(&quot;consumerId&quot;, consumerId)</span>
+<span class="nc" id="L200">            .withRangeKeyCondition(new RangeKeyCondition(&quot;creationDate&quot;).gt</span>
+<span class="nc" id="L201">                    (filter.getSince().getMillis()));</span>
+
+<span class="nc" id="L203">    filter.getStartKeyToken().ifPresent(token -&gt; spec.withExclusiveStartKey</span>
+<span class="nc" id="L204">            (toStartingPrimaryKey(token)));</span>
+
+<span class="nc" id="L206">    Map&lt;String, Object&gt; valuesMap = new HashMap&lt;&gt;();</span>
+
+<span class="nc" id="L208">    String filterExpression = Expressions.and(</span>
+<span class="nc" id="L209">            keywordFilterExpression(valuesMap, filter.getKeywords()),</span>
+<span class="nc" id="L210">            statusFilterExpression(valuesMap, filter.getStatus()));</span>
+
+<span class="nc bnc" id="L212" title="All 2 branches missed.">    if (!valuesMap.isEmpty())</span>
+<span class="nc" id="L213">      spec.withValueMap(valuesMap);</span>
+
+<span class="nc bnc" id="L215" title="All 2 branches missed.">    if (StringUtils.isNotBlank(filterExpression)) {</span>
+<span class="nc" id="L216">      spec.withFilterExpression(filterExpression);</span>
+    }
+
+<span class="nc" id="L219">    System.out.print(&quot;filterExpression.toString()=&quot; + filterExpression);</span>
+
+<span class="nc" id="L221">    filter.getPageSize().ifPresent(spec::withMaxResultSize);</span>
+
+<span class="nc" id="L223">    ItemCollection&lt;QueryOutcome&gt; result = index.query(spec);</span>
+
+<span class="nc" id="L225">    return new OrderHistory(StreamSupport.stream(result.spliterator(), false)</span>
+<span class="nc" id="L226">            .map(this::toOrder).collect(toList()),</span>
+<span class="nc" id="L227">            Optional.ofNullable(result.getLastLowLevelResult().getQueryResult</span>
+<span class="nc" id="L228">                    ().getLastEvaluatedKey()).map(this::toStartKeyToken));</span>
+  }
+
+  private PrimaryKey toStartingPrimaryKey(String token) {
+<span class="nc" id="L232">    ObjectMapper om = new ObjectMapper();</span>
+    Map&lt;String, Object&gt; map;
+    try {
+<span class="nc" id="L235">      map = om.readValue(token, Map.class);</span>
+<span class="nc" id="L236">    } catch (IOException e) {</span>
+<span class="nc" id="L237">      throw new RuntimeException();</span>
+<span class="nc" id="L238">    }</span>
+<span class="nc" id="L239">    PrimaryKey pk = new PrimaryKey();</span>
+<span class="nc" id="L240">    map.entrySet().forEach(key -&gt; {</span>
+<span class="nc" id="L241">      pk.addComponent(key.getKey(), key.getValue());</span>
+<span class="nc" id="L242">    });</span>
+<span class="nc" id="L243">    return pk;</span>
+  }
+
+  private String toStartKeyToken(Map&lt;String, AttributeValue&gt; lastEvaluatedKey) {
+<span class="nc" id="L247">    Map&lt;String, Object&gt; map = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L248">    lastEvaluatedKey.entrySet().forEach(entry -&gt; {</span>
+<span class="nc" id="L249">      String value = entry.getValue().getS();</span>
+<span class="nc bnc" id="L250" title="All 2 branches missed.">      if (value == null) {</span>
+<span class="nc" id="L251">        value = entry.getValue().getN();</span>
+<span class="nc" id="L252">        map.put(entry.getKey(), Long.parseLong(value));</span>
+      } else {
+<span class="nc" id="L254">        map.put(entry.getKey(), value);</span>
+      }
+<span class="nc" id="L256">    });</span>
+<span class="nc" id="L257">    ObjectMapper om = new ObjectMapper();</span>
+    try {
+<span class="nc" id="L259">      return om.writeValueAsString(map);</span>
+<span class="nc" id="L260">    } catch (JsonProcessingException e) {</span>
+<span class="nc" id="L261">      throw new RuntimeException();</span>
+    }
+  }
+
+  private Optional&lt;String&gt; statusFilterExpression(Map&lt;String, Object&gt;
+                                                          expressionAttributeValuesBuilder, Optional&lt;OrderState&gt; status) {
+<span class="nc" id="L267">    return status.map(s -&gt; {</span>
+<span class="nc" id="L268">      expressionAttributeValuesBuilder.put(&quot;:orderStatus&quot;, s.toString());</span>
+<span class="nc" id="L269">      return &quot;orderStatus = :orderStatus&quot;;</span>
+    });
+  }
+
+  private String keywordFilterExpression(Map&lt;String, Object&gt;
+                                                 expressionAttributeValuesBuilder, Set&lt;String&gt; kw) {
+<span class="nc" id="L275">    Set&lt;String&gt; keywords = tokenize(kw);</span>
+<span class="nc bnc" id="L276" title="All 2 branches missed.">    if (keywords.isEmpty()) {</span>
+<span class="nc" id="L277">      return &quot;&quot;;</span>
+    }
+<span class="nc" id="L279">    String cuisinesExpression = &quot;&quot;;</span>
+<span class="nc" id="L280">    int idx = 0;</span>
+<span class="nc bnc" id="L281" title="All 2 branches missed.">    for (String cuisine : keywords) {</span>
+<span class="nc" id="L282">      String var = &quot;:keyword&quot; + idx;</span>
+<span class="nc" id="L283">      String cuisineExpression = String.format(&quot;contains(keywords, %s)&quot;, var);</span>
+<span class="nc" id="L284">      cuisinesExpression = Expressions.or(cuisinesExpression, cuisineExpression);</span>
+<span class="nc" id="L285">      expressionAttributeValuesBuilder.put(var, cuisine);</span>
+<span class="nc" id="L286">    }</span>
+
+<span class="nc" id="L288">    return cuisinesExpression;</span>
+  }
+
+//  @Override
+//  public OrderHistory findOrderHistory(String consumerId,
+// OrderHistoryFilter filter) {
+//    AvMapBuilder expressionAttributeValuesBuilder = new AvMapBuilder
+// (&quot;:cid&quot;, new AttributeValue(consumerId))
+//            .add(&quot;:oct&quot;, new AttributeValue().withN(Long.toString(filter
+// .getSince().getMillis())));
+//    StringBuilder filterExpression = new StringBuilder();
+//    Set&lt;String&gt; keywords = tokenize(filter.getKeywords());
+//    if (!keywords.isEmpty()) {
+//      if (filterExpression.length() &gt; 0)
+//        filterExpression.append(&quot; AND &quot;);
+//      filterExpression.append(&quot; ( &quot;);
+//      int idx = 0;
+//      for (String cuisine : keywords) {
+//        if (idx++ &gt; 0) {
+//          filterExpression.append(&quot; OR &quot;);
+//        }
+//        String var = &quot;:keyword&quot; + idx;
+//        filterExpression.append(&quot;contains(keywords, &quot;).append(var).append
+// (')');
+//        expressionAttributeValuesBuilder.add(var, cuisine);
+//      }
+//
+//      filterExpression.append(&quot; ) &quot;);
+//    }
+//    filter.getStatus().ifPresent(status -&gt; {
+//      if (filterExpression.length() &gt; 0)
+//        filterExpression.append(&quot; AND &quot;);
+//      filterExpression.append(&quot;orderStatus = :orderStatus&quot;);
+//      expressionAttributeValuesBuilder.add(&quot;:orderStatus&quot;, status.toString
+// ());
+//    });
+//    QueryRequest ar = new QueryRequest()
+//            .withTableName(FTGO_ORDER_HISTORY_BY_ID)
+//            .withIndexName(FTGO_ORDER_HISTORY_BY_CONSUMER_ID_AND_DATE)
+//            .withScanIndexForward(false)
+//            .withKeyConditionExpression(&quot;consumerId = :cid AND
+// creationDate &gt; :oct&quot;)
+//            .withExpressionAttributeValues
+// (expressionAttributeValuesBuilder.map());
+//    System.out.print(&quot;filterExpression.toString()=&quot; + filterExpression
+// .toString());
+//    if (filterExpression.length() &gt; 0)
+//      ar.withFilterExpression(filterExpression.toString());
+//
+//    QuerySpec spec = new QuerySpec();
+//    ItemCollection&lt;QueryOutcome&gt; result = table.query(spec);
+//
+//    List&lt;Map&lt;String, AttributeValue&gt;&gt; items = client.query(ar).getItems();
+//    return new OrderHistory(items.stream().map(this::toOrder).collect
+// (toList()));
+//  }
+
+  @Override
+  public boolean updateOrderState(String orderId, OrderState newState, Optional&lt;SourceEvent&gt; eventSource) {
+<span class="nc" id="L347">    UpdateItemSpec spec = new UpdateItemSpec()</span>
+<span class="nc" id="L348">            .withPrimaryKey(&quot;orderId&quot;, orderId)</span>
+<span class="nc" id="L349">            .withUpdateExpression(&quot;SET #orderStatus = :orderStatus&quot;)</span>
+<span class="nc" id="L350">            .withNameMap(Collections.singletonMap(&quot;#orderStatus&quot;,</span>
+                    ORDER_STATUS_FIELD))
+<span class="nc" id="L352">            .withValueMap(Collections.singletonMap(&quot;:orderStatus&quot;, newState.toString()))</span>
+<span class="nc" id="L353">            .withReturnValues(ReturnValue.NONE);</span>
+<span class="nc" id="L354">    return idempotentUpdate(spec, eventSource);</span>
+  }
+
+
+  static PrimaryKey makePrimaryKey(String orderId) {
+<span class="nc" id="L359">    return new PrimaryKey().addComponent(&quot;orderId&quot;, orderId);</span>
+  }
+
+  @Override
+  public void noteTicketPreparationStarted(String orderId) {
+<span class="nc" id="L364">    throw new UnsupportedOperationException();</span>
+  }
+
+  @Override
+  public void noteTicketPreparationCompleted(String orderId) {
+<span class="nc" id="L369">    throw new UnsupportedOperationException();</span>
+
+  }
+
+  @Override
+  public void notePickedUp(String orderId, Optional&lt;SourceEvent&gt; eventSource) {
+<span class="nc" id="L375">    UpdateItemSpec spec = new UpdateItemSpec()</span>
+<span class="nc" id="L376">            .withPrimaryKey(&quot;orderId&quot;, orderId)</span>
+<span class="nc" id="L377">            .withUpdateExpression(&quot;SET #deliveryStatus = :deliveryStatus&quot;)</span>
+<span class="nc" id="L378">            .withNameMap(Collections.singletonMap(&quot;#deliveryStatus&quot;,</span>
+                    DELIVERY_STATUS_FIELD))
+<span class="nc" id="L380">            .withValueMap(Collections.singletonMap(&quot;:deliveryStatus&quot;,</span>
+<span class="nc" id="L381">                    DeliveryStatus.PICKED_UP.toString()))</span>
+<span class="nc" id="L382">            .withReturnValues(ReturnValue.NONE);</span>
+<span class="nc" id="L383">    idempotentUpdate(spec, eventSource);</span>
+<span class="nc" id="L384">  }</span>
+
+  @Override
+  public void updateLocation(String orderId, Location location) {
+<span class="nc" id="L388">    throw new UnsupportedOperationException();</span>
+
+  }
+
+  @Override
+  public void noteDelivered(String orderId) {
+<span class="nc" id="L394">    throw new UnsupportedOperationException();</span>
+
+  }
+
+  @Override
+  public Optional&lt;Order&gt; findOrder(String orderId) {
+<span class="nc" id="L400">    Item item = table.getItem(new GetItemSpec()</span>
+<span class="nc" id="L401">            .withPrimaryKey(makePrimaryKey(orderId))</span>
+<span class="nc" id="L402">            .withConsistentRead(true));</span>
+<span class="nc" id="L403">    return Optional.ofNullable(item).map(this::toOrder);</span>
+  }
+
+
+  private Order toOrder(Item avs) {
+<span class="nc" id="L408">    Order order = new Order(avs.getString(&quot;orderId&quot;),</span>
+<span class="nc" id="L409">            avs.getString(&quot;consumerId&quot;),</span>
+<span class="nc" id="L410">            OrderState.valueOf(avs.getString(&quot;orderStatus&quot;)),</span>
+<span class="nc" id="L411">            toLineItems2(avs.getList(&quot;lineItems&quot;)),</span>
+            null,
+<span class="nc" id="L413">            avs.getLong(&quot;restaurantId&quot;),</span>
+<span class="nc" id="L414">            avs.getString(&quot;restaurantName&quot;));</span>
+<span class="nc bnc" id="L415" title="All 2 branches missed.">    if (avs.hasAttribute(&quot;creationDate&quot;))</span>
+<span class="nc" id="L416">      order.setCreationDate(new DateTime(avs.getLong(&quot;creationDate&quot;)));</span>
+<span class="nc" id="L417">    return order;</span>
+  }
+
+
+  private List&lt;OrderLineItem&gt; toLineItems2(List&lt;LinkedHashMap&lt;String,
+          Object&gt;&gt; lineItems) {
+<span class="nc" id="L423">    return lineItems.stream().map(this::toLineItem2).collect(toList());</span>
+  }
+
+  private OrderLineItem toLineItem2(LinkedHashMap&lt;String, Object&gt;
+                                            attributeValue) {
+<span class="nc" id="L428">    return new OrderLineItem((String) attributeValue.get(&quot;menuItemId&quot;),</span>
+<span class="nc" id="L429">                             (String) attributeValue.get(&quot;menuItemName&quot;),</span>
+<span class="nc" id="L430">                             new Money((String) attributeValue.get(&quot;price&quot;)),</span>
+<span class="nc" id="L431">                            ((BigDecimal) attributeValue.get(&quot;quantity&quot;)).intValue()</span>
+            );
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

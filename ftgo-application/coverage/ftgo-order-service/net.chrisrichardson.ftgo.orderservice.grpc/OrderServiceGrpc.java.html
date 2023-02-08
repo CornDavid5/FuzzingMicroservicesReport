@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderServiceGrpc.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-order-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.orderservice.grpc</a> &gt; <span class="el_source">OrderServiceGrpc.java</span></div><h1>OrderServiceGrpc.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.orderservice.grpc;
+
+import static io.grpc.MethodDescriptor.generateFullMethodName;
+
+/**
+ */
+@javax.annotation.Generated(
+    value = &quot;by gRPC proto compiler (version 1.47.0)&quot;,
+    comments = &quot;Source: OrderService.proto&quot;)
+@io.grpc.stub.annotations.GrpcGenerated
+public final class OrderServiceGrpc {
+
+  private OrderServiceGrpc() {}
+
+  public static final String SERVICE_NAME = &quot;orderservice.OrderService&quot;;
+
+  // Static method descriptors that strictly reflect the proto.
+  private static volatile io.grpc.MethodDescriptor&lt;net.chrisrichardson.ftgo.orderservice.grpc.CreateOrderRequest,
+      net.chrisrichardson.ftgo.orderservice.grpc.CreateOrderReply&gt; getCreateOrderMethod;
+
+  @io.grpc.stub.annotations.RpcMethod(
+      fullMethodName = SERVICE_NAME + '/' + &quot;createOrder&quot;,
+      requestType = net.chrisrichardson.ftgo.orderservice.grpc.CreateOrderRequest.class,
+      responseType = net.chrisrichardson.ftgo.orderservice.grpc.CreateOrderReply.class,
+      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  public static io.grpc.MethodDescriptor&lt;net.chrisrichardson.ftgo.orderservice.grpc.CreateOrderRequest,
+      net.chrisrichardson.ftgo.orderservice.grpc.CreateOrderReply&gt; getCreateOrderMethod() {
+    io.grpc.MethodDescriptor&lt;net.chrisrichardson.ftgo.orderservice.grpc.CreateOrderRequest, net.chrisrichardson.ftgo.orderservice.grpc.CreateOrderReply&gt; getCreateOrderMethod;
+    if ((getCreateOrderMethod = OrderServiceGrpc.getCreateOrderMethod) == null) {
+      synchronized (OrderServiceGrpc.class) {
+        if ((getCreateOrderMethod = OrderServiceGrpc.getCreateOrderMethod) == null) {
+          OrderServiceGrpc.getCreateOrderMethod = getCreateOrderMethod =
+              io.grpc.MethodDescriptor.&lt;net.chrisrichardson.ftgo.orderservice.grpc.CreateOrderRequest, net.chrisrichardson.ftgo.orderservice.grpc.CreateOrderReply&gt;newBuilder()
+              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, &quot;createOrder&quot;))
+              .setSampledToLocalTracing(true)
+              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  net.chrisrichardson.ftgo.orderservice.grpc.CreateOrderRequest.getDefaultInstance()))
+              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  net.chrisrichardson.ftgo.orderservice.grpc.CreateOrderReply.getDefaultInstance()))
+              .setSchemaDescriptor(new OrderServiceMethodDescriptorSupplier(&quot;createOrder&quot;))
+              .build();
+        }
+      }
+    }
+    return getCreateOrderMethod;
+  }
+
+  private static volatile io.grpc.MethodDescriptor&lt;net.chrisrichardson.ftgo.orderservice.grpc.CancelOrderRequest,
+      net.chrisrichardson.ftgo.orderservice.grpc.CancelOrderReply&gt; getCancelOrderMethod;
+
+  @io.grpc.stub.annotations.RpcMethod(
+      fullMethodName = SERVICE_NAME + '/' + &quot;cancelOrder&quot;,
+      requestType = net.chrisrichardson.ftgo.orderservice.grpc.CancelOrderRequest.class,
+      responseType = net.chrisrichardson.ftgo.orderservice.grpc.CancelOrderReply.class,
+      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  public static io.grpc.MethodDescriptor&lt;net.chrisrichardson.ftgo.orderservice.grpc.CancelOrderRequest,
+      net.chrisrichardson.ftgo.orderservice.grpc.CancelOrderReply&gt; getCancelOrderMethod() {
+    io.grpc.MethodDescriptor&lt;net.chrisrichardson.ftgo.orderservice.grpc.CancelOrderRequest, net.chrisrichardson.ftgo.orderservice.grpc.CancelOrderReply&gt; getCancelOrderMethod;
+    if ((getCancelOrderMethod = OrderServiceGrpc.getCancelOrderMethod) == null) {
+      synchronized (OrderServiceGrpc.class) {
+        if ((getCancelOrderMethod = OrderServiceGrpc.getCancelOrderMethod) == null) {
+          OrderServiceGrpc.getCancelOrderMethod = getCancelOrderMethod =
+              io.grpc.MethodDescriptor.&lt;net.chrisrichardson.ftgo.orderservice.grpc.CancelOrderRequest, net.chrisrichardson.ftgo.orderservice.grpc.CancelOrderReply&gt;newBuilder()
+              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, &quot;cancelOrder&quot;))
+              .setSampledToLocalTracing(true)
+              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  net.chrisrichardson.ftgo.orderservice.grpc.CancelOrderRequest.getDefaultInstance()))
+              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  net.chrisrichardson.ftgo.orderservice.grpc.CancelOrderReply.getDefaultInstance()))
+              .setSchemaDescriptor(new OrderServiceMethodDescriptorSupplier(&quot;cancelOrder&quot;))
+              .build();
+        }
+      }
+    }
+    return getCancelOrderMethod;
+  }
+
+  private static volatile io.grpc.MethodDescriptor&lt;net.chrisrichardson.ftgo.orderservice.grpc.ReviseOrderRequest,
+      net.chrisrichardson.ftgo.orderservice.grpc.ReviseOrderReply&gt; getReviseOrderMethod;
+
+  @io.grpc.stub.annotations.RpcMethod(
+      fullMethodName = SERVICE_NAME + '/' + &quot;reviseOrder&quot;,
+      requestType = net.chrisrichardson.ftgo.orderservice.grpc.ReviseOrderRequest.class,
+      responseType = net.chrisrichardson.ftgo.orderservice.grpc.ReviseOrderReply.class,
+      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  public static io.grpc.MethodDescriptor&lt;net.chrisrichardson.ftgo.orderservice.grpc.ReviseOrderRequest,
+      net.chrisrichardson.ftgo.orderservice.grpc.ReviseOrderReply&gt; getReviseOrderMethod() {
+    io.grpc.MethodDescriptor&lt;net.chrisrichardson.ftgo.orderservice.grpc.ReviseOrderRequest, net.chrisrichardson.ftgo.orderservice.grpc.ReviseOrderReply&gt; getReviseOrderMethod;
+    if ((getReviseOrderMethod = OrderServiceGrpc.getReviseOrderMethod) == null) {
+      synchronized (OrderServiceGrpc.class) {
+        if ((getReviseOrderMethod = OrderServiceGrpc.getReviseOrderMethod) == null) {
+          OrderServiceGrpc.getReviseOrderMethod = getReviseOrderMethod =
+              io.grpc.MethodDescriptor.&lt;net.chrisrichardson.ftgo.orderservice.grpc.ReviseOrderRequest, net.chrisrichardson.ftgo.orderservice.grpc.ReviseOrderReply&gt;newBuilder()
+              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, &quot;reviseOrder&quot;))
+              .setSampledToLocalTracing(true)
+              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  net.chrisrichardson.ftgo.orderservice.grpc.ReviseOrderRequest.getDefaultInstance()))
+              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  net.chrisrichardson.ftgo.orderservice.grpc.ReviseOrderReply.getDefaultInstance()))
+              .setSchemaDescriptor(new OrderServiceMethodDescriptorSupplier(&quot;reviseOrder&quot;))
+              .build();
+        }
+      }
+    }
+    return getReviseOrderMethod;
+  }
+
+  /**
+   * Creates a new async stub that supports all call types for the service
+   */
+  public static OrderServiceStub newStub(io.grpc.Channel channel) {
+    io.grpc.stub.AbstractStub.StubFactory&lt;OrderServiceStub&gt; factory =
+<span class="nc" id="L116">      new io.grpc.stub.AbstractStub.StubFactory&lt;OrderServiceStub&gt;() {</span>
+        @java.lang.Override
+        public OrderServiceStub newStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+<span class="nc" id="L119">          return new OrderServiceStub(channel, callOptions);</span>
+        }
+      };
+    return OrderServiceStub.newStub(factory, channel);
+  }
+
+  /**
+   * Creates a new blocking-style stub that supports unary and streaming output calls on the service
+   */
+  public static OrderServiceBlockingStub newBlockingStub(
+      io.grpc.Channel channel) {
+    io.grpc.stub.AbstractStub.StubFactory&lt;OrderServiceBlockingStub&gt; factory =
+<span class="nc" id="L131">      new io.grpc.stub.AbstractStub.StubFactory&lt;OrderServiceBlockingStub&gt;() {</span>
+        @java.lang.Override
+        public OrderServiceBlockingStub newStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+<span class="nc" id="L134">          return new OrderServiceBlockingStub(channel, callOptions);</span>
+        }
+      };
+    return OrderServiceBlockingStub.newStub(factory, channel);
+  }
+
+  /**
+   * Creates a new ListenableFuture-style stub that supports unary calls on the service
+   */
+  public static OrderServiceFutureStub newFutureStub(
+      io.grpc.Channel channel) {
+    io.grpc.stub.AbstractStub.StubFactory&lt;OrderServiceFutureStub&gt; factory =
+<span class="nc" id="L146">      new io.grpc.stub.AbstractStub.StubFactory&lt;OrderServiceFutureStub&gt;() {</span>
+        @java.lang.Override
+        public OrderServiceFutureStub newStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+<span class="nc" id="L149">          return new OrderServiceFutureStub(channel, callOptions);</span>
+        }
+      };
+    return OrderServiceFutureStub.newStub(factory, channel);
+  }
+
+  /**
+   */
+<span class="nc" id="L157">  public static abstract class OrderServiceImplBase implements io.grpc.BindableService {</span>
+
+    /**
+     */
+    public void createOrder(net.chrisrichardson.ftgo.orderservice.grpc.CreateOrderRequest request,
+        io.grpc.stub.StreamObserver&lt;net.chrisrichardson.ftgo.orderservice.grpc.CreateOrderReply&gt; responseObserver) {
+<span class="nc" id="L163">      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getCreateOrderMethod(), responseObserver);</span>
+<span class="nc" id="L164">    }</span>
+
+    /**
+     */
+    public void cancelOrder(net.chrisrichardson.ftgo.orderservice.grpc.CancelOrderRequest request,
+        io.grpc.stub.StreamObserver&lt;net.chrisrichardson.ftgo.orderservice.grpc.CancelOrderReply&gt; responseObserver) {
+<span class="nc" id="L170">      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getCancelOrderMethod(), responseObserver);</span>
+<span class="nc" id="L171">    }</span>
+
+    /**
+     */
+    public void reviseOrder(net.chrisrichardson.ftgo.orderservice.grpc.ReviseOrderRequest request,
+        io.grpc.stub.StreamObserver&lt;net.chrisrichardson.ftgo.orderservice.grpc.ReviseOrderReply&gt; responseObserver) {
+<span class="nc" id="L177">      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getReviseOrderMethod(), responseObserver);</span>
+<span class="nc" id="L178">    }</span>
+
+    @java.lang.Override public final io.grpc.ServerServiceDefinition bindService() {
+<span class="nc" id="L181">      return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor())</span>
+<span class="nc" id="L182">          .addMethod(</span>
+<span class="nc" id="L183">            getCreateOrderMethod(),</span>
+<span class="nc" id="L184">            io.grpc.stub.ServerCalls.asyncUnaryCall(</span>
+              new MethodHandlers&lt;
+                net.chrisrichardson.ftgo.orderservice.grpc.CreateOrderRequest,
+                net.chrisrichardson.ftgo.orderservice.grpc.CreateOrderReply&gt;(
+                  this, METHODID_CREATE_ORDER)))
+<span class="nc" id="L189">          .addMethod(</span>
+<span class="nc" id="L190">            getCancelOrderMethod(),</span>
+<span class="nc" id="L191">            io.grpc.stub.ServerCalls.asyncUnaryCall(</span>
+              new MethodHandlers&lt;
+                net.chrisrichardson.ftgo.orderservice.grpc.CancelOrderRequest,
+                net.chrisrichardson.ftgo.orderservice.grpc.CancelOrderReply&gt;(
+                  this, METHODID_CANCEL_ORDER)))
+<span class="nc" id="L196">          .addMethod(</span>
+<span class="nc" id="L197">            getReviseOrderMethod(),</span>
+<span class="nc" id="L198">            io.grpc.stub.ServerCalls.asyncUnaryCall(</span>
+              new MethodHandlers&lt;
+                net.chrisrichardson.ftgo.orderservice.grpc.ReviseOrderRequest,
+                net.chrisrichardson.ftgo.orderservice.grpc.ReviseOrderReply&gt;(
+                  this, METHODID_REVISE_ORDER)))
+<span class="nc" id="L203">          .build();</span>
+    }
+  }
+
+  /**
+   */
+  public static final class OrderServiceStub extends io.grpc.stub.AbstractAsyncStub&lt;OrderServiceStub&gt; {
+    private OrderServiceStub(
+        io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+<span class="nc" id="L212">      super(channel, callOptions);</span>
+<span class="nc" id="L213">    }</span>
+
+    @java.lang.Override
+    protected OrderServiceStub build(
+        io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+<span class="nc" id="L218">      return new OrderServiceStub(channel, callOptions);</span>
+    }
+
+    /**
+     */
+    public void createOrder(net.chrisrichardson.ftgo.orderservice.grpc.CreateOrderRequest request,
+        io.grpc.stub.StreamObserver&lt;net.chrisrichardson.ftgo.orderservice.grpc.CreateOrderReply&gt; responseObserver) {
+<span class="nc" id="L225">      io.grpc.stub.ClientCalls.asyncUnaryCall(</span>
+<span class="nc" id="L226">          getChannel().newCall(getCreateOrderMethod(), getCallOptions()), request, responseObserver);</span>
+<span class="nc" id="L227">    }</span>
+
+    /**
+     */
+    public void cancelOrder(net.chrisrichardson.ftgo.orderservice.grpc.CancelOrderRequest request,
+        io.grpc.stub.StreamObserver&lt;net.chrisrichardson.ftgo.orderservice.grpc.CancelOrderReply&gt; responseObserver) {
+<span class="nc" id="L233">      io.grpc.stub.ClientCalls.asyncUnaryCall(</span>
+<span class="nc" id="L234">          getChannel().newCall(getCancelOrderMethod(), getCallOptions()), request, responseObserver);</span>
+<span class="nc" id="L235">    }</span>
+
+    /**
+     */
+    public void reviseOrder(net.chrisrichardson.ftgo.orderservice.grpc.ReviseOrderRequest request,
+        io.grpc.stub.StreamObserver&lt;net.chrisrichardson.ftgo.orderservice.grpc.ReviseOrderReply&gt; responseObserver) {
+<span class="nc" id="L241">      io.grpc.stub.ClientCalls.asyncUnaryCall(</span>
+<span class="nc" id="L242">          getChannel().newCall(getReviseOrderMethod(), getCallOptions()), request, responseObserver);</span>
+<span class="nc" id="L243">    }</span>
+  }
+
+  /**
+   */
+  public static final class OrderServiceBlockingStub extends io.grpc.stub.AbstractBlockingStub&lt;OrderServiceBlockingStub&gt; {
+    private OrderServiceBlockingStub(
+        io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+<span class="nc" id="L251">      super(channel, callOptions);</span>
+<span class="nc" id="L252">    }</span>
+
+    @java.lang.Override
+    protected OrderServiceBlockingStub build(
+        io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+<span class="nc" id="L257">      return new OrderServiceBlockingStub(channel, callOptions);</span>
+    }
+
+    /**
+     */
+    public net.chrisrichardson.ftgo.orderservice.grpc.CreateOrderReply createOrder(net.chrisrichardson.ftgo.orderservice.grpc.CreateOrderRequest request) {
+<span class="nc" id="L263">      return io.grpc.stub.ClientCalls.blockingUnaryCall(</span>
+<span class="nc" id="L264">          getChannel(), getCreateOrderMethod(), getCallOptions(), request);</span>
+    }
+
+    /**
+     */
+    public net.chrisrichardson.ftgo.orderservice.grpc.CancelOrderReply cancelOrder(net.chrisrichardson.ftgo.orderservice.grpc.CancelOrderRequest request) {
+<span class="nc" id="L270">      return io.grpc.stub.ClientCalls.blockingUnaryCall(</span>
+<span class="nc" id="L271">          getChannel(), getCancelOrderMethod(), getCallOptions(), request);</span>
+    }
+
+    /**
+     */
+    public net.chrisrichardson.ftgo.orderservice.grpc.ReviseOrderReply reviseOrder(net.chrisrichardson.ftgo.orderservice.grpc.ReviseOrderRequest request) {
+<span class="nc" id="L277">      return io.grpc.stub.ClientCalls.blockingUnaryCall(</span>
+<span class="nc" id="L278">          getChannel(), getReviseOrderMethod(), getCallOptions(), request);</span>
+    }
+  }
+
+  /**
+   */
+  public static final class OrderServiceFutureStub extends io.grpc.stub.AbstractFutureStub&lt;OrderServiceFutureStub&gt; {
+    private OrderServiceFutureStub(
+        io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+<span class="nc" id="L287">      super(channel, callOptions);</span>
+<span class="nc" id="L288">    }</span>
+
+    @java.lang.Override
+    protected OrderServiceFutureStub build(
+        io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+<span class="nc" id="L293">      return new OrderServiceFutureStub(channel, callOptions);</span>
+    }
+
+    /**
+     */
+    public com.google.common.util.concurrent.ListenableFuture&lt;net.chrisrichardson.ftgo.orderservice.grpc.CreateOrderReply&gt; createOrder(
+        net.chrisrichardson.ftgo.orderservice.grpc.CreateOrderRequest request) {
+<span class="nc" id="L300">      return io.grpc.stub.ClientCalls.futureUnaryCall(</span>
+<span class="nc" id="L301">          getChannel().newCall(getCreateOrderMethod(), getCallOptions()), request);</span>
+    }
+
+    /**
+     */
+    public com.google.common.util.concurrent.ListenableFuture&lt;net.chrisrichardson.ftgo.orderservice.grpc.CancelOrderReply&gt; cancelOrder(
+        net.chrisrichardson.ftgo.orderservice.grpc.CancelOrderRequest request) {
+<span class="nc" id="L308">      return io.grpc.stub.ClientCalls.futureUnaryCall(</span>
+<span class="nc" id="L309">          getChannel().newCall(getCancelOrderMethod(), getCallOptions()), request);</span>
+    }
+
+    /**
+     */
+    public com.google.common.util.concurrent.ListenableFuture&lt;net.chrisrichardson.ftgo.orderservice.grpc.ReviseOrderReply&gt; reviseOrder(
+        net.chrisrichardson.ftgo.orderservice.grpc.ReviseOrderRequest request) {
+<span class="nc" id="L316">      return io.grpc.stub.ClientCalls.futureUnaryCall(</span>
+<span class="nc" id="L317">          getChannel().newCall(getReviseOrderMethod(), getCallOptions()), request);</span>
+    }
+  }
+
+  private static final int METHODID_CREATE_ORDER = 0;
+  private static final int METHODID_CANCEL_ORDER = 1;
+  private static final int METHODID_REVISE_ORDER = 2;
+
+  private static final class MethodHandlers&lt;Req, Resp&gt; implements
+      io.grpc.stub.ServerCalls.UnaryMethod&lt;Req, Resp&gt;,
+      io.grpc.stub.ServerCalls.ServerStreamingMethod&lt;Req, Resp&gt;,
+      io.grpc.stub.ServerCalls.ClientStreamingMethod&lt;Req, Resp&gt;,
+      io.grpc.stub.ServerCalls.BidiStreamingMethod&lt;Req, Resp&gt; {
+    private final OrderServiceImplBase serviceImpl;
+    private final int methodId;
+
+<span class="nc" id="L333">    MethodHandlers(OrderServiceImplBase serviceImpl, int methodId) {</span>
+<span class="nc" id="L334">      this.serviceImpl = serviceImpl;</span>
+<span class="nc" id="L335">      this.methodId = methodId;</span>
+<span class="nc" id="L336">    }</span>
+
+    @java.lang.Override
+    @java.lang.SuppressWarnings(&quot;unchecked&quot;)
+    public void invoke(Req request, io.grpc.stub.StreamObserver&lt;Resp&gt; responseObserver) {
+<span class="nc bnc" id="L341" title="All 4 branches missed.">      switch (methodId) {</span>
+        case METHODID_CREATE_ORDER:
+<span class="nc" id="L343">          serviceImpl.createOrder((net.chrisrichardson.ftgo.orderservice.grpc.CreateOrderRequest) request,</span>
+              (io.grpc.stub.StreamObserver&lt;net.chrisrichardson.ftgo.orderservice.grpc.CreateOrderReply&gt;) responseObserver);
+<span class="nc" id="L345">          break;</span>
+        case METHODID_CANCEL_ORDER:
+<span class="nc" id="L347">          serviceImpl.cancelOrder((net.chrisrichardson.ftgo.orderservice.grpc.CancelOrderRequest) request,</span>
+              (io.grpc.stub.StreamObserver&lt;net.chrisrichardson.ftgo.orderservice.grpc.CancelOrderReply&gt;) responseObserver);
+<span class="nc" id="L349">          break;</span>
+        case METHODID_REVISE_ORDER:
+<span class="nc" id="L351">          serviceImpl.reviseOrder((net.chrisrichardson.ftgo.orderservice.grpc.ReviseOrderRequest) request,</span>
+              (io.grpc.stub.StreamObserver&lt;net.chrisrichardson.ftgo.orderservice.grpc.ReviseOrderReply&gt;) responseObserver);
+<span class="nc" id="L353">          break;</span>
+        default:
+<span class="nc" id="L355">          throw new AssertionError();</span>
+      }
+<span class="nc" id="L357">    }</span>
+
+    @java.lang.Override
+    @java.lang.SuppressWarnings(&quot;unchecked&quot;)
+    public io.grpc.stub.StreamObserver&lt;Req&gt; invoke(
+        io.grpc.stub.StreamObserver&lt;Resp&gt; responseObserver) {
+<span class="nc" id="L363">      switch (methodId) {</span>
+        default:
+<span class="nc" id="L365">          throw new AssertionError();</span>
+      }
+    }
+  }
+
+  private static abstract class OrderServiceBaseDescriptorSupplier
+      implements io.grpc.protobuf.ProtoFileDescriptorSupplier, io.grpc.protobuf.ProtoServiceDescriptorSupplier {
+<span class="nc" id="L372">    OrderServiceBaseDescriptorSupplier() {}</span>
+
+    @java.lang.Override
+    public com.google.protobuf.Descriptors.FileDescriptor getFileDescriptor() {
+<span class="nc" id="L376">      return net.chrisrichardson.ftgo.orderservice.grpc.OrderServiceProto.getDescriptor();</span>
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Descriptors.ServiceDescriptor getServiceDescriptor() {
+<span class="nc" id="L381">      return getFileDescriptor().findServiceByName(&quot;OrderService&quot;);</span>
+    }
+  }
+
+  private static final class OrderServiceFileDescriptorSupplier
+      extends OrderServiceBaseDescriptorSupplier {
+<span class="nc" id="L387">    OrderServiceFileDescriptorSupplier() {}</span>
+  }
+
+  private static final class OrderServiceMethodDescriptorSupplier
+      extends OrderServiceBaseDescriptorSupplier
+      implements io.grpc.protobuf.ProtoMethodDescriptorSupplier {
+    private final String methodName;
+
+<span class="nc" id="L395">    OrderServiceMethodDescriptorSupplier(String methodName) {</span>
+<span class="nc" id="L396">      this.methodName = methodName;</span>
+<span class="nc" id="L397">    }</span>
+
+    @java.lang.Override
+    public com.google.protobuf.Descriptors.MethodDescriptor getMethodDescriptor() {
+<span class="nc" id="L401">      return getServiceDescriptor().findMethodByName(methodName);</span>
+    }
+  }
+
+  private static volatile io.grpc.ServiceDescriptor serviceDescriptor;
+
+  public static io.grpc.ServiceDescriptor getServiceDescriptor() {
+    io.grpc.ServiceDescriptor result = serviceDescriptor;
+    if (result == null) {
+      synchronized (OrderServiceGrpc.class) {
+        result = serviceDescriptor;
+        if (result == null) {
+          serviceDescriptor = result = io.grpc.ServiceDescriptor.newBuilder(SERVICE_NAME)
+              .setSchemaDescriptor(new OrderServiceFileDescriptorSupplier())
+              .addMethod(getCreateOrderMethod())
+              .addMethod(getCancelOrderMethod())
+              .addMethod(getReviseOrderMethod())
+              .build();
+        }
+      }
+    }
+    return result;
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

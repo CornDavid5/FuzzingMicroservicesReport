@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ConsumerServiceConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-consumer-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.consumerservice.domain</a> &gt; <span class="el_source">ConsumerServiceConfiguration.java</span></div><h1>ConsumerServiceConfiguration.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.consumerservice.domain;
+
+import io.eventuate.tram.commands.consumer.CommandDispatcher;
+import io.eventuate.tram.spring.events.publisher.TramEventsPublisherConfiguration;
+import io.eventuate.tram.sagas.participant.SagaCommandDispatcherFactory;
+import io.eventuate.tram.sagas.spring.participant.SagaParticipantConfiguration;
+import net.chrisrichardson.ftgo.common.CommonConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+@Configuration
+@EnableJpaRepositories
+@EnableAutoConfiguration
+@Import({SagaParticipantConfiguration.class, TramEventsPublisherConfiguration.class, CommonConfiguration.class, SagaParticipantConfiguration.class})
+@EnableTransactionManagement
+@ComponentScan
+<span class="fc" id="L22">public class ConsumerServiceConfiguration {</span>
+
+  @Bean
+  public ConsumerServiceCommandHandlers consumerServiceCommandHandlers() {
+<span class="fc" id="L26">    return new ConsumerServiceCommandHandlers();</span>
+  }
+
+  @Bean
+  public ConsumerService consumerService() {
+<span class="fc" id="L31">    return new ConsumerService();</span>
+  }
+
+  @Bean
+  public CommandDispatcher commandDispatcher(ConsumerServiceCommandHandlers consumerServiceCommandHandlers, SagaCommandDispatcherFactory sagaCommandDispatcherFactory) {
+<span class="fc" id="L36">    return sagaCommandDispatcherFactory.make(&quot;consumerServiceDispatcher&quot;, consumerServiceCommandHandlers.commandHandlers());</span>
+  }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

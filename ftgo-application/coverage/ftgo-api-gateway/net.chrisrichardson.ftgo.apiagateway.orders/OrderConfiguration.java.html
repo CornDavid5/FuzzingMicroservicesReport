@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-api-gateway</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.apiagateway.orders</a> &gt; <span class="el_source">OrderConfiguration.java</span></div><h1>OrderConfiguration.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.apiagateway.orders;
+
+import net.chrisrichardson.ftgo.apiagateway.proxies.AccountingService;
+import net.chrisrichardson.ftgo.apiagateway.proxies.DeliveryService;
+import net.chrisrichardson.ftgo.apiagateway.proxies.OrderServiceProxy;
+import net.chrisrichardson.ftgo.apiagateway.proxies.KitchenService;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.gateway.route.RouteLocator;
+import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.RouterFunctions;
+import org.springframework.web.reactive.function.server.ServerResponse;
+
+import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
+
+@Configuration
+@EnableConfigurationProperties(OrderDestinations.class)
+<span class="fc" id="L21">public class OrderConfiguration {</span>
+
+  @Bean
+  public RouteLocator orderProxyRouting(RouteLocatorBuilder builder, OrderDestinations orderDestinations) {
+<span class="fc" id="L25">    return builder.routes()</span>
+<span class="fc" id="L26">            .route(r -&gt; r.path(&quot;/orders&quot;).and().method(&quot;POST&quot;).uri(orderDestinations.getOrderServiceUrl()))</span>
+<span class="fc" id="L27">            .route(r -&gt; r.path(&quot;/orders&quot;).and().method(&quot;PUT&quot;).uri(orderDestinations.getOrderServiceUrl()))</span>
+<span class="fc" id="L28">            .route(r -&gt; r.path(&quot;/orders/**&quot;).and().method(&quot;POST&quot;).uri(orderDestinations.getOrderServiceUrl()))</span>
+<span class="fc" id="L29">            .route(r -&gt; r.path(&quot;/orders/**&quot;).and().method(&quot;PUT&quot;).uri(orderDestinations.getOrderServiceUrl()))</span>
+<span class="fc" id="L30">            .route(r -&gt; r.path(&quot;/orders&quot;).and().method(&quot;GET&quot;).uri(orderDestinations.getOrderHistoryServiceUrl()))</span>
+<span class="fc" id="L31">            .build();</span>
+  }
+
+  @Bean
+  public RouterFunction&lt;ServerResponse&gt; orderHandlerRouting(OrderHandlers orderHandlers) {
+<span class="fc" id="L36">    return RouterFunctions.route(GET(&quot;/orders/{orderId}&quot;), orderHandlers::getOrderDetails);</span>
+  }
+
+  @Bean
+  public OrderHandlers orderHandlers(OrderServiceProxy orderService, KitchenService kitchenService,
+                                     DeliveryService deliveryService, AccountingService accountingService) {
+<span class="fc" id="L42">    return new OrderHandlers(orderService, kitchenService, deliveryService, accountingService);</span>
+  }
+
+  @Bean
+  public WebClient webClient() {
+<span class="fc" id="L47">    return WebClient.create();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

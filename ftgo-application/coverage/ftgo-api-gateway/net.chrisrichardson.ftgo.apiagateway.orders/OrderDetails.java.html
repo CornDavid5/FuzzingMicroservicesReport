@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderDetails.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-api-gateway</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.apiagateway.orders</a> &gt; <span class="el_source">OrderDetails.java</span></div><h1>OrderDetails.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.apiagateway.orders;
+
+import net.chrisrichardson.ftgo.apiagateway.proxies.BillInfo;
+import net.chrisrichardson.ftgo.apiagateway.proxies.DeliveryInfo;
+import net.chrisrichardson.ftgo.apiagateway.proxies.OrderInfo;
+import net.chrisrichardson.ftgo.apiagateway.proxies.TicketInfo;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import reactor.util.function.Tuple4;
+
+import java.util.Optional;
+
+public class OrderDetails {
+
+  private OrderInfo orderInfo;
+
+<span class="fc" id="L18">  public OrderDetails() {</span>
+<span class="fc" id="L19">  }</span>
+
+<span class="fc" id="L21">  public OrderDetails(OrderInfo orderInfo) {</span>
+<span class="fc" id="L22">    this.orderInfo = orderInfo;</span>
+<span class="fc" id="L23">  }</span>
+
+  public OrderDetails(OrderInfo orderInfo,
+                      Optional&lt;TicketInfo&gt; ticketInfo,
+                      Optional&lt;DeliveryInfo&gt; deliveryInfo,
+                      Optional&lt;BillInfo&gt; billInfo) {
+<span class="fc" id="L29">    this(orderInfo);</span>
+<span class="fc" id="L30">    System.out.println(&quot;FIXME&quot;);</span>
+<span class="fc" id="L31">  }</span>
+
+  @Override
+  public boolean equals(Object o) {
+<span class="fc" id="L35">    return EqualsBuilder.reflectionEquals(this, o);</span>
+  }
+
+  @Override
+  public int hashCode() {
+<span class="fc" id="L40">    return HashCodeBuilder.reflectionHashCode(this);</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="fc" id="L45">    return ToStringBuilder.reflectionToString(this);</span>
+  }
+
+
+  public OrderInfo getOrderInfo() {
+<span class="fc" id="L50">    return orderInfo;</span>
+  }
+
+  public void setOrderInfo(OrderInfo orderInfo) {
+<span class="fc" id="L54">    this.orderInfo = orderInfo;</span>
+<span class="fc" id="L55">  }</span>
+
+
+  public static OrderDetails makeOrderDetails(Tuple4&lt;OrderInfo, Optional&lt;TicketInfo&gt;, Optional&lt;DeliveryInfo&gt;, Optional&lt;BillInfo&gt;&gt; info) {
+<span class="fc" id="L59">    return new OrderDetails(info.getT1(), info.getT2(), info.getT3(), info.getT4());</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Restaurant.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-delivery-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.deliveryservice.domain</a> &gt; <span class="el_source">Restaurant.java</span></div><h1>Restaurant.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.deliveryservice.domain;
+
+import net.chrisrichardson.ftgo.common.Address;
+
+import javax.persistence.*;
+
+@Entity
+@Access(AccessType.FIELD)
+public class Restaurant {
+
+  @Id
+  private Long id;
+
+  private String restaurantName;
+  private Address address;
+
+  private Restaurant() {
+  }
+
+<span class="nc" id="L20">  public Restaurant(long restaurantId, String restaurantName, Address address) {</span>
+<span class="nc" id="L21">    this.id = restaurantId;</span>
+<span class="nc" id="L22">    this.restaurantName = restaurantName;</span>
+<span class="nc" id="L23">    this.address = address;</span>
+<span class="nc" id="L24">  }</span>
+
+  public static Restaurant create(long restaurantId, String restaurantName, Address address) {
+<span class="nc" id="L27">    return new Restaurant(restaurantId, restaurantName, address);</span>
+  }
+
+  public Address getAddress() {
+<span class="nc" id="L31">    return address;</span>
+  }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

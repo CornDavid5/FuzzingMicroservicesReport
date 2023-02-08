@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>KitchenServiceEventConsumer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-kitchen-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.kitchenservice.messagehandlers</a> &gt; <span class="el_source">KitchenServiceEventConsumer.java</span></div><h1>KitchenServiceEventConsumer.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.kitchenservice.messagehandlers;
+
+import io.eventuate.tram.events.subscriber.DomainEventEnvelope;
+import io.eventuate.tram.events.subscriber.DomainEventHandlers;
+import io.eventuate.tram.events.subscriber.DomainEventHandlersBuilder;
+import net.chrisrichardson.ftgo.kitchenservice.domain.KitchenService;
+import net.chrisrichardson.ftgo.kitchenservice.domain.RestaurantMenu;
+import net.chrisrichardson.ftgo.restaurantservice.events.RestaurantCreated;
+import net.chrisrichardson.ftgo.restaurantservice.events.RestaurantMenuRevised;
+import org.springframework.beans.factory.annotation.Autowired;
+
+
+<span class="fc" id="L13">public class KitchenServiceEventConsumer {</span>
+
+  @Autowired
+  private KitchenService kitchenService;
+
+  public DomainEventHandlers domainEventHandlers() {
+<span class="fc" id="L19">    return DomainEventHandlersBuilder</span>
+<span class="fc" id="L20">            .forAggregateType(&quot;net.chrisrichardson.ftgo.restaurantservice.domain.Restaurant&quot;)</span>
+<span class="fc" id="L21">            .onEvent(RestaurantCreated.class, this::createMenu)</span>
+<span class="fc" id="L22">            .onEvent(RestaurantMenuRevised.class, this::reviseMenu)</span>
+<span class="fc" id="L23">            .build();</span>
+  }
+
+  private void createMenu(DomainEventEnvelope&lt;RestaurantCreated&gt; de) {
+<span class="nc" id="L27">    String restaurantIds = de.getAggregateId();</span>
+<span class="nc" id="L28">    long id = Long.parseLong(restaurantIds);</span>
+<span class="nc" id="L29">    RestaurantMenu menu = new RestaurantMenu(RestaurantEventMapper.toMenuItems(de.getEvent().getMenu().getMenuItems()));</span>
+<span class="nc" id="L30">    kitchenService.createMenu(id, menu);</span>
+<span class="nc" id="L31">  }</span>
+
+  public void reviseMenu(DomainEventEnvelope&lt;RestaurantMenuRevised&gt; de) {
+<span class="nc" id="L34">    long id = Long.parseLong(de.getAggregateId());</span>
+<span class="nc" id="L35">    RestaurantMenu menu = new RestaurantMenu(RestaurantEventMapper.toMenuItems(de.getEvent().getMenu().getMenuItems()));</span>
+<span class="nc" id="L36">    kitchenService.reviseMenu(id, menu);</span>
+<span class="nc" id="L37">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReviseOrderSagaData.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-order-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.orderservice.sagas.reviseorder</a> &gt; <span class="el_source">ReviseOrderSagaData.java</span></div><h1>ReviseOrderSagaData.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.orderservice.sagas.reviseorder;
+
+import net.chrisrichardson.ftgo.common.Money;
+import net.chrisrichardson.ftgo.orderservice.domain.OrderRevision;
+
+public class ReviseOrderSagaData  {
+
+  private OrderRevision orderRevision;
+  private Long orderId;
+  private Long expectedVersion;
+  private long restaurantId;
+  private Money revisedOrderTotal;
+  private long consumerId;
+
+  private ReviseOrderSagaData() {
+  }
+
+<span class="nc" id="L18">  public ReviseOrderSagaData(long consumerId, Long orderId, Long expectedVersion, OrderRevision orderRevision) {</span>
+<span class="nc" id="L19">    this.consumerId = consumerId;</span>
+<span class="nc" id="L20">    this.orderId = orderId;</span>
+<span class="nc" id="L21">    this.expectedVersion = expectedVersion;</span>
+<span class="nc" id="L22">    this.orderRevision = orderRevision;</span>
+<span class="nc" id="L23">  }</span>
+
+  public Long getExpectedVersion() {
+<span class="nc" id="L26">    return expectedVersion;</span>
+  }
+
+  public void setExpectedVersion(Long expectedVersion) {
+<span class="nc" id="L30">    this.expectedVersion = expectedVersion;</span>
+<span class="nc" id="L31">  }</span>
+
+  public void setRevisedOrderTotal(Money revisedOrderTotal) {
+<span class="nc" id="L34">    this.revisedOrderTotal = revisedOrderTotal;</span>
+<span class="nc" id="L35">  }</span>
+
+  public void setConsumerId(long consumerId) {
+<span class="nc" id="L38">    this.consumerId = consumerId;</span>
+<span class="nc" id="L39">  }</span>
+
+
+  public OrderRevision getOrderRevision() {
+<span class="nc" id="L43">    return orderRevision;</span>
+  }
+
+  public void setOrderRevision(OrderRevision orderRevision) {
+<span class="nc" id="L47">    this.orderRevision = orderRevision;</span>
+<span class="nc" id="L48">  }</span>
+
+  public Long getOrderId() {
+<span class="nc" id="L51">    return orderId;</span>
+  }
+
+  public void setOrderId(Long orderId) {
+<span class="nc" id="L55">    this.orderId = orderId;</span>
+<span class="nc" id="L56">  }</span>
+
+
+  public long getRestaurantId() {
+<span class="nc" id="L60">    return restaurantId;</span>
+  }
+
+  public void setRestaurantId(long restaurantId) {
+<span class="nc" id="L64">    this.restaurantId = restaurantId;</span>
+<span class="nc" id="L65">  }</span>
+
+  public Money getRevisedOrderTotal() {
+<span class="nc" id="L68">    return revisedOrderTotal;</span>
+  }
+
+  public long getConsumerId() {
+<span class="nc" id="L72">    return consumerId;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

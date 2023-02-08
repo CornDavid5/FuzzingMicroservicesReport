@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CancelOrderSagaData.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-order-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.orderservice.sagas.cancelorder</a> &gt; <span class="el_source">CancelOrderSagaData.java</span></div><h1>CancelOrderSagaData.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.orderservice.sagas.cancelorder;
+
+import net.chrisrichardson.ftgo.common.Money;
+
+public class CancelOrderSagaData  {
+
+  private Long orderId;
+  private String reverseRequestId;
+  private long restaurantId;
+  private long consumerId;
+  private Money orderTotal;
+
+  private CancelOrderSagaData() {
+  }
+
+<span class="nc" id="L16">  public CancelOrderSagaData(long consumerId, long orderId, Money orderTotal) {</span>
+<span class="nc" id="L17">    this.consumerId = consumerId;</span>
+<span class="nc" id="L18">    this.orderId = orderId;</span>
+<span class="nc" id="L19">    this.orderTotal = orderTotal;</span>
+<span class="nc" id="L20">  }</span>
+
+  public Long getOrderId() {
+<span class="nc" id="L23">    return orderId;</span>
+  }
+
+
+  public String getReverseRequestId() {
+<span class="nc" id="L28">    return reverseRequestId;</span>
+  }
+
+  public void setReverseRequestId(String reverseRequestId) {
+<span class="nc" id="L32">    this.reverseRequestId = reverseRequestId;</span>
+<span class="nc" id="L33">  }</span>
+
+  public long getRestaurantId() {
+<span class="nc" id="L36">    return restaurantId;</span>
+  }
+
+  public void setRestaurantId(long restaurantId) {
+<span class="nc" id="L40">    this.restaurantId = restaurantId;</span>
+<span class="nc" id="L41">  }</span>
+
+  public long getConsumerId() {
+<span class="nc" id="L44">    return consumerId;</span>
+  }
+
+  public Money getOrderTotal() {
+<span class="nc" id="L48">    return orderTotal;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

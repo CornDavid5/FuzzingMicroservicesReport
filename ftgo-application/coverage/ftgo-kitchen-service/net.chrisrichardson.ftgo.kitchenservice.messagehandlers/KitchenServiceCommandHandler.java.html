@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>KitchenServiceCommandHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-kitchen-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.kitchenservice.messagehandlers</a> &gt; <span class="el_source">KitchenServiceCommandHandler.java</span></div><h1>KitchenServiceCommandHandler.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.kitchenservice.messagehandlers;
+
+import io.eventuate.tram.commands.consumer.CommandHandlers;
+import io.eventuate.tram.commands.consumer.CommandMessage;
+import io.eventuate.tram.messaging.common.Message;
+import io.eventuate.tram.sagas.participant.SagaCommandHandlersBuilder;
+import net.chrisrichardson.ftgo.kitchenservice.api.*;
+import net.chrisrichardson.ftgo.kitchenservice.domain.RestaurantDetailsVerificationException;
+import net.chrisrichardson.ftgo.kitchenservice.domain.Ticket;
+import net.chrisrichardson.ftgo.kitchenservice.domain.KitchenService;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import static io.eventuate.tram.commands.consumer.CommandHandlerReplyBuilder.withFailure;
+import static io.eventuate.tram.commands.consumer.CommandHandlerReplyBuilder.withSuccess;
+import static io.eventuate.tram.sagas.participant.SagaReplyMessageBuilder.withLock;
+
+<span class="fc" id="L17">public class KitchenServiceCommandHandler {</span>
+
+  @Autowired
+  private KitchenService kitchenService;
+
+  public CommandHandlers commandHandlers() {
+<span class="fc" id="L23">    return SagaCommandHandlersBuilder</span>
+<span class="fc" id="L24">            .fromChannel(KitchenServiceChannels.COMMAND_CHANNEL)</span>
+<span class="fc" id="L25">            .onMessage(CreateTicket.class, this::createTicket)</span>
+<span class="fc" id="L26">            .onMessage(ConfirmCreateTicket.class, this::confirmCreateTicket)</span>
+<span class="fc" id="L27">            .onMessage(CancelCreateTicket.class, this::cancelCreateTicket)</span>
+
+<span class="fc" id="L29">            .onMessage(BeginCancelTicketCommand.class, this::beginCancelTicket)</span>
+<span class="fc" id="L30">            .onMessage(ConfirmCancelTicketCommand.class, this::confirmCancelTicket)</span>
+<span class="fc" id="L31">            .onMessage(UndoBeginCancelTicketCommand.class, this::undoBeginCancelTicket)</span>
+
+<span class="fc" id="L33">            .onMessage(BeginReviseTicketCommand.class, this::beginReviseTicket)</span>
+<span class="fc" id="L34">            .onMessage(UndoBeginReviseTicketCommand.class, this::undoBeginReviseTicket)</span>
+<span class="fc" id="L35">            .onMessage(ConfirmReviseTicketCommand.class, this::confirmReviseTicket)</span>
+<span class="fc" id="L36">            .build();</span>
+  }
+
+  private Message createTicket(CommandMessage&lt;CreateTicket&gt;
+                                                cm) {
+<span class="fc" id="L41">    CreateTicket command = cm.getCommand();</span>
+<span class="fc" id="L42">    long restaurantId = command.getRestaurantId();</span>
+<span class="fc" id="L43">    Long ticketId = command.getOrderId();</span>
+<span class="fc" id="L44">    TicketDetails ticketDetails = command.getTicketDetails();</span>
+
+
+    try {
+<span class="fc" id="L48">      Ticket ticket = kitchenService.createTicket(restaurantId, ticketId, ticketDetails);</span>
+<span class="fc" id="L49">      CreateTicketReply reply = new CreateTicketReply(ticket.getId());</span>
+<span class="fc" id="L50">      return withLock(Ticket.class, ticket.getId()).withSuccess(reply);</span>
+<span class="nc" id="L51">    } catch (RestaurantDetailsVerificationException e) {</span>
+<span class="nc" id="L52">      return withFailure();</span>
+    }
+  }
+
+  private Message confirmCreateTicket
+          (CommandMessage&lt;ConfirmCreateTicket&gt; cm) {
+<span class="nc" id="L58">    Long ticketId = cm.getCommand().getTicketId();</span>
+<span class="nc" id="L59">    kitchenService.confirmCreateTicket(ticketId);</span>
+<span class="nc" id="L60">    return withSuccess();</span>
+  }
+
+  private Message cancelCreateTicket
+          (CommandMessage&lt;CancelCreateTicket&gt; cm) {
+<span class="nc" id="L65">    Long ticketId = cm.getCommand().getTicketId();</span>
+<span class="nc" id="L66">    kitchenService.cancelCreateTicket(ticketId);</span>
+<span class="nc" id="L67">    return withSuccess();</span>
+  }
+
+
+  private Message beginCancelTicket(CommandMessage&lt;BeginCancelTicketCommand&gt; cm) {
+<span class="nc" id="L72">    kitchenService.cancelTicket(cm.getCommand().getRestaurantId(), cm.getCommand().getOrderId());</span>
+<span class="nc" id="L73">    return withSuccess();</span>
+  }
+  private Message confirmCancelTicket(CommandMessage&lt;ConfirmCancelTicketCommand&gt; cm) {
+<span class="nc" id="L76">    kitchenService.confirmCancelTicket(cm.getCommand().getRestaurantId(), cm.getCommand().getOrderId());</span>
+<span class="nc" id="L77">    return withSuccess();</span>
+  }
+
+  private Message undoBeginCancelTicket(CommandMessage&lt;UndoBeginCancelTicketCommand&gt; cm) {
+<span class="nc" id="L81">    kitchenService.undoCancel(cm.getCommand().getRestaurantId(), cm.getCommand().getOrderId());</span>
+<span class="nc" id="L82">    return withSuccess();</span>
+  }
+
+  public Message beginReviseTicket(CommandMessage&lt;BeginReviseTicketCommand&gt; cm) {
+<span class="nc" id="L86">    kitchenService.beginReviseOrder(cm.getCommand().getRestaurantId(), cm.getCommand().getOrderId(), cm.getCommand().getRevisedOrderLineItems());</span>
+<span class="nc" id="L87">    return withSuccess();</span>
+  }
+
+  public Message undoBeginReviseTicket(CommandMessage&lt;UndoBeginReviseTicketCommand&gt; cm) {
+<span class="nc" id="L91">    kitchenService.undoBeginReviseOrder(cm.getCommand().getRestaurantId(), cm.getCommand().getOrderId());</span>
+<span class="nc" id="L92">    return withSuccess();</span>
+  }
+
+  public Message confirmReviseTicket(CommandMessage&lt;ConfirmReviseTicketCommand&gt; cm) {
+<span class="nc" id="L96">    kitchenService.confirmReviseTicket(cm.getCommand().getRestaurantId(), cm.getCommand().getOrderId(), cm.getCommand().getRevisedOrderLineItems());</span>
+<span class="nc" id="L97">    return withSuccess();</span>
+  }
+
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

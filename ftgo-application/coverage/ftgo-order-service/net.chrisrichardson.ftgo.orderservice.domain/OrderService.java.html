@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ftgo-order-service</a> &gt; <a href="index.source.html" class="el_package">net.chrisrichardson.ftgo.orderservice.domain</a> &gt; <span class="el_source">OrderService.java</span></div><h1>OrderService.java</h1><pre class="source lang-java linenums">package net.chrisrichardson.ftgo.orderservice.domain;
+
+import io.eventuate.tram.events.aggregates.ResultWithDomainEvents;
+import io.eventuate.tram.events.publisher.DomainEventPublisher;
+import io.eventuate.tram.sagas.orchestration.SagaInstanceFactory;
+import io.micrometer.core.instrument.MeterRegistry;
+import net.chrisrichardson.ftgo.orderservice.api.events.OrderDetails;
+import net.chrisrichardson.ftgo.orderservice.api.events.OrderDomainEvent;
+import net.chrisrichardson.ftgo.orderservice.api.events.OrderLineItem;
+import net.chrisrichardson.ftgo.orderservice.sagas.cancelorder.CancelOrderSaga;
+import net.chrisrichardson.ftgo.orderservice.sagas.cancelorder.CancelOrderSagaData;
+import net.chrisrichardson.ftgo.orderservice.sagas.createorder.CreateOrderSaga;
+import net.chrisrichardson.ftgo.orderservice.sagas.createorder.CreateOrderSagaState;
+import net.chrisrichardson.ftgo.orderservice.sagas.reviseorder.ReviseOrderSaga;
+import net.chrisrichardson.ftgo.orderservice.sagas.reviseorder.ReviseOrderSagaData;
+import net.chrisrichardson.ftgo.orderservice.web.MenuItemIdAndQuantity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
+
+import static java.util.stream.Collectors.toList;
+
+public class OrderService {
+
+<span class="fc" id="L30">  private Logger logger = LoggerFactory.getLogger(getClass());</span>
+
+  private SagaInstanceFactory sagaInstanceFactory;
+
+  private OrderRepository orderRepository;
+
+  private RestaurantRepository restaurantRepository;
+
+  private CreateOrderSaga createOrderSaga;
+
+  private CancelOrderSaga cancelOrderSaga;
+
+  private ReviseOrderSaga reviseOrderSaga;
+
+  private OrderDomainEventPublisher orderAggregateEventPublisher;
+
+  private Optional&lt;MeterRegistry&gt; meterRegistry;
+
+  public OrderService(SagaInstanceFactory sagaInstanceFactory,
+                      OrderRepository orderRepository,
+                      DomainEventPublisher eventPublisher,
+                      RestaurantRepository restaurantRepository,
+                      CreateOrderSaga createOrderSaga,
+                      CancelOrderSaga cancelOrderSaga,
+                      ReviseOrderSaga reviseOrderSaga,
+                      OrderDomainEventPublisher orderAggregateEventPublisher,
+<span class="fc" id="L56">                      Optional&lt;MeterRegistry&gt; meterRegistry) {</span>
+
+<span class="fc" id="L58">    this.sagaInstanceFactory = sagaInstanceFactory;</span>
+<span class="fc" id="L59">    this.orderRepository = orderRepository;</span>
+<span class="fc" id="L60">    this.restaurantRepository = restaurantRepository;</span>
+<span class="fc" id="L61">    this.createOrderSaga = createOrderSaga;</span>
+<span class="fc" id="L62">    this.cancelOrderSaga = cancelOrderSaga;</span>
+<span class="fc" id="L63">    this.reviseOrderSaga = reviseOrderSaga;</span>
+<span class="fc" id="L64">    this.orderAggregateEventPublisher = orderAggregateEventPublisher;</span>
+<span class="fc" id="L65">    this.meterRegistry = meterRegistry;</span>
+<span class="fc" id="L66">  }</span>
+
+  @Transactional
+  public Order createOrder(long consumerId, long restaurantId, DeliveryInformation deliveryInformation,
+                           List&lt;MenuItemIdAndQuantity&gt; lineItems) {
+<span class="fc" id="L71">    Restaurant restaurant = restaurantRepository.findById(restaurantId)</span>
+<span class="pc" id="L72">            .orElseThrow(() -&gt; new RestaurantNotFoundException(restaurantId));</span>
+
+<span class="fc" id="L74">    List&lt;OrderLineItem&gt; orderLineItems = makeOrderLineItems(lineItems, restaurant);</span>
+
+<span class="fc" id="L76">    ResultWithDomainEvents&lt;Order, OrderDomainEvent&gt; orderAndEvents =</span>
+<span class="fc" id="L77">            Order.createOrder(consumerId, restaurant, deliveryInformation, orderLineItems);</span>
+
+<span class="fc" id="L79">    Order order = orderAndEvents.result;</span>
+<span class="fc" id="L80">    orderRepository.save(order);</span>
+
+<span class="fc" id="L82">    orderAggregateEventPublisher.publish(order, orderAndEvents.events);</span>
+
+<span class="fc" id="L84">    OrderDetails orderDetails = new OrderDetails(consumerId, restaurantId, orderLineItems, order.getOrderTotal());</span>
+
+<span class="fc" id="L86">    CreateOrderSagaState data = new CreateOrderSagaState(order.getId(), orderDetails);</span>
+<span class="fc" id="L87">    sagaInstanceFactory.create(createOrderSaga, data);</span>
+
+<span class="pc" id="L89">    meterRegistry.ifPresent(mr -&gt; mr.counter(&quot;placed_orders&quot;).increment());</span>
+
+<span class="fc" id="L91">    return order;</span>
+  }
+
+
+  private List&lt;OrderLineItem&gt; makeOrderLineItems(List&lt;MenuItemIdAndQuantity&gt; lineItems, Restaurant restaurant) {
+<span class="fc" id="L96">    return lineItems.stream().map(li -&gt; {</span>
+<span class="pc" id="L97">      MenuItem om = restaurant.findMenuItem(li.getMenuItemId()).orElseThrow(() -&gt; new InvalidMenuItemIdException(li.getMenuItemId()));</span>
+<span class="fc" id="L98">      return new OrderLineItem(li.getMenuItemId(), om.getName(), om.getPrice(), li.getQuantity());</span>
+<span class="fc" id="L99">    }).collect(toList());</span>
+  }
+
+
+  public Optional&lt;Order&gt; confirmChangeLineItemQuantity(Long orderId, OrderRevision orderRevision) {
+<span class="nc" id="L104">    return orderRepository.findById(orderId).map(order -&gt; {</span>
+<span class="nc" id="L105">      List&lt;OrderDomainEvent&gt; events = order.confirmRevision(orderRevision);</span>
+<span class="nc" id="L106">      orderAggregateEventPublisher.publish(order, events);</span>
+<span class="nc" id="L107">      return order;</span>
+    });
+  }
+
+  public void noteReversingAuthorization(Long orderId) {
+<span class="nc" id="L112">    throw new UnsupportedOperationException();</span>
+  }
+
+  @Transactional
+  public Order cancel(Long orderId) {
+<span class="nc" id="L117">    Order order = orderRepository.findById(orderId)</span>
+<span class="nc" id="L118">            .orElseThrow(() -&gt; new OrderNotFoundException(orderId));</span>
+<span class="nc" id="L119">    CancelOrderSagaData sagaData = new CancelOrderSagaData(order.getConsumerId(), orderId, order.getOrderTotal());</span>
+<span class="nc" id="L120">    sagaInstanceFactory.create(cancelOrderSaga, sagaData);</span>
+<span class="nc" id="L121">    return order;</span>
+  }
+
+  private Order updateOrder(long orderId, Function&lt;Order, List&lt;OrderDomainEvent&gt;&gt; updater) {
+<span class="nc" id="L125">    return orderRepository.findById(orderId).map(order -&gt; {</span>
+<span class="nc" id="L126">      orderAggregateEventPublisher.publish(order, updater.apply(order));</span>
+<span class="nc" id="L127">      return order;</span>
+<span class="nc" id="L128">    }).orElseThrow(() -&gt; new OrderNotFoundException(orderId));</span>
+  }
+
+  public void approveOrder(long orderId) {
+<span class="nc" id="L132">    updateOrder(orderId, Order::noteApproved);</span>
+<span class="nc" id="L133">    meterRegistry.ifPresent(mr -&gt; mr.counter(&quot;approved_orders&quot;).increment());</span>
+<span class="nc" id="L134">  }</span>
+
+  public void rejectOrder(long orderId) {
+<span class="nc" id="L137">    updateOrder(orderId, Order::noteRejected);</span>
+<span class="nc" id="L138">    meterRegistry.ifPresent(mr -&gt; mr.counter(&quot;rejected_orders&quot;).increment());</span>
+<span class="nc" id="L139">  }</span>
+
+  public void beginCancel(long orderId) {
+<span class="nc" id="L142">    updateOrder(orderId, Order::cancel);</span>
+<span class="nc" id="L143">  }</span>
+
+  public void undoCancel(long orderId) {
+<span class="nc" id="L146">    updateOrder(orderId, Order::undoPendingCancel);</span>
+<span class="nc" id="L147">  }</span>
+
+  public void confirmCancelled(long orderId) {
+<span class="nc" id="L150">    updateOrder(orderId, Order::noteCancelled);</span>
+<span class="nc" id="L151">  }</span>
+
+  @Transactional
+  public Order reviseOrder(long orderId, OrderRevision orderRevision) {
+<span class="nc" id="L155">    Order order = orderRepository.findById(orderId).orElseThrow(() -&gt; new OrderNotFoundException(orderId));</span>
+<span class="nc" id="L156">    ReviseOrderSagaData sagaData = new ReviseOrderSagaData(order.getConsumerId(), orderId, null, orderRevision);</span>
+<span class="nc" id="L157">    sagaInstanceFactory.create(reviseOrderSaga, sagaData);</span>
+<span class="nc" id="L158">    return order;</span>
+  }
+
+  public Optional&lt;RevisedOrder&gt; beginReviseOrder(long orderId, OrderRevision revision) {
+<span class="nc" id="L162">    return orderRepository.findById(orderId).map(order -&gt; {</span>
+<span class="nc" id="L163">      ResultWithDomainEvents&lt;LineItemQuantityChange, OrderDomainEvent&gt; result = order.revise(revision);</span>
+<span class="nc" id="L164">      orderAggregateEventPublisher.publish(order, result.events);</span>
+<span class="nc" id="L165">      return new RevisedOrder(order, result.result);</span>
+    });
+  }
+
+  public void undoPendingRevision(long orderId) {
+<span class="nc" id="L170">    updateOrder(orderId, Order::rejectRevision);</span>
+<span class="nc" id="L171">  }</span>
+
+  public void confirmRevision(long orderId, OrderRevision revision) {
+<span class="nc" id="L174">    updateOrder(orderId, order -&gt; order.confirmRevision(revision));</span>
+<span class="nc" id="L175">  }</span>
+
+  public void createMenu(long id, String name, List&lt;MenuItem&gt; menuItems) {
+<span class="nc" id="L178">    Restaurant restaurant = new Restaurant(id, name, menuItems);</span>
+<span class="nc" id="L179">    restaurantRepository.save(restaurant);</span>
+<span class="nc" id="L180">  }</span>
+
+  public void reviseMenu(long id, List&lt;MenuItem&gt; menuItems) {
+<span class="nc" id="L183">    restaurantRepository.findById(id).map(restaurant -&gt; {</span>
+<span class="nc" id="L184">      List&lt;OrderDomainEvent&gt; events = restaurant.reviseMenu(menuItems);</span>
+<span class="nc" id="L185">      return restaurant;</span>
+<span class="nc" id="L186">    }).orElseThrow(RuntimeException::new);</span>
+<span class="nc" id="L187">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
