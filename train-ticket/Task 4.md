@@ -17,7 +17,7 @@ Following steps are for `kubernetes quickstart` deployment:
 Note:
 - I made a few changes related to kubernetes deployment configuration for different services. Because the original configuration requires some beefy computation resources, which prevents us from running it on our local machine, I modified the replica count as well as maximum memory and CPU time allowed for every service.
 - The original authors have not maintained docker deployment approach, the base image used in the dockerfile is either wrong or had already been removed from the Docker Hub, for example, `python:3` should change to `python:3.8-buster` and `java:8-jre` should change to `openjdk:8-jre`
-- You can find screenshots for the running app in [here](./resources/app/)
+- You can find screenshots for the running app in [here](./resources/screenshot/)
 
 # Code Coverage
 Most of the services is written in Java, and it uses `mockito` as mocking framework and `junit` as testing framework. However, feels like the development team have not maintained the tests for a while, many tests will not pass without modifications. I modified the source code and the following modules can pass the tests:
