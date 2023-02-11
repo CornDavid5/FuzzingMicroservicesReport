@@ -24,7 +24,6 @@ Even though in its README file, it states that there are `41` microservices used
   If you use docker-compose, please make sure you have at least 24G memory 50G disk in Linux.
   If you use k8s (+istio), please make sure you have at least four same configuration Linux servers.
   ```
-- This project supports monitoring and tracing, it may be easier to analyze dependency if I could run the those services. The failed k8s deployment screenshots are in this [folder](./resources/k8s/).
 - The interaction between services is done by RESTful http request. For most of the service, which is written in Java, they uses spring web framework's [RestTemplate exchange](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/client/RestTemplate.html) for synchronous http request. There is 1 service, `ts-voucher-service`, which is written in Python and uses [urllib](https://docs.python.org/3/library/urllib.html) library for http request.
 - All RESTful request is done by sending request directly to the service's uri, because kubernetes' CoreDNS will resolve the uri. Following is example code:
   ``` java
